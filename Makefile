@@ -42,6 +42,10 @@ BOOT_OBJ	=	build/boot.6102.o
 
 OBJECTS		=	$(CODESEGMENT) $(DATAOBJECTS) $(ASMOBJECTS) $(BOOT_OBJ)
 
+DEPS = $(patsubst %.c, build/%.d, $(CODEFILES)) # $(patsubst %.c, build/%.d, $(DATAFILES))
+
+-include $(DEPS)
+
 LCINCS =	-I/usr/include/n64/PR 
 LCDEFS +=	-DF3DEX_GBI_2
 #LCDEFS +=	-DF3DEX_GBI_2 -DFOG
@@ -62,11 +66,11 @@ include $(COMMONRULES)
 build/%.o: %.c
 	@mkdir -p $(@D)
 	$(CC) $(CFLAGS) -c -o $@ $<
+	$(CC) $(GCINCS) $(LCINCS) -MF"$(@:.o=.d)" -MG -MM -MP -MT"$@" "$<"
 
 build/%.o: %.s
 	@mkdir -p $(@D)
 	$(AS) -Wa,-Iasm -o $@ $<
-
 
 $(CODESEGMENT):	$(CODEOBJECTS)
 	$(LD) -o $(CODESEGMENT) -r $(CODEOBJECTS) $(LDFLAGS)
