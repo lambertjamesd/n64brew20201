@@ -1,6 +1,6 @@
 
 #include "mathf.h"
-#include <math.h>
+// #include <math.h>
 
 unsigned int gRandomSeed = 1;
 

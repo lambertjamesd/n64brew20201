@@ -24,15 +24,15 @@ SECTIONS
 
    BEGIN_SEG(boot, 0x04000000)
    {
-      asm/rom_header.o(.text);
-      boot.6102.o(.data);
+      build/asm/rom_header.o(.text);
+      build/boot.6102.o(.data);
    }
    END_SEG(boot)
 
    BEGIN_SEG(code, 0x80000400) SUBALIGN(16)
    {
-      asm/entry.o(.text);
-      codesegment.o(.text);
+      build/asm/entry.o(.text);
+      build/codesegment.o(.text);
       /usr/lib/n64/PR/rspboot.o(.text);
 #ifdef XBUS
       /usr/lib/n64/PR/gspF3DEX2.xbus.o(.text);
@@ -46,7 +46,7 @@ SECTIONS
       /usr/lib/n64/PR/aspMain.o(.text);
 
       /* data */
-      codesegment.o(.data*);
+      build/codesegment.o(.data*);
       /usr/lib/n64/PR/rspboot.o(.data*);
 #ifdef XBUS
       /usr/lib/n64/PR/gspF3DEX2.xbus.o(.data*);
@@ -60,14 +60,14 @@ SECTIONS
       /usr/lib/n64/PR/aspMain.o(.data*);
 
       /* rodata */
-      codesegment.o(.rodata*);
+      build/codesegment.o(.rodata*);
    }
    END_SEG(code)
    BEGIN_NOLOAD(code)
    {
-      codesegment.o(COMMON);
-      codesegment.o(.scommon*);
-      codesegment.o(.bss*);
+      build/codesegment.o(COMMON);
+      build/codesegment.o(.scommon*);
+      build/codesegment.o(.bss*);
       . = ALIGN(0x8);
    }
    END_NOLOAD(code)
@@ -76,7 +76,7 @@ SECTIONS
    
    BEGIN_SEG(gfxdlists, .)
    {
-      gfxdlists.o(.data);
+      build/data/gfxdlists.o(.data);
    }
    END_SEG(gfxdlists)
 
@@ -84,14 +84,14 @@ SECTIONS
    
    BEGIN_SEG(static, 0x01000000)
    {
-      gfxinit.o(.data);
-      gfxstatic.o(.data);
+      build/data/gfxinit.o(.data);
+      build/data/gfxstatic.o(.data);
    }
    END_SEG(static)
    
    BEGIN_SEG(dynamic, 0x02000000)
    {
-      gfxdynamic.o(.data);
+      build/data/gfxdynamic.o(.data);
    }
    END_SEG(dynamic)
    
@@ -99,7 +99,7 @@ SECTIONS
    
    BEGIN_NOLOAD(zbuffer)
    {
-      gfxzbuffer.o(.bss*);
+      build/data/gfxzbuffer.o(.bss*);
    }
    END_NOLOAD(zbuffer)
 
@@ -107,13 +107,13 @@ SECTIONS
    
    BEGIN_NOLOAD(cfb)
    {
-      gfxcfb.o(.bss*);
+      build/data/gfxcfb.o(.bss*);
    }
    END_NOLOAD(cfb)
 
    BEGIN_SEG(sound_data, __romPos)
    {
-      sound_data.o(.data);
+      build/asm/sound_data.o(.data);
    }
    END_SEG(sound_data)
 

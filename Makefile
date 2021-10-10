@@ -13,32 +13,32 @@ include /usr/include/n64/make/PRdefs
 # N64LIB			:= -lultra_rom
 
 OPTIMIZER		:= -O0
-LCDEFS			:= -DDEBUG -g
+LCDEFS			:= -DDEBUG -g -Isrc/
 N64LIB			:= -lultra_rom
 
-ELF		= simple.elf
-TARGETS	= simple.z64
-MAP		= simple.map
+ELF		= build/simple.elf
+TARGETS	= build/simple.z64
+MAP		= build/simple.map
 
 LD_SCRIPT	= simple.ld
-CP_LD_SCRIPT	= simple_cp.ld
+CP_LD_SCRIPT	= build/simple.ld
 
-ASMFILES    =	asm/entry.s asm/rom_header.s sound_data.s
+ASMFILES    =	$(shell find asm/ -type f -name '*.s')
 
-ASMOBJECTS  =	$(ASMFILES:.s=.o)
+ASMOBJECTS  =	$(patsubst %.s, build/%.o, $(ASMFILES))
 
-CODEFILES = audio.c audiomgr.c controller.c gfx.c gfxstack.c gfxyield.c gfxrdpfifo.c misc.c simple.c src/models/pikachu/model.inc.c
+CODEFILES = $(shell find src/ -type f -name '*.c')
 
-CODEOBJECTS =	$(CODEFILES:.c=.o)
+CODEOBJECTS = $(patsubst %.c, build/%.o, $(CODEFILES))
 
-CODESEGMENT =	codesegment.o
+CODESEGMENT =	build/codesegment.o
 
-DATAFILES = gfxdynamic.c gfxdlists.c gfxzbuffer.c gfxinit.c gfxstatic.c gfxcfb.c
+DATAFILES = $(shell find data/ -type f -name '*.c')
 
-DATAOBJECTS =	$(DATAFILES:.c=.o)
+DATAOBJECTS =	$(patsubst %.c, build/%.o, $(DATAFILES))
 
 BOOT		=	/usr/lib/n64/PR/bootcode/boot.6102
-BOOT_OBJ	=	boot.6102.o
+BOOT_OBJ	=	build/boot.6102.o
 
 OBJECTS		=	$(CODESEGMENT) $(DATAOBJECTS) $(ASMOBJECTS) $(BOOT_OBJ)
 
@@ -59,6 +59,15 @@ include $(COMMONRULES)
 .s.o:
 	$(AS) -Wa,-Iasm -o $@ $<
 
+build/%.o: %.c
+	@mkdir -p $(@D)
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+build/%.o: %.s
+	@mkdir -p $(@D)
+	$(AS) -Wa,-Iasm -o $@ $<
+
+
 $(CODESEGMENT):	$(CODEOBJECTS)
 	$(LD) -o $(CODESEGMENT) -r $(CODEOBJECTS) $(LDFLAGS)
 
@@ -72,3 +81,6 @@ $(TARGETS): $(OBJECTS) $(CP_LD_SCRIPT)
 	$(LD) -L. -T $(CP_LD_SCRIPT) -Map $(MAP) -o $(ELF) 
 	$(OBJCOPY) --pad-to=0x100000 --gap-fill=0xFF $(ELF) $(TARGETS) -O binary
 	makemask $(TARGETS)
+
+clean:
+	rm -rf build

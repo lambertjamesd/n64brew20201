@@ -38,7 +38,7 @@
 #include "gfx.h"
 #include "simple.h"
 #include "misc.h"
-#include "src/models/pikachu/model.h"
+#include "models/pikachu/model.h"
 
 /*
  * graphics globals
