@@ -10,4 +10,6 @@ float mathfMoveTowards(float from, float to, float maxMove);
 float mathfBounceBackLerp(float t);
 float mathfRandomFloat();
 
+float sqrtf(float in);
+
 #endif

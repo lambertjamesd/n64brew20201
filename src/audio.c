@@ -36,7 +36,7 @@
 
 #include <ultralog.h>
 #include "audio.h"
-#include "simple.h"
+#include "moba64.h"
 
 extern OSSched         sc;
 

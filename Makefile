@@ -16,12 +16,12 @@ OPTIMIZER		:= -O0
 LCDEFS			:= -DDEBUG -g -Isrc/
 N64LIB			:= -lultra_rom
 
-ELF		= build/simple.elf
-TARGETS	= build/simple.z64
-MAP		= build/simple.map
+ELF		= build/moba64.elf
+TARGETS	= build/moba64.z64
+MAP		= build/moba64.map
 
-LD_SCRIPT	= simple.ld
-CP_LD_SCRIPT	= build/simple.ld
+LD_SCRIPT	= moba64.ld
+CP_LD_SCRIPT	= build/moba64.ld
 
 ASMFILES    =	$(shell find asm/ -type f -name '*.s')
 

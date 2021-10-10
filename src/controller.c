@@ -33,7 +33,7 @@
 
 #include <ultralog.h>
 #include <sched.h>
-#include "simple.h"
+#include "moba64.h"
 
 
 #define X_SCALE_INCR	0.05f

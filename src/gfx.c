@@ -36,7 +36,7 @@
 #include <assert.h>
 
 #include "gfx.h"
-#include "simple.h"
+#include "moba64.h"
 #include "misc.h"
 #include "models/pikachu/model.h"
 

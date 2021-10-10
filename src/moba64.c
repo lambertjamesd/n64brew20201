@@ -54,7 +54,7 @@
 #include <ultra64.h>
 #include <sched.h>
 #include "misc.h"
-#include "simple.h"
+#include "moba64.h"
 #include "audio.h"
 #include "gfx.h"
 
