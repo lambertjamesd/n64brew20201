@@ -36,9 +36,9 @@
  *---------------------------------------------------------------------*/
 
 #include <ultralog.h>
-#include <assert.h>
 #include "audio.h"
 #include "moba64.h"
+#include "util/assert.h"
 
 /****  type define's for structures unique to audiomgr ****/
 typedef union {    
@@ -286,7 +286,7 @@ static u32 __amHandleFrameMsg(AudioInfo *info, AudioInfo *lastInfo)
     cmdp = alAudioFrame(__am.ACMDList[curAcmdList], &cmdLen, audioPtr,
                         info->frameSamples);
 
-    // assert(cmdLen <= maxRSPCmds);
+    teqassert(cmdLen <= maxRSPCmds);
     
     if(cmdLen == 0)  /* no task produced, return zero to show no valid task */
         return 0;

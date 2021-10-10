@@ -1,7 +1,7 @@
 
 #include "quaternion.h"
 #include <ultra64.h>
-#include <assert.h>
+#include "util/assert.h"
 #include "mathf.h"
 
 void quatIdent(struct Quaternion* q) {
@@ -85,7 +85,7 @@ void quatMultVector(struct Quaternion* q, struct Vector3* a, struct Vector3* out
 }
 
 void quatMultiply(struct Quaternion* a, struct Quaternion* b, struct Quaternion* out) {
-    // assert(a != out && b != out);
+    teqassert(a != out && b != out);
     out->x = a->w*b->x + a->x*b->w + a->y*b->z - a->z*b->y;
     out->y = a->w*b->y + a->y*b->w + a->z*b->x - a->x*b->z;
     out->z = a->w*b->z + a->z*b->w + a->x*b->y - a->y*b->x;

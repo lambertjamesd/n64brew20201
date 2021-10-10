@@ -74,13 +74,7 @@ SECTIONS
    
    _codeSegmentBssEnd = .;
    
-   BEGIN_SEG(gfxdlists, .)
-   {
-      build/data/gfxdlists.o(.data);
-   }
-   END_SEG(gfxdlists)
-
-   _gfxdlistsSegmentEnd = .;
+   _heapStart = .;
    
    BEGIN_SEG(static, 0x01000000)
    {

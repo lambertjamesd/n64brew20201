@@ -57,6 +57,7 @@
 #include "moba64.h"
 #include "audio.h"
 #include "gfx.h"
+#include "util/memory.h"
 
 
 /**** threads used by this file ****/
@@ -290,5 +291,7 @@ static void initGame(void)
     initGFX(); 
     initCntrl();
     initAudio();
+
+    initHeap((void*)OS_PHYSICAL_TO_K0(osMemSize));
 }
 

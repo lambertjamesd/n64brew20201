@@ -33,11 +33,11 @@
  *---------------------------------------------------------------------*/
 
 #include <ultralog.h>
-#include <assert.h>
 
 #include "gfx.h"
 #include "moba64.h"
 #include "misc.h"
+#include "util/assert.h"
 #include "models/pikachu/model.h"
 
 /*
@@ -55,6 +55,7 @@ extern f32   logoScale_x;
 extern f32   logoScale_y;
 extern f32   logoScale_z;
 extern f32   logoVeloc;
+extern Gfx   gfxDLBuf[];
 
 u32	ucode_index = 0;
 
@@ -71,11 +72,10 @@ void doLogo(Dynamic *dynamicp);
 
 void initGFX(void) 
 {    
-extern char _gfxdlistsSegmentEnd[];
     u32 len = (u32)(_staticSegmentRomEnd - _staticSegmentRomStart);
 
-    // assert (len < (_gfxdlistsSegmentEnd - _gfxdlistsSegmentStart));
-    staticSegment = _gfxdlistsSegmentStart;
+    teqassert(len < sizeof(Gfx[GFX_DL_BUF_SIZE]));
+    staticSegment = (char*)gfxDLBuf;
     romCopy(_staticSegmentRomStart, staticSegment, len);
     
     gInfo[0].msg.gen.type = OS_SC_DONE_MSG;
@@ -135,11 +135,10 @@ void createGfxTask(GFXInfo *i)
     gDPPipeSync(glistp++);
     gDPSetCycleType(glistp++, G_CYC_1CYCLE); 
 
-    // assert((void *)glistp < (void *)&i->msg);
+    teqassert((void *)glistp < (void *)&i->msg);
 
     /**** Draw objects */
     doLogo(dynamicp);
-
     
     /**** Put an end on the top-level display list  ****/
     gDPFullSync(glistp++);
@@ -273,9 +272,9 @@ void doLogo(Dynamic *dynamicp)
 	      G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_NOPUSH);
     
     /* Draw the logo */
-    // gSPDisplayList(glistp++, logo_dl);
-    gSPDisplayList(glistp++, Pikachu_Doll_Cube_mesh);
-    gSPDisplayList(glistp++, model_gfx);
+    gSPDisplayList(glistp++, logo_dl);
+    // gSPDisplayList(glistp++, Pikachu_Doll_Cube_mesh);
+    // gSPDisplayList(glistp++, model_gfx);
 
     /* calculate theta for next frame */
     logo_theta += logoVeloc;
