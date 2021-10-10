@@ -1,0 +1,6 @@
+*.o
+.vscode/
+simple_cp.ld
+*.elf
+*.map
+*.z64
