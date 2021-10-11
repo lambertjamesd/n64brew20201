@@ -61,10 +61,6 @@ static u32          framecount;
 
 static char         *staticSegment = 0;
 
-#ifndef _FINALROM
-extern OSTime      lastTime;
-#endif
-
 void doLogo(Dynamic *dynamicp);
 
 
@@ -206,9 +202,6 @@ void createGfxTask(GFXInfo *i)
     t->msgQ     = &gfxFrameMsgQ;       /* reply to when finished */
     t->msg      = (OSMesg)&i->msg;     /* reply with this message */
     t->framebuffer = (void *)i->cfb;
-#ifndef _FINALROM
-    t->totalTime = 0;
-#endif
     osSendMesg(sched_cmdQ, (OSMesg) t, OS_MESG_BLOCK); 
     
     framecount++;
@@ -225,9 +218,6 @@ void doLogo(Dynamic *dynamicp)
 {
     u16		   perspNorm;
     static float   logo_theta = 0;
-#ifndef _FINALROM
-    u32      timeLen;
-#endif
     /*
      * You must make the call to gSPPerspNormalize() in addition to 
      * using the perspective projection matrix.
@@ -276,32 +266,4 @@ void doLogo(Dynamic *dynamicp)
 
     /* calculate theta for next frame */
     logo_theta += logoVeloc;
-
-#ifndef _FINALROM   /* draw the performance bar */
-
-#define USECS_PER_FRAME    16666  /* assuming a frame rate of 60fps */
-#define USECS_PER_PIXEL    150
-#define PIXELS_PER_FRAME   USECS_PER_FRAME/USECS_PER_PIXEL
-#define LEFT_OFFSET        40
-#define MARK_TOP           210
-#define BAR_TOP            215
-#define BAR_BOTTOM         220
-#define MARK_BOTTOM        225
-#define MARK_WIDTH         2
-
-    gDPPipeSync(glistp++);
-
-    gDPSetCycleType(glistp++, G_CYC_1CYCLE);
-    gDPSetPrimColor(glistp++, 0, 0, 200, 0, 120, 255);
-    gDPSetCombineMode(glistp++, G_CC_PRIMITIVE, G_CC_PRIMITIVE);
-    gDPSetRenderMode(glistp++, G_RM_OPA_SURF, G_RM_OPA_SURF2);
-
-    timeLen =(u32) (OS_CYCLES_TO_USEC(lastTime) / USECS_PER_PIXEL);
-    gDPFillRectangle(glistp++, LEFT_OFFSET, BAR_TOP, 
-		     LEFT_OFFSET + timeLen, BAR_BOTTOM);
-    gDPFillRectangle(glistp++, LEFT_OFFSET+PIXELS_PER_FRAME, MARK_TOP, 
-		     LEFT_OFFSET+PIXELS_PER_FRAME+MARK_WIDTH, MARK_BOTTOM);
-    gDPFillRectangle(glistp++, LEFT_OFFSET+(2*PIXELS_PER_FRAME), MARK_TOP, 
-		     LEFT_OFFSET+(2*PIXELS_PER_FRAME)+MARK_WIDTH, MARK_BOTTOM);
-#endif
 }

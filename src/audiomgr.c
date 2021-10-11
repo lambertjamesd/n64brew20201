@@ -485,11 +485,6 @@ static void __clearAudioDMA(void)
     {
         if (osRecvMesg(&audDMAMessageQ,(OSMesg *)&iomsg,OS_MESG_NOBLOCK) == -1)
             PRINTF("Dma not done\n");
-
-#ifndef _FINALROM
-        if (logging)
-            osLogEvent(log, 17, 2, iomsg->devAddr, iomsg->size);
-#endif
     }
 
     

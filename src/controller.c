@@ -132,32 +132,11 @@ void UpdateController(void)
 	      ucode_index ++;
 	      if (ucode_index == 3) ucode_index = 0;
 	    }
-
-#ifndef _FINALROM
-            if (newbutton & CONT_B)
-		PRINTF("Controller %d, Button B\n",i);
-    
-            if (newbutton & CONT_C)
-                PRINTF("Controller %d, Button C\n",i);
-
-            if (newbutton & CONT_D)
-                PRINTF("Controller %d, Button D\n",i);
-
-            if (newbutton & CONT_E)
-                PRINTF("Controller %d, Button E\n",i);
-
-            if (newbutton & CONT_F)
-                PRINTF("Controller %d, Button F\n",i);
-
-            if (newbutton & CONT_G)
-                PRINTF("Controller %d, Button G\n",i);
-#endif
-
-            if (pad->button & CONT_UP)  /* use continous, not just new */
+        if (pad->button & CONT_UP)  /* use continous, not just new */
 	    {
-		logoScale_y += Y_SCALE_INCR;
-		if(logoScale_y > Y_SCALE_MAX)
-		    logoScale_y = Y_SCALE_MAX;
+            logoScale_y += Y_SCALE_INCR;
+            if(logoScale_y > Y_SCALE_MAX)
+                logoScale_y = Y_SCALE_MAX;
 	    }
 
             if (pad->button & CONT_DOWN)  /* use continous, not just new */

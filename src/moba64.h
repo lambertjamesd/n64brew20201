@@ -33,21 +33,11 @@
 /* define a message after the set used by the scheduler */
 #define SIMPLE_CONTROLLER_MSG	    (OS_SC_LAST_MSG+1)
 
-#ifdef _FINALROM
-/* cc will give warnings about argument mismatch in rom version */
 #define PRINTF(a) 
-#else
-#define PRINTF osSyncPrintf
-#endif
 
 extern OSMesgQueue      gfxFrameMsgQ;
 extern OSMesg           gfxFrameMsgBuf[MAX_MESGS];
 extern OSPiHandle	*handler;
-
-#ifndef _FINALROM
-extern OSLog *log;
-extern int logging;
-#endif
 
 extern char _gfxdlistsSegmentStart[], _gfxdlistsSegmentEnd[];
 extern char _staticSegmentRomStart[], _staticSegmentRomEnd[];
