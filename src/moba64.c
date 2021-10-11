@@ -57,7 +57,6 @@
 #include "moba64.h"
 #include "audio.h"
 #include "gfx.h"
-#include "util/memory.h"
 
 
 /**** threads used by this file ****/
@@ -70,6 +69,12 @@ u64    bootStack[STACKSIZEBYTES/sizeof(u64)];
 /**** Stacks for the threads, divide by 8 which is the size of a u64 ****/
 static u64      gameThreadStack[STACKSIZEBYTES/sizeof(u64)];
 static u64      initThreadStack[STACKSIZEBYTES/sizeof(u64)];
+
+/**** threads and stack used by rmon ****/
+#ifndef _FINALROM
+static OSThread rmonThread;
+static u64      rmonStack[RMON_STACKSIZE/sizeof(u64)];
+#endif
 
 /**** function prototypes for private functions in this file ****/
 static void     gameproc(void *);
@@ -99,8 +104,15 @@ extern u32      validcontrollers;
 
 
 #ifndef _FINALROM
+u8      rdbSendBuf[2048];
 OSTime  lastTime;
-u32     doneTask;
+
+/**** logging stuff, used for debugging only. ****/
+#include <ultralog.h>
+#define LOG_LEN 0x8000
+OSLog logger;
+OSLog *log = &logger;
+u32 logData[LOG_LEN];
 #endif
 
 
@@ -127,7 +139,19 @@ void boot(void *arg)
 
     handler = osCartRomInit();
 
+#ifndef _FINALROM
+    argp = (u32 *)RAMROM_APP_WRITE_ADDR;
+    for (i=0; i < sizeof(argbuf)/4; i++, argp++) 
+        osEPiReadIo(handler, (u32)argp, &argbuf[i]);   /* Assume no DMA */
+
+    parse_args((char *)argbuf);
+
+#else
+
     parse_args(NULL);
+
+#endif
+    
     
     osCreateThread(&initThread, 1, (void(*)(void *))initproc, arg,
                   (void *)(initThreadStack+(STACKSIZEBYTES/sizeof(u64))), 
@@ -149,6 +173,15 @@ static void initproc(char *argv)
     /**** Start PI Mgr for access to cartridge ****/
     osCreatePiManager((OSPri) OS_PRIORITY_PIMGR, &PiMessageQ, PiMessages,
                         DMA_QUEUE_SIZE);
+
+#ifndef _FINALROM
+    osInitRdb(rdbSendBuf,sizeof(rdbSendBuf));
+    /**** Start rmonThread so you can do printf's ****/
+    osCreateThread(&rmonThread, 0, rmonMain, (void *)0,
+                   (void *)(rmonStack+(RMON_STACKSIZE/sizeof(u64))),
+                   (OSPri) OS_PRIORITY_RMON );
+    osStartThread(&rmonThread);
+#endif
 
     /**** Create the game thread and start it up ****/
     osCreateThread(&gameThread, 6, gameproc, argv, gameThreadStack + 
@@ -186,6 +219,9 @@ static void gameproc(void *argv)
     u32         pendingGFX = 0;
     u32         cntrlReadInProg = 0;
     GFXMsg      *msg = NULL;
+#ifndef _FINALROM
+    u32         doneTask = 0;
+#endif
 
     initGame();
 
@@ -196,6 +232,10 @@ static void gameproc(void *argv)
         switch (msg->gen.type) 
         {
             case (OS_SC_RETRACE_MSG):
+#ifndef _FINALROM
+                if (logging)
+                    osLogEvent(log, LOG_RETRACE, 1, pendingGFX);
+#endif
 
                 /**** Create a new gfx task unless we already have 2  ****/                 
                 if (pendingGFX < 2) 
@@ -273,7 +313,12 @@ void romCopy(const char *src, const char *dest, const int len)
  *
  *********************************************************************/
 static void initGame(void)
-{ 
+{    
+#ifndef _FINALROM
+    if (logging)
+        osCreateLog(log, logData, LOG_LEN);
+#endif
+
     /**** set up a needed message q's ****/
     osCreateMesgQueue(&dmaMessageQ, &dmaMessageBuf, 1);
     osCreateMesgQueue(&gfxFrameMsgQ, gfxFrameMsgBuf, MAX_MESGS);
@@ -291,7 +336,5 @@ static void initGame(void)
     initGFX(); 
     initCntrl();
     initAudio();
-
-    initHeap((void*)OS_PHYSICAL_TO_K0(osMemSize));
 }
 

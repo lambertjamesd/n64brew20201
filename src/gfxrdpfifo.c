@@ -30,4 +30,6 @@
 
 #include <ultra64.h>
 
-u64 rdp_output[0x4000/8];		/* RSP writes back RDP data */
+#define RDP_OUTPUT_SIZE 0x4000
+
+u64 __attribute__((aligned(16))) rdp_output[RDP_OUTPUT_SIZE/sizeof(u64) + 2];		/* RSP writes back RDP data */

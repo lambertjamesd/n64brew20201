@@ -36,12 +36,20 @@
 #ifdef _FINALROM
 /* cc will give warnings about argument mismatch in rom version */
 #define PRINTF(a) 
+#else
+#define PRINTF osSyncPrintf
 #endif
 
 extern OSMesgQueue      gfxFrameMsgQ;
 extern OSMesg           gfxFrameMsgBuf[MAX_MESGS];
 extern OSPiHandle	*handler;
 
+#ifndef _FINALROM
+extern OSLog *log;
+extern int logging;
+#endif
+
+extern char _gfxdlistsSegmentStart[], _gfxdlistsSegmentEnd[];
 extern char _staticSegmentRomStart[], _staticSegmentRomEnd[];
 extern char _tableSegmentRomStart[], _tableSegmentRomEnd[];
 extern char _seqSegmentRomStart[], _seqSegmentRomEnd[];

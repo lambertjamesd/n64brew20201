@@ -36,9 +36,9 @@
  *---------------------------------------------------------------------*/
 
 #include <ultralog.h>
+#include <assert.h>
 #include "audio.h"
 #include "moba64.h"
-#include "util/assert.h"
 
 /****  type define's for structures unique to audiomgr ****/
 typedef union {    
@@ -286,7 +286,7 @@ static u32 __amHandleFrameMsg(AudioInfo *info, AudioInfo *lastInfo)
     cmdp = alAudioFrame(__am.ACMDList[curAcmdList], &cmdLen, audioPtr,
                         info->frameSamples);
 
-    teqassert(cmdLen <= maxRSPCmds);
+    assert(cmdLen <= maxRSPCmds);
     
     if(cmdLen == 0)  /* no task produced, return zero to show no valid task */
         return 0;
@@ -336,8 +336,7 @@ static void __amHandleDoneMsg(AudioInfo *info)
     samplesLeft = osAiGetLength()>>2;
     if (samplesLeft == 0 && !firstTime) 
     {
-        // PRINTF("audio: ai out of samples\n");    
-        return;
+        PRINTF("audio: ai out of samples\n");    
         firstTime = 0;
     }
 }
@@ -484,10 +483,13 @@ static void __clearAudioDMA(void)
      */
     for (i=0; i<nextDMA; i++)
     {
-        if (osRecvMesg(&audDMAMessageQ,(OSMesg *)&iomsg,OS_MESG_NOBLOCK) == -1) {
-            // PRINTF("Dma not done\n");
-            return;
-        }
+        if (osRecvMesg(&audDMAMessageQ,(OSMesg *)&iomsg,OS_MESG_NOBLOCK) == -1)
+            PRINTF("Dma not done\n");
+
+#ifndef _FINALROM
+        if (logging)
+            osLogEvent(log, 17, 2, iomsg->devAddr, iomsg->size);
+#endif
     }
 
     

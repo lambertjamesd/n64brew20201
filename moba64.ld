@@ -74,7 +74,13 @@ SECTIONS
    
    _codeSegmentBssEnd = .;
    
-   _heapStart = .;
+   BEGIN_SEG(gfxdlists, .)
+   {
+      build/data/gfxdlists.o(.bss);
+   }
+   END_SEG(gfxdlists)
+
+   _gfxdlistsSegmentEnd = .;
    
    BEGIN_SEG(static, 0x01000000)
    {
@@ -114,7 +120,6 @@ SECTIONS
    /* Discard everything not specifically mentioned above. */
    /DISCARD/ :
    {
-      *(.eh_frame)
-      *(.MIPS.abiflags)
+      *(*);
    }
 }

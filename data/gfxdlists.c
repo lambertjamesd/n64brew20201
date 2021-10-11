@@ -23,6 +23,6 @@
  *====================================================================*/
 
 #include <ultra64.h>
-#include "gfx.h"
+#include "../src/gfx.h"
 
 Gfx gfxDLBuf[GFX_DL_BUF_SIZE];

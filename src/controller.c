@@ -68,7 +68,7 @@ extern	u32	ucode_index;
  *
  * Routine for initializing the controllers. After initialized, set the
  * controller interrupt to be posted to the gfxFrameMsgQ, used by the 
- * gameproc in simple.c.
+ * gameproc in moba64.c.
  *
  *********************************************************************/
 void initCntrl(void)
@@ -80,10 +80,8 @@ void initCntrl(void)
     osCreateMesgQueue(&serialMsgQ, &serialMsg, 1);
     osSetEventMesg(OS_EVENT_SI, &serialMsgQ, (OSMesg)1);
 
-    if((i = osContInit(&serialMsgQ, &validcontrollers, &statusdata[0])) != 0) {
-        //  PRINTF("Failure initing controllers\n");
-        return;
-    }
+    if((i = osContInit(&serialMsgQ, &validcontrollers, &statusdata[0])) != 0)
+        PRINTF("Failure initing controllers\n");
     
     /**** Set up message and queue, for read completion notification ****/
     controllermsg.type = SIMPLE_CONTROLLER_MSG;
@@ -134,6 +132,26 @@ void UpdateController(void)
 	      ucode_index ++;
 	      if (ucode_index == 3) ucode_index = 0;
 	    }
+
+#ifndef _FINALROM
+            if (newbutton & CONT_B)
+		PRINTF("Controller %d, Button B\n",i);
+    
+            if (newbutton & CONT_C)
+                PRINTF("Controller %d, Button C\n",i);
+
+            if (newbutton & CONT_D)
+                PRINTF("Controller %d, Button D\n",i);
+
+            if (newbutton & CONT_E)
+                PRINTF("Controller %d, Button E\n",i);
+
+            if (newbutton & CONT_F)
+                PRINTF("Controller %d, Button F\n",i);
+
+            if (newbutton & CONT_G)
+                PRINTF("Controller %d, Button G\n",i);
+#endif
 
             if (pad->button & CONT_UP)  /* use continous, not just new */
 	    {
