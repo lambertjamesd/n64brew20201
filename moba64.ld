@@ -81,6 +81,7 @@ SECTIONS
    END_SEG(gfxdlists)
 
    _gfxdlistsSegmentEnd = .;
+   _heapStart = .;
    
    BEGIN_SEG(static, 0x01000000)
    {

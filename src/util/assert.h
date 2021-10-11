@@ -3,9 +3,9 @@
 #define _ASSERT_H
 
 #if NDEBUG
-    #define teqassert(assertion)
+    #define __assert(assertion)
 #else
-    void teqassert(int assertion);
+    void __assert(int assertion);
 #endif
 
 #endif

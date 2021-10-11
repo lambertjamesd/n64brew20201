@@ -9,7 +9,7 @@
 include /usr/include/n64/make/PRdefs
 
 OPTIMIZER		:= -O2
-LCDEFS			:= -DNDEBUG -D_FINALROM -Isrc/
+LCDEFS			:= -DDEBUG -D_FINALROM -g -Isrc/
 N64LIB			:= -lultra_rom
 
 ELF		= build/moba64.elf
