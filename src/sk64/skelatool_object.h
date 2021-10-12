@@ -11,9 +11,9 @@ struct SkelatoolObject {
     u32 numberOfBones;
 };
 
+void skInitObject(struct SkelatoolObject* object, Gfx* displayList, u32 numberOfBones, struct Transform* initialPose);
 void skRenderObject(struct SkelatoolObject* object, Gfx** intoDL);
 void skUpdateTransforms(struct SkelatoolObject* object);
-void skInitObject(struct SkelatoolObject* object, Gfx* displayList, u32 numberOfBones, struct Transform* initialPose);
 void skCleanupObject(struct SkelatoolObject* object);
 
 #endif

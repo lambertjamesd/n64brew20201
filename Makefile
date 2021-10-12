@@ -66,6 +66,23 @@ build/%.o: %.s
 	@mkdir -p $(@D)
 	$(AS) -Wa,-Iasm -o $@ $<
 
+
+####################
+# Resources
+####################
+
+MODELS = $(shell find assets/models/ -type f -name '*.fbx')
+
+MODELS_GENERATED = $(patsubst assets/models/%.fbx, data/models/%/geometry.h, $(CODEFILES))
+
+data/models/%/geometry.h: assets/models/%.fbx
+	skeletool64 -o $@ $<
+
+
+####################
+## Linking
+####################
+
 $(BOOT_OBJ): $(BOOT)
 	$(OBJCOPY) -I binary -B mips -O elf32-bigmips $< $@
 

@@ -7,3 +7,4 @@ simple_cp.ld
 build/
 debugger
 src/gfxvalidator/
+data/models/**/*.h

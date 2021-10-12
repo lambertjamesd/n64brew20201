@@ -72,6 +72,13 @@ SECTIONS
       build/data/gfxdynamic.o(.data);
    }
    END_SEG(dynamic)
+
+   BEGIN_SEG(characters, 0x03000000)
+   {
+      build/data/models/characters.o(.data);
+      build/data/models/characters.o(.bss);
+   }
+   END_SEG(characters)
    
    . = 0x801da800;
    
