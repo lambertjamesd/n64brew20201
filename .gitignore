@@ -5,3 +5,4 @@ simple_cp.ld
 *.map
 *.z64
 build/
+debugger/

@@ -8,16 +8,14 @@
 # --------------------------------------------------------------------
 include /usr/include/n64/make/PRdefs
 
-OPTIMIZER		:= -O2
-LCDEFS			:= -DDEBUG -g -Isrc/
-N64LIB			:= -lultra_rom
+OPTIMIZER		:= -O0
+LCDEFS			:= -DDEBUG -g -Isrc/ -I/usr/include/n64/nustd
+N64LIB			:= -lultra_rom -lnustd
 
-ELF		= build/moba64.elf
-TARGETS	= build/moba64.z64
-MAP		= build/moba64.map
+BASE_TARGET_NAME = build/moba64
 
 LD_SCRIPT	= moba64.ld
-CP_LD_SCRIPT	= build/moba64.ld
+CP_LD_SCRIPT	= build/moba64
 
 ASMFILES    =	$(shell find asm/ -type f -name '*.s')
 
@@ -27,7 +25,7 @@ CODEFILES = $(shell find src/ -type f -name '*.c')
 
 CODEOBJECTS = $(patsubst %.c, build/%.o, $(CODEFILES))
 
-CODESEGMENT =	build/codesegment.o
+CODESEGMENT =	build/codesegment
 
 DATAFILES = $(shell find data/ -type f -name '*.c')
 
@@ -36,7 +34,7 @@ DATAOBJECTS =	$(patsubst %.c, build/%.o, $(DATAFILES))
 BOOT		=	/usr/lib/n64/PR/bootcode/boot.6102
 BOOT_OBJ	=	build/boot.6102.o
 
-OBJECTS		=	$(CODESEGMENT) $(DATAOBJECTS) $(ASMOBJECTS) $(BOOT_OBJ)
+OBJECTS		=	$(DATAOBJECTS) $(ASMOBJECTS) $(BOOT_OBJ)
 
 DEPS = $(patsubst %.c, build/%.d, $(CODEFILES)) # $(patsubst %.c, build/%.d, $(DATAFILES))
 
@@ -48,11 +46,11 @@ LCDEFS +=	-DF3DEX_GBI_2
 #LCDEFS +=	-DF3DEX_GBI_2 -DFOG -DXBUS
 #LCDEFS +=	-DF3DEX_GBI_2 -DFOG -DXBUS -DSTOP_AUDIO
 
-LDIRT  =	$(ELF) $(CP_LD_SCRIPT) $(TARGETS) $(MAP) $(ASMOBJECTS)
+LDIRT  =	$(BASE_TARGET_NAME).elf $(CP_LD_SCRIPT) $(BASE_TARGET_NAME).z64 $(BASE_TARGET_NAME)_no_debug.map $(ASMOBJECTS)
 
 LDFLAGS =	-L/usr/lib/n64 $(N64LIB)  -L$(N64_LIBGCCDIR) -lgcc
 
-default:	$(TARGETS)
+default:	$(BASE_TARGET_NAME).z64
 
 include $(COMMONRULES)
 
@@ -68,19 +66,39 @@ build/%.o: %.s
 	@mkdir -p $(@D)
 	$(AS) -Wa,-Iasm -o $@ $<
 
-$(CODESEGMENT):	$(CODEOBJECTS)
-	$(LD) -o $(CODESEGMENT) -r $(CODEOBJECTS) $(LDFLAGS)
-
 $(BOOT_OBJ): $(BOOT)
 	$(OBJCOPY) -I binary -B mips -O elf32-bigmips $< $@
 
-$(CP_LD_SCRIPT): $(LD_SCRIPT)
-	cpp -P -Wno-trigraphs $(LCDEFS) -o $@ $<
+# without debugger
+CODEOBJECTS_NO_DEBUG = $(CODEOBJECTS) build/debugger/debugger_stub.o
 
-$(TARGETS): $(OBJECTS) $(CP_LD_SCRIPT)
-	$(LD) -L. -T $(CP_LD_SCRIPT) -Map $(MAP) -o $(ELF) 
-	$(OBJCOPY) --pad-to=0x100000 --gap-fill=0xFF $(ELF) $(TARGETS) -O binary
-	makemask $(TARGETS)
+CODEOBJECTS_DEBUG = $(CODEOBJECTS) build/debugger/debugger.o build/debugger/serial.o 
+
+$(CODESEGMENT)_no_debug.o:	$(CODEOBJECTS_NO_DEBUG)
+	$(LD) -o $(CODESEGMENT)_no_debug.o -r $(CODEOBJECTS_NO_DEBUG) $(LDFLAGS)
+
+
+$(CP_LD_SCRIPT)_no_debug.ld: $(LD_SCRIPT)
+	cpp -P -Wno-trigraphs $(LCDEFS) -DCODE_SEGMENT=$(CODESEGMENT)_no_debug.o -o $@ $<
+
+$(BASE_TARGET_NAME).z64: $(CODESEGMENT)_no_debug.o $(OBJECTS) $(CP_LD_SCRIPT)_no_debug.ld
+	$(LD) -L. -T $(CP_LD_SCRIPT)_no_debug.ld -Map $(BASE_TARGET_NAME)_no_debug.map -o $(BASE_TARGET_NAME).elf
+	$(OBJCOPY) --pad-to=0x100000 --gap-fill=0xFF $(BASE_TARGET_NAME).elf $(BASE_TARGET_NAME).z64 -O binary
+	makemask $(BASE_TARGET_NAME).z64
+
+# with debugger
+CODEOBJECTS_DEBUG = $(CODEOBJECTS) build/debugger/debugger.o build/debugger/serial.o 
+
+$(CODESEGMENT)_debug.o:	$(CODEOBJECTS_DEBUG)
+	$(LD) -o $(CODESEGMENT)_debug.o -r $(CODEOBJECTS_DEBUG) $(LDFLAGS)
+
+$(CP_LD_SCRIPT)_debug.ld: $(LD_SCRIPT)
+	cpp -P -Wno-trigraphs $(LCDEFS) -DCODE_SEGMENT=$(CODESEGMENT)_debug.o -o $@ $<
+
+$(BASE_TARGET_NAME)_debug.z64: $(CODESEGMENT)_debug.o $(OBJECTS) $(CP_LD_SCRIPT)_debug.ld
+	$(LD) -L. -T $(CP_LD_SCRIPT)_debug.ld -Map $(BASE_TARGET_NAME)_debug.map -o $(BASE_TARGET_NAME)_debug.elf
+	$(OBJCOPY) --pad-to=0x100000 --gap-fill=0xFF $(BASE_TARGET_NAME)_debug.elf $(BASE_TARGET_NAME)_debug.z64 -O binary
+	makemask $(BASE_TARGET_NAME)_debug.z64
 
 clean:
 	rm -rf build

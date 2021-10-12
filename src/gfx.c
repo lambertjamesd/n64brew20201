@@ -37,7 +37,6 @@
 
 #include "gfx.h"
 #include "moba64.h"
-#include "misc.h"
 
 /*
  * graphics globals
@@ -188,6 +187,7 @@ void createGfxTask(GFXInfo *i)
       break;
     }
 #endif    
+    // t->list.t.ucode_size = SP_UCODE_SIZE - t->list.t.ucode_boot_size;
     t->list.t.ucode_data_size = SP_UCODE_DATA_SIZE;
     t->list.t.dram_stack = (u64 *) dram_stack;
     t->list.t.dram_stack_size = SP_DRAM_STACK_SIZE8;
@@ -197,6 +197,7 @@ void createGfxTask(GFXInfo *i)
     t->list.t.yield_data_size = OS_YIELD_DATA_SIZE;
 
     t->next     = 0;                   /* paranoia */
+    // t->state = 0;
     t->flags	= (OS_SC_NEEDS_RSP | OS_SC_NEEDS_RDP | OS_SC_LAST_TASK |
 		   OS_SC_SWAPBUFFER);
     t->msgQ     = &gfxFrameMsgQ;       /* reply to when finished */

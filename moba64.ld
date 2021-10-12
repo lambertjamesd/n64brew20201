@@ -32,7 +32,7 @@ SECTIONS
    BEGIN_SEG(code, 0x80000400) SUBALIGN(16)
    {
       build/asm/entry.o(.text);
-      build/codesegment.o(.text);
+      CODE_SEGMENT(.text);
       /usr/lib/n64/PR/rspboot.o(.text);
 #ifdef XBUS
       /usr/lib/n64/PR/gspF3DEX2.xbus.o(.text);
@@ -46,7 +46,7 @@ SECTIONS
       /usr/lib/n64/PR/aspMain.o(.text);
 
       /* data */
-      build/codesegment.o(.data*);
+      CODE_SEGMENT(.data*);
       /usr/lib/n64/PR/rspboot.o(.data*);
 #ifdef XBUS
       /usr/lib/n64/PR/gspF3DEX2.xbus.o(.data*);
@@ -60,14 +60,14 @@ SECTIONS
       /usr/lib/n64/PR/aspMain.o(.data*);
 
       /* rodata */
-      build/codesegment.o(.rodata*);
+      CODE_SEGMENT(.rodata*);
    }
    END_SEG(code)
    BEGIN_NOLOAD(code)
    {
-      build/codesegment.o(COMMON);
-      build/codesegment.o(.scommon*);
-      build/codesegment.o(.bss*);
+      CODE_SEGMENT(COMMON);
+      CODE_SEGMENT(.scommon*);
+      CODE_SEGMENT(.bss*);
       . = ALIGN(0x8);
    }
    END_NOLOAD(code)
@@ -121,6 +121,7 @@ SECTIONS
    /* Discard everything not specifically mentioned above. */
    /DISCARD/ :
    {
-      *(*);
+      *(.eh_frame)
+      *(.MIPS.abiflags)
    }
 }

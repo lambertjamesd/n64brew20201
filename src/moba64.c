@@ -53,10 +53,10 @@
 
 #include <ultra64.h>
 #include <sched.h>
-#include "misc.h"
 #include "moba64.h"
 #include "audio.h"
 #include "gfx.h"
+#include "../debugger/debugger.h"
 
 
 /**** threads used by this file ****/
@@ -117,8 +117,6 @@ void boot(void *arg)
     osInitialize();
 
     handler = osCartRomInit();
-
-    parse_args(NULL);
     
     osCreateThread(&initThread, 1, (void(*)(void *))initproc, arg,
                   (void *)(initThreadStack+(STACKSIZEBYTES/sizeof(u64))), 
@@ -145,8 +143,7 @@ static void initproc(char *argv)
     osCreateThread(&gameThread, 6, gameproc, argv, gameThreadStack + 
 		   (STACKSIZEBYTES/sizeof(u64)), (OSPri)GAME_PRIORITY);
 
-    if (!debugger) /* set by command line to gload, when you want to use gvd. */
-        osStartThread(&gameThread);
+    osStartThread(&gameThread);
 
     /**** Set the thread to be the idle thread ****/
     osSetThreadPri(0, 0);
@@ -177,6 +174,10 @@ static void gameproc(void *argv)
     u32         pendingGFX = 0;
     u32         cntrlReadInProg = 0;
     GFXMsg      *msg = NULL;
+        
+    OSThread* debugThreads[2];
+    debugThreads[0] = &gameThread;
+    gdbInitDebugger(handler, &dmaMessageQ, debugThreads, 1);
 
     initGame();
 
