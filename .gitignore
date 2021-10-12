@@ -5,4 +5,5 @@ simple_cp.ld
 *.map
 *.z64
 build/
-debugger/
+debugger
+src/gfxvalidator/

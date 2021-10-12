@@ -94,7 +94,7 @@ u64             scheduleStack[OS_SC_STACKSIZE/8];
 OSScClient      gfxClient;
 
 /**** Controller globals ****/
-extern u32      validcontrollers;
+extern u8      validcontrollers;
 
 /**********************************************************************
  *
@@ -150,6 +150,40 @@ static void initproc(char *argv)
     for(;;);
 }
 
+void debugDrawScreen(u8 r, u8 g, u8 b, u32 frameCount) {
+    u32         drawbuffer = 0;
+    OSMesgQueue     retraceMessageQ;
+    OSMesg          retraceMessageBuf[20];
+
+    osViBlack(0);
+	osCreateMesgQueue(&retraceMessageQ, retraceMessageBuf, 20);
+	osViSetEvent(&retraceMessageQ, NULL, 1);
+
+    u16 color = (((u16)r & 0x1F) << 11) | (((u16)g & 0x1F) << 6) | (((u16)b & 0x1F) << 1) | 1;
+
+    while (frameCount) {
+        for (int y = 0; y < SCREEN_HT; ++y) {
+            for (int x = 0; x < SCREEN_WD; ++x) {
+                gInfo[drawbuffer].cfb[x + y * SCREEN_WD] = color;
+            }
+        }
+
+        osWritebackDCacheAll();
+
+        osViSwapBuffer(gInfo[drawbuffer].cfb);
+
+        drawbuffer ^= 1; /* switch the drawbuffer */
+
+        while (!MQ_IS_EMPTY(&retraceMessageQ))
+        {
+            (void) osRecvMesg(&retraceMessageQ, NULL, OS_MESG_NOBLOCK);
+        }
+        (void) osRecvMesg(&retraceMessageQ, NULL, OS_MESG_BLOCK);
+
+        frameCount--;
+    }
+}
+
 /**********************************************************************
  *
  * A continual loop, primarily used for servicing the starts of graphic 
@@ -174,10 +208,6 @@ static void gameproc(void *argv)
     u32         pendingGFX = 0;
     u32         cntrlReadInProg = 0;
     GFXMsg      *msg = NULL;
-        
-    OSThread* debugThreads[2];
-    debugThreads[0] = &gameThread;
-    gdbInitDebugger(handler, &dmaMessageQ, debugThreads, 1);
 
     initGame();
 
@@ -188,7 +218,6 @@ static void gameproc(void *argv)
         switch (msg->gen.type) 
         {
             case (OS_SC_RETRACE_MSG):
-
                 /**** Create a new gfx task unless we already have 2  ****/                 
                 if (pendingGFX < 2) 
                 {
@@ -279,5 +308,9 @@ static void initGame(void)
     initGFX(); 
     initCntrl();
     initAudio();
+
+    OSThread* debugThreads[2];
+    debugThreads[0] = &gameThread;
+    enum GDBError err = gdbInitDebugger(handler, &dmaMessageQ, debugThreads, 1);
 }
 

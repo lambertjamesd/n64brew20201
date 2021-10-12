@@ -37,6 +37,7 @@
 
 #include "gfx.h"
 #include "moba64.h"
+#include "gfxvalidator/validator.h"
 
 /*
  * graphics globals
@@ -53,6 +54,7 @@ extern f32   logoScale_x;
 extern f32   logoScale_y;
 extern f32   logoScale_z;
 extern f32   logoVeloc;
+extern Gfx   gfxDLBuf[];
 
 u32	ucode_index = 0;
 
@@ -65,11 +67,10 @@ void doLogo(Dynamic *dynamicp);
 
 void initGFX(void) 
 {    
-extern char _gfxdlistsSegmentEnd[];
     u32 len = (u32)(_staticSegmentRomEnd - _staticSegmentRomStart);
 
-    assert (len < (_gfxdlistsSegmentEnd - _gfxdlistsSegmentStart));
-    staticSegment = _gfxdlistsSegmentStart;
+    assert (len < GFX_DL_BUF_SIZE * sizeof(Gfx));
+    staticSegment = (char*)gfxDLBuf;
     romCopy(_staticSegmentRomStart, staticSegment, len);
     
     gInfo[0].msg.gen.type = OS_SC_DONE_MSG;
@@ -148,51 +149,18 @@ void createGfxTask(GFXInfo *i)
     t->list.t.data_ptr = (u64 *) dynamicp->glist;
     t->list.t.data_size = (s32)(glistp - dynamicp->glist) * sizeof (Gfx);
     t->list.t.type = M_GFXTASK;
-#ifdef	F3DEX_GBI
-    t->list.t.flags = OS_TASK_LOADABLE;
-#else
+    // t->list.t.flags = OS_TASK_LOADABLE;
     t->list.t.flags = 0;
-#endif
     t->list.t.ucode_boot = (u64 *)rspbootTextStart;
-    t->list.t.ucode_boot_size = ((s32) rspbootTextEnd - 
-				 (s32) rspbootTextStart);
-#ifdef	XBUS
-    switch(ucode_index){
-    case	0:
-      t->list.t.ucode =      (u64 *) gspF3DEX2_xbusTextStart;
-      t->list.t.ucode_data = (u64 *) gspF3DEX2_xbusDataStart;
-      break;
-    case	1:
-      t->list.t.ucode =      (u64 *) gspF3DEX2_Rej_xbusTextStart;
-      t->list.t.ucode_data = (u64 *) gspF3DEX2_Rej_xbusDataStart;
-      break;
-    case	2:
-      t->list.t.ucode =      (u64 *) gspF3DLX2_Rej_xbusTextStart;
-      t->list.t.ucode_data = (u64 *) gspF3DLX2_Rej_xbusDataStart;
-      break;
-    }
-#else
-    switch(ucode_index){
-    case	0:
-      t->list.t.ucode =      (u64 *) gspF3DEX2_fifoTextStart;
-      t->list.t.ucode_data = (u64 *) gspF3DEX2_fifoDataStart;
-      break;
-    case	1:
-      t->list.t.ucode =      (u64 *) gspF3DEX2_Rej_fifoTextStart;
-      t->list.t.ucode_data = (u64 *) gspF3DEX2_Rej_fifoDataStart;
-      break;
-    case	2:
-      t->list.t.ucode =      (u64 *) gspF3DLX2_Rej_fifoTextStart;
-      t->list.t.ucode_data = (u64 *) gspF3DLX2_Rej_fifoDataStart;
-      break;
-    }
-#endif    
-    // t->list.t.ucode_size = SP_UCODE_SIZE - t->list.t.ucode_boot_size;
-    t->list.t.ucode_data_size = SP_UCODE_DATA_SIZE;
-    t->list.t.dram_stack = (u64 *) dram_stack;
-    t->list.t.dram_stack_size = SP_DRAM_STACK_SIZE8;
+    t->list.t.ucode_boot_size = ((s32) rspbootTextEnd - (s32) rspbootTextStart);
+    t->list.t.ucode =      (u64 *) gspF3DEX2_fifoTextStart;
+    t->list.t.ucode_data = (u64 *) gspF3DEX2_fifoDataStart; 
     t->list.t.output_buff = (u64 *) rdp_output;
     t->list.t.output_buff_size = (u64 *) rdp_output + 0x4000/8;
+    t->list.t.ucode_data_size = SP_UCODE_DATA_SIZE;
+    // t->list.t.ucode_size = 0;
+    t->list.t.dram_stack = (u64 *) dram_stack;
+    t->list.t.dram_stack_size = SP_DRAM_STACK_SIZE8;
     t->list.t.yield_data_ptr = (u64 *) gfxYieldBuf;
     t->list.t.yield_data_size = OS_YIELD_DATA_SIZE;
 
@@ -203,6 +171,10 @@ void createGfxTask(GFXInfo *i)
     t->msgQ     = &gfxFrameMsgQ;       /* reply to when finished */
     t->msg      = (OSMesg)&i->msg;     /* reply with this message */
     t->framebuffer = (void *)i->cfb;
+
+    // struct GFXValidationResult validationResult;
+    // gfxValidate(&t->list, 0, &validationResult);
+
     osSendMesg(sched_cmdQ, (OSMesg) t, OS_MESG_BLOCK); 
     
     framecount++;

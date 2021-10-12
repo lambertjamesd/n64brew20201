@@ -34,29 +34,13 @@ SECTIONS
       build/asm/entry.o(.text);
       CODE_SEGMENT(.text);
       /usr/lib/n64/PR/rspboot.o(.text);
-#ifdef XBUS
-      /usr/lib/n64/PR/gspF3DEX2.xbus.o(.text);
-      /usr/lib/n64/PR/gspF3DEX2.Rej.xbus.o(.text);
-      /usr/lib/n64/PR/gspF3DLX2.Rej.xbus.o(.text);
-#else
       /usr/lib/n64/PR/gspF3DEX2.fifo.o(.text);
-      /usr/lib/n64/PR/gspF3DEX2.Rej.fifo.o(.text);
-      /usr/lib/n64/PR/gspF3DLX2.Rej.fifo.o(.text);
-#endif
       /usr/lib/n64/PR/aspMain.o(.text);
 
       /* data */
       CODE_SEGMENT(.data*);
       /usr/lib/n64/PR/rspboot.o(.data*);
-#ifdef XBUS
-      /usr/lib/n64/PR/gspF3DEX2.xbus.o(.data*);
-      /usr/lib/n64/PR/gspF3DEX2.Rej.xbus.o(.data*);
-      /usr/lib/n64/PR/gspF3DLX2.Rej.xbus.o(.data*);
-#else
       /usr/lib/n64/PR/gspF3DEX2.fifo.o(.data*);
-      /usr/lib/n64/PR/gspF3DEX2.Rej.fifo.o(.data*);
-      /usr/lib/n64/PR/gspF3DLX2.Rej.fifo.o(.data*);
-#endif
       /usr/lib/n64/PR/aspMain.o(.data*);
 
       /* rodata */
@@ -74,13 +58,6 @@ SECTIONS
    
    _codeSegmentBssEnd = .;
    
-   BEGIN_SEG(gfxdlists, .)
-   {
-      build/data/gfxdlists.o(.bss);
-   }
-   END_SEG(gfxdlists)
-
-   _gfxdlistsSegmentEnd = .;
    _heapStart = .;
    
    BEGIN_SEG(static, 0x01000000)
