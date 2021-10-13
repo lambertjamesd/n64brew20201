@@ -57,6 +57,7 @@
 #include "audio.h"
 #include "gfx.h"
 #include "../debugger/debugger.h"
+#include "util/memory.h"
 
 
 /**** threads used by this file ****/
@@ -250,6 +251,10 @@ static void gameproc(void *argv)
     }
 }
 
+#define TMP_HEAP_SIZE   (1024 * 1024 / 8)
+
+u64 tmpHeap[TMP_HEAP_SIZE];
+
 /**********************************************************************
  *
  * A simple utility routine for copying data from rom to ram
@@ -303,6 +308,8 @@ static void initGame(void)
     osScAddClient(&sc, &gfxClient, &gfxFrameMsgQ);  
 
     sched_cmdQ = osScGetCmdQ(&sc);
+
+    initHeap(tmpHeap, tmpHeap + TMP_HEAP_SIZE);
 
     /**** Call the initialization routines ****/
     initGFX(); 

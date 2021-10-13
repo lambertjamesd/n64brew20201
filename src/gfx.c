@@ -38,6 +38,11 @@
 #include "gfx.h"
 #include "moba64.h"
 #include "gfxvalidator/validator.h"
+#include "gfxvalidator/error_printer.h"
+#include "util/memory.h"
+#include "../data/models/example/geometry.h"
+#include "sk64/skelatool_object.h"
+#include "sk64/skelatool_defs.h"
 
 /*
  * graphics globals
@@ -62,6 +67,15 @@ static u32          framecount;
 
 static char         *staticSegment = 0;
 
+static char         *characterSegment = 0;
+
+static struct SkelatoolObject objectTest;
+
+extern char _charactersSegmentRomStart[];
+extern char _charactersSegmentRomEnd[];
+
+extern char _character_animationsSegmentRomStart[];
+
 void doLogo(Dynamic *dynamicp);
 
 
@@ -72,6 +86,32 @@ void initGFX(void)
     assert (len < GFX_DL_BUF_SIZE * sizeof(Gfx));
     staticSegment = (char*)gfxDLBuf;
     romCopy(_staticSegmentRomStart, staticSegment, len);
+
+    len = (u32)(_charactersSegmentRomEnd - _charactersSegmentRomStart);
+    characterSegment = malloc(len);
+    romCopy(_charactersSegmentRomStart, characterSegment, len);
+
+    skInitObject(
+        &objectTest, 
+        output_model_gfx, 
+        // OUTPUT_DEFAULT_BONES_COUNT, 
+        0, 
+        0
+    );
+
+    // romCopy(
+    //     ANIM_DATA_ROM_ADDRESS(_character_animationsSegmentRomStart, output_default_bones), 
+    //     (void*)objectTest.boneTransforms, 
+    //     sizeof(struct Transform) * objectTest.numberOfBones
+    // );
+
+    // quatIdent(&objectTest.boneTransforms[0].rotation);
+
+    // objectTest.boneTransforms[1].position.y = 64.0f;
+
+    // skUpdateTransforms(&objectTest);
+
+    osWritebackDCache(objectTest.boneMatrices, sizeof(Mtx) * objectTest.numberOfBones);
     
     gInfo[0].msg.gen.type = OS_SC_DONE_MSG;
     gInfo[0].cfb = cfb_16_a;
@@ -96,6 +136,7 @@ void createGfxTask(GFXInfo *i)
     gSPSegment(glistp++, 0, 0);	/* physical addressing segment */
     gSPSegment(glistp++, STATIC_SEGMENT,  osVirtualToPhysical(staticSegment));
     gSPSegment(glistp++, DYNAMIC_SEGMENT, osVirtualToPhysical(dynamicp));
+    gSPSegment(glistp++, CHARACTER_SEGMENT, osVirtualToPhysical(characterSegment));
 
     /**** Graphics pipeline state initialization ****/
     gSPDisplayList(glistp++, setup_rspstate);
@@ -175,10 +216,22 @@ void createGfxTask(GFXInfo *i)
     // struct GFXValidationResult validationResult;
     // gfxValidate(&t->list, 0, &validationResult);
 
+    // if (validationResult.reason != GFXValidatorErrorNone) {
+    //     struct GFXStringPrinter stringPrinter;
+    //     gfxInitStringPrinter(&stringPrinter, malloc(256), 256);
+    //     gfxGenerateReadableMessage(&validationResult, gfxStringPrinter, &stringPrinter);
+    //     free(stringPrinter.output);
+    // }
+
     osSendMesg(sched_cmdQ, (OSMesg) t, OS_MESG_BLOCK); 
     
     framecount++;
 }
+
+extern Gfx mario_Cube_mesh[];
+extern Gfx mat_mario_sm64_material[];
+extern Gfx output_model_gfx[];
+extern Gfx mario_Cube_mesh_tri_0[];
 
 /*
  * Draw the SGI Logo
@@ -215,10 +268,12 @@ void doLogo(Dynamic *dynamicp)
 	       G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
     gSPDisplayList(glistp++, bg_dl);
 
+    float scale = 0.25f;
+
     /* Position the logo: */
     guTranslate(&dynamicp->logo_trans, logoPos_x*4, logoPos_y*2, logoPos_z);
     /* Scale the logo */
-    guScale(&dynamicp->logo_scale, logoScale_x, logoScale_y, logoScale_z);
+    guScale(&dynamicp->logo_scale, logoScale_x * scale, logoScale_y * scale, logoScale_z * scale);
     /* Rotate the logo */
     guRotate(&dynamicp->logo_rotate, logo_theta, 0.0, 1.0, 0.0);
 
@@ -236,6 +291,13 @@ void doLogo(Dynamic *dynamicp)
     
     /* Draw the logo */
     gSPDisplayList(glistp++, logo_dl);
+    // gSPDisplayList(glistp++, mat_mario_sm64_material);
+    // gSPDisplayList(glistp++, mario_Cube_mesh);
+    // gDPPipeSync(glistp++);
+    // gSPDisplayList(glistp++, mario_Cube_mesh_tri_0);
+    // gSPDisplayList(glistp++, output_model_gfx);
+    
+    // skRenderObject(&objectTest, &glistp);
 
     /* calculate theta for next frame */
     logo_theta += logoVeloc;

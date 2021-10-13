@@ -9,6 +9,7 @@
 
 #define	STATIC_SEGMENT		1
 #define	DYNAMIC_SEGMENT		2
+#define CHARACTER_SEGMENT   3
 
 #ifdef _LANGUAGE_C
 

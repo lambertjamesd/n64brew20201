@@ -1,5 +1,7 @@
 OUTPUT_ARCH (mips)
 
+#include "src/sk64/skelatool_defs.h"
+
 #define BEGIN_SEG(name, addr) \
     _##name##SegmentStart = ADDR(.name); \
     _##name##SegmentRomStart = __romPos; \
@@ -79,6 +81,13 @@ SECTIONS
       build/data/models/characters.o(.bss);
    }
    END_SEG(characters)
+
+   BEGIN_SEG(character_animations, CHARACTER_ANIMATION_SEGMENT)
+   {
+      build/data/models/character_animations.o(.data);
+      build/data/models/character_animations.o(.bss);
+   }
+   END_SEG(character_animations)
    
    . = 0x801da800;
    

@@ -37,7 +37,7 @@ struct HeapSegmentFooter
 
 #define MIN_HEAP_BLOCK_SIZE (sizeof(struct HeapSegment) + sizeof(struct HeapSegmentFooter))
 
-void initHeap(void* heapEnd);
+void initHeap(void* heapStart, void* heapEnd);
 void *cacheFreePointer(void* target);
 void *malloc(unsigned int size);
 void *realloc(void* target, unsigned int size);

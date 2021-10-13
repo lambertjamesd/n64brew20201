@@ -28,9 +28,9 @@ void initBlock(struct HeapSegment* segment, void* end, int type)
     footer->header = segment;
 }
 
-void initHeap(void* heapEnd)
+void initHeap(void* heapStart, void* heapEnd)
 {
-    gFirstFreeSegment = (struct HeapSegment*)(((int)_heapStart + 7) & ~0x7);
+    gFirstFreeSegment = (struct HeapSegment*)(((int)heapStart + 7) & ~0x7);
     initBlock(gFirstFreeSegment, heapEnd, MALLOC_FREE_BLOCK);
 
     gHeapStart = gFirstFreeSegment;
