@@ -14,4 +14,4 @@
 #include <ultra64.h>
 #include "gfx.h"
 
-unsigned short	zbuffer[SCREEN_WD*SCREEN_HT];
+unsigned short	__attribute__((aligned(64))) zbuffer[SCREEN_WD*SCREEN_HT];

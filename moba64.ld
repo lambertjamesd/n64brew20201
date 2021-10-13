@@ -88,14 +88,6 @@ SECTIONS
       build/data/models/character_animations.o(.bss);
    }
    END_SEG(character_animations)
-   
-   . = 0x801da800;
-   
-   BEGIN_NOLOAD(zbuffer)
-   {
-      build/data/gfxzbuffer.o(.bss*);
-   }
-   END_NOLOAD(zbuffer)
 
    . = 0x80200000;
 
