@@ -312,7 +312,7 @@ static void initGame(void)
     initHeap(tmpHeap, tmpHeap + TMP_HEAP_SIZE);
 
     /**** Call the initialization routines ****/
-    initGFX(); 
+    void* heapEnd = initGFX((void*)PHYS_TO_K0(osMemSize)); 
     initCntrl();
     initAudio();
 

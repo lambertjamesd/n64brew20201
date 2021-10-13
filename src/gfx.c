@@ -59,7 +59,6 @@ extern f32   logoScale_x;
 extern f32   logoScale_y;
 extern f32   logoScale_z;
 extern f32   logoVeloc;
-extern Gfx   gfxDLBuf[];
 
 u32	ucode_index = 0;
 
@@ -79,12 +78,12 @@ extern char _character_animationsSegmentRomStart[];
 void doLogo(Dynamic *dynamicp);
 
 
-void initGFX(void) 
+void* initGFX(void* maxMemory) 
 {    
     u32 len = (u32)(_staticSegmentRomEnd - _staticSegmentRomStart);
 
     assert (len < GFX_DL_BUF_SIZE * sizeof(Gfx));
-    staticSegment = (char*)gfxDLBuf;
+    staticSegment = malloc(len);
     romCopy(_staticSegmentRomStart, staticSegment, len);
 
     len = (u32)(_charactersSegmentRomEnd - _charactersSegmentRomStart);
@@ -112,14 +111,21 @@ void initGFX(void)
     // skUpdateTransforms(&objectTest);
 
     osWritebackDCache(objectTest.boneMatrices, sizeof(Mtx) * objectTest.numberOfBones);
+
+    u16* currBuffer = maxMemory;
     
     gInfo[0].msg.gen.type = OS_SC_DONE_MSG;
-    gInfo[0].cfb = cfb_16_a;
+
+    currBuffer -= SCREEN_HT * SCREEN_WD;
+    gInfo[0].cfb = currBuffer;
     gInfo[1].msg.gen.type = OS_SC_DONE_MSG;
-    gInfo[1].cfb = cfb_16_b;
+    currBuffer -= SCREEN_HT * SCREEN_WD;
+    gInfo[1].cfb = currBuffer;
 
     /* The Vi manager was started by scheduler by this point in time */
     osViSetSpecialFeatures(OS_VI_DITHER_FILTER_ON);
+
+    return currBuffer;
 }
 
 void createGfxTask(GFXInfo *i) 

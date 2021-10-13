@@ -98,12 +98,6 @@ SECTIONS
    END_NOLOAD(zbuffer)
 
    . = 0x80200000;
-   
-   BEGIN_NOLOAD(cfb)
-   {
-      build/data/gfxcfb.o(.bss*);
-   }
-   END_NOLOAD(cfb)
 
    BEGIN_SEG(sound_data, __romPos)
    {

@@ -91,8 +91,6 @@ extern Gfx 	bg_dl[];
 extern Gfx	*glistp;
 
 /* frame buffer, zbuffer: */
-extern unsigned short cfb_16_a[];
-extern unsigned short cfb_16_b[];
 extern unsigned short	zbuffer[];
 
 /* yield buffer: */
