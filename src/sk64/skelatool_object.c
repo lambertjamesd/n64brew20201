@@ -21,7 +21,7 @@ void skCleanupObject(struct SkelatoolObject* object) {
 void skRenderObject(struct SkelatoolObject* object, Gfx** intoDL) {
     Gfx* dl = *intoDL;
 
-    gSPSegment(dl++, MATRIX_TRANSFORM_SEGMENT,  osVirtualToPhysical(object->boneTransforms));
+    gSPSegment(dl++, MATRIX_TRANSFORM_SEGMENT,  osVirtualToPhysical(object->boneMatrices));
     gSPDisplayList(dl++, object->displayList);
 
     *intoDL = dl;
@@ -31,4 +31,5 @@ void skUpdateTransforms(struct SkelatoolObject* object) {
     for (int i = 0; i < object->numberOfBones; ++i) {
         transformToMatrixL(&object->boneTransforms[i], &object->boneMatrices[i]);
     }
+    osWritebackDCache(object->boneMatrices, sizeof(Mtx) * object->numberOfBones);
 }

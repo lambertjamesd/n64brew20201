@@ -96,24 +96,20 @@ void* initGFX(void* maxMemory)
     skInitObject(
         &objectTest, 
         output_model_gfx, 
-        // OUTPUT_DEFAULT_BONES_COUNT, 
-        0, 
+        OUTPUT_DEFAULT_BONES_COUNT, 
         0
     );
 
-    // romCopy(
-    //     ANIM_DATA_ROM_ADDRESS(_character_animationsSegmentRomStart, output_default_bones), 
-    //     (void*)objectTest.boneTransforms, 
-    //     sizeof(struct Transform) * objectTest.numberOfBones
-    // );
+    romCopy(
+        ANIM_DATA_ROM_ADDRESS(_character_animationsSegmentRomStart, output_default_bones), 
+        (void*)objectTest.boneTransforms, 
+        sizeof(struct Transform) * objectTest.numberOfBones
+    );
 
-    // quatIdent(&objectTest.boneTransforms[0].rotation);
+    quatIdent(&objectTest.boneTransforms[0].rotation);
 
-    // objectTest.boneTransforms[1].position.y = 64.0f;
-
-    // skUpdateTransforms(&objectTest);
-
-    osWritebackDCache(objectTest.boneMatrices, sizeof(Mtx) * objectTest.numberOfBones);
+    objectTest.boneTransforms[1].position.y = 64.0f;
+    skUpdateTransforms(&objectTest);
 
     u16* currBuffer = maxMemory;
     
@@ -203,8 +199,8 @@ void createGfxTask(GFXInfo *i)
     t->list.t.data_ptr = (u64 *) dynamicp->glist;
     t->list.t.data_size = (s32)(glistp - dynamicp->glist) * sizeof (Gfx);
     t->list.t.type = M_GFXTASK;
-    // t->list.t.flags = OS_TASK_LOADABLE;
-    t->list.t.flags = 0;
+    t->list.t.flags = OS_TASK_LOADABLE;
+    // t->list.t.flags = 0;
     t->list.t.ucode_boot = (u64 *)rspbootTextStart;
     t->list.t.ucode_boot_size = ((s32) rspbootTextEnd - (s32) rspbootTextStart);
     t->list.t.ucode =      (u64 *) gspF3DEX2_fifoTextStart;
@@ -245,6 +241,7 @@ extern Gfx mario_Cube_mesh[];
 extern Gfx mat_mario_sm64_material[];
 extern Gfx output_model_gfx[];
 extern Gfx mario_Cube_mesh_tri_0[];
+extern Gfx mario_Cube_empty[];
 
 /*
  * Draw the SGI Logo
@@ -288,7 +285,7 @@ void doLogo(Dynamic *dynamicp)
     /* Scale the logo */
     guScale(&dynamicp->logo_scale, logoScale_x * scale, logoScale_y * scale, logoScale_z * scale);
     /* Rotate the logo */
-    guRotate(&dynamicp->logo_rotate, logo_theta, 0.0, 1.0, 0.0);
+    guRotate(&dynamicp->logo_rotate, 1.7, 1.0, 1.0, 1.0);
 
     /* Setup model matrix */
     gSPMatrix(glistp++, &dynamicp->projection, 
@@ -304,13 +301,14 @@ void doLogo(Dynamic *dynamicp)
     
     /* Draw the logo */
     gSPDisplayList(glistp++, logo_dl);
-    // gSPDisplayList(glistp++, mat_mario_sm64_material);
+    gSPDisplayList(glistp++, mat_mario_sm64_material);
     // gSPDisplayList(glistp++, mario_Cube_mesh);
-    // gDPPipeSync(glistp++);
-    // gSPDisplayList(glistp++, mario_Cube_mesh_tri_0);
-    // gSPDisplayList(glistp++, output_model_gfx);
+
+    objectTest.boneTransforms[1].position.y = 256.0f + sinf(logo_theta / 180.0f) * 32.0f;
+    quatAxisAngle(&gRight, logo_theta / 170.0f, &objectTest.boneTransforms[1].rotation);
+    skUpdateTransforms(&objectTest);
     
-    // skRenderObject(&objectTest, &glistp);
+    skRenderObject(&objectTest, &glistp);
 
     /* calculate theta for next frame */
     logo_theta += logoVeloc;

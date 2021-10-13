@@ -66,12 +66,15 @@ SECTIONS
    {
       build/data/gfxinit.o(.data);
       build/data/gfxstatic.o(.data);
+      build/data/gfxinit.o(.bss);
+      build/data/gfxstatic.o(.bss);
    }
    END_SEG(static)
    
    BEGIN_SEG(dynamic, 0x02000000)
    {
       build/data/gfxdynamic.o(.data);
+      build/data/gfxdynamic.o(.bss);
    }
    END_SEG(dynamic)
 
@@ -94,6 +97,7 @@ SECTIONS
    BEGIN_SEG(sound_data, __romPos)
    {
       build/asm/sound_data.o(.data);
+      build/asm/sound_data.o(.bss);
    }
    END_SEG(sound_data)
 
