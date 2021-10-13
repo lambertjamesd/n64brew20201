@@ -70,6 +70,9 @@ static char         *characterSegment = 0;
 
 static struct SkelatoolObject objectTest;
 
+#define RDP_OUTPUT_SIZE 0x4000
+static void* rdp_output;
+
 extern char _charactersSegmentRomStart[];
 extern char _charactersSegmentRomEnd[];
 
@@ -121,6 +124,10 @@ void* initGFX(void* maxMemory)
     gInfo[1].msg.gen.type = OS_SC_DONE_MSG;
     currBuffer -= SCREEN_HT * SCREEN_WD;
     gInfo[1].cfb = currBuffer;
+
+    currBuffer -= RDP_OUTPUT_SIZE / sizeof(u16);
+    rdp_output = currBuffer;
+
 
     /* The Vi manager was started by scheduler by this point in time */
     osViSetSpecialFeatures(OS_VI_DITHER_FILTER_ON);
@@ -203,7 +210,7 @@ void createGfxTask(GFXInfo *i)
     t->list.t.ucode =      (u64 *) gspF3DEX2_fifoTextStart;
     t->list.t.ucode_data = (u64 *) gspF3DEX2_fifoDataStart; 
     t->list.t.output_buff = (u64 *) rdp_output;
-    t->list.t.output_buff_size = (u64 *) rdp_output + 0x4000/8;
+    t->list.t.output_buff_size = ((u64 *) rdp_output + RDP_OUTPUT_SIZE/sizeof(u64) - 2);
     t->list.t.ucode_data_size = SP_UCODE_DATA_SIZE;
     // t->list.t.ucode_size = 0;
     t->list.t.dram_stack = (u64 *) dram_stack;

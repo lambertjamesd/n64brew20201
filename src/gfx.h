@@ -99,8 +99,5 @@ extern u64	gfxYieldBuf[];
 /* matrix stack buffer: */
 extern u64          dram_stack[];
 
-/* rdp fifo buffer */
-extern u64	rdp_output[];
-
 #endif	/* _LANGUAGE_C */
 #endif /* __simplegfx__ */
