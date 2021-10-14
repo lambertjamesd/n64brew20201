@@ -44,6 +44,9 @@
 #include "sk64/skelatool_object.h"
 #include "sk64/skelatool_defs.h"
 
+#include "../data/levels/test/test.h"
+#include "scene/scene_management.h"
+
 /*
  * graphics globals
  */
@@ -68,6 +71,8 @@ static char         *staticSegment = 0;
 
 static char         *characterSegment = 0;
 
+static char         *levelSegment = 0;
+
 static struct SkelatoolObject objectTest;
 
 #define RDP_OUTPUT_SIZE 0x4000
@@ -75,6 +80,9 @@ static void* rdp_output;
 
 extern char _charactersSegmentRomStart[];
 extern char _charactersSegmentRomEnd[];
+
+extern char _level_testSegmentRomStart[];
+extern char _level_testSegmentRomEnd[];
 
 extern char _character_animationsSegmentRomStart[];
 
@@ -89,9 +97,8 @@ void initGFX()
     staticSegment = malloc(len);
     romCopy(_staticSegmentRomStart, staticSegment, len);
 
-    len = (u32)(_charactersSegmentRomEnd - _charactersSegmentRomStart);
-    characterSegment = malloc(len);
-    romCopy(_charactersSegmentRomStart, characterSegment, len);
+    LOAD_SEGMENT(characters, characterSegment);
+    LOAD_SEGMENT(level_test, levelSegment);
 
     skInitObject(
         &objectTest, 
@@ -105,6 +112,10 @@ void initGFX()
         (void*)objectTest.boneTransforms, 
         sizeof(struct Transform) * objectTest.numberOfBones
     );
+
+    loadLevelScene();
+    gCurrentLevel.levelDL = test_level_geometry;
+    gCurrentLevel.cameras[0].transform.position.z = 1000.0f;
 
     quatIdent(&objectTest.boneTransforms[0].rotation);
     
@@ -141,6 +152,7 @@ void createGfxTask(GFXInfo *i)
     gSPSegment(renderState->dl++, 0, 0);	/* physical addressing segment */
     gSPSegment(renderState->dl++, STATIC_SEGMENT,  osVirtualToPhysical(staticSegment));
     gSPSegment(renderState->dl++, CHARACTER_SEGMENT, osVirtualToPhysical(characterSegment));
+    gSPSegment(renderState->dl++, LEVEL_SEGMENT, osVirtualToPhysical(levelSegment));
 
     /**** Graphics pipeline state initialization ****/
     gSPDisplayList(renderState->dl++, setup_rspstate);
@@ -274,37 +286,40 @@ void doLogo(struct RenderState *renderState)
 	       G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
     gSPDisplayList(renderState->dl++, bg_dl);
 
-    float scale = 0.125f;
+    levelSceneRender(&gCurrentLevel, renderState);
 
-    /* Position the logo: */
-    Mtx* logo_trans = renderStateRequestMatrices(renderState, 1);
-    guTranslate(logo_trans, logoPos_x*4, logoPos_y*2, logoPos_z);
-    /* Scale the logo */
-    Mtx* logo_scale = renderStateRequestMatrices(renderState, 1);
-    guScale(logo_scale, logoScale_x * scale, logoScale_y * scale, logoScale_z * scale);
-    /* Rotate the logo */
-    Mtx* logo_rotate = renderStateRequestMatrices(renderState, 1);
-    guRotate(logo_rotate, logo_theta, 1.0, 1.0, 1.0);
+    // float scale = 0.5f;
 
-    /* Setup model matrix */
-    gSPMatrix(renderState->dl++, osVirtualToPhysical(projection), 
-	       G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
-    gSPMatrix(renderState->dl++, osVirtualToPhysical(viewing), 
-	       G_MTX_PROJECTION | G_MTX_MUL | G_MTX_NOPUSH);
-    gSPMatrix(renderState->dl++, osVirtualToPhysical(logo_trans), 
-	      G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
-    gSPMatrix(renderState->dl++, osVirtualToPhysical(logo_scale), 
-	      G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_NOPUSH);
-    gSPMatrix(renderState->dl++, osVirtualToPhysical(logo_rotate), 
-	      G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_NOPUSH);
+    // /* Position the logo: */
+    // Mtx* logo_trans = renderStateRequestMatrices(renderState, 1);
+    // guTranslate(logo_trans, logoPos_x*4, logoPos_y*2, logoPos_z);
+    // /* Scale the logo */
+    // Mtx* logo_scale = renderStateRequestMatrices(renderState, 1);
+    // guScale(logo_scale, logoScale_x * scale, logoScale_y * scale, logoScale_z * scale);
+    // /* Rotate the logo */
+    // Mtx* logo_rotate = renderStateRequestMatrices(renderState, 1);
+    // guRotate(logo_rotate, logo_theta, 1.0, 1.0, 1.0);
+
+    // /* Setup model matrix */
+    // gSPMatrix(renderState->dl++, osVirtualToPhysical(projection), 
+	//        G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
+    // gSPMatrix(renderState->dl++, osVirtualToPhysical(viewing), 
+	//        G_MTX_PROJECTION | G_MTX_MUL | G_MTX_NOPUSH);
+    // gSPMatrix(renderState->dl++, osVirtualToPhysical(logo_trans), 
+	//       G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
+    // gSPMatrix(renderState->dl++, osVirtualToPhysical(logo_scale), 
+	//       G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_NOPUSH);
+    // gSPMatrix(renderState->dl++, osVirtualToPhysical(logo_rotate), 
+	//       G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_NOPUSH);
     
     /* Draw the logo */
-    gSPDisplayList(renderState->dl++, logo_dl);
-    gSPDisplayList(renderState->dl++, mat_mario_sm64_material);
+    // gSPDisplayList(renderState->dl++, logo_dl);
+    // gSPDisplayList(renderState->dl++, test_level_geometry);
+    // gSPDisplayList(renderState->dl++, mat_mario_sm64_material);
     // gSPDisplayList(renderState->dl++, mario_Cube_mesh);
 
     // objectTest.boneTransforms[1].position.y = 4 * 256.0f + sinf(logo_theta / 180.0f) * 32.0f;
-    quatAxisAngle(&gUp, logo_theta / 170.0f, &objectTest.boneTransforms[1].rotation);
+    // quatAxisAngle(&gUp, logo_theta / 170.0f, &objectTest.boneTransforms[1].rotation);
     
     // skRenderObject(&objectTest, renderState);
 

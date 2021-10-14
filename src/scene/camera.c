@@ -2,6 +2,13 @@
 #include "camera.h"
 #include "math/transform.h"
 
+void cameraInit(struct Camera* camera, float fov, float near, float far) {
+    transformInitIdentity(&camera->transform);
+    camera->fov = fov;
+    camera->nearPlane = near;
+    camera->farPlane = far;
+}
+
 void cameraBuildViewMatrix(struct Camera* camera, Mtx* matrix) {
     struct Transform inverse;
     transformInvert(&camera->transform, &inverse);

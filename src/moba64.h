@@ -8,8 +8,9 @@
 #define	STACKSIZEBYTES	0x2000
 
 #define	STATIC_SEGMENT		1
-#define	DYNAMIC_SEGMENT		2
+
 #define CHARACTER_SEGMENT   3
+#define LEVEL_SEGMENT   4
 
 #ifdef _LANGUAGE_C
 
@@ -53,6 +54,11 @@ void     initCntrl(void);
 void     createGfxTask(GFXInfo *i);
 void     romCopy(const char *src, const char *dest, const int len);
 void     UpdateController(void);
+
+#define LOAD_SEGMENT(segmentName, dest)                                 \
+    len = (u32)(_ ## segmentName ## SegmentRomEnd - _ ## segmentName ## SegmentRomStart); \
+    dest = malloc(len);                                     \
+    romCopy(_ ## segmentName ## SegmentRomStart, dest, len);
 
 #endif /* _LANGUAGE_C */
 

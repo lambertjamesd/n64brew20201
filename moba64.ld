@@ -78,6 +78,13 @@ SECTIONS
    }
    END_SEG(characters)
 
+   BEGIN_SEG(level_test, 0x04000000)
+   {
+      build/data/levels/test/test.o(.data);
+      build/data/levels/test/test.o(.bss);
+   }
+   END_SEG(level_test)
+
    BEGIN_SEG(character_animations, CHARACTER_ANIMATION_SEGMENT)
    {
       build/data/models/character_animations.o(.data);
