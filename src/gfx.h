@@ -36,25 +36,13 @@
 #define __simplegfx__
 
 #include <sched.h>
+#include "graphics/render_state.h"
 
 #define	SCREEN_HT	240
 #define	SCREEN_WD	320
 #define GFX_DL_BUF_SIZE	6000
 
 #ifdef _LANGUAGE_C /* needed because file is included by "spec" */
-
-/*
- * Layout of our dynamic segment
- */
-typedef struct {
-	Mtx	projection;
-	Mtx	viewing;
-        Mtx     bg_model;
-        Mtx     logo_scale;
-        Mtx     logo_rotate;
-        Mtx     logo_trans;
-	Gfx	glist[512];	/* buffer to hold display list */
-} Dynamic;
 
 typedef union {    
 
@@ -71,14 +59,11 @@ typedef union {
 } GFXMsg;
 
 typedef struct {
+    struct RenderState __attribute__((aligned(16))) renderState;
     OSScTask    task;
-    Dynamic     dp;
     GFXMsg      msg;
     u16		*cfb;
 } GFXInfo;
-
-/* dynamic segment structure: */
-extern Dynamic	dynamic;
 
 /* some static display lists: */
 extern Gfx	rdpstateinit_dl[];
@@ -86,9 +71,6 @@ extern Gfx	setup_rdpstate[];
 extern Gfx	setup_rspstate[];
 extern Gfx 	logo_dl[];
 extern Gfx 	bg_dl[];
-
-/* global pointer for display list: */
-extern Gfx	*glistp;
 
 /* frame buffer, zbuffer: */
 extern unsigned short	zbuffer[];

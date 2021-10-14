@@ -9,7 +9,7 @@
 include /usr/include/n64/make/PRdefs
 
 OPTIMIZER		:= -O0
-LCDEFS			:= -DDEBUG -g -Isrc/ -I/usr/include/n64/nustd
+LCDEFS			:= -DDEBUG -g -Isrc/ -I/usr/include/n64/nustd -Werror
 N64LIB			:= -lultra_rom -lnustd
 
 BASE_TARGET_NAME = build/moba64

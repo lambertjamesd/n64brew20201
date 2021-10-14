@@ -11,7 +11,9 @@ struct Transform {
     struct Vector3 scale;
 };
 
+void transformInitIdentity(struct Transform* in);
 void transformToMatrix(struct Transform* in, float mtx[4][4]);
 void transformToMatrixL(struct Transform* in, Mtx* mtx);
+void transformInvert(struct Transform* in, struct Transform* out);
 
 #endif

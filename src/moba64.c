@@ -85,7 +85,6 @@ static OSMesg           dmaMessageBuf;
 /**** Graphics variables used in this file ****/
 OSMesgQueue     gfxFrameMsgQ;
 OSMesg          gfxFrameMsgBuf[MAX_MESGS];
-Gfx             *glistp;
 GFXInfo         gInfo[2];
 
 /**** Scheduler globals ****/
@@ -251,10 +250,6 @@ static void gameproc(void *argv)
     }
 }
 
-#define TMP_HEAP_SIZE   (1024 * 1024 / 8)
-
-u64 tmpHeap[TMP_HEAP_SIZE];
-
 /**********************************************************************
  *
  * A simple utility routine for copying data from rom to ram
@@ -287,6 +282,11 @@ void romCopy(const char *src, const char *dest, const int len)
     (void) osRecvMesg(&dmaMessageQ, &dummyMesg, OS_MESG_BLOCK);
 }
 
+/*
+ * Symbol genererated by linker
+ */
+extern char     _heapStart[];
+
 /**********************************************************************
  *
  * initGame sets up the message queues used, and starts the scheduler.
@@ -309,10 +309,11 @@ static void initGame(void)
 
     sched_cmdQ = osScGetCmdQ(&sc);
 
-    initHeap(tmpHeap, tmpHeap + TMP_HEAP_SIZE);
 
     /**** Call the initialization routines ****/
-    void* heapEnd = initGFX((void*)PHYS_TO_K0(osMemSize)); 
+    void* heapEnd = initGFXBuffers((void*)PHYS_TO_K0(osMemSize)); 
+    initHeap(_heapStart, heapEnd);
+    initGFX();
     initCntrl();
     initAudio();
 

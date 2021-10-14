@@ -70,13 +70,6 @@ SECTIONS
       build/data/gfxstatic.o(.bss);
    }
    END_SEG(static)
-   
-   BEGIN_SEG(dynamic, 0x02000000)
-   {
-      build/data/gfxdynamic.o(.data);
-      build/data/gfxdynamic.o(.bss);
-   }
-   END_SEG(dynamic)
 
    BEGIN_SEG(characters, 0x03000000)
    {

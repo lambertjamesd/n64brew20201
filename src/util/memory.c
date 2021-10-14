@@ -6,11 +6,6 @@ struct HeapSegment* gFirstFreeSegment;
 void* gHeapStart;
 void* gHeapEnd;
 
-/*
- * Symbol genererated by linker
- */
-extern char     _heapStart[];
-
 
 void initBlock(struct HeapSegment* segment, void* end, int type)
 {

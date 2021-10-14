@@ -47,7 +47,8 @@ extern char _bankSegmentRomStart[], _bankSegmentRomEnd[];
 
 
 void     initAudio(void);
-void*    initGFX(void* maxMemory);
+void    initGFX();
+void*    initGFXBuffers(void* maxMemory);
 void     initCntrl(void);
 void     createGfxTask(GFXInfo *i);
 void     romCopy(const char *src, const char *dest, const int len);
