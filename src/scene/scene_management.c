@@ -3,5 +3,5 @@
 struct LevelScene gCurrentLevel;
 
 void loadLevelScene() {
-    initLevelScene(&gCurrentLevel, 1);
+    levelSceneInit(&gCurrentLevel, 1);
 }

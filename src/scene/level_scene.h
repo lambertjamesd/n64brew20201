@@ -5,6 +5,7 @@
 
 #include "game_defs.h"
 #include "camera.h"
+#include "graphics/render_state.h"
 
 struct LevelScene {
     struct Camera cameras[MAX_PLAYERS];
@@ -13,6 +14,7 @@ struct LevelScene {
     Gfx* levelDL;
 };
 
-void initLevelScene(struct LevelScene* levelScene, unsigned int playercount);
+void levelSceneInit(struct LevelScene* levelScene, unsigned int playercount);
+void levelSceneRender(struct LevelScene* levelScene, struct RenderState* renderState);
 
 #endif
