@@ -65,9 +65,7 @@ SECTIONS
    BEGIN_SEG(static, 0x01000000)
    {
       build/data/gfxinit.o(.data);
-      build/data/gfxstatic.o(.data);
       build/data/gfxinit.o(.bss);
-      build/data/gfxstatic.o(.bss);
    }
    END_SEG(static)
 

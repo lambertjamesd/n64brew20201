@@ -1,40 +1,4 @@
-/**********************************************************************
- * audio.c
- *
- * This code implements the application audio thread. This is done
- * through an audio manager layer. The audio manager, does all of the 
- * neccessary initialization of the audio, and signs in to the scheduler.
- * At the begining of each video retrace, the scheduler sends a message
- * that wakes up the audio thread, which calls alAudioFrame to build an
- * audio task. Once this task is built, it is sent to the scheduler, that
- * will then send the task to the rsp for execution. 
- * 
- * Copyright 1993, Silicon Graphics, Inc.
- * All Rights Reserved.
- *
- * This is UNPUBLISHED PROPRIETARY SOURCE CODE of Silicon Graphics,
- * Inc.; the contents of this file may not be disclosed to third
- * parties, copied or duplicated in any form, in whole or in part,
- * without the prior written permission of Silicon Graphics, Inc.
- *
- * RESTRICTED RIGHTS LEGEND:
- * Use, duplication or disclosure by the Government is subject to
- * restrictions as set forth in subdivision (c)(1)(ii) of the Rights
- * in Technical Data and Computer Software clause at DFARS
- * 252.227-7013, and/or in similar or successor clauses in the FAR,
- * DOD or NASA FAR Supplement. Unpublished - rights reserved under the
- * Copyright Laws of the United States.
- *********************************************************************/
 
-/*---------------------------------------------------------------------*
-        Copyright (C) 1998 Nintendo. (Originated by SGI)
-        
-        $RCSfile: audio.c,v $
-        $Revision: 1.1.1.1 $
-        $Date: 2002/05/02 03:27:21 $
- *---------------------------------------------------------------------*/
-
-#include <ultralog.h>
 #include "audio.h"
 #include "moba64.h"
 

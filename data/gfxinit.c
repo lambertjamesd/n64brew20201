@@ -23,7 +23,7 @@
  *====================================================================*/
 
 #include <ultra64.h>
-#include "gfx.h"
+#include "graphics/gfx.h"
 
 /*
  * Remember, viewport structures have 2 bits of fraction in them.

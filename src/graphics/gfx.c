@@ -1,41 +1,7 @@
-/*====================================================================
- * gfx.c
- *
- * Synopsis:
- *
- * This code implements the application graphics stuff
- * 
- * 
- * 
- * Copyright 1993, Silicon Graphics, Inc.
- * All Rights Reserved.
- *
- * This is UNPUBLISHED PROPRIETARY SOURCE CODE of Silicon Graphics,
- * Inc.; the contents of this file may not be disclosed to third
- * parties, copied or duplicated in any form, in whole or in part,
- * without the prior written permission of Silicon Graphics, Inc.
- *
- * RESTRICTED RIGHTS LEGEND:
- * Use, duplication or disclosure by the Government is subject to
- * restrictions as set forth in subdivision (c)(1)(ii) of the Rights
- * in Technical Data and Computer Software clause at DFARS
- * 252.227-7013, and/or in similar or successor clauses in the FAR,
- * DOD or NASA FAR Supplement. Unpublished - rights reserved under the
- * Copyright Laws of the United States.
- *====================================================================*/
 
-/*---------------------------------------------------------------------*
-        Copyright (C) 1998 Nintendo. (Originated by SGI)
-        
-        $RCSfile: gfx.c,v $
-        $Revision: 1.1.1.1 $
-        $Date: 2002/05/02 03:27:21 $
- *---------------------------------------------------------------------*/
-
-#include <ultralog.h>
 #include <assert.h>
 
-#include "gfx.h"
+#include "graphics/gfx.h"
 #include "moba64.h"
 #include "gfxvalidator/validator.h"
 #include "gfxvalidator/error_printer.h"
@@ -55,17 +21,7 @@ extern OSSched         sc;
 extern OSMesgQueue     *sched_cmdQ;
 extern GFXInfo         gInfo[];
 
-extern s8    logoPos_x;
-extern s8    logoPos_y;
-extern s8    logoPos_z;
-extern f32   logoScale_x;
-extern f32   logoScale_y;
-extern f32   logoScale_z;
-extern f32   logoVeloc;
-
 u32	ucode_index = 0;
-
-static u32          framecount;
 
 static char         *staticSegment = 0;
 
@@ -86,8 +42,11 @@ extern char _level_testSegmentRomEnd[];
 
 extern char _character_animationsSegmentRomStart[];
 
-void doLogo(struct RenderState *dynamicp);
+unsigned short	__attribute__((aligned(64))) zbuffer[SCREEN_WD*SCREEN_HT];
+u64 __attribute__((aligned(16))) dram_stack[SP_DRAM_STACK_SIZE64];
+u64 __attribute__((aligned(16))) gfxYieldBuf[OS_YIELD_DATA_SIZE/sizeof(u64)];
 
+void doLogo(struct RenderState *dynamicp);
 
 void initGFX() 
 {    
@@ -188,7 +147,7 @@ void createGfxTask(GFXInfo *i)
     gDPSetCycleType(renderState->dl++, G_CYC_1CYCLE); 
 
     /**** Draw objects */
-    doLogo(renderState);
+    levelSceneRender(&gCurrentLevel, renderState);
 
     
     /**** Put an end on the top-level display list  ****/
@@ -238,91 +197,4 @@ void createGfxTask(GFXInfo *i)
     // }
 
     osSendMesg(sched_cmdQ, (OSMesg) t, OS_MESG_BLOCK); 
-    
-    framecount++;
-}
-
-extern Gfx mario_Cube_mesh[];
-extern Gfx mat_mario_sm64_material[];
-extern Gfx output_model_gfx[];
-extern Gfx mario_Cube_mesh_tri_0[];
-extern Gfx mario_Cube_empty[];
-
-/*
- * Draw the SGI Logo
- *
- * You can mix the gu and the gSP commands.  The important item to 
- * remember is that the cache must be flushed of any dynamic data
- * before the RSP starts reading the command list.
- */
-void doLogo(struct RenderState *renderState)
-{
-    u16		   perspNorm;
-    static float   logo_theta = 0;
-    /*
-     * You must make the call to gSPPerspNormalize() in addition to 
-     * using the perspective projection matrix.
-     */
-    Mtx* projection = renderStateRequestMatrices(renderState, 1);
-    guPerspective(projection, &perspNorm,
-		  33, 320.0/240.0, 400, 2000, 1.0);
-    gSPPerspNormalize(renderState->dl++, perspNorm);
-
-    Mtx* viewing = renderStateRequestMatrices(renderState, 1);
-    guLookAt(viewing, 
-	     0, 0, 1000,
-	     0, 0, 0,
-	     0, 1, 0);
-    
-
-    /* draw the background first */
-    Mtx* bg_model = renderStateRequestMatrices(renderState, 1);
-    guScale(bg_model, 12.0, 7.0, 1.0);
-    gSPMatrix(renderState->dl++, osVirtualToPhysical(projection), 
-	       G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
-    gSPMatrix(renderState->dl++, osVirtualToPhysical(viewing), 
-	       G_MTX_PROJECTION | G_MTX_MUL | G_MTX_NOPUSH);
-    gSPMatrix(renderState->dl++, osVirtualToPhysical(bg_model), 
-	       G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
-    gSPDisplayList(renderState->dl++, bg_dl);
-
-    levelSceneRender(&gCurrentLevel, renderState);
-
-    // float scale = 0.5f;
-
-    // /* Position the logo: */
-    // Mtx* logo_trans = renderStateRequestMatrices(renderState, 1);
-    // guTranslate(logo_trans, logoPos_x*4, logoPos_y*2, logoPos_z);
-    // /* Scale the logo */
-    // Mtx* logo_scale = renderStateRequestMatrices(renderState, 1);
-    // guScale(logo_scale, logoScale_x * scale, logoScale_y * scale, logoScale_z * scale);
-    // /* Rotate the logo */
-    // Mtx* logo_rotate = renderStateRequestMatrices(renderState, 1);
-    // guRotate(logo_rotate, logo_theta, 1.0, 1.0, 1.0);
-
-    // /* Setup model matrix */
-    // gSPMatrix(renderState->dl++, osVirtualToPhysical(projection), 
-	//        G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
-    // gSPMatrix(renderState->dl++, osVirtualToPhysical(viewing), 
-	//        G_MTX_PROJECTION | G_MTX_MUL | G_MTX_NOPUSH);
-    // gSPMatrix(renderState->dl++, osVirtualToPhysical(logo_trans), 
-	//       G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
-    // gSPMatrix(renderState->dl++, osVirtualToPhysical(logo_scale), 
-	//       G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_NOPUSH);
-    // gSPMatrix(renderState->dl++, osVirtualToPhysical(logo_rotate), 
-	//       G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_NOPUSH);
-    
-    /* Draw the logo */
-    // gSPDisplayList(renderState->dl++, logo_dl);
-    // gSPDisplayList(renderState->dl++, test_level_geometry);
-    // gSPDisplayList(renderState->dl++, mat_mario_sm64_material);
-    // gSPDisplayList(renderState->dl++, mario_Cube_mesh);
-
-    // objectTest.boneTransforms[1].position.y = 4 * 256.0f + sinf(logo_theta / 180.0f) * 32.0f;
-    // quatAxisAngle(&gUp, logo_theta / 170.0f, &objectTest.boneTransforms[1].rotation);
-    
-    // skRenderObject(&objectTest, renderState);
-
-    /* calculate theta for next frame */
-    logo_theta += logoVeloc;
 }

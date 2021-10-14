@@ -15,7 +15,7 @@
 #ifdef _LANGUAGE_C
 
 #include <ultra64.h>
-#include "gfx.h"
+#include "graphics/gfx.h"
 
 #define MAX_MESGS	8
 #define DMA_QUEUE_SIZE  200

@@ -1,41 +1,4 @@
-/******************************************************************************
- * audiomgr.c
- *
- * This code implements the audio manager. This provides a low level 
- * interface to the audio library, and manages the routines needed to
- * create the audio task.
- *
- * At the begining of each video retrace, the scheduler sends a message
- * that wakes up the audio thread, which calls alAudioFrame to build an
- * audio task. Once this task is built, it is sent to the scheduler, that
- * will then send the task to the rsp for execution. 
- * 
- * Copyright 1993, Silicon Graphics, Inc.
- * All Rights Reserved.
- *
- * This is UNPUBLISHED PROPRIETARY SOURCE CODE of Silicon Graphics,
- * Inc.; the contents of this file may not be disclosed to third
- * parties, copied or duplicated in any form, in whole or in part,
- * without the prior written permission of Silicon Graphics, Inc.
- *
- * RESTRICTED RIGHTS LEGEND:
- * Use, duplication or disclosure by the Government is subject to
- * restrictions as set forth in subdivision (c)(1)(ii) of the Rights
- * in Technical Data and Computer Software clause at DFARS
- * 252.227-7013, and/or in similar or successor clauses in the FAR,
- * DOD or NASA FAR Supplement. Unpublished - rights reserved under the
- * Copyright Laws of the United States.
- *****************************************************************************/
 
-/*---------------------------------------------------------------------*
-        Copyright (C) 1998 Nintendo. (Originated by SGI)
-        
-        $RCSfile: audiomgr.c,v $
-        $Revision: 1.1.1.1 $
-        $Date: 2002/05/02 03:27:21 $
- *---------------------------------------------------------------------*/
-
-#include <ultralog.h>
 #include <assert.h>
 #include "audio.h"
 #include "moba64.h"
@@ -184,18 +147,6 @@ void amCreateAudioMgr(ALSynConfig *c, OSPri pri, amConfig *amc)
     osStartThread(&__am.thread);
 }
 
-/******************************************************************************
- *
- * Audio Manager implementation. This thread wakes up at every retrace,
- * and builds an audio task, which it returns to the scheduler, who then
- * is responsible for its finally execution on the RSP. Once the task has
- * finished execution, the scheduler sends back a message saying the task
- * is complete. The audio is triple buffered because the switching to a new
- * audio buffer does not occur exactly at the gfx swapbuffer time.  With
- * 3 buffers you ensure that the program does not destroy data before it is
- * played.
- *
- *****************************************************************************/
 static void __amMain(void *arg) 
 {
     u32         validTask;
@@ -242,22 +193,6 @@ static void __amMain(void *arg)
     alClose(&__am.g);
 }
 
-/******************************************************************************
- *
- * __amHandleFrameMsg. First, clear the past audio dma's, then calculate 
- * the number of samples you will need for this frame. This value varies
- * due to the fact that audio is synchronised off of the video interupt 
- * which can have a small amount of jitter in it. Varying the number of 
- * samples slightly will allow you to stay in synch with the video. This
- * is an advantageous thing to do, since if you are in synch with the 
- * video, you will have fewer graphics yields. After you've calculated 
- * the number of frames needed, call alAudioFrame, which will call all
- * of the synthesizer's players (sequence player and sound player) to
- * generate the audio task list. If you get a valid task list back, put
- * it in a task structure and send a message to the scheduler to let it
- * know that the next frame of audio is ready for processing.
- *
- *****************************************************************************/
 static u32 __amHandleFrameMsg(AudioInfo *info, AudioInfo *lastInfo)
 {
     s16 *audioPtr;
@@ -341,20 +276,6 @@ static void __amHandleDoneMsg(AudioInfo *info)
     }
 }
 
-/******************************************************************************
- *
- * __amDMA This routine handles the dma'ing of samples from rom to ram.
- * First it checks the current buffers to see if the samples needed are
- * already in place. Because buffers are linked sequentially by the
- * addresses where the samples are on rom, it doesn't need to check all
- * of them, only up to the address that it needs. If it finds one, it
- * returns the address of that buffer. If it doesn't find the samples 
- * that it needs, it will initiate a DMA of the samples that it needs.
- * In either case, it updates the lastFrame variable, to indicate that
- * this buffer was last used in this frame. This is important for the
- * __clearAudioDMA routine.
- *
- *****************************************************************************/
 s32 __amDMA(s32 addr, s32 len, void *state)
 {
     void            *foundBuffer;
@@ -436,17 +357,6 @@ s32 __amDMA(s32 addr, s32 len, void *state)
     return (int) osVirtualToPhysical(foundBuffer) + delta;
 }
 
-/******************************************************************************
- *
- * __amDmaNew.  Initialize the dma buffers and return the address of the
- * procedure that will be used to dma the samples from rom to ram. This 
- * routine will be called once for each physical voice that is created. 
- * In this case, because we know where all the buffers are, and since 
- * they are not attached to a specific voice, we will only really do any
- * initialization the first time. After that we just return the address
- * to the dma routine.
- *
- *****************************************************************************/
 ALDMAproc __amDmaNew(AMDMAState **state)
 {
     int         i;
