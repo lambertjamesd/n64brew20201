@@ -9,8 +9,6 @@ static OSContPad     controllerdata[MAXCONTROLLERS];
 static OSScMsg       controllermsg;
 static u16           lastButArray[MAXCONTROLLERS];
 
-extern	u32	ucode_index;
-
 void initCntrl(void)
 {
     OSMesgQueue         serialMsgQ;

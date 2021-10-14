@@ -13,9 +13,9 @@ static OSThread gameThread;
 static OSThread initThread;
 
 /**** Stack for boot code.  Space can be reused after 1st thread starts ****/
-u64    bootStack[STACKSIZEBYTES/sizeof(u64)];
 
 /**** Stacks for the threads, divide by 8 which is the size of a u64 ****/
+u64    bootStack[STACKSIZEBYTES/sizeof(u64)];
 static u64      gameThreadStack[STACKSIZEBYTES/sizeof(u64)];
 static u64      initThreadStack[STACKSIZEBYTES/sizeof(u64)];
 

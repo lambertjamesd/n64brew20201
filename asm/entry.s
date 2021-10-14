@@ -17,10 +17,10 @@ glabel entry_point
     bnez  $t1, .L80246010
      addi  $t0, $t0, 8
     lui   $t2, %hi(boot) # $t2, 0x8024
-    lui   $sp, %hi(bootStack) # $sp, 0x8020
+    lui   $sp, %hi(bootStack + 0x2000) # $sp, 0x8020
     addiu $t2, %lo(boot) # addiu $t2, $t2, 0x6dc4
     jr    $t2
-     addiu $sp, %lo(bootStack) # addiu $sp, $sp, 0xa00
+     addiu $sp, %lo(bootStack + 0x2000) # addiu $sp, $sp, 0xa00
     nop
     nop
     nop

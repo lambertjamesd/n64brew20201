@@ -1,7 +1,7 @@
 
 #include <assert.h>
 
-#include "graphics/gfx.h"
+#include "gfx.h"
 #include "moba64.h"
 #include "gfxvalidator/validator.h"
 #include "gfxvalidator/error_printer.h"
@@ -20,8 +20,6 @@
 extern OSSched         sc;
 extern OSMesgQueue     *sched_cmdQ;
 extern GFXInfo         gInfo[];
-
-u32	ucode_index = 0;
 
 static char         *staticSegment = 0;
 
@@ -44,9 +42,7 @@ extern char _character_animationsSegmentRomStart[];
 
 unsigned short	__attribute__((aligned(64))) zbuffer[SCREEN_WD*SCREEN_HT];
 u64 __attribute__((aligned(16))) dram_stack[SP_DRAM_STACK_SIZE64];
-u64 __attribute__((aligned(16))) gfxYieldBuf[OS_YIELD_DATA_SIZE/sizeof(u64)];
-
-void doLogo(struct RenderState *dynamicp);
+u64 __attribute__((aligned(16))) gfxYieldBuf2[OS_YIELD_DATA_SIZE/sizeof(u64)];
 
 void initGFX() 
 {    
@@ -91,7 +87,7 @@ void* initGFXBuffers(void* maxMemory) {
     currBuffer -= SCREEN_HT * SCREEN_WD;
     gInfo[1].cfb = currBuffer;
 
-    currBuffer -= RDP_OUTPUT_SIZE / sizeof(u16);
+    currBuffer -= (RDP_OUTPUT_SIZE + 16) / sizeof(u16);
     rdp_output = currBuffer;
 
     return currBuffer;
@@ -170,12 +166,12 @@ void createGfxTask(GFXInfo *i)
     t->list.t.ucode =      (u64 *) gspF3DEX2_fifoTextStart;
     t->list.t.ucode_data = (u64 *) gspF3DEX2_fifoDataStart; 
     t->list.t.output_buff = (u64 *) rdp_output;
-    t->list.t.output_buff_size = ((u64 *) rdp_output + RDP_OUTPUT_SIZE/sizeof(u64) - 2);
+    t->list.t.output_buff_size = ((u64 *) rdp_output + RDP_OUTPUT_SIZE/sizeof(u64));
     t->list.t.ucode_data_size = SP_UCODE_DATA_SIZE;
     // t->list.t.ucode_size = 0;
     t->list.t.dram_stack = (u64 *) dram_stack;
     t->list.t.dram_stack_size = SP_DRAM_STACK_SIZE8;
-    t->list.t.yield_data_ptr = (u64 *) gfxYieldBuf;
+    t->list.t.yield_data_ptr = (u64 *) gfxYieldBuf2;
     t->list.t.yield_data_size = OS_YIELD_DATA_SIZE;
 
     t->next     = 0;                   /* paranoia */

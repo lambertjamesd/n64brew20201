@@ -76,7 +76,7 @@ extern Gfx 	bg_dl[];
 extern unsigned short	zbuffer[];
 
 /* yield buffer: */
-extern u64	gfxYieldBuf[];
+extern u64	gfxYieldBuf2[];
 
 /* matrix stack buffer: */
 extern u64          dram_stack[];
