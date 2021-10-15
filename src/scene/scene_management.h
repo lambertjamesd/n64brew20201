@@ -3,8 +3,16 @@
 
 #include "level_scene.h"
 
+enum SceneState {
+    SceneStateNone,
+    SceneStateInLevel,
+};
+
+extern enum SceneState gSceneState;
 extern struct LevelScene gCurrentLevel;
 
 void loadLevelScene();
+
+void sceneUpdate();
 
 #endif

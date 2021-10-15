@@ -56,7 +56,6 @@ void initGFX()
 
     loadLevelScene();
     gCurrentLevel.levelDL = test_level_geometry;
-    gCurrentLevel.cameras[0].transform.position.z = 1000.0f;
     
     gInfo[0].msg.gen.type = OS_SC_DONE_MSG;
     gInfo[1].msg.gen.type = OS_SC_DONE_MSG;

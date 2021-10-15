@@ -1,72 +1,73 @@
-Lights1 Test_f3d_Rocks_lights = gdSPDefLights1(
-	0x44, 0xA, 0x2,
-	0x88, 0x15, 0x5, 0x28, 0x28, 0x28);
-
-Vtx test_level_geometry_vtx_0[29] = {
-	{{{-69, -47, -96},0, {131, 496},{0xFD, 0x81, 0x0, 0xFF}}},
-	{{{106, -49, -80},0, {370, 489},{0xFF, 0x81, 0xFF, 0xFF}}},
-	{{{89, -51, 94},0, {368, 242},{0xFE, 0x81, 0x0, 0xFF}}},
-	{{{89, -51, 94},0, {370, 240},{0xFE, 0x81, 0x0, 0xFF}}},
-	{{{-82, -45, 68},0, {112, 248},{0xFC, 0x81, 0x0, 0xFF}}},
-	{{{7, 89, -55},0, {623, 624},{0x3, 0x24, 0x86, 0xFF}}},
-	{{{68, 72, -52},0, {624, 496},{0x10, 0x21, 0x86, 0xFF}}},
-	{{{106, -49, -80},0, {370, 489},{0xC, 0x1F, 0x85, 0xFF}}},
-	{{{-69, -47, -96},0, {368, 733},{0x4, 0x22, 0x86, 0xFF}}},
-	{{{-55, 78, -51},0, {622, 753},{0xF1, 0x2C, 0x8A, 0xFF}}},
-	{{{89, -51, 94},0, {368, 242},{0xFB, 0x28, 0x78, 0xFF}}},
-	{{{-45, 52, 48},0, {624, -16},{0xF2, 0x23, 0x79, 0xFF}}},
-	{{{-82, -45, 68},0, {370, -16},{0xEF, 0x1F, 0x7A, 0xFF}}},
-	{{{28, 67, 50},0, {624, 112},{0xFF, 0x2C, 0x77, 0xFF}}},
-	{{{89, 57, 46},0, {618, 248},{0xF, 0x33, 0x73, 0xFF}}},
-	{{{106, -49, -80},0, {370, 489},{0x7D, 0x17, 0xFD, 0xFF}}},
-	{{{89, 57, 46},0, {618, 248},{0x7D, 0x15, 0x0, 0xFF}}},
-	{{{89, -51, 94},0, {368, 242},{0x7E, 0x5, 0xC, 0xFF}}},
-	{{{68, 72, -52},0, {624, 496},{0x76, 0x2A, 0xED, 0xFF}}},
-	{{{-82, -45, 68},0, {370, 1000},{0x85, 0x1F, 0x3, 0xFF}}},
-	{{{-55, 78, -51},0, {622, 753},{0x84, 0x1D, 0x1, 0xFF}}},
-	{{{-69, -47, -96},0, {368, 733},{0x83, 0x12, 0xF7, 0xFF}}},
-	{{{-45, 52, 48},0, {624, 1008},{0x8C, 0x2F, 0x16, 0xFF}}},
-	{{{68, 72, -52},0, {624, 496},{0x1D, 0x7A, 0x12, 0xFF}}},
-	{{{28, 67, 50},0, {752, 249},{0x3, 0x7D, 0x18, 0xFF}}},
-	{{{89, 57, 46},0, {618, 248},{0x14, 0x7D, 0xF, 0xFF}}},
-	{{{7, 89, -55},0, {752, 496},{0x2, 0x7C, 0x1A, 0xFF}}},
-	{{{-55, 78, -51},0, {880, 495},{0xEA, 0x79, 0x1F, 0xFF}}},
-	{{{-45, 52, 48},0, {880, 240},{0xE8, 0x78, 0x21, 0xFF}}},
+u64 Test_Ground_Ground_Texture2_ci8[] = {
+	0x0001020304030504, 0x0607000003030108, 0x0808060304080806, 0x0808080108010303, 0x0708040803030403, 0x0303080300060301, 0x0106000008080009, 0x08040a0001030b02, 
+	0x0801010701050303, 0x03060808000c0408, 0x090808080008030b, 0x080d000800020d02, 0x05030808040a0d0e, 0x0408080103080609, 0x0d08080801020f01, 0x0801080000020204, 
+	0x03020403090a0905, 0x010106040508060f, 0x0f03070c0d0b0501, 0x0008030806080801, 0x02090410020a110d, 0x0605031003000300, 0x0003050b0b0e0410, 0x0812030d01000008, 
+	0x01100b0e01030405, 0x03090d0c07080008, 0x08100d0e06080800, 0x0c01090301040800, 0x01030a0410050305, 0x040c010c09010801, 0x10090b0301090010, 0x030c0a0905050608, 
+	0x000d0a0303031003, 0x0303050601000106, 0x030d0e0900080001, 0x0800071006080104, 0x0305051005011001, 0x0c05060800050303, 0x10040c0801080308, 0x0012080310030604, 
+	0x010504050a040008, 0x0801010008030a10, 0x0405010808040000, 0x0d080301040a0308, 0x0404050d01050b0f, 0x0405050006080808, 0x030c080808010000, 0x0706000003000000, 
+	0x00080001010a0b0a, 0x0a05040804080701, 0x0413070b03000000, 0x0808000708000000, 0x0307030305040b0a, 0x0d0c090503100600, 0x0104080800080000, 0x000000030601080b, 
+	0x0305101003051009, 0x050a090504030301, 0x0808010d000c0808, 0x0000000103030803, 0x0303030505091003, 0x050f100304080000, 0x000005050301010d, 0x0807050506030406, 
+	0x081005040c100304, 0x0108040c03050703, 0x010000000803050d, 0x0c050b0503010103, 0x030404050a041003, 0x04100405030a040d, 0x0804080700000a09, 0x1004040503031003, 
+	0x0804111009100510, 0x0c0a0f0a05050c09, 0x1003030808010809, 0x0b10050502060510, 0x0004100a0b100d09, 0x0a0510040a09040c, 0x0901010105030106, 0x030b040504050200, 
+	0x05090b110b0a0b0a, 0x040305100c0b0a09, 0x0303050d06080405, 0x0d050904030c0604, 0x0813090b0a050301, 0x0c010a090f0b0903, 0x100504070309090a, 0x040c0910040d0101, 
+	0x0306040405100310, 0x0103080609030409, 0x09100c08040f0910, 0x090a0b0404040405, 0x0805010510091003, 0x0008010804020310, 0x03050d03030b0305, 0x0d110a0e0c030806, 
+	0x08080305030c0403, 0x0801010404080305, 0x0305100903060106, 0x0b0b100b03030903, 0x020f080103040801, 0x0609040705090a09, 0x0309050f0b0c0803, 0x0b0d100501091108, 
+	0x080808080603080d, 0x0808030d05080404, 0x091104040a0b0303, 0x0c09040307090901, 0x0802050601041005, 0x100203100404030e, 0x080808100a050301, 0x0101030103010308, 
+	0x0101040603010305, 0x0210040103080109, 0x1005050a0b090808, 0x0106100801010808, 0x0406030706010904, 0x0504010108080403, 0x0303040d0f100306, 0x0103010400000808, 
+	0x0301000003010304, 0x0401010100010505, 0x0403040a01040703, 0x0401010803010000, 0x0306080102010606, 0x0101010301040101, 0x0704010704010101, 0x0103030103010100, 
+	
 };
 
-Gfx test_level_geometry_tri_0[] = {
-	gsSPVertex(test_level_geometry_vtx_0 + 0, 15, 0),
+u64 Test_Ground_Ground_Texture2_ci8_pal_rgba16[] = {
+	0xcad7bad7aa55b295, 0xaa95a255ba95ba97, 0xc2d792538a138211, 0xa25379d171d19213, 0x9a538a11cb177a11, 
+};
+
+Vtx Test_Ground_Ground_001_mesh_vtx_0[4] = {
+	{{{-1250, 0, 1250},0, {2074, 2074},{0x0, 0x7F, 0x0, 0xFF}}},
+	{{{1250, 0, 1250},0, {2074, -1082},{0x0, 0x7F, 0x0, 0xFF}}},
+	{{{1250, 0, -1250},0, {-1082, -1082},{0x0, 0x7F, 0x0, 0xFF}}},
+	{{{-1250, 0, -1250},0, {-1082, 2074},{0x0, 0x7F, 0x0, 0xFD}}},
+};
+
+Gfx Test_Ground_Ground_001_mesh_tri_0[] = {
+	gsSPVertex(Test_Ground_Ground_001_mesh_vtx_0 + 0, 4, 0),
 	gsSP1Triangle(0, 1, 2, 0),
-	gsSP1Triangle(0, 3, 4, 0),
-	gsSP1Triangle(5, 6, 7, 0),
-	gsSP1Triangle(8, 5, 7, 0),
-	gsSP1Triangle(9, 5, 8, 0),
-	gsSP1Triangle(10, 11, 12, 0),
-	gsSP1Triangle(10, 13, 11, 0),
-	gsSP1Triangle(14, 13, 10, 0),
-	gsSPVertex(test_level_geometry_vtx_0 + 15, 14, 0),
-	gsSP1Triangle(0, 1, 2, 0),
-	gsSP1Triangle(3, 1, 0, 0),
-	gsSP1Triangle(4, 5, 6, 0),
-	gsSP1Triangle(7, 5, 4, 0),
-	gsSP1Triangle(8, 9, 10, 0),
-	gsSP1Triangle(8, 11, 9, 0),
-	gsSP1Triangle(11, 12, 9, 0),
-	gsSP1Triangle(9, 12, 13, 0),
+	gsSP1Triangle(0, 2, 3, 0),
 	gsSPEndDisplayList(),
 };
 
-Gfx mat_Test_f3d_Rocks[] = {
+Gfx mat_Test_Ground_f3d_material_002[] = {
 	gsDPPipeSync(),
-	gsDPSetCombineLERP(0, 0, 0, SHADE, 0, 0, 0, ENVIRONMENT, 0, 0, 0, SHADE, 0, 0, 0, ENVIRONMENT),
+	gsDPSetCombineLERP(0, 0, 0, TEXEL0, 0, 0, 0, ENVIRONMENT, 0, 0, 0, TEXEL0, 0, 0, 0, ENVIRONMENT),
 	gsSPTexture(65535, 65535, 0, 0, 1),
-	gsSPSetLights1(Test_f3d_Rocks_lights),
+	gsDPSetTextureLUT(G_TT_RGBA16),
+	gsDPSetTextureImage(G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, Test_Ground_Ground_Texture2_ci8_pal_rgba16),
+	gsDPTileSync(),
+	gsDPSetTile(0, 0, 0, 256, 7, 0, G_TX_WRAP | G_TX_NOMIRROR, 0, 0, G_TX_WRAP | G_TX_NOMIRROR, 0, 0),
+	gsDPLoadSync(),
+	gsDPLoadTLUTCmd(7, 19),
+	gsDPPipeSync(),
+	gsDPTileSync(),
+	gsDPSetTextureImage(G_IM_FMT_CI, G_IM_SIZ_8b_LOAD_BLOCK, 1, Test_Ground_Ground_Texture2_ci8),
+	gsDPSetTile(G_IM_FMT_CI, G_IM_SIZ_8b_LOAD_BLOCK, 0, 0, 7, 0, G_TX_WRAP | G_TX_NOMIRROR, 5, 0, G_TX_WRAP | G_TX_NOMIRROR, 5, 0),
+	gsDPLoadSync(),
+	gsDPLoadBlock(7, 0, 0, 511, 512),
+	gsDPPipeSync(),
+	gsDPSetTile(G_IM_FMT_CI, G_IM_SIZ_8b, 4, 0, 0, 0, G_TX_WRAP | G_TX_NOMIRROR, 5, 0, G_TX_WRAP | G_TX_NOMIRROR, 5, 0),
+	gsDPSetTileSize(0, 0, 0, 124, 124),
+	gsSPEndDisplayList(),
+};
+
+Gfx mat_revert_Test_Ground_f3d_material_002[] = {
+	gsDPPipeSync(),
+	gsDPSetTextureLUT(G_TT_NONE),
 	gsSPEndDisplayList(),
 };
 
 Gfx test_level_geometry[] = {
-	gsSPDisplayList(mat_Test_f3d_Rocks),
-	gsSPDisplayList(test_level_geometry_tri_0),
+	gsSPDisplayList(mat_Test_Ground_f3d_material_002),
+	gsSPDisplayList(Test_Ground_Ground_001_mesh_tri_0),
+	gsSPDisplayList(mat_revert_Test_Ground_f3d_material_002),
 	gsDPPipeSync(),
 	gsSPSetGeometryMode(G_LIGHTING),
 	gsSPClearGeometryMode(G_TEXTURE_GEN),
@@ -74,4 +75,3 @@ Gfx test_level_geometry[] = {
 	gsSPTexture(65535, 65535, 0, 0, 0),
 	gsSPEndDisplayList(),
 };
-

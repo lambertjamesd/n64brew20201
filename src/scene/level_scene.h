@@ -23,6 +23,7 @@ struct LevelScene {
 
 void levelSceneInit(struct LevelScene* levelScene, unsigned int playercount, unsigned int baseCount);
 void levelSceneRender(struct LevelScene* levelScene, struct RenderState* renderState);
+void levelSceneUpdate(struct LevelScene* levelScene);
 
 void levelSceneSpawnMinion(struct LevelScene* levelScene, enum MinionType type, struct Transform* at);
 

@@ -7,6 +7,8 @@
 #include "../debugger/debugger.h"
 #include "util/memory.h"
 #include "util/time.h"
+#include "scene/scene_management.h"
+#include "controls/controller.h"
 
 
 /**** threads used by this file ****/
@@ -119,7 +121,6 @@ static void gameproc(void *argv)
 {
     u32         drawbuffer = 0;
     u32         pendingGFX = 0;
-    u32         cntrlReadInProg = 0;
     GFXMsg      *msg = NULL;
 
     initGame();
@@ -139,14 +140,9 @@ static void gameproc(void *argv)
                     drawbuffer ^= 1; /* switch the drawbuffer */
                 }
 
-                /* request latest controller information (ie poll) */
-                if (validcontrollers && !cntrlReadInProg)
-                {
-                    cntrlReadInProg = 1;
-                    osContStartReadData(&gfxFrameMsgQ);
-                }
-
+                controllersTriggerRead();
                 timeUpdateDelta();
+                sceneUpdate();
 
                 break;
 
@@ -155,8 +151,7 @@ static void gameproc(void *argv)
                 break;
                 
             case SIMPLE_CONTROLLER_MSG:
-                UpdateController();
-                cntrlReadInProg = 0;
+                controllersUpdate();
                 break;
                 
             case (OS_SC_PRE_NMI_MSG): /* stop creation of graphics tasks */
@@ -188,7 +183,7 @@ static void initGame(void)
     void* heapEnd = initGFXBuffers((void*)PHYS_TO_K0(osMemSize)); 
     initHeap(_heapStart, heapEnd);
     initGFX();
-    initCntrl();
+    controllersInit();
     initAudio();
 
     OSThread* debugThreads[2];
