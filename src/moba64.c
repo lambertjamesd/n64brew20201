@@ -6,6 +6,7 @@
 #include "graphics/gfx.h"
 #include "../debugger/debugger.h"
 #include "util/memory.h"
+#include "util/time.h"
 
 
 /**** threads used by this file ****/
@@ -27,7 +28,7 @@ static void     initGame(void);
 /**** message queues and message buffers used by this app ****/
 static OSMesg           PiMessages[DMA_QUEUE_SIZE];
 static OSMesgQueue      PiMessageQ;
-static OSMesgQueue      dmaMessageQ;
+OSMesgQueue dmaMessageQ;
 static OSMesg           dmaMessageBuf;
 
 /**** Graphics variables used in this file ****/
@@ -144,6 +145,9 @@ static void gameproc(void *argv)
                     cntrlReadInProg = 1;
                     osContStartReadData(&gfxFrameMsgQ);
                 }
+
+                timeUpdateDelta();
+
                 break;
 
             case (OS_SC_DONE_MSG):
@@ -160,23 +164,6 @@ static void gameproc(void *argv)
                 break;
         }
     }
-}
-
-void romCopy(const char *src, const char *dest, const int len)
-{
-    OSIoMesg dmaIoMesgBuf;
-    OSMesg dummyMesg;
-    
-    osInvalDCache((void *)dest, (s32) len);
-
-    dmaIoMesgBuf.hdr.pri      = OS_MESG_PRI_NORMAL;
-    dmaIoMesgBuf.hdr.retQueue = &dmaMessageQ;
-    dmaIoMesgBuf.dramAddr     = (void*)dest;
-    dmaIoMesgBuf.devAddr      = (u32)src;
-    dmaIoMesgBuf.size         = (u32)len;
-
-    osEPiStartDma(handler, &dmaIoMesgBuf, OS_READ);
-    (void) osRecvMesg(&dmaMessageQ, &dummyMesg, OS_MESG_BLOCK);
 }
 
 extern char     _heapStart[];

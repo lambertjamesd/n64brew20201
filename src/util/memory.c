@@ -1,5 +1,3 @@
-
-#include <ultra64.h>
 #include "memory.h"
 
 struct HeapSegment* gFirstFreeSegment;

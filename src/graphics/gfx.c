@@ -9,6 +9,7 @@
 #include "../data/models/example/geometry.h"
 #include "sk64/skelatool_object.h"
 #include "sk64/skelatool_defs.h"
+#include "util/rom.h"
 
 #include "../data/levels/test/test.h"
 #include "scene/scene_management.h"
@@ -26,8 +27,6 @@ static char         *staticSegment = 0;
 static char         *characterSegment = 0;
 
 static char         *levelSegment = 0;
-
-static struct SkelatoolObject objectTest;
 
 #define RDP_OUTPUT_SIZE 0x4000
 static void* rdp_output;
@@ -55,24 +54,9 @@ void initGFX()
     LOAD_SEGMENT(characters, characterSegment);
     LOAD_SEGMENT(level_test, levelSegment);
 
-    skInitObject(
-        &objectTest, 
-        output_model_gfx, 
-        OUTPUT_DEFAULT_BONES_COUNT, 
-        0
-    );
-
-    romCopy(
-        ANIM_DATA_ROM_ADDRESS(_character_animationsSegmentRomStart, output_default_bones), 
-        (void*)objectTest.boneTransforms, 
-        sizeof(struct Transform) * objectTest.numberOfBones
-    );
-
     loadLevelScene();
     gCurrentLevel.levelDL = test_level_geometry;
     gCurrentLevel.cameras[0].transform.position.z = 1000.0f;
-
-    quatIdent(&objectTest.boneTransforms[0].rotation);
     
     gInfo[0].msg.gen.type = OS_SC_DONE_MSG;
     gInfo[1].msg.gen.type = OS_SC_DONE_MSG;
@@ -144,7 +128,6 @@ void createGfxTask(GFXInfo *i)
 
     /**** Draw objects */
     levelSceneRender(&gCurrentLevel, renderState);
-
     
     /**** Put an end on the top-level display list  ****/
     gDPFullSync(renderState->dl++);

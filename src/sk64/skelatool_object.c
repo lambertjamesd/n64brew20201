@@ -2,11 +2,13 @@
 #include "skelatool_object.h"
 #include "skelatool_defs.h"
 #include "util/memory.h"
+#include "util/rom.h"
 
 void skInitObject(struct SkelatoolObject* object, Gfx* displayList, u32 numberOfBones, struct Transform* initialPose) {
     object->displayList = displayList;
     object->numberOfBones = numberOfBones;
     object->boneTransforms = malloc(sizeof(Mtx) * numberOfBones);
+    romCopy((void*)initialPose, (void*)object->boneTransforms, numberOfBones);
 }
 
 void skCleanupObject(struct SkelatoolObject* object) {

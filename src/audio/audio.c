@@ -1,6 +1,7 @@
 
 #include "audio.h"
 #include "moba64.h"
+#include "util/rom.h"
 
 extern OSSched         sc;
 
