@@ -30,17 +30,16 @@ void levelSceneRender(struct LevelScene* levelScene, struct RenderState* renderS
     for (unsigned int i = 0; i < levelScene->playerCount; ++i) {
         cameraSetupMatrices(&levelScene->cameras[i], renderState, 320.0f / 240.0f);
         Mtx* scaleMatrix = renderStateRequestMatrices(renderState, 1);
-        guScale(scaleMatrix, 1.0f / 256.0f, 1.0f / 256.0f, 1.0f / 256.0f);
+        guScale(scaleMatrix, 1.0f / 1256.0f, 1.0f / 1256.0f, 1.0f / 1256.0f);
         gSPMatrix(renderState->dl++, scaleMatrix, G_MTX_PUSH | G_MTX_MUL | G_MTX_MODELVIEW);
         gSPDisplayList(renderState->dl++, levelScene->levelDL);
+        gSPPopMatrix(renderState->dl++, 1);
 
         for (unsigned int minionIndex = 0; minionIndex < levelScene->minionCount; ++minionIndex) {
             if (levelScene->minions[minionIndex].minionFlags & MinionFlagsActive) {
                 minionRender(&levelScene->minions[minionIndex], renderState);
             }
         }
-
-        gSPPopMatrix(renderState->dl++, 1);
     }
 }
 
@@ -58,6 +57,20 @@ void levelSceneUpdate(struct LevelScene* levelScene) {
         struct Vector3 forward;
         quatMultVector(&levelScene->cameras[0].transform.rotation, &gForward, &forward);
         vector3AddScaled(&levelScene->cameras[0].transform.position, &forward, (controllerData->button & A_BUTTON) ? -gTimeDelta : gTimeDelta, &levelScene->cameras[0].transform.position);
+    }
+    
+    for (unsigned int minionIndex = 0; minionIndex < levelScene->minionCount; ++minionIndex) {
+        if (levelScene->minions[minionIndex].minionFlags & MinionFlagsActive) {
+            minionUpdate(&levelScene->minions[minionIndex]);
+        }
+    }
+
+    if ((controllerData->button & ~controllerGetLastButton(0)) & Z_TRIG) {
+        struct Transform start;
+        start.position = gZeroVec;
+        quatIdent(&start.rotation);
+        vector3Scale(&gOneVec, &start.scale, 1.0f / 256.0f);
+        levelSceneSpawnMinion(levelScene, MinionTypeMelee, &start);
     }
 }
 

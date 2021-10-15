@@ -52,3 +52,7 @@ void controllersTriggerRead(void) {
 OSContPad* controllersGetControllerData(int index) {
     return &gControllerData[index];
 }
+
+u16 controllerGetLastButton(int index) {
+    return gControllerLastButton[index];
+}

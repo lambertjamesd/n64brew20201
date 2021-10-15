@@ -8,7 +8,7 @@ void skInitObject(struct SkelatoolObject* object, Gfx* displayList, u32 numberOf
     object->displayList = displayList;
     object->numberOfBones = numberOfBones;
     object->boneTransforms = malloc(sizeof(Mtx) * numberOfBones);
-    romCopy((void*)initialPose, (void*)object->boneTransforms, numberOfBones);
+    romCopy((void*)initialPose, (void*)object->boneTransforms, sizeof(Mtx) * numberOfBones);
 }
 
 void skCleanupObject(struct SkelatoolObject* object) {

@@ -1,36 +1,3 @@
-/*====================================================================
- * gfx.h
- *
- * Synopsis:
- *
- * Graphics constants and structures.
- *
- *
- * Copyright 1993, Silicon Graphics, Inc.
- * All Rights Reserved.
- *
- * This is UNPUBLISHED PROPRIETARY SOURCE CODE of Silicon Graphics,
- * Inc.; the contents of this file may not be disclosed to third
- * parties, copied or duplicated in any form, in whole or in part,
- * without the prior written permission of Silicon Graphics, Inc.
- *
- * RESTRICTED RIGHTS LEGEND:
- * Use, duplication or disclosure by the Government is subject to
- * restrictions as set forth in subdivision (c)(1)(ii) of the Rights
- * in Technical Data and Computer Software clause at DFARS
- * 252.227-7013, and/or in similar or successor clauses in the FAR,
- * DOD or NASA FAR Supplement. Unpublished - rights reserved under the
- * Copyright Laws of the United States.
- *====================================================================*/
-
-/*---------------------------------------------------------------------*
-        Copyright (C) 1998 Nintendo. (Originated by SGI)
-        
-        $RCSfile: gfx.h,v $
-        $Revision: 1.1.1.1 $
-        $Date: 2002/05/02 03:27:21 $
- *---------------------------------------------------------------------*/
-
 
 #ifndef __simplegfx__
 #define __simplegfx__
@@ -41,6 +8,11 @@
 #define	SCREEN_HT	240
 #define	SCREEN_WD	320
 #define GFX_DL_BUF_SIZE	6000
+
+#define	STATIC_SEGMENT		1
+
+#define CHARACTER_SEGMENT   3
+#define LEVEL_SEGMENT   4
 
 #ifdef _LANGUAGE_C /* needed because file is included by "spec" */
 
@@ -71,6 +43,19 @@ extern Gfx	setup_rdpstate[];
 extern Gfx	setup_rspstate[];
 extern Gfx 	logo_dl[];
 extern Gfx 	bg_dl[];
+
+extern char _charactersSegmentRomStart[];
+extern char _charactersSegmentRomEnd[];
+
+extern char _level_testSegmentRomStart[];
+extern char _level_testSegmentRomEnd[];
+
+extern char _character_animationsSegmentRomStart[];
+extern char _character_animationsSegmentStart[];
+
+extern char* gStaticSegment;
+extern char* gCharacterSegment;
+extern char* gLevelSegment;
 
 /* frame buffer, zbuffer: */
 extern unsigned short	zbuffer[];

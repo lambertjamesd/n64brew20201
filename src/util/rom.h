@@ -10,4 +10,6 @@ void romCopy(const char *src, const char *dest, const int len);
     dest = malloc(len);                                     \
     romCopy(_ ## segmentName ## SegmentRomStart, dest, len);
 
+#define CALC_ROM_POINTER(segmentName, addr) ((void*)(((unsigned)addr) - (unsigned)_ ## segmentName ## SegmentStart + (unsigned)_ ## segmentName ## SegmentRomStart))
+
 #endif

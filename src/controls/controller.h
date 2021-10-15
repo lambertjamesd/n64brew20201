@@ -8,5 +8,6 @@ void controllersUpdate(void);
 void controllersTriggerRead(void);
 
 OSContPad* controllersGetControllerData(int index);
+u16 controllerGetLastButton(int index);
 
 #endif

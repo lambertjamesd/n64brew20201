@@ -22,22 +22,12 @@ extern OSSched         sc;
 extern OSMesgQueue     *sched_cmdQ;
 extern GFXInfo         gInfo[];
 
-static char         *staticSegment = 0;
-
-static char         *characterSegment = 0;
-
-static char         *levelSegment = 0;
+char         *gStaticSegment = 0;
+char         *gCharacterSegment = 0;
+char         *gLevelSegment = 0;
 
 #define RDP_OUTPUT_SIZE 0x4000
 static void* rdp_output;
-
-extern char _charactersSegmentRomStart[];
-extern char _charactersSegmentRomEnd[];
-
-extern char _level_testSegmentRomStart[];
-extern char _level_testSegmentRomEnd[];
-
-extern char _character_animationsSegmentRomStart[];
 
 unsigned short	__attribute__((aligned(64))) zbuffer[SCREEN_WD*SCREEN_HT];
 u64 __attribute__((aligned(16))) dram_stack[SP_DRAM_STACK_SIZE64];
@@ -48,11 +38,11 @@ void initGFX()
     u32 len = (u32)(_staticSegmentRomEnd - _staticSegmentRomStart);
 
     assert (len < GFX_DL_BUF_SIZE * sizeof(Gfx));
-    staticSegment = malloc(len);
-    romCopy(_staticSegmentRomStart, staticSegment, len);
+    gStaticSegment = malloc(len);
+    romCopy(_staticSegmentRomStart, gStaticSegment, len);
 
-    LOAD_SEGMENT(characters, characterSegment);
-    LOAD_SEGMENT(level_test, levelSegment);
+    LOAD_SEGMENT(characters, gCharacterSegment);
+    LOAD_SEGMENT(level_test, gLevelSegment);
 
     loadLevelScene();
     gCurrentLevel.levelDL = test_level_geometry;
@@ -88,9 +78,9 @@ void createGfxTask(GFXInfo *i)
 
     /**** Tell RCP where each segment is  ****/
     gSPSegment(renderState->dl++, 0, 0);	/* physical addressing segment */
-    gSPSegment(renderState->dl++, STATIC_SEGMENT,  osVirtualToPhysical(staticSegment));
-    gSPSegment(renderState->dl++, CHARACTER_SEGMENT, osVirtualToPhysical(characterSegment));
-    gSPSegment(renderState->dl++, LEVEL_SEGMENT, osVirtualToPhysical(levelSegment));
+    gSPSegment(renderState->dl++, STATIC_SEGMENT,  osVirtualToPhysical(gStaticSegment));
+    gSPSegment(renderState->dl++, CHARACTER_SEGMENT, osVirtualToPhysical(gCharacterSegment));
+    gSPSegment(renderState->dl++, LEVEL_SEGMENT, osVirtualToPhysical(gLevelSegment));
 
     /**** Graphics pipeline state initialization ****/
     gSPDisplayList(renderState->dl++, setup_rspstate);

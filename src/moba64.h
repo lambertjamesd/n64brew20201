@@ -7,11 +7,6 @@
 
 #define	STACKSIZEBYTES	0x2000
 
-#define	STATIC_SEGMENT		1
-
-#define CHARACTER_SEGMENT   3
-#define LEVEL_SEGMENT   4
-
 #ifdef _LANGUAGE_C
 
 #include <ultra64.h>
