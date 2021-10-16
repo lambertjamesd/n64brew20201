@@ -44,6 +44,15 @@ struct SKAnimator {
     struct SKAnimationHeader* currentAnimation;
 };
 
+struct SKRingMemory {
+    char* memoryStart;
+    unsigned memorySize;
+    char* freeStart;
+    char* usedStart;
+    unsigned memoryUsed;
+    unsigned memoryWasted;
+};
+
 struct SKAnimationDataPool {
     OSPiHandle* handle;
     OSMesgQueue mesgQueue;
@@ -52,10 +61,7 @@ struct SKAnimationDataPool {
     struct SKAnimator** animatorsForMessages;
     int numMessages;
     int nextMessage;
-    char* dataPool;
-    unsigned int dataPoolSize;
-    char* nextAvailableMemory;
-    char* firstUsedMemory;
+    struct SKRingMemory memoryPool;
 };
 
 void skInitDataPool(int numMessages, int poolSize);

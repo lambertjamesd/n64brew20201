@@ -7,6 +7,58 @@
 
 static struct SKAnimationDataPool gSKAnimationPool;
 
+void skRingMemoryInit(struct SKRingMemory* memory, int size) {
+    memory->memoryStart = malloc(size);
+    memory->memorySize = size;
+    memory->freeStart = memory->memoryStart;
+    memory->usedStart = memory->memoryStart;
+    memory->memoryUsed = 0;
+    memory->memoryWasted = 0;
+}
+
+void skRingMemoryCleanup(struct SKRingMemory* memory) {
+    free(memory->memoryStart);
+}
+
+void* skRingMemoryAlloc(struct SKRingMemory* memory, int size) {
+    int available = memory->memorySize - memory->memoryUsed - memory->memoryWasted;
+
+    if (available < size) {
+        return 0;
+    }
+
+    available = memory->memoryStart + memory->memorySize - memory->freeStart;
+
+    if (available >= size) {
+        char* result = memory->freeStart;
+        memory->memoryUsed += size;
+        memory->freeStart += size;
+        return result;
+    }
+
+    int availableAtFront = memory->freeStart - memory->memoryStart;
+
+    if (available >= size) {
+        char* result = memory->memoryStart;
+        memory->memoryUsed += size;
+        memory->memoryWasted = available;
+        memory->freeStart = result + size;
+        return result;
+    }
+
+    return 0;
+}
+
+void skRingMemoryFree(struct SKRingMemory* memory, int size) {
+    memory->usedStart += size;
+    memory->memoryUsed -= size;
+
+    if (memory->usedStart + memory->memoryWasted == memory->memoryStart + memory->memorySize) {
+        memory->usedStart = memory->memoryStart;
+        memory->memoryWasted = 0;
+    }
+}
+
 struct SKBoneKeyframe* skApplyBoneKeyframe(struct SKAnimator* animator, struct SKBoneKeyframe* keyframe, u16 tick, int* hasMore) {
     *hasMore = keyframe->usedAttributes != 0;
     if (!*hasMore) {
@@ -106,8 +158,7 @@ void skProcess(OSIoMesg* message) {
 
         int chunkSize = skApplyChunk(animator, nextChunk);
         animator->nextChunkSource += chunkSize;
-
-        gSKAnimationPool.firstUsedMemory += chunkSize;
+        skRingMemoryFree(&gSKAnimationPool.memoryPool, chunkSize);
     }
 }
 
@@ -118,10 +169,7 @@ void skInitDataPool(int numMessages, int poolSize) {
     gSKAnimationPool.ioMessages = malloc(sizeof(OSIoMesg) * numMessages);
     gSKAnimationPool.animatorsForMessages = malloc(sizeof(struct SKAnimator*) * numMessages);
     osCreateMesgQueue(&gSKAnimationPool.mesgQueue, gSKAnimationPool.mesgBuffer, numMessages);
-    gSKAnimationPool.dataPool = malloc(poolSize);
-    gSKAnimationPool.dataPoolSize = poolSize;
-    gSKAnimationPool.nextAvailableMemory = gSKAnimationPool.dataPool;
-    gSKAnimationPool.firstUsedMemory = gSKAnimationPool.dataPool;
+    skRingMemoryInit(&gSKAnimationPool.memoryPool, poolSize);
 
     zeroMemory(gSKAnimationPool.animatorsForMessages, sizeof(struct SKAnimator*) * numMessages);
 }
@@ -139,18 +187,6 @@ void skelatoolWaitForNextMessage() {
     skProcess(msg);
 }
 
-int skGetAvailableMemory() {
-    int result = gSKAnimationPool.dataPool + gSKAnimationPool.dataPoolSize - gSKAnimationPool.nextAvailableMemory;
-
-    int precedingMemory = gSKAnimationPool.firstUsedMemory - gSKAnimationPool.dataPool;
-
-    if (precedingMemory > result) {
-        return precedingMemory;
-    }
-
-    return result;
-}
-
 void skRequestChunk(struct SKAnimator* animator) {
     unsigned short chunkSize = animator->nextSourceChunkSize;
 
@@ -160,29 +196,24 @@ void skRequestChunk(struct SKAnimator* animator) {
 
     animator->nextSourceChunkSize = 0;
 
-    if (chunkSize > gSKAnimationPool.dataPoolSize || !animator->nextChunkSource) {
+    if (chunkSize > gSKAnimationPool.memoryPool.memorySize || !animator->nextChunkSource) {
         // chunk can't possitbly fit exit early
         return;
     }
 
     unsigned short retries = 0;
 
-    // wait until enough memory is avaialble
-    while (skGetAvailableMemory() < chunkSize ||
-        gSKAnimationPool.mesgQueue.validCount == gSKAnimationPool.mesgQueue.msgCount) {
-        skelatoolWaitForNextMessage();
-        ++retries;
+    char* dest = skRingMemoryAlloc(&gSKAnimationPool.memoryPool, chunkSize);
 
+    // wait until enough memory is avaialble
+    while (!dest || gSKAnimationPool.mesgQueue.validCount == gSKAnimationPool.mesgQueue.msgCount) {
         // something is wrong, avoid an infinite loop
         if (retries == gSKAnimationPool.numMessages) {
             return;
         }
-    }
-
-    char* dest = gSKAnimationPool.nextAvailableMemory;
-    // determine where to place new chunk
-    if (gSKAnimationPool.dataPool + gSKAnimationPool.dataPoolSize - dest < chunkSize) {
-        dest = gSKAnimationPool.dataPool;
+        skelatoolWaitForNextMessage();
+        dest = skRingMemoryAlloc(&gSKAnimationPool.memoryPool, chunkSize);
+        ++retries;
     }
 
     // request new chunk
