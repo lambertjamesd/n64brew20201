@@ -9,24 +9,22 @@ enum SKBoneAttrMask {
 };
 
 struct SKBoneKeyframe {
-    // 3 lsbits used to mask which attributes are set
-    // 13 msbits are the bone index
-    // if usedAttributes is 0, it null terminates the bones list in 
-    // SKAnimationKeyframe
-    unsigned short usedAttributes;
-    // each bit set in the 3 lsbits of usedAttributes has 3 entries here
+    unsigned char boneIndex;
+    unsigned char usedAttributes;
+    // each bit set in usedAttributes has 3 entries here
     unsigned short attributeData[];
 };
 
 struct SKAnimationKeyframe {
     unsigned short tick;
+    unsigned short boneCount;
     struct SKBoneKeyframe bones[];
 };
 
 struct SKAnimationChunk {
     unsigned short nextChunkSize;
-    // the tick in the last keyfrome indicates the 
-    // tick of the next chunk
+    unsigned short nextChunkTick;
+    unsigned short keyframeCount;
     struct SKAnimationKeyframe keyframes[];
 };
 

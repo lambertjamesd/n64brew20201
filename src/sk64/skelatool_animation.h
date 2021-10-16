@@ -7,9 +7,9 @@
 #include "skelatool_animation_clip.h"
 
 struct SKU16Vector3 {
-    unsigned short x;
-    unsigned short y;
-    unsigned short z;
+    short x;
+    short y;
+    short z;
 };
 
 struct SKBoneState {
@@ -44,9 +44,11 @@ struct SKAnimator {
     struct SKAnimationHeader* currentAnimation;
 };
 
+#define SK_POOL_SIZE        (2 * 1024)
+#define SK_POOL_QUEUE_SIZE  20
+
 struct SKRingMemory {
-    char* memoryStart;
-    unsigned memorySize;
+    char __attribute__((aligned(16))) memoryStart[SK_POOL_SIZE];
     char* freeStart;
     char* usedStart;
     unsigned memoryUsed;
@@ -56,20 +58,21 @@ struct SKRingMemory {
 struct SKAnimationDataPool {
     OSPiHandle* handle;
     OSMesgQueue mesgQueue;
-    OSMesg* mesgBuffer;
-    OSIoMesg* ioMessages;
-    struct SKAnimator** animatorsForMessages;
-    int numMessages;
+    OSMesg mesgBuffer[SK_POOL_QUEUE_SIZE];
+    OSIoMesg ioMessages[SK_POOL_QUEUE_SIZE];
+    struct SKAnimator* animatorsForMessages[SK_POOL_QUEUE_SIZE];
     int nextMessage;
     struct SKRingMemory memoryPool;
 };
 
-void skInitDataPool(int numMessages, int poolSize);
+void skInitDataPool(OSPiHandle* handle);
 void skReadMessages();
 
 void skAnimatorInit(struct SKAnimator* animator, unsigned boneCount);
 void skAnimatorCleanup(struct SKAnimator* animator);
 void skAnimatorRunClip(struct SKAnimator* animator, struct SKAnimationHeader* animation, int flags);
 void skAnimatorUpdate(struct SKAnimator* animator, struct SKObject* object);
+
+void skApplyAnimationToObject(struct SKAnimator* animator, struct SKObject* object, u16 tick);
 
 #endif

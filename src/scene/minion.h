@@ -3,6 +3,7 @@
 
 #include "math/transform.h"
 #include "sk64/skelatool_object.h"
+#include "sk64/skelatool_animation.h"
 #include "graphics/render_state.h"
 
 enum MinionFlags {
@@ -19,6 +20,7 @@ struct Minion {
     unsigned short minionFlags;
     unsigned short minionType;
     struct SKObject armature;
+    struct SKAnimator animator;
 };
 
 void minionInit(struct Minion* minion, enum MinionType type, struct Transform* at);

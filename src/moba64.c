@@ -9,7 +9,7 @@
 #include "util/time.h"
 #include "scene/scene_management.h"
 #include "controls/controller.h"
-
+#include "sk64/skelatool_animation.h"
 
 /**** threads used by this file ****/
 static OSThread gameThread;
@@ -142,6 +142,7 @@ static void gameproc(void *argv)
 
                 controllersTriggerRead();
                 timeUpdateDelta();
+                skReadMessages();
                 sceneUpdate();
 
                 break;
@@ -185,6 +186,7 @@ static void initGame(void)
     initGFX();
     controllersInit();
     initAudio();
+    skInitDataPool(gPiHandle);
 
     OSThread* debugThreads[2];
     debugThreads[0] = &gameThread;

@@ -6,7 +6,17 @@
 #include "graphics/gfx.h"
 #include "util/time.h"
 
-#include "../../data/models/example/geometry.h"
+#include "sk64/skelatool_animation_clip.h"
+#include "../data/models/characters.h"
+
+struct SKAnimationHeader animationTestHeaders[] = {
+    {
+        .firstChunkSize = 176,
+        .ticksPerSecond = 25,
+        .maxTicks = 50,
+        .firstChunk = (struct SKAnimationChunk*)output_default_idle_animation,
+    }
+};
 
 struct MinionDef {
     Gfx* dl;
@@ -22,6 +32,8 @@ void minionInit(struct Minion* minion, enum MinionType type, struct Transform* a
     minion->transform = *at;
     minion->minionType = type;
     minion->minionFlags = MinionFlagsActive;
+
+    animationTestHeaders[0].firstChunk = CALC_ROM_POINTER(character_animations, animationTestHeaders[0].firstChunk);
     
     skInitObject(
         &minion->armature, 
@@ -29,6 +41,9 @@ void minionInit(struct Minion* minion, enum MinionType type, struct Transform* a
         gMinionDefs[type].boneCount, 
         CALC_ROM_POINTER(character_animations, gMinionDefs[type].defaultPose)
     );
+
+    skAnimatorInit(&minion->animator, gMinionDefs[type].boneCount);
+    skAnimatorRunClip(&minion->animator, &animationTestHeaders[0], SKAnimatorFlagsLoop);
 }
 
 void minionRender(struct Minion* minion, struct RenderState* renderState) {
@@ -46,9 +61,11 @@ void minionRender(struct Minion* minion, struct RenderState* renderState) {
     
 void minionUpdate(struct Minion* minion) {
     struct Quaternion rotation;
-    quatAxisAngle(&gForward, cosf(gTimePassed) * 0.5, &rotation);
+    quatAxisAngle(&gForward, 0.5, &rotation);
 
-    for (unsigned i = 0; i < minion->armature.numberOfBones; ++i) {
-        minion->armature.boneTransforms[i].rotation = rotation;
-    }
+    // for (unsigned i = 0; i < minion->armature.numberOfBones; ++i) {
+    //     minion->armature.boneTransforms[i].rotation = rotation;
+    // }
+
+    skAnimatorUpdate(&minion->animator, &minion->armature);
 }

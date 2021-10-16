@@ -8,7 +8,9 @@ void skInitObject(struct SKObject* object, Gfx* displayList, u32 numberOfBones, 
     object->displayList = displayList;
     object->numberOfBones = numberOfBones;
     object->boneTransforms = malloc(sizeof(Mtx) * numberOfBones);
-    romCopy((void*)initialPose, (void*)object->boneTransforms, sizeof(Mtx) * numberOfBones);
+    if (initialPose) {
+        romCopy((void*)initialPose, (void*)object->boneTransforms, sizeof(Mtx) * numberOfBones);
+    }
 }
 
 void skCleanupObject(struct SKObject* object) {
@@ -18,6 +20,10 @@ void skCleanupObject(struct SKObject* object) {
 }
 
 void skRenderObject(struct SKObject* object, struct RenderState* intoState) {
+    if (!object->displayList) {
+        return;
+    }
+
     Mtx* boneMatrices = renderStateRequestMatrices(intoState, object->numberOfBones);
 
     if (boneMatrices) {
