@@ -47,7 +47,7 @@ OSScClient      gfxClient;
 /**** Controller globals ****/
 extern u8      validcontrollers;
 
-OSPiHandle	*handler;
+OSPiHandle	*gPiHandle;
 
 void boot(void *arg)
 {
@@ -57,7 +57,7 @@ void boot(void *arg)
     
     osInitialize();
 
-    handler = osCartRomInit();
+    gPiHandle = osCartRomInit();
     
     osCreateThread(&initThread, 1, (void(*)(void *))initproc, arg,
                   (void *)(initThreadStack+(STACKSIZEBYTES/sizeof(u64))), 
@@ -188,6 +188,6 @@ static void initGame(void)
 
     OSThread* debugThreads[2];
     debugThreads[0] = &gameThread;
-    enum GDBError err = gdbInitDebugger(handler, &dmaMessageQ, debugThreads, 1);
+    enum GDBError err = gdbInitDebugger(gPiHandle, &dmaMessageQ, debugThreads, 1);
 }
 

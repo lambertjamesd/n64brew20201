@@ -3,7 +3,7 @@
 #include "rom.h"
 
 extern OSMesgQueue dmaMessageQ;
-extern OSPiHandle* handler;
+extern OSPiHandle* gPiHandle;
 
 void romCopy(const char *src, const char *dest, const int len)
 {
@@ -18,6 +18,6 @@ void romCopy(const char *src, const char *dest, const int len)
     dmaIoMesgBuf.devAddr      = (u32)src;
     dmaIoMesgBuf.size         = (u32)len;
 
-    osEPiStartDma(handler, &dmaIoMesgBuf, OS_READ);
+    osEPiStartDma(gPiHandle, &dmaIoMesgBuf, OS_READ);
     (void) osRecvMesg(&dmaMessageQ, &dummyMesg, OS_MESG_BLOCK);
 }

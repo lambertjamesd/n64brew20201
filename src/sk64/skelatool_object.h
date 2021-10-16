@@ -5,15 +5,15 @@
 #include "math/transform.h"
 #include "graphics/render_state.h"
 
-struct SkelatoolObject {
+struct SKObject {
     Gfx* displayList;
     struct Transform* boneTransforms;
     u32 numberOfBones;
 };
 
-void skInitObject(struct SkelatoolObject* object, Gfx* displayList, u32 numberOfBones, struct Transform* initialPose);
-void skRenderObject(struct SkelatoolObject* object, struct RenderState* intoState);
-void skCalculateTransforms(struct SkelatoolObject* object, Mtx* into);
-void skCleanupObject(struct SkelatoolObject* object);
+void skInitObject(struct SKObject* object, Gfx* displayList, u32 numberOfBones, struct Transform* initialPose);
+void skRenderObject(struct SKObject* object, struct RenderState* intoState);
+void skCalculateTransforms(struct SKObject* object, Mtx* into);
+void skCleanupObject(struct SKObject* object);
 
 #endif

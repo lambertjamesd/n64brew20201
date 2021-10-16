@@ -18,7 +18,7 @@ struct Minion {
     struct Transform transform;
     unsigned short minionFlags;
     unsigned short minionType;
-    struct SkelatoolObject armature;
+    struct SKObject armature;
 };
 
 void minionInit(struct Minion* minion, enum MinionType type, struct Transform* at);

@@ -66,6 +66,13 @@ void quatConjugate(struct Quaternion* in, struct Quaternion* out) {
     out->w = in->w;
 }
 
+void quatNegate(struct Quaternion* in, struct Quaternion* out) {
+    out->x = -in->x;
+    out->y = -in->y;
+    out->z = -in->z;
+    out->w = -in->w;
+}
+
 void quatMultVector(struct Quaternion* q, struct Vector3* a, struct Vector3* out) {
     struct Quaternion tmp;
     struct Quaternion asQuat;
@@ -147,4 +154,23 @@ void quatRandom(struct Quaternion* q) {
     q->z = mathfRandomFloat() - 0.5f;
     q->w = mathfRandomFloat() - 0.5f;
     quatNormalize(q, q);
+}
+
+void quatLerp(struct Quaternion* a, struct Quaternion* b, float t, struct Quaternion* out) {
+    if (a->w < 0.0) {
+        quatNegate(a, a);
+    }
+
+    if (b->w < 0.0) {
+        quatNegate(b, b);
+    }
+
+    float tInv = 1.0f - t;
+
+    out->x = tInv * a->x + t * b->x;
+    out->y = tInv * a->y + t * b->y;
+    out->z = tInv * a->z + t * b->z;
+    out->w = tInv * a->w + t * b->w;
+
+    quatNormalize(out, out);
 }

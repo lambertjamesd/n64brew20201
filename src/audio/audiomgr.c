@@ -352,7 +352,7 @@ s32 __amDMA(s32 addr, s32 len, void *state)
     audDMAIOMesgBuf[nextDMA].devAddr      = (u32)addr;
     audDMAIOMesgBuf[nextDMA].size         = DMA_BUFFER_LENGTH;
 
-    osEPiStartDma(handler, &audDMAIOMesgBuf[nextDMA++], OS_READ);
+    osEPiStartDma(gPiHandle, &audDMAIOMesgBuf[nextDMA++], OS_READ);
 
     return (int) osVirtualToPhysical(foundBuffer) + delta;
 }
