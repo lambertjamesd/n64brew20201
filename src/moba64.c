@@ -10,6 +10,7 @@
 #include "scene/scene_management.h"
 #include "controls/controller.h"
 #include "sk64/skelatool_animation.h"
+#include "scene/minion.h"
 
 /**** threads used by this file ****/
 static OSThread gameThread;
@@ -187,6 +188,7 @@ static void initGame(void)
     controllersInit();
     initAudio();
     skInitDataPool(gPiHandle);
+    minionSetup();
 
     OSThread* debugThreads[2];
     debugThreads[0] = &gameThread;

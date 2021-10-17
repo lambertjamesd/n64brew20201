@@ -58,7 +58,7 @@ void skRingMemoryFree(struct SKRingMemory* memory, int size) {
 }
 
 struct SKBoneKeyframe* skApplyBoneKeyframe(struct SKAnimator* animator, struct SKBoneKeyframe* keyframe, u16 tick) {   
-    unsigned short* attrInput = &keyframe->attributeData[0];
+    short* attrInput = &keyframe->attributeData[0];
 
     struct SKBoneAnimationState* boneState = &animator->boneState[keyframe->boneIndex];
 
@@ -77,10 +77,10 @@ struct SKBoneKeyframe* skApplyBoneKeyframe(struct SKAnimator* animator, struct S
         boneState->prevState.rotation = boneState->nextState.rotation;
 
         boneState->nextState.rotationTick = tick;
-        boneState->nextState.rotation.x = ((short)*attrInput++) / 32767.0f;
-        boneState->nextState.rotation.y = ((short)*attrInput++) / 32767.0f;
-        boneState->nextState.rotation.z = ((short)*attrInput++) / 32767.0f;
-        float wSqrd = 1.0f - boneState->nextState.rotation.x * boneState->nextState.rotation.x + boneState->nextState.rotation.y * boneState->nextState.rotation.y + boneState->nextState.rotation.z * boneState->nextState.rotation.z;
+        boneState->nextState.rotation.x = (*attrInput++) / 32767.0f;
+        boneState->nextState.rotation.y = (*attrInput++) / 32767.0f;
+        boneState->nextState.rotation.z = (*attrInput++) / 32767.0f;
+        float wSqrd = 1.0f - (boneState->nextState.rotation.x * boneState->nextState.rotation.x + boneState->nextState.rotation.y * boneState->nextState.rotation.y + boneState->nextState.rotation.z * boneState->nextState.rotation.z);
 
         if (wSqrd <= 0.0f) {
             boneState->nextState.rotation.w = 0.0f;
@@ -132,6 +132,7 @@ void skProcess(OSIoMesg* message) {
         struct SKAnimationChunk* nextChunk = (struct SKAnimationChunk*)message->dramAddr;
 
         skApplyChunk(animator, nextChunk);
+        animator->flags &= ~SKAnimatorFlagsPendingRequest;
         animator->nextChunkSource += animator->nextSourceChunkSize;
         skRingMemoryFree(&gSKAnimationPool.memoryPool, animator->nextSourceChunkSize);
         animator->nextSourceTick = nextChunk->nextChunkTick;
@@ -190,6 +191,8 @@ void skRequestChunk(struct SKAnimator* animator) {
         ++retries;
     }
 
+    animator->flags |= SKAnimatorFlagsPendingRequest;
+
     // request new chunk
     OSIoMesg* ioMesg = &gSKAnimationPool.ioMessages[gSKAnimationPool.nextMessage];
     gSKAnimationPool.animatorsForMessages[gSKAnimationPool.nextMessage] = animator;
@@ -210,9 +213,9 @@ void skFixedVector3ToFloat(struct SKU16Vector3* input, struct Vector3* output) {
     output->z = (float)input->z;
 }
 
-void skApplyBoneAnimation(struct SKBoneAnimationState* animatedBone, struct Transform* output, u16 tick) {
-    if (animatedBone->nextState.positionTick  != animatedBone->prevState.positionTick) {
-        float positionLerp = ((float)tick - (float)animatedBone->prevState.positionTick) / ((float)animatedBone->nextState.positionTick - (float)animatedBone->prevState.positionTick);
+void skApplyBoneAnimation(struct SKBoneAnimationState* animatedBone, struct Transform* output, float tick) {
+    if (animatedBone->nextState.positionTick != animatedBone->prevState.positionTick) {
+        float positionLerp = (tick - (float)animatedBone->prevState.positionTick) / ((float)animatedBone->nextState.positionTick - (float)animatedBone->prevState.positionTick);
         struct Vector3 srcPos;
         skFixedVector3ToFloat(&animatedBone->prevState.position, &srcPos);
         skFixedVector3ToFloat(&animatedBone->nextState.position, &output->position);
@@ -222,14 +225,14 @@ void skApplyBoneAnimation(struct SKBoneAnimationState* animatedBone, struct Tran
     }
 
     if (animatedBone->nextState.rotationTick != animatedBone->prevState.rotationTick) {
-        float rotationLerp = ((float)tick - (float)animatedBone->prevState.rotationTick) / ((float)animatedBone->nextState.rotationTick - (float)animatedBone->prevState.rotationTick);
+        float rotationLerp = (tick - (float)animatedBone->prevState.rotationTick) / ((float)animatedBone->nextState.rotationTick - (float)animatedBone->prevState.rotationTick);
         quatLerp(&animatedBone->prevState.rotation, &animatedBone->nextState.rotation, rotationLerp, &output->rotation);
     } else {
         output->rotation = animatedBone->nextState.rotation;
     }
 
     if (animatedBone->nextState.scaleTick != animatedBone->prevState.scaleTick) {
-        float scaleLerp = ((float)tick - (float)animatedBone->prevState.scaleTick) / ((float)animatedBone->nextState.scaleTick - (float)animatedBone->prevState.scaleTick);
+        float scaleLerp = (tick - (float)animatedBone->prevState.scaleTick) / ((float)animatedBone->nextState.scaleTick - (float)animatedBone->prevState.scaleTick);
         struct Vector3 srcScale;
         skFixedVector3ToFloat(&animatedBone->prevState.scale, &srcScale);
         skFixedVector3ToFloat(&animatedBone->nextState.scale, &output->scale);
@@ -274,27 +277,28 @@ void skAnimatorRunClip(struct SKAnimator* animator, struct SKAnimationHeader* an
     skRequestChunk(animator);
 }
 
-void skApplyAnimationToObject(struct SKAnimator* animator, struct SKObject* object, u16 tick) {
-    for (unsigned i = 0; i < object->numberOfBones && i < animator->boneCount; ++i) {
-        skApplyBoneAnimation(&animator->boneState[i], &object->boneTransforms[i], tick);
+void skAnimationApply(struct SKAnimator* animator, struct Transform* transforms, float tick) {
+    for (unsigned i = 0; i < animator->boneCount; ++i) {
+        skApplyBoneAnimation(&animator->boneState[i], &transforms[i], tick);
     }
 }
 
-void skAnimatorUpdate(struct SKAnimator* animator, struct SKObject* object) {
+void skAnimatorUpdate(struct SKAnimator* animator, struct SKObject* object, float timeScale) {
     if (!(animator->flags & SKAnimatorFlagsActive) || !animator->currentAnimation) {
         return;
     }
     
     animator->currTick = animator->nextTick;
-    animator->currentTime += gTimeDelta;
+    float currTick = animator->currentTime * animator->currentAnimation->ticksPerSecond;
+    animator->currentTime += gTimeDelta * timeScale;
     animator->nextTick = (u16)(animator->currentTime * animator->currentAnimation->ticksPerSecond);
 
-    if (animator->currTick <= animator->currentAnimation->maxTicks) {
-        skApplyAnimationToObject(animator, object, animator->currTick);
+    if (animator->currTick <= animator->currentAnimation->maxTicks && object) {
+        skAnimationApply(animator, object->boneTransforms, currTick);
     }
 
     if (animator->flags & SKAnimatorFlagsLoop) {
-        if (animator->nextTick == animator->currentAnimation->maxTicks) {
+        if (animator->nextTick >= animator->currentAnimation->maxTicks) {
             skAnimatorRunClip(animator, animator->currentAnimation, animator->flags);
             return;
         }

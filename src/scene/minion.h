@@ -23,6 +23,8 @@ struct Minion {
     struct SKAnimator animator;
 };
 
+void minionSetup();
+
 void minionInit(struct Minion* minion, enum MinionType type, struct Transform* at);
 void minionRender(struct Minion* minion, struct RenderState* renderState);
 void minionUpdate(struct Minion* minion);

@@ -8,6 +8,8 @@
 # --------------------------------------------------------------------
 include /usr/include/n64/make/PRdefs
 
+MIDICVT:=/home/james/go/src/github.com/lambertjamesd/midicvt/midicvt
+
 OPTIMIZER		:= -O0
 LCDEFS			:= -DDEBUG -g -Isrc/ -I/usr/include/n64/nustd -Werror
 N64LIB			:= -lultra_rom -lnustd
@@ -78,6 +80,16 @@ MODELS_GENERATED = $(patsubst assets/models/%.fbx, data/models/%/geometry.h, $(C
 data/models/%/geometry.h: assets/models/%.fbx
 	skeletool64 -o $@ $<
 
+
+MUSIC = $(shell find assets/music/ -type -f -name '*.mid')
+
+MUSIC_CONVERTED = $(patsubst assets/models/%.fbx, data/models/%/geometry.h, $(CODEFILES))
+
+build/assets/music/%.mid: assets/music/%.mid
+	@mkdir -p $(@D)
+	$(MIDICVT) $< $@
+
+asm/sound_data.s: build/assets/music/battle.mid
 
 ####################
 ## Linking

@@ -9,14 +9,7 @@
 #include "sk64/skelatool_animation_clip.h"
 #include "../data/models/characters.h"
 
-struct SKAnimationHeader animationTestHeaders[] = {
-    {
-        .firstChunkSize = 176,
-        .ticksPerSecond = 25,
-        .maxTicks = 50,
-        .firstChunk = (struct SKAnimationChunk*)output_default_idle_animation,
-    }
-};
+#include "../data/models/example/geometry_animdef.inc.h"
 
 struct MinionDef {
     Gfx* dl;
@@ -28,12 +21,14 @@ struct MinionDef gMinionDefs[] = {
     {output_model_gfx, OUTPUT_DEFAULT_BONES_COUNT, output_default_bones},
 };
 
+void minionSetup() {
+    output_animations[0].firstChunk = CALC_ROM_POINTER(character_animations, output_animations[0].firstChunk);
+}
+
 void minionInit(struct Minion* minion, enum MinionType type, struct Transform* at) {
     minion->transform = *at;
     minion->minionType = type;
     minion->minionFlags = MinionFlagsActive;
-
-    animationTestHeaders[0].firstChunk = CALC_ROM_POINTER(character_animations, animationTestHeaders[0].firstChunk);
     
     skInitObject(
         &minion->armature, 
@@ -43,7 +38,7 @@ void minionInit(struct Minion* minion, enum MinionType type, struct Transform* a
     );
 
     skAnimatorInit(&minion->animator, gMinionDefs[type].boneCount);
-    skAnimatorRunClip(&minion->animator, &animationTestHeaders[0], SKAnimatorFlagsLoop);
+    skAnimatorRunClip(&minion->animator, &output_animations[0], SKAnimatorFlagsLoop);
 }
 
 void minionRender(struct Minion* minion, struct RenderState* renderState) {
@@ -67,5 +62,5 @@ void minionUpdate(struct Minion* minion) {
     //     minion->armature.boneTransforms[i].rotation = rotation;
     // }
 
-    skAnimatorUpdate(&minion->animator, &minion->armature);
+    skAnimatorUpdate(&minion->animator, &minion->armature, 0.5f);
 }

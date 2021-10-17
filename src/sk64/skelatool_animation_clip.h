@@ -12,7 +12,7 @@ struct SKBoneKeyframe {
     unsigned char boneIndex;
     unsigned char usedAttributes;
     // each bit set in usedAttributes has 3 entries here
-    unsigned short attributeData[];
+    short attributeData[];
 };
 
 struct SKAnimationKeyframe {
