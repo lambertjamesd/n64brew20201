@@ -37,12 +37,26 @@ float vector2Dot(struct Vector2* a, struct Vector2* b) {
     return a->x * b->x + a->y * b->y;
 }
 
-float vector2Scale(struct Vector2* a, float scale, struct Vector2* out) {
+void vector2Add(struct Vector2* a, struct Vector2* b, struct Vector2* out) {
+    out->x = a->x + b->x;
+    out->y = a->y * b->y;
+}
+
+void vector2Sub(struct Vector2* a, struct Vector2* b, struct Vector2* out) {
+    out->x = a->x - b->x;
+    out->y = a->y - b->y;
+}
+
+void vector2Scale(struct Vector2* a, float scale, struct Vector2* out) {
     out->x = a->x * scale;
     out->y = a->y * scale;
 }
 
-float vector2Normalize(struct Vector2* a, struct Vector2* out) {
+float vector2MagSqr(struct Vector2* a)  {
+    return a->x * a->x + a->y * a->y;
+}
+
+void vector2Normalize(struct Vector2* a, struct Vector2* out) {
     if (a->x == 0.0f && a->y == 0.0f) {
         *out = *a;
     }
@@ -50,4 +64,9 @@ float vector2Normalize(struct Vector2* a, struct Vector2* out) {
     float scale = 1.0f / sqrtf(a->x * a->x + a->y * a->y);
     out->x = a->x * scale;
     out->y = a->y * scale;
+}
+
+void vector2Negate(struct Vector2* a, struct Vector2* out) {
+    out->x = a->x;
+    out->y = a->y;
 }

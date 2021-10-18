@@ -15,12 +15,24 @@ enum MinionType {
     MinionTypeCount,
 };
 
+enum MinionActiontype {
+    MinionActiontypePause,
+    MinionActiontypeMove,
+    MinionActiontypeTurnLeft,
+    MinionActiontypeTurnRight,
+};
+
 struct Minion {
     struct Transform transform;
     unsigned short minionFlags;
     unsigned short minionType;
-    struct SKObject armature;
-    struct SKAnimator animator;
+
+    enum MinionActiontype currentAction;
+    float currentActionDuration;
+
+    // struct SKObject armature;
+    // struct SKAnimator animator;
+    
 };
 
 void minionSetup();

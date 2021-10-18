@@ -3,24 +3,36 @@
 #include "util/memory.h"
 #include "controls/controller.h"
 #include "util/time.h"
+#include "collision/dynamicscene.h"
 
 #define DEFAULT_NEAR       
 
-void levelSceneInit(struct LevelScene* levelScene, unsigned int playercount, unsigned int baseCount) {
+void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* definition, unsigned int playercount) {
+    dynamicSceneInit();
+
+    levelScene->levelDL = definition->sceneRender;
+    
     levelScene->playerCount = playercount;
 
     for (unsigned i = 0; i < playercount; ++i) {
-        cameraInit(&levelScene->cameras[i], 45.0f, 0.5f, 60.0f);
+        cameraInit(&levelScene->cameras[i], 45.0f, 50.0f, 6000.0f);
     }
 
-    levelScene->cameras[0].transform.position.z = 2.0f;
-    levelScene->cameras[0].transform.position.y = 4.0f;
+    levelScene->cameras[0].transform.position.z = 200.0f;
+    levelScene->cameras[0].transform.position.y = 400.0f;
     quatAxisAngle(&gRight, -M_PI * 0.3333f, &levelScene->cameras[0].transform.rotation);
 
-    levelScene->baseCount = baseCount;
-    levelScene->minionCount = baseCount * MAX_MINIONS_PER_BASE;
-    levelScene->minions = malloc(sizeof(struct Minion) * levelScene->minionCount);
+    levelScene->baseCount = definition->baseCount;
+    levelScene->bases = malloc(sizeof(struct LevelBase) * definition->baseCount);
+    for (unsigned i = 0; i < definition->baseCount; ++i) {
+        struct Vector2 pos;
+        pos.x = 0;
+        pos.y = 0;
+        levelBaseInit(&levelScene->bases[i], &pos);
+    }
 
+    levelScene->minionCount = definition->baseCount * MAX_MINIONS_PER_BASE;
+    levelScene->minions = malloc(sizeof(struct Minion) * levelScene->minionCount);
     for (unsigned i = 0; i < levelScene->minionCount; ++i) {
         levelScene->minions[i].minionFlags = 0;
     }
@@ -30,17 +42,19 @@ void levelSceneRender(struct LevelScene* levelScene, struct RenderState* renderS
     for (unsigned int i = 0; i < levelScene->playerCount; ++i) {
         cameraSetupMatrices(&levelScene->cameras[i], renderState, 320.0f / 240.0f);
         Mtx* scaleMatrix = renderStateRequestMatrices(renderState, 1);
-        guScale(scaleMatrix, 1.0f / 1256.0f, 1.0f / 1256.0f, 1.0f / 1256.0f);
-        gSPMatrix(renderState->dl++, scaleMatrix, G_MTX_PUSH | G_MTX_MUL | G_MTX_MODELVIEW);
         gSPDisplayList(renderState->dl++, levelScene->levelDL);
-        gSPPopMatrix(renderState->dl++, 1);
 
         for (unsigned int minionIndex = 0; minionIndex < levelScene->minionCount; ++minionIndex) {
             if (levelScene->minions[minionIndex].minionFlags & MinionFlagsActive) {
                 minionRender(&levelScene->minions[minionIndex], renderState);
             }
         }
+
+        for (unsigned int i = 0; i < levelScene->baseCount; ++i) {
+            levelBaseRender(&levelScene->bases[i], renderState);
+        }
     }
+
 }
 
 void levelSceneUpdate(struct LevelScene* levelScene) {
@@ -56,7 +70,8 @@ void levelSceneUpdate(struct LevelScene* levelScene) {
     if (controllerData->button & (A_BUTTON | B_BUTTON)) {
         struct Vector3 forward;
         quatMultVector(&levelScene->cameras[0].transform.rotation, &gForward, &forward);
-        vector3AddScaled(&levelScene->cameras[0].transform.position, &forward, (controllerData->button & A_BUTTON) ? -gTimeDelta : gTimeDelta, &levelScene->cameras[0].transform.position);
+        float speed = ((controllerData->button & A_BUTTON) ? -gTimeDelta : gTimeDelta) * 100.0f;
+        vector3AddScaled(&levelScene->cameras[0].transform.position, &forward, speed, &levelScene->cameras[0].transform.position);
     }
     
     for (unsigned int minionIndex = 0; minionIndex < levelScene->minionCount; ++minionIndex) {
@@ -65,13 +80,21 @@ void levelSceneUpdate(struct LevelScene* levelScene) {
         }
     }
 
-    if ((controllerData->button & ~controllerGetLastButton(0)) & Z_TRIG) {
-        struct Transform start;
-        start.position = gZeroVec;
-        quatIdent(&start.rotation);
-        vector3Scale(&gOneVec, &start.scale, 1.0f / 256.0f);
-        levelSceneSpawnMinion(levelScene, MinionTypeMelee, &start);
+    for (unsigned int baseIndex = 0; baseIndex < levelScene->baseCount; ++baseIndex) {
+        levelBaseUpdate(&levelScene->bases[baseIndex]);
     }
+
+    if ((controllerData->button & ~controllerGetLastButton(0)) & Z_TRIG) {
+        for (unsigned i = 0; i < 10; ++i) {
+            struct Transform start;
+            start.position = gZeroVec;
+            quatIdent(&start.rotation);
+            start.scale = gOneVec;
+            levelSceneSpawnMinion(levelScene, MinionTypeMelee, &start);
+        }
+    }
+
+    dynamicSceneCollide();
 }
 
 void levelSceneSpawnMinion(struct LevelScene* levelScene, enum MinionType type, struct Transform* at) {

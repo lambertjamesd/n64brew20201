@@ -4,8 +4,8 @@
 #include <ultra64.h>
 
 
-#define MAX_ACTIVE_TRANSFORMS   256
-#define MAX_DL_LENGTH           512
+#define MAX_ACTIVE_TRANSFORMS   320
+#define MAX_DL_LENGTH           1024
 
 struct RenderState {
     Gfx glist[MAX_DL_LENGTH];

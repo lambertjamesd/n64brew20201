@@ -1,10 +1,15 @@
 #include "scene_management.h"
+#include "levels/level_test.h"
 
 enum SceneState gSceneState;
 struct LevelScene gCurrentLevel;
 
+struct LevelDefinition* gLevels[] = {
+    &gLevelTest,
+};
+
 void loadLevelScene() {
-    levelSceneInit(&gCurrentLevel, 1, 1);
+    levelSceneInit(&gCurrentLevel, gLevels[0], 1);
     gSceneState = SceneStateInLevel;
 }
 

@@ -11,7 +11,7 @@
 #include "sk64/skelatool_defs.h"
 #include "util/rom.h"
 
-#include "../data/levels/test/test.h"
+
 #include "scene/scene_management.h"
 
 /*
@@ -45,7 +45,6 @@ void initGFX()
     LOAD_SEGMENT(level_test, gLevelSegment);
 
     loadLevelScene();
-    gCurrentLevel.levelDL = test_level_geometry;
     
     gInfo[0].msg.gen.type = OS_SC_DONE_MSG;
     gInfo[1].msg.gen.type = OS_SC_DONE_MSG;
