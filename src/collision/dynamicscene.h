@@ -34,6 +34,7 @@ struct DynamicSceneOverlap {
 struct DynamicScene {
     struct DynamicSceneEntry entries[DYNAMIC_SCENE_ENTRY_COUNT];
     struct DynamicSceneEntry* entryOrder[DYNAMIC_SCENE_ENTRY_COUNT];
+    // TODO move this to the stack
     struct DynamicSceneEntry* workingMemory[DYNAMIC_SCENE_ENTRY_COUNT];
     unsigned actorCount;
 };

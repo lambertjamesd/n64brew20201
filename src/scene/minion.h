@@ -2,10 +2,10 @@
 #define _MINION_H
 
 #include "math/transform.h"
-#include "sk64/skelatool_object.h"
+#include "sk64/skelatool_armature.h"
 #include "sk64/skelatool_animation.h"
 #include "graphics/render_state.h"
-#include "factionentity.h"
+#include "teamentity.h"
 #include "collision/dynamicscene.h"
 
 enum MinionFlags {
@@ -24,18 +24,16 @@ enum MinionCurrentTask {
 };
 
 struct Minion {
-    struct FactionEntity faction;
+    struct FactionEntity team;
     struct Transform transform;
     unsigned char minionFlags;
     unsigned char minionType;
     unsigned char sourceBaseId;
     unsigned char currentTask;
 
-    float currentActionDuration;
-
     struct DynamicSceneEntry* collider;
 
-    // struct SKObject armature;
+    // struct SKArmature armature;
     // struct SKAnimator animator;
     
 };

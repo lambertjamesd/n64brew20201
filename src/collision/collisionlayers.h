@@ -2,7 +2,7 @@
 #define _COLLISION_LAYERS_H
 
 enum CollisionLayers {
-    CollisionLayersTerrain = (1 << 0),
+    CollisionLayersTangible = (1 << 0),
     CollisionLayersBase = (1 << 1),
 };
 

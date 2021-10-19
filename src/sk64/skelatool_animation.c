@@ -283,7 +283,7 @@ void skAnimationApply(struct SKAnimator* animator, struct Transform* transforms,
     }
 }
 
-void skAnimatorUpdate(struct SKAnimator* animator, struct SKObject* object, float timeScale) {
+void skAnimatorUpdate(struct SKAnimator* animator, struct SKArmature* object, float timeScale) {
     if (!(animator->flags & SKAnimatorFlagsActive) || !animator->currentAnimation) {
         return;
     }

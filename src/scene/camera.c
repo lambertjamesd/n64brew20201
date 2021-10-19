@@ -35,3 +35,19 @@ void cameraSetupMatrices(struct Camera* camera, struct RenderState* renderState,
         gSPPerspNormalize(renderState->dl++, perspectiveNormalize);
 
 }
+
+void cameraUpdate(struct Camera* camera, struct Vector3* target, float followDistance, float cameraHeight) {
+    struct Vector3 direction;
+    struct Quaternion targetLook;
+    vector3Sub(target, &camera->transform.position, &direction);
+    quatLook(&direction, &gUp, &targetLook);
+    quatLerp(&camera->transform.rotation, &targetLook, 0.05f, &camera->transform.rotation);
+    quatNormalize(&camera->transform.rotation, &camera->transform.rotation);
+
+    struct Vector3 offset;
+    vector3Sub(&camera->transform.position, target, &offset);
+    vector3Normalize(&offset, &offset);
+    vector3AddScaled(target, &offset, followDistance, &offset);
+    vector3Lerp(&camera->transform.position, &offset, 0.05f, &camera->transform.position);
+    camera->transform.position.y = target->y + cameraHeight;
+}

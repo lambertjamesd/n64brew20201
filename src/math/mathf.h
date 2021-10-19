@@ -9,7 +9,11 @@ float mathfLerp(float from, float to, float t);
 float mathfMoveTowards(float from, float to, float maxMove);
 float mathfBounceBackLerp(float t);
 float mathfRandomFloat();
+float clampf(float input, float min, float max);
 
 float sqrtf(float in);
+
+float cosf(float in);
+float sinf(float in);
 
 #endif

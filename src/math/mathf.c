@@ -64,3 +64,15 @@ float mathfBounceBackLerp(float t) {
 float mathfRandomFloat() {
     return (float)randomInt() / (float)0x7fff;
 }
+
+float clampf(float input, float min, float max) {
+    if (input < min) {
+        return min;
+    }
+
+    if (input > max) {
+        return max;
+    }
+
+    return input;
+}

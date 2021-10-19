@@ -5,6 +5,7 @@
 #include "example/geometry_geo.inc.h"
 #include "dogminion/model.inc.h"
 #include "base/model.inc.h"
+#include "doglow/model.inc.h"
 
 
 Vtx mario_Cube_mesh_vtx_cull[8] = {

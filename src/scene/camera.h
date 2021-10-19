@@ -20,4 +20,6 @@ void cameraBuildViewMatrix(struct Camera* camera, Mtx* matrix);
 void cameraBuildProjectionMatrix(struct Camera* camera, Mtx* matrix, u16* perspectiveNorm, float aspectRatio);
 void cameraSetupMatrices(struct Camera* camera, struct RenderState* renderState, float aspectRatio);
 
+void cameraUpdate(struct Camera* camera, struct Vector3* target, float followDistance, float cameraHeight);
+
 #endif

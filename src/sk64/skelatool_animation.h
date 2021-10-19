@@ -3,7 +3,7 @@
 
 #include <ultra64.h>
 #include "math/quaternion.h"
-#include "skelatool_object.h"
+#include "skelatool_armature.h"
 #include "skelatool_animation_clip.h"
 
 struct SKU16Vector3 {
@@ -72,7 +72,7 @@ void skReadMessages();
 void skAnimatorInit(struct SKAnimator* animator, unsigned boneCount);
 void skAnimatorCleanup(struct SKAnimator* animator);
 void skAnimatorRunClip(struct SKAnimator* animator, struct SKAnimationHeader* animation, int flags);
-void skAnimatorUpdate(struct SKAnimator* animator, struct SKObject* object, float timeScale);
+void skAnimatorUpdate(struct SKAnimator* animator, struct SKArmature* object, float timeScale);
 
 void skAnimationApply(struct SKAnimator* animator, struct Transform* transforms, float tick);
 

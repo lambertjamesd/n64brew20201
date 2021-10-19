@@ -4,7 +4,7 @@
 #include "math/vector2.h"
 #include "collision/dynamicscene.h"
 #include "graphics/render_state.h"
-#include "factionentity.h"
+#include "teamentity.h"
 #include "leveldefinition.h"
 
 enum LevelBaseState {
@@ -16,7 +16,7 @@ enum LevelBaseState {
 };
 
 struct LevelBase {
-    struct FactionEntity faction;
+    struct FactionEntity team;
     struct Vector2 position;
     struct DynamicSceneEntry* collider;
     float stateTimeLeft;

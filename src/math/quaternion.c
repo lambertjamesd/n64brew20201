@@ -156,6 +156,31 @@ void quatRandom(struct Quaternion* q) {
     quatNormalize(q, q);
 }
 
+void quatLook(struct Vector3* lookDir, struct Vector3* up, struct Quaternion* out) {
+    struct Vector3 horizontal;
+    horizontal = *lookDir;
+    horizontal.y = 0.0f;
+    vector3Normalize(&horizontal, &horizontal);
+
+    struct Vector2 complex;
+    complex.x = -horizontal.z;
+    complex.y = -horizontal.x;
+
+    struct Quaternion yaw;
+    quatAxisComplex(&gUp, &complex, &yaw);
+
+    struct Vector3 lookNormalized;
+    vector3Normalize(lookDir, &lookNormalized);
+
+    complex.y = lookNormalized.y;
+    complex.x = sqrtf(1.0f - complex.y * complex.y);
+
+    struct Quaternion pitch;
+    quatAxisComplex(&gRight, &complex, &pitch);
+
+    quatMultiply(&yaw, &pitch, out);
+}
+
 void quatLerp(struct Quaternion* a, struct Quaternion* b, float t, struct Quaternion* out) {
     if (a->w < 0.0) {
         quatNegate(a, a);

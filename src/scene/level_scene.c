@@ -16,6 +16,7 @@ void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* defin
 
     for (unsigned i = 0; i < playercount; ++i) {
         cameraInit(&levelScene->cameras[i], 45.0f, 50.0f, 6000.0f);
+        playerInit(&levelScene->players[i], i, &definition->playerStartLocations[i]);
     }
 
     levelScene->cameras[0].transform.position.z = 200.0f;
@@ -45,6 +46,10 @@ void levelSceneRender(struct LevelScene* levelScene, struct RenderState* renderS
             levelBaseRender(&levelScene->bases[i], renderState);
         }
 
+        for (unsigned int i = 0; i < levelScene->playerCount; ++i) {
+            playerRender(&levelScene->players[i], renderState);
+        }
+
         for (unsigned int minionIndex = 0; minionIndex < levelScene->minionCount; ++minionIndex) {
             if (levelScene->minions[minionIndex].minionFlags & MinionFlagsActive) {
                 minionRender(&levelScene->minions[minionIndex], renderState);
@@ -55,22 +60,26 @@ void levelSceneRender(struct LevelScene* levelScene, struct RenderState* renderS
 }
 
 void levelSceneUpdate(struct LevelScene* levelScene) {
-    OSContPad* controllerData = controllersGetControllerData(0);
+    for (unsigned playerIndex = 0; playerIndex < levelScene->playerCount; ++playerIndex) {
+        struct PlayerInput playerInput;
+        playerInputPopulateWithJoystickData(
+            controllersGetControllerData(playerIndex), 
+            controllerGetLastButton(playerIndex), 
+            &levelScene->cameras[playerIndex].transform.rotation,
+            &playerInput
+        );
 
-    struct Quaternion rotDelta;
-    quatAxisAngle(&gUp, -controllerData->stick_x * gTimeDelta / 200.0f, &rotDelta);
-    struct Quaternion tmpRot;
-    quatMultiply(&rotDelta, &levelScene->cameras[0].transform.rotation, &tmpRot);
-    quatAxisAngle(&gRight, controllerData->stick_y * gTimeDelta / 200.0f, &rotDelta);
-    quatMultiply(&tmpRot, &rotDelta, &levelScene->cameras[0].transform.rotation);
-    
-    if (controllerData->button & (A_BUTTON | B_BUTTON)) {
-        struct Vector3 forward;
-        quatMultVector(&levelScene->cameras[0].transform.rotation, &gForward, &forward);
-        float speed = ((controllerData->button & A_BUTTON) ? -gTimeDelta : gTimeDelta) * 100.0f;
-        vector3AddScaled(&levelScene->cameras[0].transform.position, &forward, speed, &levelScene->cameras[0].transform.position);
+        playerUpdate(&levelScene->players[playerIndex], &playerInput);
+        struct Vector3 target = levelScene->players[playerIndex].transform.position;
+        vector3AddScaled(&target, &gUp, 2.0f * SCENE_SCALE, &target);
+        struct Vector3 velocityLeader;
+        vector3Scale(&levelScene->players[playerIndex].velocity, &velocityLeader, SCENE_SCALE * 0.75f);
+        velocityLeader.y = 0.0f;
+        vector3Add(&target, &velocityLeader, &target);
+        cameraUpdate(&levelScene->cameras[playerIndex], &target, 15.0f * SCENE_SCALE, 5.0f * SCENE_SCALE);
     }
-    
+
+
     for (unsigned int minionIndex = 0; minionIndex < levelScene->minionCount; ++minionIndex) {
         if (levelScene->minions[minionIndex].minionFlags & MinionFlagsActive) {
             minionUpdate(&levelScene->minions[minionIndex]);

@@ -4,8 +4,8 @@
 #include <ultra64.h>
 #include "math/vector2.h"
 
-#define FACTION(index) (index)
-#define FACTION_NONE   4
+#define TEAM(index) (index)
+#define TEAM_NONE   4
 
 struct BaseDefinition {
     struct Vector2 position;
@@ -13,6 +13,8 @@ struct BaseDefinition {
 };
 
 struct LevelDefinition {
+    unsigned int maxPlayerCount;
+    struct Vector2* playerStartLocations;
     unsigned int baseCount;
     struct BaseDefinition* bases;
     Gfx* sceneRender;

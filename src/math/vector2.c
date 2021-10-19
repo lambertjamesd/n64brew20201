@@ -11,6 +11,11 @@ void vector2ComplexMul(struct Vector2* a, struct Vector2* b, struct Vector2* out
     out->x = x;
 }
 
+void vector2ComplexFromAngle(float radians, struct Vector2* out) {
+    out->x = cosf(radians);
+    out->y = sinf(radians);
+}
+
 void vector2RotateTowards(struct Vector2* from, struct Vector2* towards, struct Vector2* max, struct Vector2* out) {
     struct Vector2 fromInv = {from->x, -from->y};
     struct Vector2 diff;
@@ -59,6 +64,7 @@ float vector2MagSqr(struct Vector2* a)  {
 void vector2Normalize(struct Vector2* a, struct Vector2* out) {
     if (a->x == 0.0f && a->y == 0.0f) {
         *out = *a;
+        return;
     }
 
     float scale = 1.0f / sqrtf(a->x * a->x + a->y * a->y);

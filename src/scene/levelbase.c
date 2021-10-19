@@ -41,18 +41,18 @@ void levelBaseTrigger(struct DynamicSceneOverlap* overlap) {
     if (overlap->otherEntry->flags & DynamicSceneEntryHasFaction) {
         struct LevelBase* base = (struct LevelBase*)overlap->thisEntry->data;
 
-        struct FactionEntity* factionEntity = (struct FactionEntity*)overlap->otherEntry->data;
+        struct FactionEntity* teamEntity = (struct FactionEntity*)overlap->otherEntry->data;
 
-        if (base->faction.entityFaction == FACTION_NONE) {
-            base->faction.entityFaction = factionEntity->entityType;
+        if (base->team.entityFaction == TEAM_NONE) {
+            base->team.entityFaction = teamEntity->entityType;
         } 
         
-        if (factionEntity->entityFaction != base->faction.entityFaction) {
+        if (teamEntity->entityFaction != base->team.entityFaction) {
             base->captureProgress -= gTimeDelta;
 
             if (base->captureProgress <= 0.0f) {
                 base->captureProgress = 0.0f;
-                base->faction.entityFaction = FACTION_NONE;
+                base->team.entityFaction = TEAM_NONE;
                 base->state = LevelBaseStateNeutral;
             }
         } else {
@@ -71,14 +71,14 @@ void levelBaseTrigger(struct DynamicSceneOverlap* overlap) {
 }
 
 void levelBaseInit(struct LevelBase* base, struct BaseDefinition* definition, unsigned char baseId, unsigned int makeNeutral) {
-    base->faction.entityType = FactionEntityTypeBase;
-    base->faction.entityFaction = makeNeutral ? FACTION_NONE : definition->startingFaction;
+    base->team.entityType = FactionEntityTypeBase;
+    base->team.entityFaction = makeNeutral ? TEAM_NONE : definition->startingFaction;
     base->position = definition->position;
     base->baseId = baseId;
 
     base->state = LevelBaseStateNeutral;
 
-    if (base->faction.entityFaction != FACTION_NONE) {
+    if (base->team.entityFaction != TEAM_NONE) {
         levelBaseSetState(base, LevelBaseStateSpawning);
     }
     

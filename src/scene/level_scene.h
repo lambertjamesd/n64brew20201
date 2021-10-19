@@ -9,11 +9,13 @@
 #include "levelbase.h"
 #include "graphics/render_state.h"
 #include "leveldefinition.h"
+#include "player.h"
 
 #define MAX_MINIONS_PER_BASE       3
 
 struct LevelScene {
     struct Camera cameras[MAX_PLAYERS];
+    struct Player players[MAX_PLAYERS];
     unsigned int playerCount;
 
     struct LevelBase *bases;

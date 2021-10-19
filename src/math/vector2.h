@@ -15,6 +15,7 @@ extern struct Vector2 gUp2;
 
 void vector2ComplexMul(struct Vector2* a, struct Vector2* b, struct Vector2* out);
 void vector2RotateTowards(struct Vector2* from, struct Vector2* towards, struct Vector2* max, struct Vector2* out);
+void vector2ComplexFromAngle(float radians, struct Vector2* out);
 float vector2Cross(struct Vector2* a, struct Vector2* b);
 float vector2Dot(struct Vector2* a, struct Vector2* b);
 float vector2MagSqr(struct Vector2* a);

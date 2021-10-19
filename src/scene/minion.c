@@ -55,7 +55,7 @@ void minionInit(struct Minion* minion, enum MinionType type, struct Transform* a
         &position,
         0,
         DynamicSceneEntryHasFaction,
-        CollisionLayersTerrain | CollisionLayersBase
+        CollisionLayersTangible | CollisionLayersBase
     );
 
     quatAxisAngle(&gUp, M_PI * 2.0f * rand() / RAND_MAX, &minion->transform.rotation);

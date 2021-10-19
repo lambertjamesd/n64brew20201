@@ -7,7 +7,7 @@
 #include "gfxvalidator/error_printer.h"
 #include "util/memory.h"
 #include "../data/models/example/geometry.h"
-#include "sk64/skelatool_object.h"
+#include "sk64/skelatool_armature.h"
 #include "sk64/skelatool_defs.h"
 #include "util/rom.h"
 
