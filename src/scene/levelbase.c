@@ -84,13 +84,14 @@ void levelBaseInit(struct LevelBase* base, struct BaseDefinition* definition, un
     
     base->captureProgress = 0.0f;
 
-    base->collider = dynamicSceneNewEntry(&gBaseCollider.shapeCommon, base);
-
-    base->collider->center.x = definition->position.x;
-    base->collider->center.y = definition->position.y;
-    base->collider->onCollide = levelBaseTrigger;
-    base->collider->flags = DynamicSceneEntryIsTrigger;
-    base->collider->collisionLayers = CollisionLayersBase;
+    base->collider = dynamicSceneNewEntry(
+        &gBaseCollider.shapeCommon, 
+        base, 
+        &definition->position,
+        levelBaseTrigger,
+        DynamicSceneEntryIsTrigger | DynamicSceneEntryHasFaction,
+        CollisionLayersBase
+    );
 }
 
 void levelBaseUpdate(struct LevelBase* base) {

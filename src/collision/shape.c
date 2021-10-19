@@ -13,10 +13,11 @@ void collisionShapeBoundingBox(struct CollisionShape* shape, struct Vector2* at,
         case CollisionShapeTypeCircle:
             collisionCircleBoundingBox((struct CollisionCircle*)shape, at, outuput);
             break;
+        default:
+            outuput->max = *at;
+            outuput->max = *at;
+            break;
     }
-
-    outuput->max = *at;
-    outuput->max = *at;
 }
 
 int collisionCollidePair(struct CollisionShape* a, struct CollisionShape* b, struct Vector2* aToB, struct ShapeOverlap* shapeOverlap) {

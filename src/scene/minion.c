@@ -10,8 +10,15 @@
 #include "sk64/skelatool_animation_clip.h"
 #include "../data/models/characters.h"
 #include "scene_management.h"
+#include "collision/circle.h"
+#include "collision/collisionlayers.h"
 
 #include "../data/models/example/geometry_animdef.inc.h"
+
+struct CollisionCircle gMinionCollider = {
+    {CollisionShapeTypeCircle},
+    SCENE_SCALE * 0.1f,
+};
 
 struct MinionDef {
     Gfx* dl;
@@ -36,6 +43,20 @@ void minionInit(struct Minion* minion, enum MinionType type, struct Transform* a
     minion->transform.scale.x *= 0.1f;
     minion->transform.scale.y *= 0.1f;
     minion->transform.scale.z *= 0.1f;
+
+    struct Vector2 position;
+
+    position.x = minion->transform.position.x;
+    position.y = minion->transform.position.z;
+
+    minion->collider = dynamicSceneNewEntry(
+        &gMinionCollider.shapeCommon, 
+        minion, 
+        &position,
+        0,
+        DynamicSceneEntryHasFaction,
+        CollisionLayersTerrain | CollisionLayersBase
+    );
 
     quatAxisAngle(&gUp, M_PI * 2.0f * rand() / RAND_MAX, &minion->transform.rotation);
     

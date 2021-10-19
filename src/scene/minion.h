@@ -6,6 +6,7 @@
 #include "sk64/skelatool_animation.h"
 #include "graphics/render_state.h"
 #include "factionentity.h"
+#include "collision/dynamicscene.h"
 
 enum MinionFlags {
     MinionFlagsActive = (1 << 0),
@@ -31,6 +32,8 @@ struct Minion {
     unsigned char currentTask;
 
     float currentActionDuration;
+
+    struct DynamicSceneEntry* collider;
 
     // struct SKObject armature;
     // struct SKAnimator animator;

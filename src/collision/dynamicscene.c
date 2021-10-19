@@ -13,13 +13,22 @@ void dynamicSceneInit(struct DynamicScene* scene) {
     }
 }
 
-struct DynamicSceneEntry* dynamicSceneNewEntry(struct CollisionShape* forShape, void* data) {
+struct DynamicSceneEntry* dynamicSceneNewEntry(
+    struct CollisionShape* forShape, 
+    void* data,
+    struct Vector2* at,
+    CollisionCallback onCollide,
+    unsigned flags,
+    unsigned collisionLayers
+) {
     if (gDynamicScene.actorCount < DYNAMIC_SCENE_ENTRY_COUNT) {
         struct DynamicSceneEntry* result = gDynamicScene.entryOrder[gDynamicScene.actorCount];
         result->forShape = forShape;
         result->data = data;
-        result->onCollide = 0;
-        result->flags = 0;
+        result->center = *at;
+        result->onCollide = onCollide;
+        result->flags = flags;
+        result->collisionLayers = collisionLayers;
         ++gDynamicScene.actorCount;
         return result;
     }
@@ -53,10 +62,12 @@ void dynamicSortEntries(struct DynamicSceneEntry** start, struct DynamicSceneEnt
     } 
 
     if (start + 2 == end) {
-        struct DynamicSceneEntry* tmp = *start;
-        *start = *(start + 1);
-        *(start + 1) = tmp;
-        return;
+        if ((*start)->boundingBox.min.x > (*(start+1))->boundingBox.min.x) {
+            struct DynamicSceneEntry* tmp = *start;
+            *start = *(start + 1);
+            *(start + 1) = tmp;
+            return;
+        }
     }
 
     struct DynamicSceneEntry* slidingMerge;

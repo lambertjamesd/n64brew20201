@@ -42,7 +42,14 @@ extern struct DynamicScene gDynamicScene;
 
 void dynamicSceneInit();
 
-struct DynamicSceneEntry* dynamicSceneNewEntry(struct CollisionShape* forShape, void* data);
+struct DynamicSceneEntry* dynamicSceneNewEntry(
+    struct CollisionShape* forShape, 
+    void* data,
+    struct Vector2* at,
+    CollisionCallback onCollide,
+    unsigned flags,
+    unsigned collisionLayers
+);
 void dynamicSceneDeleteEntry(struct DynamicSceneEntry* entry);
 
 void dynamicSceneCollide();
