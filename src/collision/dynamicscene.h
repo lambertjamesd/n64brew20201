@@ -6,6 +6,7 @@
 
 enum DynamicSceneEntryFlags {
     DynamicSceneEntryIsTrigger = (1 << 0),
+    DynamicSceneEntryHasFaction = (1 << 8),
 };
 
 struct DynamicSceneOverlap;

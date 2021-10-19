@@ -9,6 +9,7 @@
 
 #include "sk64/skelatool_animation_clip.h"
 #include "../data/models/characters.h"
+#include "scene_management.h"
 
 #include "../data/models/example/geometry_animdef.inc.h"
 
@@ -26,17 +27,15 @@ void minionSetup() {
     output_animations[0].firstChunk = CALC_ROM_POINTER(character_animations, output_animations[0].firstChunk);
 }
 
-void minionInit(struct Minion* minion, enum MinionType type, struct Transform* at) {
+void minionInit(struct Minion* minion, enum MinionType type, struct Transform* at, unsigned char sourceBaseId) {
     minion->transform = *at;
     minion->minionType = type;
     minion->minionFlags = MinionFlagsActive;
+    minion->sourceBaseId = sourceBaseId;
 
     minion->transform.scale.x *= 0.1f;
     minion->transform.scale.y *= 0.1f;
     minion->transform.scale.z *= 0.1f;
-
-    minion->currentAction = MinionActiontypeMove;
-    minion->currentActionDuration = 1.0f;
 
     quatAxisAngle(&gUp, M_PI * 2.0f * rand() / RAND_MAX, &minion->transform.rotation);
     
@@ -66,43 +65,12 @@ void minionRender(struct Minion* minion, struct RenderState* renderState) {
 }
     
 void minionUpdate(struct Minion* minion) {
-
-    switch (minion->currentAction) {
-        case MinionActiontypeMove:
-        {
-            struct Vector3 forward;
-            vector3Scale(&gForward, &forward, gTimeDelta * 0.1f);
-            quatMultVector(&minion->transform.rotation, &forward, &forward);
-            vector3Add(&minion->transform.position, &forward, &minion->transform.position);
-            break;
-        }
-        case MinionActiontypeTurnLeft:
-        {
-            struct Quaternion rotateDelta;
-            quatAxisAngle(&gUp, gTimeDelta, &rotateDelta);
-            quatMultiply(&minion->transform.rotation, &rotateDelta, &minion->transform.rotation);
-            break;
-        }
-        case MinionActiontypeTurnRight:
-        {
-            struct Quaternion rotateDelta;
-            quatAxisAngle(&gUp, -gTimeDelta, &rotateDelta);
-            quatMultiply(&minion->transform.rotation, &rotateDelta, &minion->transform.rotation);
-            break;
-        }
-    }
-    
-    minion->currentActionDuration -= gTimeDelta;
-    
-    if (minion->currentActionDuration <= 0.0) {
-        if (minion->currentAction == MinionActiontypePause) {
-            minion->currentAction = rand() % 3 + 1;
-        } else {
-            minion->currentAction = MinionActiontypePause;
-        }
-
-        minion->currentActionDuration = 1.0f + (rand() % 100) / 100.0f;
-    }
-
     // skAnimatorUpdate(&minion->animator, &minion->armature, 0.5f);
+}
+
+void minionCleanup(struct Minion* minion) {
+    if (minion->minionFlags & MinionFlagsActive) {
+        minion->minionFlags = 0;
+        levelBaseReleaseMinion(&gCurrentLevel.bases[minion->sourceBaseId]);
+    }
 }

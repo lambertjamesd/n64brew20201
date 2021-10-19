@@ -25,10 +25,7 @@ void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* defin
     levelScene->baseCount = definition->baseCount;
     levelScene->bases = malloc(sizeof(struct LevelBase) * definition->baseCount);
     for (unsigned i = 0; i < definition->baseCount; ++i) {
-        struct Vector2 pos;
-        pos.x = 0;
-        pos.y = 0;
-        levelBaseInit(&levelScene->bases[i], &pos);
+        levelBaseInit(&levelScene->bases[i], &definition->bases[i], (unsigned char)i, i >= playercount);
     }
 
     levelScene->minionCount = definition->baseCount * MAX_MINIONS_PER_BASE;
@@ -44,14 +41,14 @@ void levelSceneRender(struct LevelScene* levelScene, struct RenderState* renderS
         Mtx* scaleMatrix = renderStateRequestMatrices(renderState, 1);
         gSPDisplayList(renderState->dl++, levelScene->levelDL);
 
+        for (unsigned int i = 0; i < levelScene->baseCount; ++i) {
+            levelBaseRender(&levelScene->bases[i], renderState);
+        }
+
         for (unsigned int minionIndex = 0; minionIndex < levelScene->minionCount; ++minionIndex) {
             if (levelScene->minions[minionIndex].minionFlags & MinionFlagsActive) {
                 minionRender(&levelScene->minions[minionIndex], renderState);
             }
-        }
-
-        for (unsigned int i = 0; i < levelScene->baseCount; ++i) {
-            levelBaseRender(&levelScene->bases[i], renderState);
         }
     }
 
@@ -84,23 +81,13 @@ void levelSceneUpdate(struct LevelScene* levelScene) {
         levelBaseUpdate(&levelScene->bases[baseIndex]);
     }
 
-    if ((controllerData->button & ~controllerGetLastButton(0)) & Z_TRIG) {
-        for (unsigned i = 0; i < 10; ++i) {
-            struct Transform start;
-            start.position = gZeroVec;
-            quatIdent(&start.rotation);
-            start.scale = gOneVec;
-            levelSceneSpawnMinion(levelScene, MinionTypeMelee, &start);
-        }
-    }
-
     dynamicSceneCollide();
 }
 
-void levelSceneSpawnMinion(struct LevelScene* levelScene, enum MinionType type, struct Transform* at) {
+void levelSceneSpawnMinion(struct LevelScene* levelScene, enum MinionType type, struct Transform* at, unsigned char baseId) {
     for (unsigned i = 0; i < levelScene->minionCount; ++i) {
         if (!(levelScene->minions[i].minionFlags & MinionFlagsActive)) {
-            minionInit(&levelScene->minions[i], type, at);
+            minionInit(&levelScene->minions[i], type, at, baseId);
             break;
         }
     }

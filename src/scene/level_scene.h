@@ -6,7 +6,7 @@
 #include "game_defs.h"
 #include "camera.h"
 #include "minion.h"
-#include "base.h"
+#include "levelbase.h"
 #include "graphics/render_state.h"
 #include "leveldefinition.h"
 
@@ -29,6 +29,6 @@ void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* defin
 void levelSceneRender(struct LevelScene* levelScene, struct RenderState* renderState);
 void levelSceneUpdate(struct LevelScene* levelScene);
 
-void levelSceneSpawnMinion(struct LevelScene* levelScene, enum MinionType type, struct Transform* at);
+void levelSceneSpawnMinion(struct LevelScene* levelScene, enum MinionType type, struct Transform* at, unsigned char baseId);
 
 #endif

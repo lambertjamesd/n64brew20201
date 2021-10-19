@@ -4,7 +4,8 @@
 #include <ultra64.h>
 #include "math/vector2.h"
 
-#define STARTING_FACTION_NONE   4
+#define FACTION(index) (index)
+#define FACTION_NONE   4
 
 struct BaseDefinition {
     struct Vector2 position;

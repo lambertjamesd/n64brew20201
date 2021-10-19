@@ -6,7 +6,7 @@
 struct BaseDefinition gLevelTestBases[] = {
     {
         .position = {0 * SCENE_SCALE, 0 * SCENE_SCALE},
-        .startingFaction = STARTING_FACTION_NONE,
+        .startingFaction = FACTION(0),
     }
 };
 
