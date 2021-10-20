@@ -5,6 +5,23 @@
 #include "util/time.h"
 #include "collision/dynamicscene.h"
 #include "assert.h"
+#include "graphics/gfx.h"
+
+static Vp gSplitScreenViewports[4];
+static unsigned short gClippingRegions[4 * 4];
+
+unsigned short gViewportPosition[] = {
+    // Single player
+    0, 0, SCREEN_WD, SCREEN_HT,
+    0, 0, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 0, 0,
+    // Two player
+    0, 0, SCREEN_WD/2-1, SCREEN_HT,
+    SCREEN_WD/2+1, 0, SCREEN_WD, SCREEN_HT,
+    0, 0, 0, 0,
+    0, 0, 0, 0,
+};
 
 
 void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* definition, unsigned int playercount) {
@@ -17,10 +34,9 @@ void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* defin
     for (unsigned i = 0; i < playercount; ++i) {
         cameraInit(&levelScene->cameras[i], 45.0f, 50.0f, 6000.0f);
         playerInit(&levelScene->players[i], i, &definition->playerStartLocations[i]);
+        levelScene->cameras[i].transform.position = levelScene->players[i].transform.position;
     }
 
-    levelScene->cameras[0].transform.position.z = 200.0f;
-    levelScene->cameras[0].transform.position.y = 400.0f;
     quatAxisAngle(&gRight, -M_PI * 0.3333f, &levelScene->cameras[0].transform.rotation);
 
     levelScene->baseCount = definition->baseCount;
@@ -35,6 +51,35 @@ void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* defin
     for (unsigned i = 0; i < levelScene->minionCount; ++i) {
         levelScene->minions[i].minionFlags = 0;
     }
+
+    // 4 numbers per viewport, 4 viewports per slot
+    unsigned viewportBase = (playercount - 1) * 4 * 4;
+    
+    for (unsigned i = 0; i < playercount; ++i) {
+        unsigned l = gViewportPosition[viewportBase + 0];
+        unsigned t = gViewportPosition[viewportBase + 1];
+        unsigned r = gViewportPosition[viewportBase + 2];
+        unsigned b = gViewportPosition[viewportBase + 3];
+
+        gSplitScreenViewports[i].vp.vscale[0] = (r - l) * 4 / 2;
+        gSplitScreenViewports[i].vp.vscale[1] = (b - t) * 4 / 2;
+        gSplitScreenViewports[i].vp.vscale[2] = G_MAXZ/2;
+        gSplitScreenViewports[i].vp.vscale[3] = 0;
+
+        gSplitScreenViewports[i].vp.vtrans[0] = (r + l) * 4 / 2;
+        gSplitScreenViewports[i].vp.vtrans[1] = (b + t) * 4 / 2;
+        gSplitScreenViewports[i].vp.vtrans[2] = G_MAXZ/2;
+        gSplitScreenViewports[i].vp.vtrans[3] = 0;
+
+        gClippingRegions[i * 4 + 0] = l;
+        gClippingRegions[i * 4 + 1] = t;
+        gClippingRegions[i * 4 + 2] = r;
+        gClippingRegions[i * 4 + 3] = b;
+
+        viewportBase += 4;
+    }
+
+    osWritebackDCache(&gSplitScreenViewports[0], sizeof(gSplitScreenViewports));
 }
 
 void levelSceneRender(struct LevelScene* levelScene, struct RenderState* renderState) {
@@ -72,11 +117,21 @@ void levelSceneRender(struct LevelScene* levelScene, struct RenderState* renderS
 
 
     for (unsigned int i = 0; i < levelScene->playerCount; ++i) {
-        cameraSetupMatrices(&levelScene->cameras[i], renderState, 320.0f / 240.0f);
+        Vp* viewport = &gSplitScreenViewports[i];
+        cameraSetupMatrices(&levelScene->cameras[i], renderState, (float)viewport->vp.vscale[0] / (float)viewport->vp.vscale[1]);
+        gSPViewport(renderState->dl++, osVirtualToPhysical(viewport));
+        gDPSetScissor(
+            renderState->dl++, 
+            G_SC_NON_INTERLACE, 
+            gClippingRegions[i * 4 + 0],
+            gClippingRegions[i * 4 + 1],
+            gClippingRegions[i * 4 + 2],
+            gClippingRegions[i * 4 + 3]
+        );
         gSPDisplayList(renderState->dl++, levelScene->levelDL);
         gSPDisplayList(renderState->dl++, baseGfx);
-        gSPDisplayList(renderState->dl++, minionGfx);
         gSPDisplayList(renderState->dl++, playerGfx);
+        gSPDisplayList(renderState->dl++, minionGfx);
     }
 
 }

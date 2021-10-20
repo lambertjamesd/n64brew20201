@@ -9,7 +9,7 @@ struct LevelDefinition* gLevels[] = {
 };
 
 void loadLevelScene() {
-    levelSceneInit(&gCurrentLevel, gLevels[0], 1);
+    levelSceneInit(&gCurrentLevel, gLevels[0], 2);
     gSceneState = SceneStateInLevel;
 }
 

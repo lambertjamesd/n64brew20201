@@ -27,6 +27,7 @@ void renderStateFlushCache(struct RenderState* renderState) {
 Gfx* renderStateAllocateDLChunk(struct RenderState* renderState, unsigned count) {
     Gfx* result = &renderState->glist[renderState->currentChunkEnd - count];
     assert(result >= renderState->dl);
+    renderState->currentChunkEnd -= count;
     return result;
 }
 

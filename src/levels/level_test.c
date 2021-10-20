@@ -38,13 +38,13 @@ struct BaseDefinition gLevelTestBases[] = {
     },
     {
         .position = {20.0f * SCENE_SCALE, 20.0 * SCENE_SCALE},
-        .startingTeam = TEAM_NONE,
+        .startingTeam = TEAM(1),
     },
 };
 
 struct Vector2 gLevelTestPlayerStart[] = {
     {0 * SCENE_SCALE, 0 * SCENE_SCALE},
-    {0 * SCENE_SCALE, 10 * SCENE_SCALE},
+    {20.0f * SCENE_SCALE, 20.0f * SCENE_SCALE},
 };
 
 struct LevelDefinition gLevelTest = {
