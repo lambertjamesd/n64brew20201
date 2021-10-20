@@ -24,7 +24,7 @@ void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* defin
     levelScene->baseCount = definition->baseCount;
     levelScene->bases = malloc(sizeof(struct LevelBase) * definition->baseCount);
     for (unsigned i = 0; i < definition->baseCount; ++i) {
-        levelBaseInit(&levelScene->bases[i], &definition->bases[i], (unsigned char)i, i >= playercount);
+        levelBaseInit(&levelScene->bases[i], &definition->bases[i], (unsigned char)i, definition->bases[i].startingTeam >= playercount);
     }
 
     levelScene->minionCount = definition->baseCount * MAX_MINIONS_PER_BASE;

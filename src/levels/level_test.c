@@ -10,7 +10,35 @@ struct BaseDefinition gLevelTestBases[] = {
     },
     {
         .position = {10.0f * SCENE_SCALE, 0 * SCENE_SCALE},
-        .startingTeam = TEAM(0),
+        .startingTeam = TEAM_NONE,
+    },
+    {
+        .position = {20.0f * SCENE_SCALE, 0 * SCENE_SCALE},
+        .startingTeam = TEAM_NONE,
+    },
+    {
+        .position = {0 * SCENE_SCALE, 10.0 * SCENE_SCALE},
+        .startingTeam = TEAM_NONE,
+    },
+    {
+        .position = {10.0f * SCENE_SCALE, 10.0 * SCENE_SCALE},
+        .startingTeam = TEAM_NONE,
+    },
+    {
+        .position = {20.0f * SCENE_SCALE, 10.0 * SCENE_SCALE},
+        .startingTeam = TEAM_NONE,
+    },
+    {
+        .position = {0 * SCENE_SCALE, 20.0 * SCENE_SCALE},
+        .startingTeam = TEAM_NONE,
+    },
+    {
+        .position = {10.0f * SCENE_SCALE, 20.0 * SCENE_SCALE},
+        .startingTeam = TEAM_NONE,
+    },
+    {
+        .position = {20.0f * SCENE_SCALE, 20.0 * SCENE_SCALE},
+        .startingTeam = TEAM_NONE,
     },
 };
 

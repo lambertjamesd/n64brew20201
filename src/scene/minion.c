@@ -16,13 +16,13 @@
 
 #include "../data/models/example/geometry_animdef.inc.h"
 
-#define MINION_FOLLOW_DIST  2.0f
+#define MINION_FOLLOW_DIST  6.0f
 #define MINION_MOVE_SPEED   (PLAYER_MOVE_SPEED * 0.9f)
 #define MINION_ACCELERATION PLAYER_MOVE_ACCELERATION
 
 struct CollisionCircle gMinionCollider = {
     {CollisionShapeTypeCircle},
-    SCENE_SCALE * 0.3f,
+    SCENE_SCALE * 0.4f,
 };
 
 struct MinionDef {
@@ -48,10 +48,6 @@ void minionInit(struct Minion* minion, enum MinionType type, struct Transform* a
     minion->minionFlags = MinionFlagsActive;
     minion->sourceBaseId = sourceBaseId;
     minion->velocity = gZeroVec;
-
-    minion->transform.scale.x *= 0.2f;
-    minion->transform.scale.y *= 0.2f;
-    minion->transform.scale.z *= 0.2f;
 
     struct Vector2 position;
 
@@ -112,6 +108,15 @@ void minionUpdate(struct Minion* minion) {
 
     vector3MoveTowards(&minion->velocity, &targetVelocity, MINION_ACCELERATION * gTimeDelta, &minion->velocity);
     vector3AddScaled(&minion->transform.position, &minion->velocity, SCENE_SCALE * gTimeDelta, &minion->transform.position);
+
+    struct Vector2 right;
+    right.x = minion->velocity.z;
+    right.y = minion->velocity.x;
+
+    if (right.x != 0.0f || right.y != 0.0f) {
+        vector2Normalize(&right, &right);
+        quatAxisComplex(&gUp, &right, &minion->transform.rotation);
+    }
 
     minion->collider->center.x = minion->transform.position.x;
     minion->collider->center.y = minion->transform.position.z;
