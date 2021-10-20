@@ -65,7 +65,7 @@ void minionInit(struct Minion* minion, enum MinionType type, struct Transform* a
 
     quatAxisAngle(&gUp, M_PI * 2.0f * rand() / RAND_MAX, &minion->transform.rotation);
 
-    minion->currentAction = MinionActiontypeFollow;
+    minion->currentCommand = MinionCommandFollow;
 }
 
 void minionRender(struct Minion* minion, struct RenderState* renderState) {
@@ -80,15 +80,40 @@ void minionRender(struct Minion* minion, struct RenderState* renderState) {
     gSPDisplayList(renderState->dl++, DogMinion_Dog_001_mesh);
     gSPPopMatrix(renderState->dl++, 1);
 }
+
+void minionIssueCommand(struct Minion* minion, enum MinionCommand command) {
+    if (command == MinionCommandDefend) {
+        minion->defensePoint = minion->transform.position;
+    }
+    
+    minion->currentTarget = 0;
+    minion->currentCommand = command;
+}
     
 void minionUpdate(struct Minion* minion) {
     struct Vector3* target;
     float minDistance = 0.0f;
 
-    switch (minion->currentAction) {
-        case MinionActiontypeFollow:
+    switch (minion->currentCommand) {
+        case MinionCommandFollow:
             target = &gCurrentLevel.players[minion->team.teamNumber].transform.position;
             minDistance = MINION_FOLLOW_DIST * SCENE_SCALE;
+            break;
+        case MinionCommandDefend:
+            target = teamEntityGetPosition(minion->currentTarget);
+        
+            if (target != 0 && vector3DistSqrd(target, &minion->defensePoint) > MINION_DEFENSE_RADIUS * MINION_DEFENSE_RADIUS) {
+                minion->currentTarget = 0;
+                target = 0;
+            }
+
+            if (target == 0) {
+                target = &minion->defensePoint;
+            }
+
+            break;
+        case MinionCommandAttack:
+            target = teamEntityGetPosition(minion->currentTarget);
             break;
     }
 

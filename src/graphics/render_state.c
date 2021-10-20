@@ -5,6 +5,7 @@
 void renderStateInit(struct RenderState* renderState) {
     renderState->dl = renderState->glist;
     renderState->currentMatrix = 0;
+    renderState->currentChunkEnd = MAX_DL_LENGTH;
 }
 
 Mtx* renderStateRequestMatrices(struct RenderState* renderState, unsigned count) {
@@ -18,7 +19,19 @@ Mtx* renderStateRequestMatrices(struct RenderState* renderState, unsigned count)
 }
 
 void renderStateFlushCache(struct RenderState* renderState) {
-    assert((void *)renderState->dl <= (void *)&renderState->glist[MAX_DL_LENGTH]);
+    assert((void *)renderState->dl <= (void *)&renderState->glist[renderState->currentChunkEnd]);
     osWritebackDCache(renderState->glist, (s32)renderState->dl - (s32)renderState->glist);
     osWritebackDCache(renderState->matrices, sizeof(Mtx) * renderState->currentMatrix);
+}
+
+Gfx* renderStateAllocateDLChunk(struct RenderState* renderState, unsigned count) {
+    Gfx* result = &renderState->glist[renderState->currentChunkEnd - count];
+    assert(result >= renderState->dl);
+    return result;
+}
+
+Gfx* renderStateReplaceDL(struct RenderState* renderState, Gfx* nextDL) {
+    Gfx* result = renderState->dl;
+    renderState->dl = nextDL;
+    return result;
 }

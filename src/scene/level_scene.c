@@ -4,6 +4,8 @@
 #include "controls/controller.h"
 #include "util/time.h"
 #include "collision/dynamicscene.h"
+#include "assert.h"
+
 
 void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* definition, unsigned int playercount) {
     dynamicSceneInit();
@@ -28,6 +30,7 @@ void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* defin
     }
 
     levelScene->minionCount = definition->baseCount * MAX_MINIONS_PER_BASE;
+    levelScene->lastMinion = 0;
     levelScene->minions = malloc(sizeof(struct Minion) * levelScene->minionCount);
     for (unsigned i = 0; i < levelScene->minionCount; ++i) {
         levelScene->minions[i].minionFlags = 0;
@@ -35,6 +38,18 @@ void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* defin
 }
 
 void levelSceneRender(struct LevelScene* levelScene, struct RenderState* renderState) {
+    Gfx* minionGfx = renderStateAllocateDLChunk(renderState, MINION_GFX_PER_MINION * levelScene->minionCount + 1);
+    Gfx* prevDL = renderStateReplaceDL(renderState, minionGfx);
+
+    for (unsigned int minionIndex = 0; minionIndex < levelScene->minionCount; ++minionIndex) {
+        if (levelScene->minions[minionIndex].minionFlags & MinionFlagsActive) {
+            minionRender(&levelScene->minions[minionIndex], renderState);
+        }
+    }
+    gSPEndDisplayList(renderState->dl++);
+    Gfx* minionEnd = renderStateReplaceDL(renderState, prevDL);
+    assert(minionEnd <= minionGfx + MINION_GFX_PER_MINION * levelScene->minionCount);
+
     for (unsigned int i = 0; i < levelScene->playerCount; ++i) {
         cameraSetupMatrices(&levelScene->cameras[i], renderState, 320.0f / 240.0f);
         Mtx* scaleMatrix = renderStateRequestMatrices(renderState, 1);
@@ -48,11 +63,7 @@ void levelSceneRender(struct LevelScene* levelScene, struct RenderState* renderS
             playerRender(&levelScene->players[i], renderState);
         }
 
-        for (unsigned int minionIndex = 0; minionIndex < levelScene->minionCount; ++minionIndex) {
-            if (levelScene->minions[minionIndex].minionFlags & MinionFlagsActive) {
-                minionRender(&levelScene->minions[minionIndex], renderState);
-            }
-        }
+        gSPDisplayList(renderState->dl++, minionGfx);
     }
 
 }
@@ -92,10 +103,14 @@ void levelSceneUpdate(struct LevelScene* levelScene) {
 }
 
 void levelSceneSpawnMinion(struct LevelScene* levelScene, enum MinionType type, struct Transform* at, unsigned char baseId, unsigned team) {
-    for (unsigned i = 0; i < levelScene->minionCount; ++i) {
-        if (!(levelScene->minions[i].minionFlags & MinionFlagsActive)) {
-            minionInit(&levelScene->minions[i], type, at, baseId, team);
+    unsigned searchStart = levelScene->lastMinion;
+
+    do {
+        if (!(levelScene->minions[levelScene->lastMinion].minionFlags & MinionFlagsActive)) {
+            minionInit(&levelScene->minions[levelScene->lastMinion], type, at, baseId, team);
             break;
         }
-    }
+        levelScene->lastMinion = (levelScene->lastMinion + 1) % levelScene->minionCount;
+    } while (searchStart != levelScene->lastMinion);
+    
 }

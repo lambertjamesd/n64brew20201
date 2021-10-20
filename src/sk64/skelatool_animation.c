@@ -119,6 +119,11 @@ void skApplyChunk(struct SKAnimator* animator, struct SKAnimationChunk* chunk) {
     for (unsigned i = 0; i < chunk->keyframeCount; ++i) {
         nextFrame = skApplyKeyframe(animator, nextFrame);
     }
+
+    animator->flags &= ~SKAnimatorFlagsPendingRequest;
+    animator->nextChunkSource += animator->nextSourceChunkSize;
+    animator->nextSourceTick = chunk->nextChunkTick;
+    animator->nextSourceChunkSize = chunk->nextChunkSize;
 }
 
 void skProcess(OSIoMesg* message) {
@@ -130,13 +135,9 @@ void skProcess(OSIoMesg* message) {
         gSKAnimationPool.animatorsForMessages[messageIndex] = 0;
 
         struct SKAnimationChunk* nextChunk = (struct SKAnimationChunk*)message->dramAddr;
-
+        unsigned nextChunkSize = animator->nextSourceChunkSize;
         skApplyChunk(animator, nextChunk);
-        animator->flags &= ~SKAnimatorFlagsPendingRequest;
-        animator->nextChunkSource += animator->nextSourceChunkSize;
-        skRingMemoryFree(&gSKAnimationPool.memoryPool, animator->nextSourceChunkSize);
-        animator->nextSourceTick = nextChunk->nextChunkTick;
-        animator->nextSourceChunkSize = nextChunk->nextChunkSize;
+        skRingMemoryFree(&gSKAnimationPool.memoryPool, nextChunkSize);
     }
 }
 
@@ -167,6 +168,12 @@ void skRequestChunk(struct SKAnimator* animator) {
     unsigned short chunkSize = animator->nextSourceChunkSize;
 
     if (chunkSize == 0) {
+        return;
+    }
+
+    if (IS_KSEG0(animator->nextChunkSource)) {
+        // if the animation is in RAM apply it right away
+        skApplyChunk(animator, (struct SKAnimationChunk*)animator->nextChunkSource);
         return;
     }
 
@@ -283,7 +290,7 @@ void skAnimationApply(struct SKAnimator* animator, struct Transform* transforms,
     }
 }
 
-void skAnimatorUpdate(struct SKAnimator* animator, struct SKArmature* object, float timeScale) {
+void skAnimatorUpdate(struct SKAnimator* animator, struct Transform* transforms, float timeScale) {
     if (!(animator->flags & SKAnimatorFlagsActive) || !animator->currentAnimation) {
         return;
     }
@@ -293,8 +300,8 @@ void skAnimatorUpdate(struct SKAnimator* animator, struct SKArmature* object, fl
     animator->currentTime += gTimeDelta * timeScale;
     animator->nextTick = (u16)(animator->currentTime * animator->currentAnimation->ticksPerSecond);
 
-    if (animator->currTick <= animator->currentAnimation->maxTicks && object) {
-        skAnimationApply(animator, object->boneTransforms, currTick);
+    if (animator->currTick <= animator->currentAnimation->maxTicks && transforms) {
+        skAnimationApply(animator, transforms, currTick);
     }
 
     if (animator->flags & SKAnimatorFlagsLoop) {

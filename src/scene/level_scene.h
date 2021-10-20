@@ -24,6 +24,7 @@ struct LevelScene {
     Gfx* levelDL;
     struct Minion* minions;
     unsigned int minionCount;
+    unsigned lastMinion;
 
 };
 

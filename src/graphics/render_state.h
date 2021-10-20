@@ -12,10 +12,13 @@ struct RenderState {
     Mtx matrices[MAX_ACTIVE_TRANSFORMS];
     Gfx* dl;
     unsigned currentMatrix;
+    unsigned currentChunkEnd;
 };
 
 void renderStateInit(struct RenderState* renderState);
 Mtx* renderStateRequestMatrices(struct RenderState* renderState, unsigned count);
 void renderStateFlushCache(struct RenderState* renderState);
+Gfx* renderStateAllocateDLChunk(struct RenderState* renderState, unsigned count);
+Gfx* renderStateReplaceDL(struct RenderState* renderState, Gfx* nextDL);
 
 #endif

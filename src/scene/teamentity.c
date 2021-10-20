@@ -4,6 +4,10 @@
 #include "levelbase.h"
 
 struct Vector3* teamEntityGetPosition(struct TeamEntity* entity) {
+    if (!entity) {
+        return 0;
+    }
+
     switch (entity->entityType) {
         case TeamEntityTypeMinion:
             return &(((struct Minion*)entity)->transform.position);
