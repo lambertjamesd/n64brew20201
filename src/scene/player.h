@@ -10,6 +10,8 @@
 #include "graphics/render_state.h"
 #include "playerinput.h"
 
+#define PLAYER_GFX_PER_PLAYER   5
+
 struct Player;
 
 typedef void (*PlayerState)(struct Player* player, struct PlayerInput* input);

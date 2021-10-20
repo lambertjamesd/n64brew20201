@@ -38,9 +38,9 @@ void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* defin
 }
 
 void levelSceneRender(struct LevelScene* levelScene, struct RenderState* renderState) {
+    // render minions
     Gfx* minionGfx = renderStateAllocateDLChunk(renderState, MINION_GFX_PER_MINION * levelScene->minionCount + 1);
     Gfx* prevDL = renderStateReplaceDL(renderState, minionGfx);
-
     for (unsigned int minionIndex = 0; minionIndex < levelScene->minionCount; ++minionIndex) {
         if (levelScene->minions[minionIndex].minionFlags & MinionFlagsActive) {
             minionRender(&levelScene->minions[minionIndex], renderState);
@@ -48,22 +48,34 @@ void levelSceneRender(struct LevelScene* levelScene, struct RenderState* renderS
     }
     gSPEndDisplayList(renderState->dl++);
     Gfx* minionEnd = renderStateReplaceDL(renderState, prevDL);
-    assert(minionEnd <= minionGfx + MINION_GFX_PER_MINION * levelScene->minionCount);
+    assert(minionEnd <= minionGfx + MINION_GFX_PER_MINION * levelScene->minionCount + 1);
+
+    // render bases
+    Gfx* baseGfx = renderStateAllocateDLChunk(renderState, BASE_GFX_PER_BASE * levelScene->baseCount + 1);
+    prevDL = renderStateReplaceDL(renderState, baseGfx);
+    for (unsigned int i = 0; i < levelScene->baseCount; ++i) {
+        levelBaseRender(&levelScene->bases[i], renderState);
+    }
+    gSPEndDisplayList(renderState->dl++);
+    Gfx* baseEnd = renderStateReplaceDL(renderState, prevDL);
+    assert(baseEnd <= baseGfx + MINION_GFX_PER_MINION * levelScene->baseCount + 1);
+
+    // render players
+    Gfx* playerGfx = renderStateAllocateDLChunk(renderState, PLAYER_GFX_PER_PLAYER * levelScene->playerCount + 1);
+    prevDL = renderStateReplaceDL(renderState, playerGfx);
+    for (unsigned int i = 0; i < levelScene->playerCount; ++i) {
+        playerRender(&levelScene->players[i], renderState);
+    }
+    gSPEndDisplayList(renderState->dl++);
+    Gfx* playerEnd = renderStateReplaceDL(renderState, prevDL);
+    assert(playerEnd <= playerGfx + PLAYER_GFX_PER_PLAYER * levelScene->playerCount + 1);
+
 
     for (unsigned int i = 0; i < levelScene->playerCount; ++i) {
         cameraSetupMatrices(&levelScene->cameras[i], renderState, 320.0f / 240.0f);
-        Mtx* scaleMatrix = renderStateRequestMatrices(renderState, 1);
-        gSPDisplayList(renderState->dl++, levelScene->levelDL);
-
-        for (unsigned int i = 0; i < levelScene->baseCount; ++i) {
-            levelBaseRender(&levelScene->bases[i], renderState);
-        }
-
-        for (unsigned int i = 0; i < levelScene->playerCount; ++i) {
-            playerRender(&levelScene->players[i], renderState);
-        }
-
+        gSPDisplayList(renderState->dl++, baseGfx);
         gSPDisplayList(renderState->dl++, minionGfx);
+        gSPDisplayList(renderState->dl++, playerGfx);
     }
 
 }

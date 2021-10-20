@@ -9,6 +9,8 @@
 #include "leveldefinition.h"
 #include "game_defs.h"
 
+#define BASE_GFX_PER_BASE   11
+
 enum LevelBaseState {
     LevelBaseStateNeutral,
     LevelBaseStateSpawning,

@@ -20,7 +20,7 @@ Mtx* renderStateRequestMatrices(struct RenderState* renderState, unsigned count)
 
 void renderStateFlushCache(struct RenderState* renderState) {
     assert((void *)renderState->dl <= (void *)&renderState->glist[renderState->currentChunkEnd]);
-    osWritebackDCache(renderState->glist, (s32)renderState->dl - (s32)renderState->glist);
+    osWritebackDCache(renderState->glist, sizeof(renderState->glist));
     osWritebackDCache(renderState->matrices, sizeof(Mtx) * renderState->currentMatrix);
 }
 
