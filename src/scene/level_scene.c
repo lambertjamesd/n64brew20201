@@ -73,6 +73,7 @@ void levelSceneRender(struct LevelScene* levelScene, struct RenderState* renderS
 
     for (unsigned int i = 0; i < levelScene->playerCount; ++i) {
         cameraSetupMatrices(&levelScene->cameras[i], renderState, 320.0f / 240.0f);
+        gSPDisplayList(renderState->dl++, levelScene->levelDL);
         gSPDisplayList(renderState->dl++, baseGfx);
         gSPDisplayList(renderState->dl++, minionGfx);
         gSPDisplayList(renderState->dl++, playerGfx);
