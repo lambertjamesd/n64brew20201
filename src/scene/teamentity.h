@@ -1,15 +1,22 @@
 #ifndef _TEAM_ENTITY_H
 #define _TEAM_ENTITY_H
 
-enum FactionEntityType {
-    FactionEntityTypeMinion,
-    FactionEntityTypeBase,
-    FactionEntityTypePlayer,
+#include "math/vector3.h"
+#include "collision/dynamicscene.h"
+
+enum TeamEntityType {
+    TeamEntityTypeMinion,
+    TeamEntityTypeBase,
+    TeamEntityTypePlayer,
 };
 
-struct FactionEntity {
+struct TeamEntity {
     unsigned short entityType;
-    unsigned short entityFaction;
+    unsigned short teamNumber;
 };
+
+struct Vector3* teamEntityGetPosition(struct TeamEntity* entity);
+
+void teamEntityCorrectOverlap(struct DynamicSceneOverlap* overlap);
 
 #endif

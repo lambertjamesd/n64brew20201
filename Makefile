@@ -61,8 +61,8 @@ include $(COMMONRULES)
 
 build/%.o: %.c
 	@mkdir -p $(@D)
-	$(CC) $(CFLAGS) -c -o $@ $<
 	$(CC) $(GCINCS) $(LCINCS) -MF"$(@:.o=.d)" -MG -MM -MP -MT"$@" "$<"
+	$(CC) $(CFLAGS) -c -o $@ $<
 
 build/%.o: %.s
 	@mkdir -p $(@D)

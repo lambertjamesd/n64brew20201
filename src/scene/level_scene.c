@@ -5,8 +5,6 @@
 #include "util/time.h"
 #include "collision/dynamicscene.h"
 
-#define DEFAULT_NEAR       
-
 void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* definition, unsigned int playercount) {
     dynamicSceneInit();
 
@@ -73,7 +71,7 @@ void levelSceneUpdate(struct LevelScene* levelScene) {
         struct Vector3 target = levelScene->players[playerIndex].transform.position;
         vector3AddScaled(&target, &gUp, 2.0f * SCENE_SCALE, &target);
         struct Vector3 velocityLeader;
-        vector3Scale(&levelScene->players[playerIndex].velocity, &velocityLeader, SCENE_SCALE * 0.75f);
+        vector3Scale(&levelScene->players[playerIndex].velocity, &velocityLeader, SCENE_SCALE * 0.5f);
         velocityLeader.y = 0.0f;
         vector3Add(&target, &velocityLeader, &target);
         cameraUpdate(&levelScene->cameras[playerIndex], &target, 15.0f * SCENE_SCALE, 5.0f * SCENE_SCALE);
@@ -93,10 +91,10 @@ void levelSceneUpdate(struct LevelScene* levelScene) {
     dynamicSceneCollide();
 }
 
-void levelSceneSpawnMinion(struct LevelScene* levelScene, enum MinionType type, struct Transform* at, unsigned char baseId) {
+void levelSceneSpawnMinion(struct LevelScene* levelScene, enum MinionType type, struct Transform* at, unsigned char baseId, unsigned team) {
     for (unsigned i = 0; i < levelScene->minionCount; ++i) {
         if (!(levelScene->minions[i].minionFlags & MinionFlagsActive)) {
-            minionInit(&levelScene->minions[i], type, at, baseId);
+            minionInit(&levelScene->minions[i], type, at, baseId, team);
             break;
         }
     }

@@ -24,12 +24,13 @@ enum MinionCurrentTask {
 };
 
 struct Minion {
-    struct FactionEntity team;
+    struct TeamEntity team;
     struct Transform transform;
+    struct Vector3 velocity;
     unsigned char minionFlags;
     unsigned char minionType;
     unsigned char sourceBaseId;
-    unsigned char currentTask;
+    unsigned char currentAction;
 
     struct DynamicSceneEntry* collider;
 
@@ -40,7 +41,7 @@ struct Minion {
 
 void minionSetup();
 
-void minionInit(struct Minion* minion, enum MinionType type, struct Transform* at, unsigned char baseId);
+void minionInit(struct Minion* minion, enum MinionType type, struct Transform* at, unsigned char baseId, unsigned team);
 void minionRender(struct Minion* minion, struct RenderState* renderState);
 void minionUpdate(struct Minion* minion);
 void minionCleanup(struct Minion* minion);

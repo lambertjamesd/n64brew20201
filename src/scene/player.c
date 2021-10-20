@@ -5,10 +5,10 @@
 #include "collision/collisionlayers.h"
 #include "game_defs.h"
 #include "util/time.h"
+#include "levelbase.h"
+#include "controls/controller.h"
 
-#define PLAYER_MOVE_SPEED           16.0f
 #define PLAYER_AIR_SPEED            (PLAYER_MOVE_SPEED * 0.8f)
-#define PLAYER_MOVE_ACCELERATION    10.0f
 #define PLAYER_STOP_ACCELERATION    30.0f
 #define PLAYER_AIR_ACCELERATION     4.0f
 
@@ -21,14 +21,14 @@
 
 struct CollisionCircle gPlayerCollider = {
     {CollisionShapeTypeCircle},
-    SCENE_SCALE * 0.2f,
+    SCENE_SCALE * 0.5f,
 };
 
 void playerStateWalk(struct Player* player, struct PlayerInput* input);
 
 void playerInit(struct Player* player, unsigned team, struct Vector2* at) {
-    player->team.entityType = FactionEntityTypePlayer;
-    player->team.entityFaction = team;
+    player->team.entityType = TeamEntityTypePlayer;
+    player->team.teamNumber = team;
     transformInitIdentity(&player->transform);
     player->transform.position.x = at->x;
     player->transform.position.z = at->y;
@@ -42,12 +42,23 @@ void playerInit(struct Player* player, unsigned team, struct Vector2* at) {
         &gPlayerCollider.shapeCommon,
         player,
         at,
-        0,
-        DynamicSceneEntryHasFaction,
+        teamEntityCorrectOverlap,
+        DynamicSceneEntryHasTeam,
         CollisionLayersTangible | CollisionLayersBase
     );
 
     player->state = playerStateWalk;
+
+    
+    // skInitObject(
+    //     &minion->armature, 
+    //     gMinionDefs[type].dl, 
+    //     gMinionDefs[type].boneCount, 
+    //     CALC_ROM_POINTER(character_animations, gMinionDefs[type].defaultPose)
+    // );
+
+    // skAnimatorInit(&minion->animator, gMinionDefs[type].boneCount);
+    // skAnimatorRunClip(&minion->animator, &output_animations[0], SKAnimatorFlagsLoop);
 }
 
 void playerRotateTowardsInput(struct Player* player, struct PlayerInput* input, float rotationRate) {
@@ -118,6 +129,19 @@ void playerUpdate(struct Player* player, struct PlayerInput* input) {
         player->transform.position.y = FLOOR_HEIGHT;
         player->velocity.y = 0.0f;
     }
+
+    player->collider->center.x = player->transform.position.x;
+    player->collider->center.y = player->transform.position.z;
+
+    struct LevelBase *lastBase = gPlayerAtBase[player->team.teamNumber];
+
+    // skAnimatorUpdate(&minion->animator, &minion->armature, 0.5f);
+
+    if (lastBase && 
+        lastBase->state == LevelBaseStateSpawning && 
+        (controllersGetControllerData(player->team.teamNumber)->button & Z_TRIG) != 0) {
+        levelBaseStartUpgrade(lastBase, LevelBaseStateUpgradingCapacity);
+    }
 }
 
 void playerRender(struct Player* player, struct RenderState* renderState) {
@@ -130,5 +154,6 @@ void playerRender(struct Player* player, struct RenderState* renderState) {
     transformToMatrixL(&player->transform, matrix);
     gSPMatrix(renderState->dl++, osVirtualToPhysical(matrix), G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
     gSPDisplayList(renderState->dl++, player->armature.displayList);
+    // skRenderObject(&minion->armature, renderState);
     gSPPopMatrix(renderState->dl++, 1);
 }

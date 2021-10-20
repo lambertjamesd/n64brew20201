@@ -6,8 +6,12 @@
 struct BaseDefinition gLevelTestBases[] = {
     {
         .position = {0 * SCENE_SCALE, 0 * SCENE_SCALE},
-        .startingFaction = TEAM(0),
-    }
+        .startingTeam = TEAM(0),
+    },
+    {
+        .position = {10.0f * SCENE_SCALE, 0 * SCENE_SCALE},
+        .startingTeam = TEAM(0),
+    },
 };
 
 struct Vector2 gLevelTestPlayerStart[] = {
@@ -18,7 +22,7 @@ struct Vector2 gLevelTestPlayerStart[] = {
 struct LevelDefinition gLevelTest = {
     .maxPlayerCount = 2,
     .playerStartLocations = gLevelTestPlayerStart,
-    .baseCount = 1,
+    .baseCount = sizeof(gLevelTestBases) / sizeof(gLevelTestBases[0]),
     .bases = gLevelTestBases,
     .sceneRender = test_level_geometry,
 };

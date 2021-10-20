@@ -9,7 +9,7 @@
 
 struct BaseDefinition {
     struct Vector2 position;
-    unsigned char startingFaction;
+    unsigned char startingTeam;
 };
 
 struct LevelDefinition {

@@ -15,7 +15,7 @@ struct Player;
 typedef void (*PlayerState)(struct Player* player, struct PlayerInput* input);
 
 struct Player {
-    struct FactionEntity team;
+    struct TeamEntity team;
     struct Transform transform;
     struct Vector3 velocity;
     struct Vector2 rightDir;

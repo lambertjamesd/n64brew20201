@@ -182,12 +182,8 @@ void quatLook(struct Vector3* lookDir, struct Vector3* up, struct Quaternion* ou
 }
 
 void quatLerp(struct Quaternion* a, struct Quaternion* b, float t, struct Quaternion* out) {
-    if (a->w < 0.0) {
+    if (a->x * b->x + a->y * b->y + a->z * b->z + a->w * b->w < 0) {
         quatNegate(a, a);
-    }
-
-    if (b->w < 0.0) {
-        quatNegate(b, b);
     }
 
     float tInv = 1.0f - t;

@@ -31,6 +31,6 @@ void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* defin
 void levelSceneRender(struct LevelScene* levelScene, struct RenderState* renderState);
 void levelSceneUpdate(struct LevelScene* levelScene);
 
-void levelSceneSpawnMinion(struct LevelScene* levelScene, enum MinionType type, struct Transform* at, unsigned char baseId);
+void levelSceneSpawnMinion(struct LevelScene* levelScene, enum MinionType type, struct Transform* at, unsigned char baseId, unsigned team);
 
 #endif

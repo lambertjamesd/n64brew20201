@@ -118,6 +118,7 @@ void dynamicSceneCheckCollision(struct DynamicSceneEntry* a, struct DynamicScene
             overlap.shapeOverlap.depth = -overlap.shapeOverlap.depth;
             overlap.thisEntry = b;
             overlap.otherEntry = a;
+            b->onCollide(&overlap);
         }
     }
 }
@@ -144,6 +145,10 @@ void dynamicSceneCollide() {
         for (unsigned otherShapeIndex = 0; otherShapeIndex < activeEntries; ++otherShapeIndex) {
             struct DynamicSceneEntry* otherObject = gDynamicScene.workingMemory[otherShapeIndex];
 
+            if (writeIndex != otherShapeIndex) {
+                gDynamicScene.workingMemory[writeIndex] = gDynamicScene.workingMemory[otherShapeIndex];
+            }
+
             if (otherObject->boundingBox.max.x >= currentStart) {
                 ++writeIndex;
 
@@ -157,10 +162,6 @@ void dynamicSceneCollide() {
                     (currentEntry->onCollide != 0 || otherObject->onCollide != 0)) {
                     dynamicSceneCheckCollision(currentEntry, otherObject);
                 }
-            }
-
-            if (writeIndex != otherShapeIndex) {
-                gDynamicScene.workingMemory[writeIndex] = gDynamicScene.workingMemory[otherShapeIndex];
             }
         }
 
