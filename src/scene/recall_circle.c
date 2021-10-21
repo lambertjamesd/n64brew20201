@@ -6,8 +6,13 @@
 #include "minion.h"
 #include "team_data.h"
 #include "../data/models/characters.h"
+#include "util/time.h"
+#include "math/mathf.h"
 
-#define RECALL_RADIUS   3.0f
+#define RECALL_RADIUS           3.0f
+#define RECALL_SHAKE_PERIOD     0.1f
+#define RECALL_SHAKE_APLITUDE   0.6f
+#define RECALL_SHAKE_OFFSET     0.8f
 
 struct CollisionCircle gRecallCollider = {
     {CollisionShapeTypeCircle},
@@ -67,7 +72,10 @@ void recallCircleRender(struct RecallCircle* circle, struct RenderState* renderS
     transform.position.z = circle->collider->center.y;
     quatIdent(&transform.rotation);
     vector3Scale(&gOneVec, &transform.scale, RECALL_RADIUS);
+    float shake = mathfMod(gTimePassed, RECALL_SHAKE_PERIOD);
+    transform.scale.y *= fabs(shake - RECALL_SHAKE_PERIOD * 0.5f) * (0.5f * RECALL_SHAKE_APLITUDE / RECALL_SHAKE_PERIOD) + RECALL_SHAKE_OFFSET;
     transformToMatrixL(&transform, matrix);
+
 
     gSPMatrix(renderState->transparentDL++, osVirtualToPhysical(matrix), G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
     struct Coloru8 color = gTeamColors[team];

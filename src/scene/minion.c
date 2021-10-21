@@ -7,7 +7,7 @@
 #include "util/time.h"
 #include <stdlib.h>
 
-#include "sk64/skelatool_animation_clip.h"
+#include "sk64/skelatool_clip.h"
 #include "../data/models/characters.h"
 #include "scene_management.h"
 #include "collision/circle.h"
@@ -17,7 +17,7 @@
 
 #include "../data/models/example/geometry_animdef.inc.h"
 
-#define MINION_FOLLOW_DIST  6.0f
+#define MINION_FOLLOW_DIST  3.0f
 #define MINION_MOVE_SPEED   (PLAYER_MOVE_SPEED * 0.9f)
 #define MINION_ACCELERATION PLAYER_MOVE_ACCELERATION
 #define MINION_HP           2

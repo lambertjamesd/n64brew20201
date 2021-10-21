@@ -9,7 +9,7 @@
 #include "util/time.h"
 #include "scene/scene_management.h"
 #include "controls/controller.h"
-#include "sk64/skelatool_animation.h"
+#include "sk64/skelatool_animator.h"
 #include "scene/minion.h"
 
 /**** threads used by this file ****/

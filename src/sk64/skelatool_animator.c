@@ -1,5 +1,5 @@
 
-#include "skelatool_animation.h"
+#include "skelatool_animator.h"
 #include "util/memory.h"
 #include "util/time.h"
 
@@ -65,38 +65,52 @@ struct SKBoneKeyframe* skApplyBoneKeyframe(struct SKAnimator* animator, struct S
     if (keyframe->usedAttributes & SKBoneAttrMaskPosition) {
         boneState->prevState.positionTick = boneState->nextState.positionTick;
         boneState->prevState.position = boneState->nextState.position;
+        boneState->prevState.flags = boneState->prevState.flags & ~SKBoneStateFlagsConstantPosition;
+        boneState->prevState.flags |= boneState->nextState.flags & SKBoneStateFlagsConstantPosition;
 
         boneState->nextState.positionTick = tick;
         boneState->nextState.position.x = *attrInput++;
         boneState->nextState.position.y = *attrInput++;
         boneState->nextState.position.z = *attrInput++;
+        if (keyframe->usedAttributes & SKBoneAttrMaskPositionConst) {
+            boneState->nextState.flags |= SKBoneStateFlagsConstantPosition;
+        }
     }
 
     if (keyframe->usedAttributes & SKBoneAttrMaskRotation) {
         boneState->prevState.rotationTick = boneState->nextState.rotationTick;
         boneState->prevState.rotation = boneState->nextState.rotation;
+        boneState->prevState.flags = boneState->prevState.flags & ~SKBoneStateFlagsConstantRotation;
+        boneState->prevState.flags |= boneState->nextState.flags & SKBoneStateFlagsConstantRotation;
 
         boneState->nextState.rotationTick = tick;
         boneState->nextState.rotation.x = (*attrInput++) / 32767.0f;
         boneState->nextState.rotation.y = (*attrInput++) / 32767.0f;
         boneState->nextState.rotation.z = (*attrInput++) / 32767.0f;
         float wSqrd = 1.0f - (boneState->nextState.rotation.x * boneState->nextState.rotation.x + boneState->nextState.rotation.y * boneState->nextState.rotation.y + boneState->nextState.rotation.z * boneState->nextState.rotation.z);
-
         if (wSqrd <= 0.0f) {
             boneState->nextState.rotation.w = 0.0f;
         } else {
             boneState->nextState.rotation.w = sqrtf(wSqrd);
+        }
+        if (keyframe->usedAttributes & SKBoneAttrMaskRotationConst) {
+            boneState->nextState.flags |= SKBoneStateFlagsConstantRotation;
         }
     }
 
     if (keyframe->usedAttributes & SKBoneAttrMaskScale) {
         boneState->prevState.scaleTick = boneState->nextState.scaleTick;
         boneState->prevState.scale = boneState->nextState.scale;
+        boneState->prevState.flags = boneState->prevState.flags & ~SKBoneStateFlagsConstantScale;
+        boneState->prevState.flags |= boneState->nextState.flags & SKBoneStateFlagsConstantScale;
 
         boneState->nextState.scaleTick = tick;
         boneState->nextState.scale.x = *attrInput++;
         boneState->nextState.scale.y = *attrInput++;
         boneState->nextState.scale.z = *attrInput++;
+        if (keyframe->usedAttributes & SKBoneAttrMaskScaleConst) {
+            boneState->nextState.flags |= SKBoneStateFlagsConstantScale;
+        }
     }
 
     return (struct SKBoneKeyframe*)attrInput;
@@ -221,24 +235,24 @@ void skFixedVector3ToFloat(struct SKU16Vector3* input, struct Vector3* output) {
 }
 
 void skApplyBoneAnimation(struct SKBoneAnimationState* animatedBone, struct Transform* output, float tick) {
-    if (animatedBone->nextState.positionTick != animatedBone->prevState.positionTick) {
+    if (animatedBone->nextState.positionTick != animatedBone->prevState.positionTick && (animatedBone->prevState.flags & SKBoneAttrMaskPositionConst) == 0) {
         float positionLerp = (tick - (float)animatedBone->prevState.positionTick) / ((float)animatedBone->nextState.positionTick - (float)animatedBone->prevState.positionTick);
         struct Vector3 srcPos;
         skFixedVector3ToFloat(&animatedBone->prevState.position, &srcPos);
         skFixedVector3ToFloat(&animatedBone->nextState.position, &output->position);
         vector3Lerp(&srcPos, &output->position, positionLerp, &output->position);
     } else {
-        skFixedVector3ToFloat(&animatedBone->nextState.position, &output->position);
+        skFixedVector3ToFloat(&animatedBone->prevState.position, &output->position);
     }
 
-    if (animatedBone->nextState.rotationTick != animatedBone->prevState.rotationTick) {
+    if (animatedBone->nextState.rotationTick != animatedBone->prevState.rotationTick && (animatedBone->prevState.flags & SKBoneAttrMaskRotationConst) == 0) {
         float rotationLerp = (tick - (float)animatedBone->prevState.rotationTick) / ((float)animatedBone->nextState.rotationTick - (float)animatedBone->prevState.rotationTick);
         quatLerp(&animatedBone->prevState.rotation, &animatedBone->nextState.rotation, rotationLerp, &output->rotation);
     } else {
-        output->rotation = animatedBone->nextState.rotation;
+        output->rotation = animatedBone->prevState.rotation;
     }
 
-    if (animatedBone->nextState.scaleTick != animatedBone->prevState.scaleTick) {
+    if (animatedBone->nextState.scaleTick != animatedBone->prevState.scaleTick && (animatedBone->prevState.flags & SKBoneAttrMaskScaleConst) == 0) {
         float scaleLerp = (tick - (float)animatedBone->prevState.scaleTick) / ((float)animatedBone->nextState.scaleTick - (float)animatedBone->prevState.scaleTick);
         struct Vector3 srcScale;
         skFixedVector3ToFloat(&animatedBone->prevState.scale, &srcScale);
@@ -246,7 +260,7 @@ void skApplyBoneAnimation(struct SKBoneAnimationState* animatedBone, struct Tran
         vector3Lerp(&srcScale, &output->scale, scaleLerp, &output->scale);
         vector3Scale(&output->scale, &output->scale, 1.0f / 256.0f);
     } else {
-        skFixedVector3ToFloat(&animatedBone->nextState.scale, &output->scale);
+        skFixedVector3ToFloat(&animatedBone->prevState.scale, &output->scale);
         vector3Scale(&output->scale, &output->scale, 1.0f / 256.0f);
     }
 }

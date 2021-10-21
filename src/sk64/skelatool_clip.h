@@ -6,6 +6,10 @@ enum SKBoneAttrMask {
     SKBoneAttrMaskPosition = (1 << 0),
     SKBoneAttrMaskRotation = (1 << 1),
     SKBoneAttrMaskScale = (1 << 2),
+
+    SKBoneAttrMaskPositionConst = (1 << 4),
+    SKBoneAttrMaskRotationConst = (1 << 5),
+    SKBoneAttrMaskScaleConst = (1 << 6),
 };
 
 struct SKBoneKeyframe {

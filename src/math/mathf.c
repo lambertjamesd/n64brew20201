@@ -39,6 +39,11 @@ float mathfMoveTowards(float from, float to, float maxMove) {
     }
 }
 
+float mathfMod(float input, float divisor) {
+    float floorDivide = floorf(input / divisor);
+    return input - floorDivide * divisor;
+}
+
 float floorf(float input) {
     if (input >= 0 || input == (int)input) {
         return (int)input;

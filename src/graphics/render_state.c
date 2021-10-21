@@ -9,7 +9,7 @@ void renderStateInit(struct RenderState* renderState) {
     renderState->transparentQueueStart = renderStateAllocateDLChunk(renderState, TRANSPARENT_QUEUE_LEN);
     renderState->transparentDL = renderState->transparentQueueStart;
     
-    gDPSetRenderMode(renderState->transparentDL++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
+    gDPSetRenderMode(renderState->transparentDL++, G_RM_ZB_XLU_SURF, G_RM_ZB_XLU_SURF2);
 }
 
 Mtx* renderStateRequestMatrices(struct RenderState* renderState, unsigned count) {

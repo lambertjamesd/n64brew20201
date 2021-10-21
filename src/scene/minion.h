@@ -3,7 +3,7 @@
 
 #include "math/transform.h"
 #include "sk64/skelatool_armature.h"
-#include "sk64/skelatool_animation.h"
+#include "sk64/skelatool_animator.h"
 #include "graphics/render_state.h"
 #include "teamentity.h"
 #include "collision/dynamicscene.h"

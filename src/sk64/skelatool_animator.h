@@ -4,7 +4,7 @@
 #include <ultra64.h>
 #include "math/quaternion.h"
 #include "math/transform.h"
-#include "skelatool_animation_clip.h"
+#include "skelatool_clip.h"
 
 struct SKU16Vector3 {
     short x;
@@ -12,13 +12,20 @@ struct SKU16Vector3 {
     short z;
 };
 
+enum SKBoneStateFlags {
+    SKBoneStateFlagsConstantPosition = (1 << 0),
+    SKBoneStateFlagsConstantRotation = (1 << 1),
+    SKBoneStateFlagsConstantScale = (1 << 2),
+};
+
 struct SKBoneState {
     unsigned short positionTick;
-    struct SKU16Vector3 position;
     unsigned short rotationTick;
-    struct Quaternion rotation;
     unsigned short scaleTick;
+    unsigned short flags;
+    struct SKU16Vector3 position;
     struct SKU16Vector3 scale;
+    struct Quaternion rotation;
 };
 
 struct SKBoneAnimationState {
