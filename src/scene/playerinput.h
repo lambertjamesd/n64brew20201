@@ -7,7 +7,10 @@
 
 enum PlayerInputActions {
     PlayerInputActionsJump = (1 << 0),
-    PlayerInputActionsAttack = (1 << 0),
+    PlayerInputActionsAttack = (1 << 1),
+    PlayerInputActionsCommandRecall = (1 << 2),
+    PlayerInputActionsCommandAttack = (1 << 3),
+    PlayerInputActionsCommandDefend = (1 << 4),
 };
 
 struct PlayerInput {

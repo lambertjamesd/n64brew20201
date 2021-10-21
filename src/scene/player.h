@@ -9,6 +9,7 @@
 #include "collision/dynamicscene.h"
 #include "graphics/render_state.h"
 #include "playerinput.h"
+#include "recall_circle.h"
 
 #define PLAYER_GFX_PER_PLAYER   5
 
@@ -24,6 +25,7 @@ struct Player {
     struct SKAnimator animator;
     struct SKArmature armature;
     struct DynamicSceneEntry* collider;
+    struct RecallCircle recallCircle;
     PlayerState state;
 };
 

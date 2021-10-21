@@ -54,7 +54,7 @@ void minionSetup() {
     output_animations[0].firstChunk = CALC_ROM_POINTER(character_animations, output_animations[0].firstChunk);
 }
 
-void minionInit(struct Minion* minion, enum MinionType type, struct Transform* at, unsigned char sourceBaseId, unsigned team) {
+void minionInit(struct Minion* minion, enum MinionType type, struct Transform* at, unsigned char sourceBaseId, unsigned team, enum MinionCommand defualtCommand) {
     minion->team.teamNumber = team;
     minion->team.entityType = TeamEntityTypeMinion;
 
@@ -81,7 +81,8 @@ void minionInit(struct Minion* minion, enum MinionType type, struct Transform* a
 
     quatAxisAngle(&gUp, M_PI * 2.0f * rand() / RAND_MAX, &minion->transform.rotation);
 
-    minion->currentCommand = MinionCommandAttack;
+    minion->currentCommand = -1;
+    minionIssueCommand(minion, defualtCommand);
 }
 
 void minionRender(struct Minion* minion, struct RenderState* renderState) {

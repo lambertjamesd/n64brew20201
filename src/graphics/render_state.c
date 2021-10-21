@@ -6,6 +6,10 @@ void renderStateInit(struct RenderState* renderState) {
     renderState->dl = renderState->glist;
     renderState->currentMatrix = 0;
     renderState->currentChunkEnd = MAX_DL_LENGTH;
+    renderState->transparentQueueStart = renderStateAllocateDLChunk(renderState, TRANSPARENT_QUEUE_LEN);
+    renderState->transparentDL = renderState->transparentQueueStart;
+    
+    gDPSetRenderMode(renderState->transparentDL++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
 }
 
 Mtx* renderStateRequestMatrices(struct RenderState* renderState, unsigned count) {
@@ -20,6 +24,7 @@ Mtx* renderStateRequestMatrices(struct RenderState* renderState, unsigned count)
 
 void renderStateFlushCache(struct RenderState* renderState) {
     assert((void *)renderState->dl <= (void *)&renderState->glist[renderState->currentChunkEnd]);
+    assert((void *)renderState->transparentDL <= (void *)&renderState->transparentQueueStart[TRANSPARENT_QUEUE_LEN]);
     osWritebackDCache(renderState->glist, sizeof(renderState->glist));
     osWritebackDCache(renderState->matrices, sizeof(Mtx) * renderState->currentMatrix);
 }

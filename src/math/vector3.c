@@ -38,6 +38,12 @@ void vector3Sub(struct Vector3* a, struct Vector3* b, struct Vector3* out) {
     out->z = a->z - b->z;
 }
 
+void vector3Multiply(struct Vector3* a, struct Vector3* b, struct Vector3* out) {
+    out->x = a->x * b->x;
+    out->y = a->y * b->y;
+    out->z = a->z * b->z;
+}
+
 void vector3Normalize(struct Vector3* in, struct Vector3* out) {
     float denom = in->x * in->x + in->y * in->y + in->z * in->z;
 

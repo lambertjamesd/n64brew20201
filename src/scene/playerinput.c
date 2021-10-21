@@ -13,6 +13,18 @@ unsigned short playerInputMapActionFlags(unsigned short buttons) {
         result |= PlayerInputActionsAttack;
     }
 
+    if (buttons & D_CBUTTONS) {
+        result |= PlayerInputActionsCommandRecall;
+    }
+
+    if (buttons & R_CBUTTONS) {
+        result |= PlayerInputActionsCommandAttack;
+    }
+
+    if (buttons & L_CBUTTONS) {
+        result |= PlayerInputActionsCommandDefend;
+    }
+
     return result;
 }
 

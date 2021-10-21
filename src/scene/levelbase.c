@@ -107,6 +107,7 @@ void levelBaseTrigger(struct DynamicSceneOverlap* overlap) {
                 base->captureProgress = 0.0f;
                 base->team.teamNumber = TEAM_NONE;
                 base->state = LevelBaseStateNeutral;
+                base->defaultComand = MinionCommandDefend;
                 base->collider->collisionLayers = DynamicSceneEntryIsTrigger | DynamicSceneEntryHasTeam | COLLISION_LAYER_FOR_TEAM(TEAM_NONE);
             }
         } else {
@@ -119,6 +120,7 @@ void levelBaseTrigger(struct DynamicSceneOverlap* overlap) {
                     base->state = LevelBaseStateSpawning;
                     base->stateTimeLeft = SPAWN_TIME;
                     base->collider->collisionLayers = DynamicSceneEntryIsTrigger | DynamicSceneEntryHasTeam | COLLISION_LAYER_FOR_TEAM(teamEntity->teamNumber);
+                    // TODO don't despawn minions if recaptured by same player
                     levelBaseDespawnMinions(&gCurrentLevel, base->baseId);
                 }
             }
@@ -183,6 +185,8 @@ void levelBaseInit(struct LevelBase* base, struct BaseDefinition* definition, un
         DynamicSceneEntryIsTrigger | DynamicSceneEntryHasTeam | COLLISION_LAYER_FOR_TEAM(base->team.teamNumber),
         CollisionLayersBase
     );
+
+    base->defaultComand = MinionCommandDefend;
 }
 
 void levelBaseUpdate(struct LevelBase* base) {
@@ -195,7 +199,7 @@ void levelBaseUpdate(struct LevelBase* base) {
                     struct Transform minionTransform;
                     transformInitIdentity(&minionTransform);
                     vector3Add(&base->position, &gSpawnOffset[base->minionCount], &minionTransform.position);
-                    levelSceneSpawnMinion(&gCurrentLevel, MinionTypeMelee, &minionTransform, base->baseId, base->team.teamNumber);
+                    levelSceneSpawnMinion(&gCurrentLevel, MinionTypeMelee, &minionTransform, base->baseId, base->team.teamNumber, base->defaultComand);
                     ++base->minionCount;
 
                     base->stateTimeLeft = SPAWN_TIME;

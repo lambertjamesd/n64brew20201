@@ -6,11 +6,14 @@
 
 #define MAX_ACTIVE_TRANSFORMS   320
 #define MAX_DL_LENGTH           1024
+#define TRANSPARENT_QUEUE_LEN   128
 
 struct RenderState {
     Gfx glist[MAX_DL_LENGTH];
     Mtx matrices[MAX_ACTIVE_TRANSFORMS];
     Gfx* dl;
+    Gfx* transparentQueueStart;
+    Gfx* transparentDL;
     unsigned currentMatrix;
     unsigned currentChunkEnd;
 };

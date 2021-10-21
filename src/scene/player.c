@@ -7,6 +7,8 @@
 #include "util/time.h"
 #include "levelbase.h"
 #include "controls/controller.h"
+#include "level_scene.h"
+#include "scene_management.h"
 
 #define PLAYER_AIR_SPEED            (PLAYER_MOVE_SPEED * 0.8f)
 #define PLAYER_STOP_ACCELERATION    50.0f
@@ -17,12 +19,14 @@
 #define PLAYER_JUMP_IMPULSE         12.0f
 
 #define PLAYER_AIR_MAX_ROTATE_SEC   (90.0f * (M_PI / 180.0f))
-#define PLAYER_MAX_ROTATE_SEC       (270.0f * (M_PI / 180.0f))
+#define PLAYER_MAX_ROTATE_SEC       (360.0f * (M_PI / 180.0f))
 
 struct CollisionCircle gPlayerCollider = {
     {CollisionShapeTypeCircle},
     SCENE_SCALE * 0.5f,
 };
+
+struct Vector3 gRecallOffset = {0.0f, 0.0f, -4.0 * SCENE_SCALE};
 
 void playerStateWalk(struct Player* player, struct PlayerInput* input);
 
@@ -48,6 +52,8 @@ void playerInit(struct Player* player, unsigned team, struct Vector2* at) {
     );
 
     player->state = playerStateWalk;
+
+    recallCircleInit(&player->recallCircle);
 
     
     // skInitObject(
@@ -113,6 +119,17 @@ void playerStateWalk(struct Player* player, struct PlayerInput* input) {
     playerRotateTowardsInput(player, input, PLAYER_MAX_ROTATE_SEC);
     playerAccelerateTowards(player, &input->targetWorldDirection, PLAYER_MOVE_SPEED, PLAYER_MOVE_ACCELERATION, PLAYER_STOP_ACCELERATION);
 
+    if (input->actionFlags & PlayerInputActionsCommandRecall) {
+        struct Vector3 recallPos3;
+        transformPoint(&player->transform, &gRecallOffset, &recallPos3);
+        struct Vector2 recallPos2;
+        recallPos2.x = recallPos3.x;
+        recallPos2.y = recallPos3.z;
+        recallCircleActivate(&player->recallCircle, &recallPos2, player->team.teamNumber);
+    } else {
+        recallCircleDisable(&player->recallCircle);
+    }
+
     if (input->actionFlags & PlayerInputActionsJump) {
         player->velocity.y = PLAYER_JUMP_IMPULSE;
         player->state = playerStateJump;
@@ -142,6 +159,12 @@ void playerUpdate(struct Player* player, struct PlayerInput* input) {
         (controllersGetControllerData(player->team.teamNumber)->button & Z_TRIG) != 0) {
         levelBaseStartUpgrade(lastBase, LevelBaseStateUpgradingCapacity);
     }
+
+    if (input->actionFlags & PlayerInputActionsCommandAttack) {
+        levelSceneIssueMinionCommand(&gCurrentLevel, player->team.teamNumber, MinionCommandAttack);
+    } else if (input->actionFlags & PlayerInputActionsCommandDefend) {
+        levelSceneIssueMinionCommand(&gCurrentLevel, player->team.teamNumber, MinionCommandDefend);
+    }
 }
 
 void playerRender(struct Player* player, struct RenderState* renderState) {
@@ -156,4 +179,6 @@ void playerRender(struct Player* player, struct RenderState* renderState) {
     gSPDisplayList(renderState->dl++, player->armature.displayList);
     // skRenderObject(&minion->armature, renderState);
     gSPPopMatrix(renderState->dl++, 1);
+
+    recallCircleRender(&player->recallCircle, renderState, player->team.teamNumber);
 }

@@ -57,3 +57,9 @@ void transformInvert(struct Transform* in, struct Transform* out) {
         vector3Scale(&out->position, &out->position, 1.0f / uniformScale);
     }
 }
+
+void transformPoint(struct Transform* transform, struct Vector3* in, struct Vector3* out) {
+    vector3Multiply(&transform->scale, in, out);
+    quatMultVector(&transform->rotation, out, out);
+    vector3Add(&transform->position, out, out);
+}

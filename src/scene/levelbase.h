@@ -32,6 +32,7 @@ struct LevelBase {
     unsigned char capacityUpgrade:2;
     unsigned char defenseUpgrade:2;
     unsigned char padding: 2;
+    unsigned char defaultComand;
 };
 
 extern struct LevelBase* gPlayerAtBase[MAX_PLAYERS];
