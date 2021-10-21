@@ -107,6 +107,7 @@ void levelBaseTrigger(struct DynamicSceneOverlap* overlap) {
                 base->captureProgress = 0.0f;
                 base->team.teamNumber = TEAM_NONE;
                 base->state = LevelBaseStateNeutral;
+                base->collider->collisionLayers = DynamicSceneEntryIsTrigger | DynamicSceneEntryHasTeam | COLLISION_LAYER_FOR_TEAM(TEAM_NONE);
             }
         } else {
             base->captureProgress += gTimeDelta * gSpawnTimeCaptureScalar[base->defenseUpgrade];
@@ -117,6 +118,8 @@ void levelBaseTrigger(struct DynamicSceneOverlap* overlap) {
                 if (base->state == LevelBaseStateNeutral) {
                     base->state = LevelBaseStateSpawning;
                     base->stateTimeLeft = SPAWN_TIME;
+                    base->collider->collisionLayers = DynamicSceneEntryIsTrigger | DynamicSceneEntryHasTeam | COLLISION_LAYER_FOR_TEAM(teamEntity->teamNumber);
+                    levelBaseDespawnMinions(&gCurrentLevel, base->baseId);
                 }
             }
         }
@@ -177,7 +180,7 @@ void levelBaseInit(struct LevelBase* base, struct BaseDefinition* definition, un
         base, 
         &definition->position,
         levelBaseTrigger,
-        DynamicSceneEntryIsTrigger | DynamicSceneEntryHasTeam,
+        DynamicSceneEntryIsTrigger | DynamicSceneEntryHasTeam | COLLISION_LAYER_FOR_TEAM(base->team.teamNumber),
         CollisionLayersBase
     );
 }

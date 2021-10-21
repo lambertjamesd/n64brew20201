@@ -93,15 +93,9 @@ Gfx rdpstateinit_dl[] = {
 
 
 Gfx setup_rdpstate[] = {
-
-    /*
-     * This RDP initialization sequence will setup the following modes
-     *
-     * 1 cycle mode, point sampled, non-zbuffer, smooth shaded opaque polygons
-     */
-
-    /* bl */	gsDPSetRenderMode(G_RM_OPA_SURF, G_RM_OPA_SURF2),
-		gsDPSetColorDither(G_CD_BAYER),
+    gsDPSetRenderMode(G_RM_OPA_SURF, G_RM_OPA_SURF2),
+    gsDPSetScissor(G_SC_NON_INTERLACE, 0, 0, SCREEN_WD, SCREEN_HT),
+    gsDPSetColorDither(G_CD_BAYER),
 
     gsSPEndDisplayList(),
 };
@@ -109,15 +103,7 @@ Gfx setup_rdpstate[] = {
 /* intialize the RSP state: */
 Gfx setup_rspstate[] = {
     gsSPViewport(&vp),
-    gsDPSetScissor(
-        G_SC_NON_INTERLACE, 
-        0,
-        0,
-        SCREEN_WD,
-        SCREEN_HT
-    ),
-    gsSPClearGeometryMode((G_ZBUFFER | G_SHADE | G_SHADING_SMOOTH | 
-			   G_CULL_BOTH | G_FOG | G_LIGHTING)),
+    gsSPClearGeometryMode(G_SHADE | G_SHADING_SMOOTH | G_CULL_BOTH | G_FOG | G_LIGHTING),
     gsSPSetGeometryMode(G_ZBUFFER | G_SHADE | G_SHADING_SMOOTH | G_CULL_BACK),
     gsSPTexture(0, 0, 0, 0, G_OFF),
     gsSPEndDisplayList(),

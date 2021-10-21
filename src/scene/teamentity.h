@@ -18,5 +18,6 @@ struct TeamEntity {
 struct Vector3* teamEntityGetPosition(struct TeamEntity* entity);
 
 void teamEntityCorrectOverlap(struct DynamicSceneOverlap* overlap);
+void teamEntityApplyDamage(struct TeamEntity* entity, float amount);
 
 #endif

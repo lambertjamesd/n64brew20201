@@ -13,12 +13,15 @@
 #include "collision/circle.h"
 #include "collision/collisionlayers.h"
 #include "scene_management.h"
+#include "team_data.h"
 
 #include "../data/models/example/geometry_animdef.inc.h"
 
 #define MINION_FOLLOW_DIST  6.0f
 #define MINION_MOVE_SPEED   (PLAYER_MOVE_SPEED * 0.9f)
 #define MINION_ACCELERATION PLAYER_MOVE_ACCELERATION
+#define MINION_HP           2
+#define MINION_DPS          1
 
 struct CollisionCircle gMinionCollider = {
     {CollisionShapeTypeCircle},
@@ -35,6 +38,18 @@ struct MinionDef gMinionDefs[] = {
     {output_model_gfx, OUTPUT_DEFAULT_BONES_COUNT, output_default_bones},
 };
 
+void minionCorrectOverlap(struct DynamicSceneOverlap* overlap) {
+    teamEntityCorrectOverlap(overlap);
+
+    if (overlap->otherEntry->flags & DynamicSceneEntryHasTeam) {
+        struct TeamEntity* entityA = (struct TeamEntity*)overlap->thisEntry->data;
+        struct TeamEntity* entityB = (struct TeamEntity*)overlap->otherEntry->data;
+        if (entityB->teamNumber != entityA->teamNumber) {
+            teamEntityApplyDamage(entityB, MINION_DPS * gTimeDelta);
+        }
+    }
+}
+
 void minionSetup() {
     output_animations[0].firstChunk = CALC_ROM_POINTER(character_animations, output_animations[0].firstChunk);
 }
@@ -48,6 +63,7 @@ void minionInit(struct Minion* minion, enum MinionType type, struct Transform* a
     minion->minionFlags = MinionFlagsActive;
     minion->sourceBaseId = sourceBaseId;
     minion->velocity = gZeroVec;
+    minion->hp = MINION_HP;
 
     struct Vector2 position;
 
@@ -58,14 +74,14 @@ void minionInit(struct Minion* minion, enum MinionType type, struct Transform* a
         &gMinionCollider.shapeCommon, 
         minion, 
         &position,
-        teamEntityCorrectOverlap,
+        minionCorrectOverlap,
         DynamicSceneEntryHasTeam,
-        CollisionLayersTangible | CollisionLayersBase
+        CollisionLayersTangible | CollisionLayersBase | COLLISION_LAYER_FOR_TEAM(team)
     );
 
     quatAxisAngle(&gUp, M_PI * 2.0f * rand() / RAND_MAX, &minion->transform.rotation);
 
-    minion->currentCommand = MinionCommandFollow;
+    minion->currentCommand = MinionCommandAttack;
 }
 
 void minionRender(struct Minion* minion, struct RenderState* renderState) {
@@ -76,6 +92,7 @@ void minionRender(struct Minion* minion, struct RenderState* renderState) {
     }
 
     transformToMatrixL(&minion->transform, matrix);
+    gDPSetPrimColor(renderState->dl++, 255, 255, gTeamColors[minion->team.teamNumber].r, gTeamColors[minion->team.teamNumber].g, gTeamColors[minion->team.teamNumber].b, gTeamColors[minion->team.teamNumber].a);
     gSPMatrix(renderState->dl++, osVirtualToPhysical(matrix), G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
     gSPDisplayList(renderState->dl++, DogMinion_Dog_001_mesh);
     gSPPopMatrix(renderState->dl++, 1);
@@ -93,6 +110,11 @@ void minionIssueCommand(struct Minion* minion, enum MinionCommand command) {
 void minionUpdate(struct Minion* minion) {
     struct Vector3* target;
     float minDistance = 0.0f;
+
+    if (minion->hp <= 0) {
+        minionCleanup(minion);
+        return;
+    }
 
     switch (minion->currentCommand) {
         case MinionCommandFollow:
@@ -114,6 +136,11 @@ void minionUpdate(struct Minion* minion) {
             break;
         case MinionCommandAttack:
             target = teamEntityGetPosition(minion->currentTarget);
+
+            if (minion->currentTarget && minion->currentTarget->entityType == TeamEntityTypeBase) {
+                minDistance = 1.0f;
+            }
+
             break;
     }
 
@@ -132,6 +159,7 @@ void minionUpdate(struct Minion* minion) {
     }
 
     vector3MoveTowards(&minion->velocity, &targetVelocity, MINION_ACCELERATION * gTimeDelta, &minion->velocity);
+    vector3Scale(&minion->velocity, &minion->velocity, 0.9f);
     vector3AddScaled(&minion->transform.position, &minion->velocity, SCENE_SCALE * gTimeDelta, &minion->transform.position);
 
     struct Vector2 right;
@@ -151,5 +179,6 @@ void minionCleanup(struct Minion* minion) {
     if (minion->minionFlags & MinionFlagsActive) {
         minion->minionFlags = 0;
         levelBaseReleaseMinion(&gCurrentLevel.bases[minion->sourceBaseId]);
+        dynamicSceneDeleteEntry(minion->collider);
     }
 }

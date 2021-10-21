@@ -21,8 +21,10 @@ struct Vector3* teamEntityGetPosition(struct TeamEntity* entity) {
 }
 
 void teamEntityCorrectOverlap(struct DynamicSceneOverlap* overlap) {
-    struct Vector3* aPos = teamEntityGetPosition((struct TeamEntity*)overlap->thisEntry->data);
-    struct Vector3* bPos = (overlap->otherEntry->flags & DynamicSceneEntryHasTeam) ? teamEntityGetPosition((struct TeamEntity*)overlap->otherEntry->data) : 0;
+    struct TeamEntity* entityA = (struct TeamEntity*)overlap->thisEntry->data;
+    struct TeamEntity* entityB = (struct TeamEntity*)overlap->otherEntry->data;
+    struct Vector3* aPos = teamEntityGetPosition(entityA);
+    struct Vector3* bPos = (overlap->otherEntry->flags & DynamicSceneEntryHasTeam) ? teamEntityGetPosition(entityB) : 0;
 
     struct Vector3 overlap3D;
     overlap3D.x = overlap->shapeOverlap.normal.x;
@@ -30,9 +32,29 @@ void teamEntityCorrectOverlap(struct DynamicSceneOverlap* overlap) {
     overlap3D.z = overlap->shapeOverlap.normal.y;
 
     if (bPos) {
-        vector3AddScaled(aPos, &overlap3D, -0.5f * overlap->shapeOverlap.depth, aPos);
-        vector3AddScaled(bPos, &overlap3D, 0.5f * overlap->shapeOverlap.depth, bPos);
+        float weight = 0.5f;
+
+        if (entityA->entityType != entityB->entityType) {
+            if (entityA->entityType == TeamEntityTypePlayer) {
+                weight = 0.1f;
+            } else {
+                weight = 0.9f;
+            }
+        }
+
+        vector3AddScaled(aPos, &overlap3D, -weight * overlap->shapeOverlap.depth, aPos);
+        vector3AddScaled(bPos, &overlap3D, (1.0f - weight) * overlap->shapeOverlap.depth, bPos);
     } else {
         vector3AddScaled(aPos, &overlap3D, -overlap->shapeOverlap.depth, aPos);
+    }
+}
+
+void teamEntityApplyDamage(struct TeamEntity* entity, float amount) {
+    switch (entity->entityType) {
+        case TeamEntityTypeMinion:
+            ((struct Minion*)entity)->hp -= amount;
+            break;
+        case TeamEntityTypePlayer:
+            break;
     }
 }

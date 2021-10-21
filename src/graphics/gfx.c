@@ -94,10 +94,8 @@ void createGfxTask(GFXInfo *i)
     gDPSetDepthImage(renderState->dl++, osVirtualToPhysical(zbuffer));
     gDPPipeSync(renderState->dl++);
     gDPSetCycleType(renderState->dl++, G_CYC_FILL);
-    gDPSetColorImage(renderState->dl++, G_IM_FMT_RGBA, G_IM_SIZ_16b, SCREEN_WD,
-		     osVirtualToPhysical(zbuffer));
-    gDPSetFillColor(renderState->dl++, (GPACK_ZDZ(G_MAXFBZ,0) << 16 |
-			       GPACK_ZDZ(G_MAXFBZ,0)));
+    gDPSetColorImage(renderState->dl++, G_IM_FMT_RGBA, G_IM_SIZ_16b, SCREEN_WD, osVirtualToPhysical(zbuffer));
+    gDPSetFillColor(renderState->dl++, (GPACK_ZDZ(G_MAXFBZ,0) << 16 | GPACK_ZDZ(G_MAXFBZ,0)));
     gDPFillRectangle(renderState->dl++, 0, 0, SCREEN_WD-1, SCREEN_HT-1);
 	
     /**** Clear framebuffer cvg = FULL or 1  ****/

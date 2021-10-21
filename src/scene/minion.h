@@ -9,7 +9,7 @@
 #include "collision/dynamicscene.h"
 
 #define MINION_DEFENSE_RADIUS  10.0f
-#define MINION_GFX_PER_MINION  3
+#define MINION_GFX_PER_MINION  4
 
 enum MinionFlags {
     MinionFlagsActive = (1 << 0),
@@ -36,6 +36,7 @@ struct Minion {
     unsigned char minionType;
     unsigned char sourceBaseId;
     unsigned char currentCommand;
+    float hp;
 
     struct DynamicSceneEntry* collider;
 

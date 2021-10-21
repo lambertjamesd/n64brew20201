@@ -21,10 +21,19 @@ unsigned short gViewportPosition[] = {
     SCREEN_WD/2+1, 0, SCREEN_WD, SCREEN_HT,
     0, 0, 0, 0,
     0, 0, 0, 0,
+    // Three player
+    0, 0, SCREEN_WD/2-1, SCREEN_HT/2-1,
+    SCREEN_WD/2+1, 0, SCREEN_WD, SCREEN_HT/2-1,
+    0, SCREEN_HT/2+1, SCREEN_WD/2-1, SCREEN_HT,
+    0, 0, 0, 0,
+    // Four player
+    0, 0, SCREEN_WD/2-1, SCREEN_HT/2-1,
+    SCREEN_WD/2+1, 0, SCREEN_WD, SCREEN_HT/2-1,
+    0, SCREEN_HT/2+1, SCREEN_WD/2-1, SCREEN_HT,
+    SCREEN_WD/2+1, SCREEN_HT/2+1, SCREEN_WD, SCREEN_HT,
 };
 
-
-void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* definition, unsigned int playercount) {
+void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* definition, unsigned int playercount, unsigned char humanPlayerCount) {
     dynamicSceneInit();
 
     levelScene->levelDL = definition->sceneRender;
@@ -34,7 +43,8 @@ void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* defin
     for (unsigned i = 0; i < playercount; ++i) {
         cameraInit(&levelScene->cameras[i], 45.0f, 50.0f, 6000.0f);
         playerInit(&levelScene->players[i], i, &definition->playerStartLocations[i]);
-        levelScene->cameras[i].transform.position = levelScene->players[i].transform.position;
+        vector3AddScaled(&levelScene->players[i].transform.position, &gForward, SCENE_SCALE * 2.0f, &levelScene->cameras[i].transform.position);
+        vector3AddScaled(&levelScene->players[i].transform.position, &gUp, SCENE_SCALE * 2.0f, &levelScene->cameras[i].transform.position);
     }
 
     quatAxisAngle(&gRight, -M_PI * 0.3333f, &levelScene->cameras[0].transform.rotation);
@@ -52,10 +62,16 @@ void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* defin
         levelScene->minions[i].minionFlags = 0;
     }
 
+    for (unsigned finderIndex = 0; finderIndex < TARGET_FINDER_COUNT; ++finderIndex) {
+        targetFinderInit(&levelScene->targetFinders[finderIndex], (levelScene->minionCount / TARGET_FINDER_COUNT) * finderIndex);
+    }
+
+    levelScene->humanPlayerCount = humanPlayerCount;
+
     // 4 numbers per viewport, 4 viewports per slot
-    unsigned viewportBase = (playercount - 1) * 4 * 4;
+    unsigned viewportBase = (levelScene->humanPlayerCount - 1) * 4 * 4;
     
-    for (unsigned i = 0; i < playercount; ++i) {
+    for (unsigned i = 0; i < levelScene->humanPlayerCount; ++i) {
         unsigned l = gViewportPosition[viewportBase + 0];
         unsigned t = gViewportPosition[viewportBase + 1];
         unsigned r = gViewportPosition[viewportBase + 2];
@@ -116,7 +132,7 @@ void levelSceneRender(struct LevelScene* levelScene, struct RenderState* renderS
     assert(playerEnd <= playerGfx + PLAYER_GFX_PER_PLAYER * levelScene->playerCount + 1);
 
 
-    for (unsigned int i = 0; i < levelScene->playerCount; ++i) {
+    for (unsigned int i = 0; i < levelScene->humanPlayerCount; ++i) {
         Vp* viewport = &gSplitScreenViewports[i];
         cameraSetupMatrices(&levelScene->cameras[i], renderState, (float)viewport->vp.vscale[0] / (float)viewport->vp.vscale[1]);
         gSPViewport(renderState->dl++, osVirtualToPhysical(viewport));
@@ -128,6 +144,7 @@ void levelSceneRender(struct LevelScene* levelScene, struct RenderState* renderS
             gClippingRegions[i * 4 + 2],
             gClippingRegions[i * 4 + 3]
         );
+        gDPSetRenderMode(renderState->dl++, G_RM_ZB_OPA_SURF, G_RM_ZB_OPA_SURF2);
         gSPDisplayList(renderState->dl++, levelScene->levelDL);
         gSPDisplayList(renderState->dl++, baseGfx);
         gSPDisplayList(renderState->dl++, playerGfx);
@@ -167,6 +184,10 @@ void levelSceneUpdate(struct LevelScene* levelScene) {
         levelBaseUpdate(&levelScene->bases[baseIndex]);
     }
 
+    for (unsigned finderIndex = 0; finderIndex < TARGET_FINDER_COUNT; ++finderIndex) {
+        targetFinderUpdate(&levelScene->targetFinders[finderIndex]);
+    }
+
     dynamicSceneCollide();
 }
 
@@ -181,4 +202,12 @@ void levelSceneSpawnMinion(struct LevelScene* levelScene, enum MinionType type, 
         levelScene->lastMinion = (levelScene->lastMinion + 1) % levelScene->minionCount;
     } while (searchStart != levelScene->lastMinion);
     
+}
+
+void levelBaseDespawnMinions(struct LevelScene* levelScene, unsigned char baseId) {
+    for (unsigned i = 0; i < levelScene->minionCount; ++i) {
+        if (levelScene->minions[i].sourceBaseId == baseId) {
+            minionCleanup(&levelScene->minions[i]);
+        }
+    }
 }

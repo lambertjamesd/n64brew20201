@@ -41,7 +41,7 @@ void dynamicSceneDeleteEntry(struct DynamicSceneEntry* entry) {
 
     for (unsigned i = 0; i < gDynamicScene.actorCount; ++i) {
         if (gDynamicScene.entryOrder[i] == entry) {
-            found = 0;
+            found = 1;
             entry->forShape = 0;
         }
 

@@ -9,8 +9,8 @@
 #include "controls/controller.h"
 
 #define PLAYER_AIR_SPEED            (PLAYER_MOVE_SPEED * 0.8f)
-#define PLAYER_STOP_ACCELERATION    30.0f
-#define PLAYER_AIR_ACCELERATION     4.0f
+#define PLAYER_STOP_ACCELERATION    50.0f
+#define PLAYER_AIR_ACCELERATION     10.0f
 
 #define PLAYER_JUMP_ACCEL           (-GRAVITY * 0.5f)
 
@@ -44,7 +44,7 @@ void playerInit(struct Player* player, unsigned team, struct Vector2* at) {
         at,
         teamEntityCorrectOverlap,
         DynamicSceneEntryHasTeam,
-        CollisionLayersTangible | CollisionLayersBase
+        CollisionLayersTangible | CollisionLayersBase | COLLISION_LAYER_FOR_TEAM(team)
     );
 
     player->state = playerStateWalk;

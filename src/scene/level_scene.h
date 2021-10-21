@@ -10,13 +10,16 @@
 #include "graphics/render_state.h"
 #include "leveldefinition.h"
 #include "player.h"
+#include "target_finder.h"
 
 #define MAX_MINIONS_PER_BASE       3
+#define TARGET_FINDER_COUNT        2
 
 struct LevelScene {
     struct Camera cameras[MAX_PLAYERS];
     struct Player players[MAX_PLAYERS];
-    unsigned int playerCount;
+    unsigned char playerCount;
+    unsigned char humanPlayerCount;
 
     struct LevelBase *bases;
     unsigned int baseCount;
@@ -26,12 +29,14 @@ struct LevelScene {
     unsigned int minionCount;
     unsigned lastMinion;
 
+    struct TargetFinder targetFinders[TARGET_FINDER_COUNT];
 };
 
-void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* definition, unsigned int playercount);
+void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* definition, unsigned int playercount, unsigned char humanPlayerCount);
 void levelSceneRender(struct LevelScene* levelScene, struct RenderState* renderState);
 void levelSceneUpdate(struct LevelScene* levelScene);
 
 void levelSceneSpawnMinion(struct LevelScene* levelScene, enum MinionType type, struct Transform* at, unsigned char baseId, unsigned team);
+void levelBaseDespawnMinions(struct LevelScene* levelScene, unsigned char baseId);
 
 #endif

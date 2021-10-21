@@ -14,7 +14,7 @@ struct BaseDefinition gLevelTestBases[] = {
     },
     {
         .position = {20.0f * SCENE_SCALE, 0 * SCENE_SCALE},
-        .startingTeam = TEAM_NONE,
+        .startingTeam = TEAM(1),
     },
     {
         .position = {0 * SCENE_SCALE, 10.0 * SCENE_SCALE},
@@ -30,7 +30,7 @@ struct BaseDefinition gLevelTestBases[] = {
     },
     {
         .position = {0 * SCENE_SCALE, 20.0 * SCENE_SCALE},
-        .startingTeam = TEAM_NONE,
+        .startingTeam = TEAM(2),
     },
     {
         .position = {10.0f * SCENE_SCALE, 20.0 * SCENE_SCALE},
@@ -38,12 +38,14 @@ struct BaseDefinition gLevelTestBases[] = {
     },
     {
         .position = {20.0f * SCENE_SCALE, 20.0 * SCENE_SCALE},
-        .startingTeam = TEAM(1),
+        .startingTeam = TEAM(3),
     },
 };
 
 struct Vector2 gLevelTestPlayerStart[] = {
     {0 * SCENE_SCALE, 0 * SCENE_SCALE},
+    {20.0f * SCENE_SCALE, 0.0f * SCENE_SCALE},
+    {0.0f * SCENE_SCALE, 20.0f * SCENE_SCALE},
     {20.0f * SCENE_SCALE, 20.0f * SCENE_SCALE},
 };
 
