@@ -68,6 +68,13 @@ SECTIONS
       build/data/gfxinit.o(.bss);
    }
    END_SEG(static)
+   
+   BEGIN_SEG(menu, 0x02000000)
+   {
+      build/data/menu/menu.o(.data);
+      build/data/menu/menu.o(.bss);
+   }
+   END_SEG(menu)
 
    BEGIN_SEG(characters, 0x03000000)
    {

@@ -6,6 +6,8 @@
 #include "collision/dynamicscene.h"
 #include "assert.h"
 #include "graphics/gfx.h"
+#include "../data/menu/menu.h"
+#include "graphics/sprite.h"
 
 static Vp gSplitScreenViewports[4];
 static unsigned short gClippingRegions[4 * 4];
@@ -99,6 +101,8 @@ void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* defin
 }
 
 void levelSceneRender(struct LevelScene* levelScene, struct RenderState* renderState) {
+    spriteSetLayer(renderState, LAYER_C_BUTTONS, gUseCButtons);
+
     // render minions
     Gfx* minionGfx = renderStateAllocateDLChunk(renderState, MINION_GFX_PER_MINION * levelScene->minionCount + 1);
     Gfx* prevDL = renderStateReplaceDL(renderState, minionGfx);
@@ -153,6 +157,14 @@ void levelSceneRender(struct LevelScene* levelScene, struct RenderState* renderS
         gSPDisplayList(renderState->dl++, renderState->transparentQueueStart);
     }
 
+    struct SpriteTile spriteTile;
+    spriteTile.x = 0;
+    spriteTile.y = 0;
+    spriteTile.w = 16;
+    spriteTile.h = 16;
+    spriteDrawTile(renderState, LAYER_C_BUTTONS, 32, 32, 16, 16, spriteTile);
+
+    spriteFinish(renderState);
 }
 
 void levelSceneUpdate(struct LevelScene* levelScene) {

@@ -10,7 +10,7 @@
 #include "sk64/skelatool_armature.h"
 #include "sk64/skelatool_defs.h"
 #include "util/rom.h"
-
+#include "sprite.h"
 
 #include "scene/scene_management.h"
 
@@ -23,6 +23,7 @@ extern OSMesgQueue     *sched_cmdQ;
 extern GFXInfo         gInfo[];
 
 char         *gStaticSegment = 0;
+char         *gMenuSegment = 0;
 char         *gCharacterSegment = 0;
 char         *gLevelSegment = 0;
 
@@ -34,13 +35,9 @@ u64 __attribute__((aligned(16))) dram_stack[SP_DRAM_STACK_SIZE64];
 u64 __attribute__((aligned(16))) gfxYieldBuf2[OS_YIELD_DATA_SIZE/sizeof(u64)];
 
 void initGFX() 
-{    
-    u32 len = (u32)(_staticSegmentRomEnd - _staticSegmentRomStart);
-
-    assert (len < GFX_DL_BUF_SIZE * sizeof(Gfx));
-    gStaticSegment = malloc(len);
-    romCopy(_staticSegmentRomStart, gStaticSegment, len);
-
+{ 
+    LOAD_SEGMENT(static, gStaticSegment);
+    LOAD_SEGMENT(menu, gMenuSegment);
     LOAD_SEGMENT(characters, gCharacterSegment);
     LOAD_SEGMENT(level_test, gLevelSegment);
 
@@ -78,6 +75,7 @@ void createGfxTask(GFXInfo *i)
     /**** Tell RCP where each segment is  ****/
     gSPSegment(renderState->dl++, 0, 0);	/* physical addressing segment */
     gSPSegment(renderState->dl++, STATIC_SEGMENT,  osVirtualToPhysical(gStaticSegment));
+    gSPSegment(renderState->dl++, MENU_SEGMENT, osVirtualToPhysical(gMenuSegment));
     gSPSegment(renderState->dl++, CHARACTER_SEGMENT, osVirtualToPhysical(gCharacterSegment));
     gSPSegment(renderState->dl++, LEVEL_SEGMENT, osVirtualToPhysical(gLevelSegment));
 

@@ -10,7 +10,7 @@
 #define GFX_DL_BUF_SIZE	6000
 
 #define	STATIC_SEGMENT		1
-
+#define	MENU_SEGMENT		2
 #define CHARACTER_SEGMENT   3
 #define LEVEL_SEGMENT   4
 
@@ -52,6 +52,9 @@ extern char _level_testSegmentRomEnd[];
 
 extern char _character_animationsSegmentRomStart[];
 extern char _character_animationsSegmentStart[];
+
+extern char _menuSegmentRomStart[];
+extern char _menuSegmentRomEnd[];
 
 extern char* gStaticSegment;
 extern char* gCharacterSegment;

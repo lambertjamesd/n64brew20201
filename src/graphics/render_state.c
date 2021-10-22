@@ -1,6 +1,7 @@
 
 #include "render_state.h"
 #include <assert.h>
+#include "sprite.h"
 
 void renderStateInit(struct RenderState* renderState) {
     renderState->dl = renderState->glist;
@@ -10,6 +11,7 @@ void renderStateInit(struct RenderState* renderState) {
     renderState->transparentDL = renderState->transparentQueueStart;
     
     gDPSetRenderMode(renderState->transparentDL++, G_RM_ZB_XLU_SURF, G_RM_ZB_XLU_SURF2);
+    spriteInit(renderState);
 }
 
 Mtx* renderStateRequestMatrices(struct RenderState* renderState, unsigned count) {
