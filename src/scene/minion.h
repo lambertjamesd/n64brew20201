@@ -13,6 +13,8 @@
 
 enum MinionFlags {
     MinionFlagsActive = (1 << 0),
+    MinionFlagsAttacking = (1 << 1),
+    MinionFlagsAttacked = (1 << 2),
 };
 
 enum MinionType {
@@ -31,6 +33,7 @@ struct Minion {
     struct Transform transform;
     struct Vector3 velocity;
     struct TeamEntity* currentTarget;
+    struct TeamEntity* attackTarget;
     struct Vector3 defensePoint;
     unsigned char minionFlags;
     unsigned char minionType;
@@ -40,9 +43,8 @@ struct Minion {
 
     struct DynamicSceneEntry* collider;
 
-    // struct SKArmature armature;
-    // struct SKAnimator animator;
-    
+    struct SKAnimator animator;
+    struct Transform animationTransform;
 };
 
 void minionSetup();
@@ -52,5 +54,6 @@ void minionRender(struct Minion* minion, struct RenderState* renderState);
 void minionUpdate(struct Minion* minion);
 void minionCleanup(struct Minion* minion);
 void minionIssueCommand(struct Minion* minion, enum MinionCommand command);
+void minionSetAttackTarget(struct Minion* minion, struct TeamEntity* target);
 
 #endif

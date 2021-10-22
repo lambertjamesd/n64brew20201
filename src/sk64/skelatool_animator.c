@@ -318,10 +318,13 @@ void skAnimatorUpdate(struct SKAnimator* animator, struct Transform* transforms,
         skAnimationApply(animator, transforms, currTick);
     }
 
-    if (animator->flags & SKAnimatorFlagsLoop) {
-        if (animator->nextTick >= animator->currentAnimation->maxTicks) {
+    if (animator->nextTick >= animator->currentAnimation->maxTicks) {
+        if (animator->flags & SKAnimatorFlagsLoop) {
             skAnimatorRunClip(animator, animator->currentAnimation, animator->flags);
             return;
+        } else {
+            animator->flags &= ~SKAnimatorFlagsActive;
+            animator->currentAnimation = 0;
         }
     }
     
@@ -330,4 +333,12 @@ void skAnimatorUpdate(struct SKAnimator* animator, struct Transform* transforms,
         animator->nextSourceTick = TICK_UNDEFINED;
         skRequestChunk(animator);
     }
+}
+
+int skAnimatorIsRunning(struct SKAnimator* animator) {
+    return (animator->flags & SKAnimatorFlagsActive) != 0 && animator->currentAnimation;
+}
+
+float skAnimationLength(struct SKAnimationHeader* clip) {
+    return (float)clip->maxTicks / (float)clip->ticksPerSecond;
 }

@@ -83,4 +83,7 @@ void skAnimatorUpdate(struct SKAnimator* animator, struct Transform* transforms,
 
 void skAnimationApply(struct SKAnimator* animator, struct Transform* transforms, float tick);
 
+int skAnimatorIsRunning(struct SKAnimator* animator);
+float skAnimationLength(struct SKAnimationHeader* clip);
+
 #endif

@@ -63,3 +63,14 @@ void transformPoint(struct Transform* transform, struct Vector3* in, struct Vect
     quatMultVector(&transform->rotation, out, out);
     vector3Add(&transform->position, out, out);
 }
+
+void transformConcat(struct Transform* left, struct Transform* right, struct Transform* output) {
+    vector3Multiply(&left->scale, &right->scale, &output->scale);
+    struct Vector3 rotatedOffset;
+    quatMultVector(&left->rotation, &right->position, &rotatedOffset);
+    quatMultiply(&left->rotation, &right->rotation, &output->rotation);
+
+    output->position.x = left->position.x + rotatedOffset.x * left->scale.x;
+    output->position.y = left->position.y + rotatedOffset.y * left->scale.y;
+    output->position.z = left->position.z + rotatedOffset.z * left->scale.z;
+}

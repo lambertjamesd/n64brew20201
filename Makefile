@@ -78,6 +78,7 @@ MODELS = $(shell find assets/models/ -type f -name '*.fbx')
 MODELS_GENERATED = $(patsubst assets/models/%.fbx, data/models/%/geometry.h, $(CODEFILES))
 
 data/models/%/geometry.h: assets/models/%.fbx
+	@mkdir -p $(@D)
 	skeletool64 -o $@ $<
 
 

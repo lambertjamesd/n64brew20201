@@ -14,6 +14,7 @@
 #include "collision/collisionlayers.h"
 #include "scene_management.h"
 #include "team_data.h"
+#include "minion_animations.h"
 
 #include "../data/models/example/geometry_animdef.inc.h"
 
@@ -22,6 +23,7 @@
 #define MINION_ACCELERATION PLAYER_MOVE_ACCELERATION
 #define MINION_HP           2
 #define MINION_DPS          1
+#define MINION_ATTACK_TIME  0.5f
 
 struct CollisionCircle gMinionCollider = {
     {CollisionShapeTypeCircle},
@@ -42,10 +44,14 @@ void minionCorrectOverlap(struct DynamicSceneOverlap* overlap) {
     teamEntityCorrectOverlap(overlap);
 
     if (overlap->otherEntry->flags & DynamicSceneEntryHasTeam) {
-        struct TeamEntity* entityA = (struct TeamEntity*)overlap->thisEntry->data;
+        struct Minion* entityA = (struct Minion*)overlap->thisEntry->data;
         struct TeamEntity* entityB = (struct TeamEntity*)overlap->otherEntry->data;
-        if (entityB->teamNumber != entityA->teamNumber) {
-            teamEntityApplyDamage(entityB, MINION_DPS * gTimeDelta);
+
+        if (entityB == entityA->attackTarget && (entityA->minionFlags & (MinionFlagsAttacking | MinionFlagsAttacked)) == MinionFlagsAttacking) {
+            teamEntityApplyDamage(entityB, MINION_DPS * skAnimationLength(&minion_animations[MINION_ANIMATION_ATTACK]));
+        } else if (entityB->teamNumber != entityA->team.teamNumber && entityA->attackTarget == 0) {
+            minionSetAttackTarget(entityA, entityB);
+
         }
     }
 }
@@ -83,6 +89,10 @@ void minionInit(struct Minion* minion, enum MinionType type, struct Transform* a
 
     minion->currentCommand = -1;
     minionIssueCommand(minion, defualtCommand);
+
+    skAnimatorInit(&minion->animator, 1);
+    skAnimatorRunClip(&minion->animator, &minion_animations[MINION_ANIMATION_IDLE], SKAnimatorFlagsLoop);
+    transformInitIdentity(&minion->animationTransform);
 }
 
 void minionRender(struct Minion* minion, struct RenderState* renderState) {
@@ -92,7 +102,9 @@ void minionRender(struct Minion* minion, struct RenderState* renderState) {
         return;
     }
 
-    transformToMatrixL(&minion->transform, matrix);
+    struct Transform finalTransform;
+    transformConcat(&minion->transform, &minion->animationTransform, &finalTransform);
+    transformToMatrixL(&finalTransform, matrix);
     gDPSetPrimColor(renderState->dl++, 255, 255, gTeamColors[minion->team.teamNumber].r, gTeamColors[minion->team.teamNumber].g, gTeamColors[minion->team.teamNumber].b, gTeamColors[minion->team.teamNumber].a);
     gSPMatrix(renderState->dl++, osVirtualToPhysical(matrix), G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
     gSPDisplayList(renderState->dl++, DogMinion_Dog_001_mesh);
@@ -145,6 +157,25 @@ void minionUpdate(struct Minion* minion) {
             break;
     }
 
+    if (minion->attackTarget) {
+        if ((minion->minionFlags & MinionFlagsAttacking) != 0) {
+            minion->minionFlags |= MinionFlagsAttacked;
+        }
+
+        if (minion->animator.currentTime >= MINION_ATTACK_TIME) {
+            minion->minionFlags |= MinionFlagsAttacking;
+        }
+
+        if (!skAnimatorIsRunning(&minion->animator)) {
+            minion->minionFlags &= ~(MinionFlagsAttacking | MinionFlagsAttacked);
+            minion->attackTarget = 0;
+            skAnimatorRunClip(&minion->animator, &minion_animations[MINION_ANIMATION_IDLE], SKAnimatorFlagsLoop);
+        } else {
+            target = teamEntityGetPosition(minion->attackTarget);
+            minDistance = 0.0f;
+        }
+    }
+
     struct Vector3 targetVelocity = gZeroVec;
 
     if (target) {
@@ -174,6 +205,8 @@ void minionUpdate(struct Minion* minion) {
 
     minion->collider->center.x = minion->transform.position.x;
     minion->collider->center.y = minion->transform.position.z;
+
+    skAnimatorUpdate(&minion->animator, &minion->animationTransform, 1.0f);
 }
 
 void minionCleanup(struct Minion* minion) {
@@ -182,4 +215,10 @@ void minionCleanup(struct Minion* minion) {
         levelBaseReleaseMinion(&gCurrentLevel.bases[minion->sourceBaseId]);
         dynamicSceneDeleteEntry(minion->collider);
     }
+}
+
+void minionSetAttackTarget(struct Minion* minion, struct TeamEntity* target) {
+    minion->attackTarget = target;
+    minion->minionFlags &= ~(MinionFlagsAttacking | MinionFlagsAttacked);
+    skAnimatorRunClip(&minion->animator, &minion_animations[MINION_ANIMATION_ATTACK], 0);
 }
