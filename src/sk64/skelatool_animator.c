@@ -235,7 +235,7 @@ void skFixedVector3ToFloat(struct SKU16Vector3* input, struct Vector3* output) {
 }
 
 void skApplyBoneAnimation(struct SKBoneAnimationState* animatedBone, struct Transform* output, float tick) {
-    if (animatedBone->nextState.positionTick != animatedBone->prevState.positionTick && (animatedBone->prevState.flags & SKBoneAttrMaskPositionConst) == 0) {
+    if (animatedBone->nextState.positionTick != animatedBone->prevState.positionTick && (animatedBone->prevState.flags & SKBoneStateFlagsConstantPosition) == 0) {
         float positionLerp = (tick - (float)animatedBone->prevState.positionTick) / ((float)animatedBone->nextState.positionTick - (float)animatedBone->prevState.positionTick);
         struct Vector3 srcPos;
         skFixedVector3ToFloat(&animatedBone->prevState.position, &srcPos);
@@ -245,14 +245,14 @@ void skApplyBoneAnimation(struct SKBoneAnimationState* animatedBone, struct Tran
         skFixedVector3ToFloat(&animatedBone->prevState.position, &output->position);
     }
 
-    if (animatedBone->nextState.rotationTick != animatedBone->prevState.rotationTick && (animatedBone->prevState.flags & SKBoneAttrMaskRotationConst) == 0) {
+    if (animatedBone->nextState.rotationTick != animatedBone->prevState.rotationTick && (animatedBone->prevState.flags & SKBoneStateFlagsConstantRotation) == 0) {
         float rotationLerp = (tick - (float)animatedBone->prevState.rotationTick) / ((float)animatedBone->nextState.rotationTick - (float)animatedBone->prevState.rotationTick);
         quatLerp(&animatedBone->prevState.rotation, &animatedBone->nextState.rotation, rotationLerp, &output->rotation);
     } else {
         output->rotation = animatedBone->prevState.rotation;
     }
 
-    if (animatedBone->nextState.scaleTick != animatedBone->prevState.scaleTick && (animatedBone->prevState.flags & SKBoneAttrMaskScaleConst) == 0) {
+    if (animatedBone->nextState.scaleTick != animatedBone->prevState.scaleTick && (animatedBone->prevState.flags & SKBoneStateFlagsConstantScale) == 0) {
         float scaleLerp = (tick - (float)animatedBone->prevState.scaleTick) / ((float)animatedBone->nextState.scaleTick - (float)animatedBone->prevState.scaleTick);
         struct Vector3 srcScale;
         skFixedVector3ToFloat(&animatedBone->prevState.scale, &srcScale);
