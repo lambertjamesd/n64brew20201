@@ -173,6 +173,15 @@ void levelSceneRender(struct LevelScene* levelScene, struct RenderState* renderS
         );
     }
 
+    gDPSetScissor(
+        renderState->dl++, 
+        G_SC_NON_INTERLACE, 
+        0,
+        0,
+        SCREEN_WD,
+        SCREEN_HT
+    );
+
     spriteFinish(renderState);
 }
 

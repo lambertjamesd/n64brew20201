@@ -118,6 +118,7 @@ void minionIssueCommand(struct Minion* minion, enum MinionCommand command) {
     
     minion->currentTarget = 0;
     minion->currentCommand = command;
+    minion->attackTarget = 0;
 }
     
 void minionUpdate(struct Minion* minion) {
