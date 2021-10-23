@@ -184,10 +184,10 @@ static void initGame(void)
     /**** Call the initialization routines ****/
     void* heapEnd = initGFXBuffers((void*)PHYS_TO_K0(osMemSize)); 
     initHeap(_heapStart, heapEnd);
+    skInitDataPool(gPiHandle);
     initGFX();
     controllersInit();
     initAudio();
-    skInitDataPool(gPiHandle);
 
     OSThread* debugThreads[2];
     debugThreads[0] = &gameThread;

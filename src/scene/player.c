@@ -66,7 +66,7 @@ void playerInit(struct Player* player, unsigned team, struct Vector2* at) {
     );
 
     skAnimatorInit(&player->animator, DOGLOW_DEFAULT_BONES_COUNT);
-    // skAnimatorRunClip(&player->animator, &doglow_animations[0], SKAnimatorFlagsLoop);
+    skAnimatorRunClip(&player->animator, &doglow_animations[0], SKAnimatorFlagsLoop);
 }
 
 void playerRotateTowardsInput(struct Player* player, struct PlayerInput* input, float rotationRate) {
@@ -166,7 +166,7 @@ void playerUpdate(struct Player* player, struct PlayerInput* input) {
 
     gPlayerAtBase[player->team.teamNumber] = 0;
 
-    // skAnimatorUpdate(&minion->animator, &minion->armature, 0.5f);
+    skAnimatorUpdate(&player->animator, player->armature.boneTransforms, 1.0f);
 
     if (lastBase && 
         lastBase->state == LevelBaseStateSpawning && 

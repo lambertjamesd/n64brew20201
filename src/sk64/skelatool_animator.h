@@ -52,7 +52,7 @@ struct SKAnimator {
     struct SKAnimationHeader* currentAnimation;
 };
 
-#define SK_POOL_SIZE        (2 * 1024)
+#define SK_POOL_SIZE        (4 * 1024)
 #define SK_POOL_QUEUE_SIZE  20
 
 #define SK_SEGMENT_COUNT    16
