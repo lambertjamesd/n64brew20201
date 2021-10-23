@@ -4,7 +4,6 @@
 
 #include <ultra64.h>
 
-#include "example/geometry.h"
 #include "dogminion/header.h"
 #include "base/header.h"
 #include "doglow/header.h"

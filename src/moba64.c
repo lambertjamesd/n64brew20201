@@ -188,7 +188,6 @@ static void initGame(void)
     controllersInit();
     initAudio();
     skInitDataPool(gPiHandle);
-    minionSetup();
 
     OSThread* debugThreads[2];
     debugThreads[0] = &gameThread;

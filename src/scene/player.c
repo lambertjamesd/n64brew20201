@@ -10,6 +10,10 @@
 #include "level_scene.h"
 #include "scene_management.h"
 #include "menu/basecommandmenu.h"
+#include "util/rom.h"
+#include "graphics/gfx.h"
+
+#include "../data/models/doglow/geometry_animdef.inc.h"
 
 #define PLAYER_AIR_SPEED            (PLAYER_MOVE_SPEED * 0.8f)
 #define PLAYER_STOP_ACCELERATION    50.0f
@@ -41,8 +45,6 @@ void playerInit(struct Player* player, unsigned team, struct Vector2* at) {
     player->velocity = gZeroVec;
     player->rightDir = gRight2;
 
-    player->armature.displayList = doglow_DogLow_mesh;
-
     player->collider = dynamicSceneNewEntry(
         &gPlayerCollider.shapeCommon,
         player,
@@ -55,14 +57,13 @@ void playerInit(struct Player* player, unsigned team, struct Vector2* at) {
     player->state = playerStateWalk;
 
     recallCircleInit(&player->recallCircle);
-
     
-    // skInitObject(
-    //     &minion->armature, 
-    //     gMinionDefs[type].dl, 
-    //     gMinionDefs[type].boneCount, 
-    //     CALC_ROM_POINTER(character_animations, gMinionDefs[type].defaultPose)
-    // );
+    skInitObject(
+        &player->armature, 
+        doglow_DogLow_mesh, 
+        DOGLOW_DEFAULT_BONES_COUNT, 
+        CALC_ROM_POINTER(character_animations, doglow_default_bones)
+    );
 
     // skAnimatorInit(&minion->animator, gMinionDefs[type].boneCount);
     // skAnimatorRunClip(&minion->animator, &output_animations[0], SKAnimatorFlagsLoop);
@@ -189,8 +190,7 @@ void playerRender(struct Player* player, struct RenderState* renderState) {
 
     transformToMatrixL(&player->transform, matrix);
     gSPMatrix(renderState->dl++, osVirtualToPhysical(matrix), G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
-    gSPDisplayList(renderState->dl++, player->armature.displayList);
-    // skRenderObject(&minion->armature, renderState);
+    skRenderObject(&player->armature, renderState);
     gSPPopMatrix(renderState->dl++, 1);
 
     recallCircleRender(&player->recallCircle, renderState, player->team.teamNumber);

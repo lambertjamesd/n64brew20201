@@ -2,7 +2,6 @@
 #include <ultra64.h>
 #include "sk64/skelatool_defs.h"
 
-#include "example/geometry_geo.inc.h"
 #include "dogminion/model.inc.h"
 #include "base/model.inc.h"
 #include "baseflag/model.inc.h"

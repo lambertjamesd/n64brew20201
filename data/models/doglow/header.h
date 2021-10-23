@@ -1,3 +1,6 @@
+
+#include "geometry.h"
+
 extern Lights1 doglow_ArmorDrkBlue_lights;
 extern Lights1 doglow_Belt_lights;
 extern Lights1 doglow_ArmorBlue_lights;

@@ -16,8 +16,6 @@
 #include "team_data.h"
 #include "minion_animations.h"
 
-#include "../data/models/example/geometry_animdef.inc.h"
-
 #define MINION_FOLLOW_DIST  3.0f
 #define MINION_MOVE_SPEED   (PLAYER_MOVE_SPEED * 0.9f)
 #define MINION_ACCELERATION PLAYER_MOVE_ACCELERATION
@@ -36,10 +34,6 @@ struct MinionDef {
     struct Transform* defaultPose;
 };
 
-struct MinionDef gMinionDefs[] = {
-    {output_model_gfx, OUTPUT_DEFAULT_BONES_COUNT, output_default_bones},
-};
-
 void minionCorrectOverlap(struct DynamicSceneOverlap* overlap) {
     teamEntityCorrectOverlap(overlap);
 
@@ -54,10 +48,6 @@ void minionCorrectOverlap(struct DynamicSceneOverlap* overlap) {
 
         }
     }
-}
-
-void minionSetup() {
-    output_animations[0].firstChunk = CALC_ROM_POINTER(character_animations, output_animations[0].firstChunk);
 }
 
 void minionInit(struct Minion* minion, enum MinionType type, struct Transform* at, unsigned char sourceBaseId, unsigned team, enum MinionCommand defualtCommand) {
