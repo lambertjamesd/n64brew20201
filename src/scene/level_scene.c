@@ -106,9 +106,9 @@ void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* defin
 
 void levelSceneRender(struct LevelScene* levelScene, struct RenderState* renderState) {
     spriteSetLayer(renderState, LAYER_SOLID_COLOR, gUseSolidColor);
-    spriteSetLayer(renderState, LAYER_C_BUTTONS, gUseCButtons);
     spriteSetLayer(renderState, LAYER_COMMAND_BUTTONS, gUseCommandIcons);
     spriteSetLayer(renderState, LAYER_GB_FONT, gUseFontTexture);
+    spriteSetLayer(renderState, LAYER_UPGRADE_ICONS, gUseUpgradeIcons);
 
     // render minions
     Gfx* minionGfx = renderStateAllocateDLChunk(renderState, MINION_GFX_PER_MINION * levelScene->minionCount + 1);

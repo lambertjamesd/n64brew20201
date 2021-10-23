@@ -6,9 +6,9 @@
 #include "render_state.h"
 
 #define LAYER_SOLID_COLOR       0
-#define LAYER_C_BUTTONS         2
 #define LAYER_COMMAND_BUTTONS   3
-#define LAYER_GB_FONT           4
+#define LAYER_UPGRADE_ICONS     4
+#define LAYER_GB_FONT           5
 
 struct SpriteTile
 {
