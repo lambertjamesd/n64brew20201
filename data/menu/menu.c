@@ -1,9 +1,10 @@
 #include <ultra64.h>
 
 #include "cbuttons.inc.h"
+#include "commandicons.inc.h"
 
 unsigned short __attribute__((aligned(8))) gGUIPalette[] = {
-	0x0001,
+	0x0000,
 	0xEF2B,
 	0xEE87,
 	0xBC83,

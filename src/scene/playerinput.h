@@ -11,6 +11,7 @@ enum PlayerInputActions {
     PlayerInputActionsCommandRecall = (1 << 2),
     PlayerInputActionsCommandAttack = (1 << 3),
     PlayerInputActionsCommandDefend = (1 << 4),
+    PlayerInputActionsCommandOpenBaseMenu = (1 << 5),
 };
 
 struct PlayerInput {
@@ -19,6 +20,9 @@ struct PlayerInput {
     unsigned short prevActions;
 };
 
+void playerInputNoInput(struct PlayerInput* output);
 void playerInputPopulateWithJoystickData(OSContPad* pad, unsigned short lastButtons, struct Quaternion* cameraRotation, struct PlayerInput* output);
+
+unsigned playerInputGetDown(struct PlayerInput* output, enum PlayerInputActions command);
 
 #endif

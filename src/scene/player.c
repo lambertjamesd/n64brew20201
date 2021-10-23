@@ -9,6 +9,7 @@
 #include "controls/controller.h"
 #include "level_scene.h"
 #include "scene_management.h"
+#include "menu/basecommandmenu.h"
 
 #define PLAYER_AIR_SPEED            (PLAYER_MOVE_SPEED * 0.8f)
 #define PLAYER_STOP_ACCELERATION    50.0f
@@ -151,6 +152,18 @@ void playerUpdate(struct Player* player, struct PlayerInput* input) {
     player->collider->center.y = player->transform.position.z;
 
     struct LevelBase *lastBase = gPlayerAtBase[player->team.teamNumber];
+
+    if (lastBase) {
+        baseCommandMenuShowOpenCommand(&gCurrentLevel.baseCommandMenu[player->team.teamNumber], lastBase);
+
+        if (playerInputGetDown(input, PlayerInputActionsCommandOpenBaseMenu)) {
+            baseCommandMenuShow(&gCurrentLevel.baseCommandMenu[player->team.teamNumber], lastBase);
+        }
+    } else {
+        baseCommandMenuHideOpenCommand(&gCurrentLevel.baseCommandMenu[player->team.teamNumber]);
+    }
+
+    gPlayerAtBase[player->team.teamNumber] = 0;
 
     // skAnimatorUpdate(&minion->animator, &minion->armature, 0.5f);
 

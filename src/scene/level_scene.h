@@ -11,6 +11,7 @@
 #include "leveldefinition.h"
 #include "player.h"
 #include "target_finder.h"
+#include "menu/basecommandmenu.h"
 
 #define MAX_MINIONS_PER_BASE       3
 #define TARGET_FINDER_COUNT        2
@@ -18,6 +19,7 @@
 struct LevelScene {
     struct Camera cameras[MAX_PLAYERS];
     struct Player players[MAX_PLAYERS];
+    struct BaseCommandMenu baseCommandMenu[MAX_PLAYERS];
     unsigned char playerCount;
     unsigned char humanPlayerCount;
 

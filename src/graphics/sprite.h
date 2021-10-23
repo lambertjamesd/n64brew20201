@@ -5,7 +5,8 @@
 #include <ultra64.h>
 #include "render_state.h"
 
-#define LAYER_C_BUTTONS     0
+#define LAYER_C_BUTTONS         0
+#define LAYER_COMMAND_BUTTONS   1
 
 struct SpriteTile
 {

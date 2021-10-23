@@ -25,7 +25,19 @@ unsigned short playerInputMapActionFlags(unsigned short buttons) {
         result |= PlayerInputActionsCommandDefend;
     }
 
+    if (buttons & U_CBUTTONS) {
+        result |= PlayerInputActionsCommandOpenBaseMenu;
+    }
+
     return result;
+}
+
+void playerInputNoInput(struct PlayerInput* output) {
+    output->actionFlags = 0;
+    output->prevActions = 0;
+    output->targetWorldDirection.x = 0.0f;
+    output->targetWorldDirection.y = 0.0f;
+    output->targetWorldDirection.z = 0.0f;
 }
 
 void playerInputPopulateWithJoystickData(OSContPad* pad, unsigned short lastButtons, struct Quaternion* cameraRotation, struct PlayerInput* output) {
@@ -47,4 +59,8 @@ void playerInputPopulateWithJoystickData(OSContPad* pad, unsigned short lastButt
 
     output->actionFlags = playerInputMapActionFlags(pad->button);
     output->prevActions = playerInputMapActionFlags(lastButtons);
+}
+
+unsigned playerInputGetDown(struct PlayerInput* output, enum PlayerInputActions command) {
+    return output->actionFlags & ~output->prevActions & command;
 }

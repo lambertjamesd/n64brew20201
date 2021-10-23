@@ -8,6 +8,7 @@
 #include "graphics/gfx.h"
 #include "../data/menu/menu.h"
 #include "graphics/sprite.h"
+#include "menu/basecommandmenu.h"
 
 static Vp gSplitScreenViewports[4];
 static unsigned short gClippingRegions[4 * 4];
@@ -47,6 +48,7 @@ void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* defin
         playerInit(&levelScene->players[i], i, &definition->playerStartLocations[i]);
         vector3AddScaled(&levelScene->players[i].transform.position, &gForward, SCENE_SCALE * 2.0f, &levelScene->cameras[i].transform.position);
         vector3AddScaled(&levelScene->players[i].transform.position, &gUp, SCENE_SCALE * 2.0f, &levelScene->cameras[i].transform.position);
+        baseCommandMenuInit(&levelScene->baseCommandMenu[i]);
     }
 
     quatAxisAngle(&gRight, -M_PI * 0.3333f, &levelScene->cameras[0].transform.rotation);
@@ -102,6 +104,7 @@ void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* defin
 
 void levelSceneRender(struct LevelScene* levelScene, struct RenderState* renderState) {
     spriteSetLayer(renderState, LAYER_C_BUTTONS, gUseCButtons);
+    spriteSetLayer(renderState, LAYER_COMMAND_BUTTONS, gUseCommandIcons);
 
     // render minions
     Gfx* minionGfx = renderStateAllocateDLChunk(renderState, MINION_GFX_PER_MINION * levelScene->minionCount + 1);
@@ -155,14 +158,16 @@ void levelSceneRender(struct LevelScene* levelScene, struct RenderState* renderS
         gSPDisplayList(renderState->dl++, playerGfx);
         gSPDisplayList(renderState->dl++, minionGfx);
         gSPDisplayList(renderState->dl++, renderState->transparentQueueStart);
-    }
 
-    struct SpriteTile spriteTile;
-    spriteTile.x = 0;
-    spriteTile.y = 0;
-    spriteTile.w = 16;
-    spriteTile.h = 16;
-    spriteDrawTile(renderState, LAYER_C_BUTTONS, 32, 32, 16, 16, spriteTile);
+        baseCommandMenuRender(
+            &levelScene->baseCommandMenu[i], 
+            renderState, 
+            gClippingRegions[i * 4 + 0],
+            gClippingRegions[i * 4 + 1],
+            gClippingRegions[i * 4 + 2],
+            gClippingRegions[i * 4 + 3]
+        );
+    }
 
     spriteFinish(renderState);
 }
@@ -170,12 +175,18 @@ void levelSceneRender(struct LevelScene* levelScene, struct RenderState* renderS
 void levelSceneUpdate(struct LevelScene* levelScene) {
     for (unsigned playerIndex = 0; playerIndex < levelScene->playerCount; ++playerIndex) {
         struct PlayerInput playerInput;
-        playerInputPopulateWithJoystickData(
-            controllersGetControllerData(playerIndex), 
-            controllerGetLastButton(playerIndex), 
-            &levelScene->cameras[playerIndex].transform.rotation,
-            &playerInput
-        );
+
+        if (baseCommandMenuIsShowing(&levelScene->baseCommandMenu[playerIndex])) {
+            playerInputNoInput(&playerInput);
+        } else {
+            playerInputPopulateWithJoystickData(
+                controllersGetControllerData(playerIndex), 
+                controllerGetLastButton(playerIndex), 
+                &levelScene->cameras[playerIndex].transform.rotation,
+                &playerInput
+            );
+        }
+
 
         playerUpdate(&levelScene->players[playerIndex], &playerInput);
         struct Vector3 target = levelScene->players[playerIndex].transform.position;

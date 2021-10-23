@@ -26,6 +26,7 @@ enum MinionCommand {
     MinionCommandFollow,
     MinionCommandAttack,
     MinionCommandDefend,
+    MinionCommandCount,
 };
 
 struct Minion {
