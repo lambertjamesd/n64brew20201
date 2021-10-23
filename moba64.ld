@@ -90,7 +90,7 @@ SECTIONS
    }
    END_SEG(level_test)
 
-   BEGIN_SEG(character_animations, CHARACTER_ANIMATION_SEGMENT)
+   BEGIN_SEG(character_animations, CHARACTER_ANIMATION_SEGMENT_ADDRESS)
    {
       build/data/models/character_animations.o(.data);
       build/data/models/character_animations.o(.bss);

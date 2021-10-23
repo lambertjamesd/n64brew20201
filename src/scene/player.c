@@ -65,8 +65,8 @@ void playerInit(struct Player* player, unsigned team, struct Vector2* at) {
         CALC_ROM_POINTER(character_animations, doglow_default_bones)
     );
 
-    // skAnimatorInit(&minion->animator, gMinionDefs[type].boneCount);
-    // skAnimatorRunClip(&minion->animator, &output_animations[0], SKAnimatorFlagsLoop);
+    skAnimatorInit(&player->animator, DOGLOW_DEFAULT_BONES_COUNT);
+    // skAnimatorRunClip(&player->animator, &doglow_animations[0], SKAnimatorFlagsLoop);
 }
 
 void playerRotateTowardsInput(struct Player* player, struct PlayerInput* input, float rotationRate) {

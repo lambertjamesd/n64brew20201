@@ -10,6 +10,7 @@
 #include "sk64/skelatool_defs.h"
 #include "util/rom.h"
 #include "sprite.h"
+#include "sk64/skelatool_defs.h"
 
 #include "scene/scene_management.h"
 
@@ -39,6 +40,8 @@ void initGFX()
     LOAD_SEGMENT(menu, gMenuSegment);
     LOAD_SEGMENT(characters, gCharacterSegment);
     LOAD_SEGMENT(level_test, gLevelSegment);
+
+    skSetSegmentLocation(CHARACTER_ANIMATION_SEGMENT, (unsigned)_character_animationsSegmentRomStart);
 
     loadLevelScene();
     

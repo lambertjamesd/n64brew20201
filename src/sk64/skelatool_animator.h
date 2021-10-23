@@ -55,6 +55,8 @@ struct SKAnimator {
 #define SK_POOL_SIZE        (2 * 1024)
 #define SK_POOL_QUEUE_SIZE  20
 
+#define SK_SEGMENT_COUNT    16
+
 struct SKRingMemory {
     char __attribute__((aligned(16))) memoryStart[SK_POOL_SIZE];
     char* freeStart;
@@ -71,10 +73,12 @@ struct SKAnimationDataPool {
     struct SKAnimator* animatorsForMessages[SK_POOL_QUEUE_SIZE];
     int nextMessage;
     struct SKRingMemory memoryPool;
+    unsigned segmentLocations[SK_SEGMENT_COUNT];
 };
 
 void skInitDataPool(OSPiHandle* handle);
 void skReadMessages();
+void skSetSegmentLocation(unsigned segmentNumber, unsigned segmentLocatoin);
 
 void skAnimatorInit(struct SKAnimator* animator, unsigned boneCount);
 void skAnimatorCleanup(struct SKAnimator* animator);

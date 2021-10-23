@@ -161,6 +161,7 @@ void skInitDataPool(OSPiHandle* handle) {
     osCreateMesgQueue(&gSKAnimationPool.mesgQueue, gSKAnimationPool.mesgBuffer, SK_POOL_QUEUE_SIZE);
     skRingMemoryInit(&gSKAnimationPool.memoryPool);
     zeroMemory(gSKAnimationPool.animatorsForMessages, sizeof(struct SKAnimator*) * SK_POOL_QUEUE_SIZE);
+    zeroMemory(gSKAnimationPool.segmentLocations, sizeof(gSKAnimationPool.segmentLocations));
 }
 
 void skReadMessages() {
@@ -168,6 +169,15 @@ void skReadMessages() {
     while (osRecvMesg(&gSKAnimationPool.mesgQueue, &msg, OS_MESG_NOBLOCK) != -1) {
         skProcess(msg);
     }
+}
+
+void skSetSegmentLocation(unsigned segmentNumber, unsigned segmentLocation) {
+    gSKAnimationPool.segmentLocations[segmentNumber] = segmentLocation;
+}
+
+u32 skTranslateSegment(unsigned address) {
+    unsigned segment = (address >> 24) & 0xF;
+    return (address & 0xFFFFFF) + gSKAnimationPool.segmentLocations[segment];
 }
 
 void skelatoolWaitForNextMessage() {
@@ -292,7 +302,11 @@ void skAnimatorRunClip(struct SKAnimator* animator, struct SKAnimationHeader* an
     animator->nextTick = 0;
     animator->nextSourceTick = TICK_UNDEFINED;
     animator->nextSourceChunkSize = animation->firstChunkSize;
-    animator->nextChunkSource = (u32)animation->firstChunk;
+    if (IS_KSEG0(animation->firstChunk)) {  
+        animator->nextChunkSource = (u32)animation->firstChunk;
+    } else {
+        animator->nextChunkSource = skTranslateSegment((u32)animation->firstChunk);
+    }
     animator->currentAnimation = animation;
 
     skRequestChunk(animator);
