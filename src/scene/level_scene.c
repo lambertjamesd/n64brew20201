@@ -9,6 +9,7 @@
 #include "../data/menu/menu.h"
 #include "graphics/sprite.h"
 #include "menu/basecommandmenu.h"
+#include "menu/gbfont.h"
 
 static Vp gSplitScreenViewports[4];
 static unsigned short gClippingRegions[4 * 4];
@@ -38,6 +39,7 @@ unsigned short gViewportPosition[] = {
 
 void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* definition, unsigned int playercount, unsigned char humanPlayerCount) {
     dynamicSceneInit();
+    initGBFont();
 
     levelScene->levelDL = definition->sceneRender;
     
@@ -103,8 +105,10 @@ void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* defin
 }
 
 void levelSceneRender(struct LevelScene* levelScene, struct RenderState* renderState) {
+    spriteSetLayer(renderState, LAYER_SOLID_COLOR, gUseSolidColor);
     spriteSetLayer(renderState, LAYER_C_BUTTONS, gUseCButtons);
     spriteSetLayer(renderState, LAYER_COMMAND_BUTTONS, gUseCommandIcons);
+    spriteSetLayer(renderState, LAYER_GB_FONT, gUseFontTexture);
 
     // render minions
     Gfx* minionGfx = renderStateAllocateDLChunk(renderState, MINION_GFX_PER_MINION * levelScene->minionCount + 1);
@@ -188,6 +192,7 @@ void levelSceneUpdate(struct LevelScene* levelScene) {
         }
 
 
+        baseCommandMenuUpdate(&levelScene->baseCommandMenu[playerIndex], playerIndex);
         playerUpdate(&levelScene->players[playerIndex], &playerInput);
         struct Vector3 target = levelScene->players[playerIndex].transform.position;
         vector3AddScaled(&target, &gUp, 2.0f * SCENE_SCALE, &target);

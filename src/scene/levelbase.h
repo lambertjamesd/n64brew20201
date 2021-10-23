@@ -33,6 +33,7 @@ struct LevelBase {
     unsigned char defenseUpgrade:2;
     unsigned char padding: 2;
     unsigned char defaultComand;
+    unsigned char issueCommandTimer;
 };
 
 extern struct LevelBase* gPlayerAtBase[MAX_PLAYERS];
@@ -42,5 +43,6 @@ void levelBaseUpdate(struct LevelBase* base);
 void levelBaseRender(struct LevelBase* base, struct RenderState* renderState);
 void levelBaseReleaseMinion(struct LevelBase* base);
 void levelBaseStartUpgrade(struct LevelBase* base, enum LevelBaseState nextState);
+void levelBaseSetDefaultCommand(struct LevelBase* base, unsigned command);
 
 #endif

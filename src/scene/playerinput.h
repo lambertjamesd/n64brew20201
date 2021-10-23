@@ -24,5 +24,6 @@ void playerInputNoInput(struct PlayerInput* output);
 void playerInputPopulateWithJoystickData(OSContPad* pad, unsigned short lastButtons, struct Quaternion* cameraRotation, struct PlayerInput* output);
 
 unsigned playerInputGetDown(struct PlayerInput* output, enum PlayerInputActions command);
+unsigned short playerInputMapActionFlags(unsigned short buttons);
 
 #endif

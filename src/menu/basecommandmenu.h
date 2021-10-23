@@ -12,6 +12,7 @@ enum BaseCommandMenuFlags {
 struct BaseCommandMenu {
     struct LevelBase* forBase;
     unsigned short flags;
+    unsigned short selectedCommand;
 };
 
 void baseCommandMenuInit(struct BaseCommandMenu* menu);

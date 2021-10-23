@@ -10,6 +10,7 @@ static OSContStatus  gControllerStatus[MAX_PLAYERS];
 static OSContPad     gControllerData[MAX_PLAYERS];
 static OSScMsg       gControllerMessage;
 static u16           gControllerLastButton[MAX_PLAYERS];
+static enum ControllerDirection gControllerLastDirection[MAX_PLAYERS];
 
 void controllersInit(void)
 {
@@ -32,10 +33,10 @@ void controllersInit(void)
 
 void controllersUpdate(void)
 {
-    gControllerLastButton[0] = gControllerData[0].button;
-    gControllerLastButton[1] = gControllerData[1].button;
-    gControllerLastButton[2] = gControllerData[2].button;
-    gControllerLastButton[3] = gControllerData[3].button;
+    for (unsigned i = 0; i < MAX_PLAYERS; ++i) {
+        gControllerLastDirection[i] = controllerGetDirection(i);
+        gControllerLastButton[i] = gControllerData[i].button;
+    }
 
     osContGetReadData(gControllerData);
     cntrlReadInProg = 0;
@@ -55,4 +56,38 @@ OSContPad* controllersGetControllerData(int index) {
 
 u16 controllerGetLastButton(int index) {
     return gControllerLastButton[index];
+}
+
+u16 controllerGetButtonDown(int index, u16 button) {
+    return gControllerData[index].button & ~gControllerLastButton[index] & button;
+}
+
+u16 controllerGetButtonUp(int index, u16 button) {
+    return ~gControllerData[index].button & gControllerLastButton[index] & button;
+}
+
+enum ControllerDirection controllerGetDirection(int index) {
+    enum ControllerDirection result = 0;
+
+    if (gControllerData[index].stick_y > 40 || (gControllerData[index].button & U_JPAD) != 0) {
+        result |= ControllerDirectionUp;
+    }
+
+    if (gControllerData[index].stick_y < -40 || (gControllerData[index].button & D_JPAD) != 0) {
+        result |= ControllerDirectionDown;
+    }
+
+    if (gControllerData[index].stick_x > 40 || (gControllerData[index].button & R_JPAD) != 0) {
+        result |= ControllerDirectionRight;
+    }
+
+    if (gControllerData[index].stick_x < -40 || (gControllerData[index].button & L_JPAD) != 0) {
+        result |= ControllerDirectionLeft;
+    }
+
+    return result;
+}
+
+enum ControllerDirection controllerGetDirectionDown(int index) {
+    return controllerGetDirection(index) & ~gControllerLastDirection[index];
 }

@@ -2,6 +2,8 @@
 
 #include "cbuttons.inc.h"
 #include "commandicons.inc.h"
+#include "gbfont.inc.h"
+#include "solidcolor.inc.h"
 
 unsigned short __attribute__((aligned(8))) gGUIPalette[] = {
 	0x0000,

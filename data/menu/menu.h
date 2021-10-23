@@ -2,3 +2,5 @@
 
 extern Gfx gUseCButtons[];
 extern Gfx gUseCommandIcons[];
+extern Gfx gUseFontTexture[];
+extern Gfx gUseSolidColor[];

@@ -55,6 +55,10 @@ void spriteSetLayer(struct RenderState* renderState, int layer, Gfx* graphics)
     renderState->spriteState.layerSetup[layer] = graphics;
 }
 
+void spriteSolid(struct RenderState* renderState, int layer, int x, int y, int w, int h) {
+    gDPFillRectangle(renderState->dl++, x, y, x + w, y + h);
+}
+
 void spriteDraw(struct RenderState* renderState, int layer, int x, int y, int w, int h, int sx, int sy, int sw, int sh)
 {
     Gfx workingMem[4];

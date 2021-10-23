@@ -92,13 +92,17 @@ void levelBaseTrigger(struct DynamicSceneOverlap* overlap) {
 
         struct TeamEntity* teamEntity = (struct TeamEntity*)overlap->otherEntry->data;
 
-        if (teamEntity->teamNumber == base->team.teamNumber && teamEntity->entityType == TeamEntityTypePlayer) {
+        if (teamEntity->teamNumber == base->team.teamNumber && teamEntity->entityType == TeamEntityTypePlayer && base->state != LevelBaseStateNeutral) {
             gPlayerAtBase[teamEntity->teamNumber] = base;
         }
 
         if (base->team.teamNumber == TEAM_NONE) {
             base->team.teamNumber = teamEntity->teamNumber;
         } 
+
+        if (base->team.teamNumber == teamEntity->teamNumber && base->issueCommandTimer && teamEntity->entityType == TeamEntityTypeMinion) {
+            ((struct Minion*)teamEntity)->currentCommand = base->defaultComand;
+        }
         
         if (teamEntity->teamNumber != base->team.teamNumber) {
             base->captureProgress -= gTimeDelta * gSpawnTimeCaptureScalar[base->defenseUpgrade];
@@ -166,6 +170,7 @@ void levelBaseInit(struct LevelBase* base, struct BaseDefinition* definition, un
     base->defenseUpgrade = 0;
     base->padding = 0;
     base->state = LevelBaseStateNeutral;
+    base->issueCommandTimer = 0;
 
     if (base->team.teamNumber != TEAM_NONE) {
         levelBaseSetState(base, LevelBaseStateSpawning);
@@ -230,6 +235,10 @@ void levelBaseUpdate(struct LevelBase* base) {
             }
             break;
     };
+
+    if (base->issueCommandTimer) {
+        --base->issueCommandTimer;
+    }
 }
 
 void levelBaseRender(struct LevelBase* base, struct RenderState* renderState) {
@@ -286,4 +295,9 @@ void levelBaseRender(struct LevelBase* base, struct RenderState* renderState) {
 
 void levelBaseReleaseMinion(struct LevelBase* base) {
     --base->minionCount;
+}
+
+void levelBaseSetDefaultCommand(struct LevelBase* base, unsigned command) {
+    base->defaultComand = command;
+    base->issueCommandTimer = 2;
 }
