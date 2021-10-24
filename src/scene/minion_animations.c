@@ -33,7 +33,11 @@ unsigned short minion_idle[] = {
     0x0000, 0xffff, 0x0001, 0x0095, 0x0001, 0x0001, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 
 };
 
+struct SKAnimationEvent minion_attack_animation_events[] = {
+    {15, MINION_ANIMATION_EVENT_ATTACK},
+};
+
 struct SKAnimationHeader minion_animations[] = {
-    {64, 30, 148, (struct SKAnimationChunk*)minion_idle},
-    {64, 30, 26, (struct SKAnimationChunk*)minion_attack},
+    {64, 30, 148, 0, (struct SKAnimationChunk*)minion_idle, 0},
+    {64, 30, 26, 1, (struct SKAnimationChunk*)minion_attack, minion_attack_animation_events},
 };

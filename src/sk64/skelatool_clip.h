@@ -1,6 +1,8 @@
 #ifndef _SKELATOOL_ANIMATION_CLIP_H
 #define _SKELATOOL_ANIMATION_CLIP_H
 
+#define SK_ANIMATION_EVENT_END      0xFFFF
+#define SK_ANIMATION_EVENT_START    0xFFFE
 
 enum SKBoneAttrMask {
     SKBoneAttrMaskPosition = (1 << 0),
@@ -32,11 +34,18 @@ struct SKAnimationChunk {
     struct SKAnimationKeyframe keyframes[];
 };
 
+struct SKAnimationEvent {
+    unsigned short tick;
+    unsigned short id;
+};
+
 struct SKAnimationHeader {
     unsigned short firstChunkSize;
     unsigned short ticksPerSecond;
     unsigned short maxTicks;
+    unsigned short numEvents;
     struct SKAnimationChunk* firstChunk;
+    struct SKAnimationEvent* animationEvents;
 };
 
 #endif

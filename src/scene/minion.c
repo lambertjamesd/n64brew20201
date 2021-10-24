@@ -21,7 +21,6 @@
 #define MINION_ACCELERATION PLAYER_MOVE_ACCELERATION
 #define MINION_HP           2
 #define MINION_DPS          1
-#define MINION_ATTACK_TIME  0.5f
 
 struct CollisionCircle gMinionCollider = {
     {CollisionShapeTypeCircle},
@@ -47,6 +46,14 @@ void minionCorrectOverlap(struct DynamicSceneOverlap* overlap) {
             minionSetAttackTarget(entityA, entityB);
 
         }
+    }
+}
+
+void minionAnimationEvent(struct SKAnimator* animator, void* data, struct SKAnimationEvent* event) {
+    struct Minion* minion = (struct Minion*)data;
+
+    if (event->id == MINION_ANIMATION_EVENT_ATTACK) {
+        minion->minionFlags |= MinionFlagsAttacking;
     }
 }
 
@@ -80,7 +87,7 @@ void minionInit(struct Minion* minion, enum MinionType type, struct Transform* a
     minion->currentCommand = -1;
     minionIssueCommand(minion, defualtCommand);
 
-    skAnimatorInit(&minion->animator, 1);
+    skAnimatorInit(&minion->animator, 1, minionAnimationEvent, minion);
     skAnimatorRunClip(&minion->animator, &minion_animations[MINION_ANIMATION_IDLE], SKAnimatorFlagsLoop);
     transformInitIdentity(&minion->animationTransform);
 }
@@ -151,10 +158,6 @@ void minionUpdate(struct Minion* minion) {
     if (minion->attackTarget) {
         if ((minion->minionFlags & MinionFlagsAttacking) != 0) {
             minion->minionFlags |= MinionFlagsAttacked;
-        }
-
-        if (minion->animator.currentTime >= MINION_ATTACK_TIME) {
-            minion->minionFlags |= MinionFlagsAttacking;
         }
 
         if (!skAnimatorIsRunning(&minion->animator)) {

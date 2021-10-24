@@ -39,6 +39,10 @@ enum SKAnimatorFlags {
     SKAnimatorFlagsPendingRequest = (1 << 2),
 };
 
+struct SKAnimator;
+
+typedef void (*SKAnimationEventCallback)(struct SKAnimator* animator, void* data, struct SKAnimationEvent* event);
+
 struct SKAnimator {
     unsigned short flags;
     unsigned short boneCount;
@@ -50,6 +54,9 @@ struct SKAnimator {
     u32 nextChunkSource;
     struct SKBoneAnimationState* boneState;
     struct SKAnimationHeader* currentAnimation;
+    SKAnimationEventCallback eventCallback;
+    void* eventCallbackData; 
+    unsigned short nextEvent;
 };
 
 #define SK_POOL_SIZE        (4 * 1024)
@@ -80,7 +87,7 @@ void skInitDataPool(OSPiHandle* handle);
 void skReadMessages();
 void skSetSegmentLocation(unsigned segmentNumber, unsigned segmentLocatoin);
 
-void skAnimatorInit(struct SKAnimator* animator, unsigned boneCount);
+void skAnimatorInit(struct SKAnimator* animator, unsigned boneCount, SKAnimationEventCallback animtionCallback, void* callbackData);
 void skAnimatorCleanup(struct SKAnimator* animator);
 void skAnimatorRunClip(struct SKAnimator* animator, struct SKAnimationHeader* animation, int flags);
 void skAnimatorUpdate(struct SKAnimator* animator, struct Transform* transforms, float timeScale);

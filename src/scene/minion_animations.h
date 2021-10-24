@@ -6,6 +6,8 @@
 #define MINION_ANIMATION_IDLE       0
 #define MINION_ANIMATION_ATTACK     1
 
+#define MINION_ANIMATION_EVENT_ATTACK   0
+
 extern struct SKAnimationHeader minion_animations[];
 
 #endif

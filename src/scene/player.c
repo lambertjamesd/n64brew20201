@@ -33,6 +33,12 @@ struct CollisionCircle gPlayerCollider = {
 
 struct Vector3 gRecallOffset = {0.0f, 0.0f, -4.0 * SCENE_SCALE};
 
+void playerAnimationEvent(struct SKAnimator* animator, void* data, struct SKAnimationEvent* event) {
+    struct Player* player = (struct Player*)data;
+
+    
+}
+
 void playerStateWalk(struct Player* player, struct PlayerInput* input);
 
 void playerInit(struct Player* player, unsigned team, struct Vector2* at) {
@@ -65,7 +71,7 @@ void playerInit(struct Player* player, unsigned team, struct Vector2* at) {
         CALC_ROM_POINTER(character_animations, doglow_default_bones)
     );
 
-    skAnimatorInit(&player->animator, DOGLOW_DEFAULT_BONES_COUNT);
+    skAnimatorInit(&player->animator, DOGLOW_DEFAULT_BONES_COUNT, playerAnimationEvent, player);
     skAnimatorRunClip(&player->animator, &doglow_animations[0], SKAnimatorFlagsLoop);
 }
 

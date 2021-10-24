@@ -275,7 +275,7 @@ void skApplyBoneAnimation(struct SKBoneAnimationState* animatedBone, struct Tran
     }
 }
 
-void skAnimatorInit(struct SKAnimator* animator, unsigned boneCount) {
+void skAnimatorInit(struct SKAnimator* animator, unsigned boneCount, SKAnimationEventCallback animtionCallback, void* callbackData) {
     animator->flags = 0;
     animator->boneCount = boneCount;
     animator->currentTime = 0.0f;
@@ -286,6 +286,9 @@ void skAnimatorInit(struct SKAnimator* animator, unsigned boneCount) {
     animator->nextChunkSource = 0;
     animator->boneState = malloc(sizeof(struct SKBoneAnimationState) * boneCount); 
     animator->currentAnimation = 0;
+    animator->eventCallback = animtionCallback;
+    animator->eventCallbackData = callbackData;
+    animator->nextEvent = 0;
 }
 
 void skAnimatorCleanup(struct SKAnimator* animator) {
@@ -296,6 +299,8 @@ void skAnimatorCleanup(struct SKAnimator* animator) {
 }
 
 void skAnimatorRunClip(struct SKAnimator* animator, struct SKAnimationHeader* animation, int flags) {
+    if (animator->currentAnimation && animator->eventCallback)
+
     animator->flags = (unsigned short)(flags | SKAnimatorFlagsActive);
     animator->currentTime = 0.0f;
     animator->currTick = TICK_UNDEFINED;
@@ -308,6 +313,15 @@ void skAnimatorRunClip(struct SKAnimator* animator, struct SKAnimationHeader* an
         animator->nextChunkSource = skTranslateSegment((u32)animation->firstChunk);
     }
     animator->currentAnimation = animation;
+    animator->nextEvent = 0;
+
+    struct SKAnimationEvent event;
+    event.id = SK_ANIMATION_EVENT_START;
+    event.tick = 0;
+
+    if (animator->eventCallback) {
+        animator->eventCallback(animator, animator->eventCallbackData, &event);
+    }
 
     skRequestChunk(animator);
 }
@@ -330,15 +344,30 @@ void skAnimatorUpdate(struct SKAnimator* animator, struct Transform* transforms,
 
     if (animator->currTick <= animator->currentAnimation->maxTicks && transforms) {
         skAnimationApply(animator, transforms, currTick);
+    } else if (animator->currTick >= animator->currentAnimation->maxTicks) {
+        animator->flags &= ~SKAnimatorFlagsActive;
+        animator->currentAnimation = 0;
+        return;
+    }
+
+    while (animator->eventCallback && animator->nextEvent < animator->currentAnimation->numEvents && 
+        animator->currTick >= animator->currentAnimation->animationEvents[animator->nextEvent].tick) {
+        animator->eventCallback(animator, animator->eventCallbackData, &animator->currentAnimation->animationEvents[animator->nextEvent]);
+        ++animator->nextEvent;
     }
 
     if (animator->nextTick >= animator->currentAnimation->maxTicks) {
+        struct SKAnimationEvent event;
+        event.id = SK_ANIMATION_EVENT_END;
+        event.tick = animator->currentAnimation->maxTicks;
+
+        if (animator->eventCallback) {
+            animator->eventCallback(animator, animator->eventCallbackData, &event);
+        }
+
         if (animator->flags & SKAnimatorFlagsLoop) {
             skAnimatorRunClip(animator, animator->currentAnimation, animator->flags);
             return;
-        } else {
-            animator->flags &= ~SKAnimatorFlagsActive;
-            animator->currentAnimation = 0;
         }
     }
     
