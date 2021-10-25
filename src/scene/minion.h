@@ -40,6 +40,7 @@ struct Minion {
     unsigned char minionType;
     unsigned char sourceBaseId;
     unsigned char currentCommand;
+    unsigned char followingPlayer;
     float hp;
 
     struct DynamicSceneEntry* collider;
@@ -48,11 +49,11 @@ struct Minion {
     struct Transform animationTransform;
 };
 
-void minionInit(struct Minion* minion, enum MinionType type, struct Transform* at, unsigned char baseId, unsigned team, enum MinionCommand defualtCommand);
+void minionInit(struct Minion* minion, enum MinionType type, struct Transform* at, unsigned char baseId, unsigned team, enum MinionCommand defualtCommand, unsigned followPlayer);
 void minionRender(struct Minion* minion, struct RenderState* renderState);
 void minionUpdate(struct Minion* minion);
 void minionCleanup(struct Minion* minion);
-void minionIssueCommand(struct Minion* minion, enum MinionCommand command);
+void minionIssueCommand(struct Minion* minion, enum MinionCommand command, unsigned fromPlayer);
 void minionSetAttackTarget(struct Minion* minion, struct TeamEntity* target);
 
 #endif

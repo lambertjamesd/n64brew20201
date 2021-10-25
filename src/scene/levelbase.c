@@ -8,6 +8,7 @@
 #include "scene_management.h"
 #include "team_data.h"
 #include "math/mathf.h"
+#include "player.h"
 
 #include "game_defs.h"
 
@@ -93,7 +94,7 @@ void levelBaseTrigger(struct DynamicSceneOverlap* overlap) {
         struct TeamEntity* teamEntity = (struct TeamEntity*)overlap->otherEntry->data;
 
         if (teamEntity->teamNumber == base->team.teamNumber && teamEntity->entityType == TeamEntityTypePlayer && base->state != LevelBaseStateNeutral) {
-            gPlayerAtBase[teamEntity->teamNumber] = base;
+            gPlayerAtBase[((struct Player*)teamEntity)->playerIndex] = base;
         }
 
         if (base->team.teamNumber == TEAM_NONE) {
@@ -101,7 +102,7 @@ void levelBaseTrigger(struct DynamicSceneOverlap* overlap) {
         } 
 
         if (base->team.teamNumber == teamEntity->teamNumber && base->issueCommandTimer && teamEntity->entityType == TeamEntityTypeMinion) {
-            ((struct Minion*)teamEntity)->currentCommand = base->defaultComand;
+            minionIssueCommand((struct Minion*)teamEntity, base->defaultComand, base->followPlayer);
         }
         
         if (teamEntity->teamNumber != base->team.teamNumber) {
@@ -171,6 +172,7 @@ void levelBaseInit(struct LevelBase* base, struct BaseDefinition* definition, un
     base->padding = 0;
     base->state = LevelBaseStateNeutral;
     base->issueCommandTimer = 0;
+    base->followPlayer = TEAM_NONE;
 
     if (base->team.teamNumber != TEAM_NONE) {
         levelBaseSetState(base, LevelBaseStateSpawning);
@@ -205,7 +207,7 @@ void levelBaseUpdate(struct LevelBase* base) {
                     struct Transform minionTransform;
                     transformInitIdentity(&minionTransform);
                     vector3Add(&base->position, &gSpawnOffset[base->minionCount], &minionTransform.position);
-                    levelSceneSpawnMinion(&gCurrentLevel, MinionTypeMelee, &minionTransform, base->baseId, base->team.teamNumber, base->defaultComand);
+                    levelSceneSpawnMinion(&gCurrentLevel, MinionTypeMelee, &minionTransform, base->baseId, base->team.teamNumber, base->defaultComand, base->followPlayer);
                     ++base->minionCount;
 
                     base->stateTimeLeft = SPAWN_TIME;

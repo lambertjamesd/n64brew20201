@@ -12,21 +12,34 @@
 #include "menu/basecommandmenu.h"
 #include "util/rom.h"
 #include "graphics/gfx.h"
+#include "sk64/skelatool_clip.h"
 
-#define PLAYER_ANIMATION_ATTACK_START(sourceId)   ((sourceId) << 8)
-#define PLAYER_IS_ATTACK_EVENT(eventId)         (((eventId) & 0xFF) == 0)
-#define PLAYER_ATTACK_EVENT_GET_SOURCE(eventId)     ((eventId) >> 8)
-
+#define PLAYER_ATTACK_START_ID                     0x0
 #define PLAYER_ATTACK_END_ID                       0x1
+#define PLAYER_ATTACK_WINDOW_ID                       0x2
 
-struct PlayerAttackInfo mAttacks[] = {
+struct SKAnimationEvent gAttack001Events[] = {
+    {7, PLAYER_ATTACK_START_ID},
+    {14, PLAYER_ATTACK_END_ID},
+    {15, PLAYER_ATTACK_WINDOW_ID},
+};
+
+#define ATTACK_001_EVENT_COUNT      (sizeof(gAttack001Events)/sizeof(*gAttack001Events))
+
+struct PlayerAttackInfo gPlayerAttacks[] = {
     {
         DOGLOW_ARM1_BONE, 
+        1,
+        DOGLOW_DOGLOW_ARMATURE_001_PUNCH_001_INDEX,
+        2.0f,
         {0.0f, 0.0f, 6.5f * SCENE_SCALE}, 
         {{CollisionShapeTypeCircle}, 0.5f * SCENE_SCALE},
     },
     {
         DOGLOW_ARM2_BONE, 
+        0,
+        DOGLOW_DOGLOW_ARMATURE_001_PUNCH_002_INDEX,
+        3.0f,
         {0.0f, 0.0f, 6.5f * SCENE_SCALE}, 
         {{CollisionShapeTypeCircle}, 0.5f * SCENE_SCALE},
     },
@@ -44,6 +57,22 @@ struct PlayerAttackInfo mAttacks[] = {
 
 #define PLAYER_AIR_MAX_ROTATE_SEC   (90.0f * (M_PI / 180.0f))
 #define PLAYER_MAX_ROTATE_SEC       (360.0f * (M_PI / 180.0f))
+
+void playerStateAttack(struct Player* player, struct PlayerInput* input);
+void playerStateWalk(struct Player* player, struct PlayerInput* input);
+void playerStateAttack(struct Player* player, struct PlayerInput* input);
+
+void playerEnterWalkState(struct Player* player) {
+    player->state = playerStateWalk;
+    player->attackInfo = 0;
+    skAnimatorRunClip(&player->animator, &doglow_animations[DOGLOW_DOGLOW_ARMATURE_001_IDLE_INDEX], SKAnimatorFlagsLoop);
+}
+
+void playerEnterAttackState(struct Player* player, struct PlayerAttackInfo* attackInfo) {
+    skAnimatorRunClip(&player->animator, &doglow_animations[attackInfo->animationId], 0);
+    player->attackInfo = attackInfo;
+    player->state = playerStateAttack;
+}
 
 struct CollisionCircle gPlayerCollider = {
     {CollisionShapeTypeCircle},
@@ -69,26 +98,24 @@ void playerCalculateAttackLocation(struct Player* player, struct PlayerAttackInf
     output->y = output3D.z;
 }
 
-void playerStartAttack(struct Player* player, struct PlayerAttackInfo* attackInfo) {
+void playerStartAttack(struct Player* player) {
     if (!player->attackCollider) {
         struct Vector2 position;
-        playerCalculateAttackLocation(player, attackInfo, &position);
+        playerCalculateAttackLocation(player, player->attackInfo, &position);
         player->attackCollider = dynamicSceneNewEntry(
-            &attackInfo->collisionCircle.shapeCommon, 
+            &player->attackInfo->collisionCircle.shapeCommon, 
             player,
             &position,
             playerAttackOverlap,
             DynamicSceneEntryIsTrigger,
             CollisionLayersAllTeams ^ COLLISION_LAYER_FOR_TEAM(player->team.teamNumber)
         );
-        player->attackInfo = attackInfo;
     }
 }
 
 void playerEndAttack(struct Player* player) {
     if (player->attackCollider) {
         dynamicSceneDeleteEntry(player->attackCollider);
-        player->attackInfo = 0;
         player->attackCollider = 0;
     }
 }
@@ -96,16 +123,28 @@ void playerEndAttack(struct Player* player) {
 void playerAnimationEvent(struct SKAnimator* animator, void* data, struct SKAnimationEvent* event) {
     struct Player* player = (struct Player*)data;
 
-    if (PLAYER_IS_ATTACK_EVENT(event->id)) {
-        playerStartAttack(player, &mAttacks[PLAYER_ATTACK_EVENT_GET_SOURCE(event->id)]);
-    } else if (event->id == PLAYER_ATTACK_END_ID) {
-        playerEndAttack(player);
+    switch (event->id) {
+        case PLAYER_ATTACK_START_ID:
+            playerStartAttack(player);
+            break;
+        case PLAYER_ATTACK_END_ID:
+            playerEndAttack(player);
+            break;
+        case PLAYER_ATTACK_WINDOW_ID:
+            player->flags |= PlayerFlagsInAttackWindow;
+            break;
+        case SK_ANIMATION_EVENT_START:
+            player->flags &= ~PlayerFlagsInAttackWindow;
+            break;
+        case SK_ANIMATION_EVENT_END:
+            if (player->state == playerStateAttack) {
+                playerEnterWalkState(player);
+            }
+            break;
     }
 }
 
-void playerStateWalk(struct Player* player, struct PlayerInput* input);
-
-void playerInit(struct Player* player, unsigned team, struct Vector2* at) {
+void playerInit(struct Player* player, unsigned playerIndex, unsigned team, struct Vector2* at) {
     player->team.entityType = TeamEntityTypePlayer;
     player->team.teamNumber = team;
     transformInitIdentity(&player->transform);
@@ -113,6 +152,8 @@ void playerInit(struct Player* player, unsigned team, struct Vector2* at) {
     player->transform.position.z = at->y;
     player->attackCollider = 0;
     player->attackInfo = 0;
+    player->playerIndex = playerIndex;
+    player->flags = 0;
 
     player->velocity = gZeroVec;
     player->rightDir = gRight2;
@@ -190,6 +231,14 @@ void playerStateJump(struct Player* player, struct PlayerInput* input) {
     }
 }
 
+void playerStateAttack(struct Player* player, struct PlayerInput* input) {
+    playerAccelerateTowards(player, &gZeroVec, 0.0f, PLAYER_STOP_ACCELERATION, PLAYER_STOP_ACCELERATION);
+
+    if (playerInputGetDown(input, PlayerInputActionsAttack) != 0 && (player->flags & PlayerFlagsInAttackWindow) != 0) {
+        playerEnterAttackState(player, &gPlayerAttacks[player->attackInfo->chainedTo]);
+    }
+}
+
 void playerStateWalk(struct Player* player, struct PlayerInput* input) {
     playerRotateTowardsInput(player, input, PLAYER_MAX_ROTATE_SEC);
     playerAccelerateTowards(player, &input->targetWorldDirection, PLAYER_MOVE_SPEED, PLAYER_MOVE_ACCELERATION, PLAYER_STOP_ACCELERATION);
@@ -200,7 +249,7 @@ void playerStateWalk(struct Player* player, struct PlayerInput* input) {
         struct Vector2 recallPos2;
         recallPos2.x = recallPos3.x;
         recallPos2.y = recallPos3.z;
-        recallCircleActivate(&player->recallCircle, &recallPos2, player->team.teamNumber);
+        recallCircleActivate(&player->recallCircle, &recallPos2, player);
     } else {
         recallCircleDisable(&player->recallCircle);
     }
@@ -208,6 +257,10 @@ void playerStateWalk(struct Player* player, struct PlayerInput* input) {
     if (input->actionFlags & PlayerInputActionsJump) {
         player->velocity.y = PLAYER_JUMP_IMPULSE;
         player->state = playerStateJump;
+    }
+
+    if (playerInputGetDown(input, PlayerInputActionsAttack)) {
+        playerEnterAttackState(player, &gPlayerAttacks[0]);
     }
 }
 
@@ -225,19 +278,19 @@ void playerUpdate(struct Player* player, struct PlayerInput* input) {
     player->collider->center.x = player->transform.position.x;
     player->collider->center.y = player->transform.position.z;
 
-    struct LevelBase *lastBase = gPlayerAtBase[player->team.teamNumber];
+    struct LevelBase *lastBase = gPlayerAtBase[player->playerIndex];
 
     if (lastBase) {
-        baseCommandMenuShowOpenCommand(&gCurrentLevel.baseCommandMenu[player->team.teamNumber], lastBase);
+        baseCommandMenuShowOpenCommand(&gCurrentLevel.baseCommandMenu[player->playerIndex], lastBase);
 
         if (playerInputGetDown(input, PlayerInputActionsCommandOpenBaseMenu)) {
-            baseCommandMenuShow(&gCurrentLevel.baseCommandMenu[player->team.teamNumber], lastBase);
+            baseCommandMenuShow(&gCurrentLevel.baseCommandMenu[player->playerIndex], lastBase);
         }
     } else {
-        baseCommandMenuHideOpenCommand(&gCurrentLevel.baseCommandMenu[player->team.teamNumber]);
+        baseCommandMenuHideOpenCommand(&gCurrentLevel.baseCommandMenu[player->playerIndex]);
     }
 
-    gPlayerAtBase[player->team.teamNumber] = 0;
+    gPlayerAtBase[player->playerIndex] = 0;
 
     skAnimatorUpdate(&player->animator, player->armature.boneTransforms, 1.0f);
 
@@ -245,16 +298,10 @@ void playerUpdate(struct Player* player, struct PlayerInput* input) {
         playerCalculateAttackLocation(player, player->attackInfo, &player->collider->center);
     }
 
-    if (lastBase && 
-        lastBase->state == LevelBaseStateSpawning && 
-        (controllersGetControllerData(player->team.teamNumber)->button & Z_TRIG) != 0) {
-        levelBaseStartUpgrade(lastBase, LevelBaseStateUpgradingCapacity);
-    }
-
     if (input->actionFlags & PlayerInputActionsCommandAttack) {
-        levelSceneIssueMinionCommand(&gCurrentLevel, player->team.teamNumber, MinionCommandAttack);
+        levelSceneIssueMinionCommand(&gCurrentLevel, player->playerIndex, MinionCommandAttack);
     } else if (input->actionFlags & PlayerInputActionsCommandDefend) {
-        levelSceneIssueMinionCommand(&gCurrentLevel, player->team.teamNumber, MinionCommandDefend);
+        levelSceneIssueMinionCommand(&gCurrentLevel, player->playerIndex, MinionCommandDefend);
     }
 }
 

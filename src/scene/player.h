@@ -18,8 +18,15 @@ struct Player;
 
 typedef void (*PlayerState)(struct Player* player, struct PlayerInput* input);
 
+enum PlayerFlags {
+    PlayerFlagsInAttackWindow = (1 << 0),
+    PlayerFlagsAttackEarly = (1 << 1),
+};
+
 struct PlayerAttackInfo {
-    unsigned short boneIndex;
+    unsigned char boneIndex;
+    unsigned char chainedTo;
+    unsigned char animationId;
     float damage;
     struct Vector3 localPosition;
     struct CollisionCircle collisionCircle;
@@ -37,9 +44,11 @@ struct Player {
     struct DynamicSceneEntry* attackCollider;
     struct PlayerAttackInfo* attackInfo;
     PlayerState state;
+    unsigned short playerIndex;
+    unsigned short flags;
 };
 
-void playerInit(struct Player* player, unsigned team, struct Vector2* at);
+void playerInit(struct Player* player, unsigned playerIndex, unsigned team, struct Vector2* at);
 void playerUpdate(struct Player* player, struct PlayerInput* input);
 void playerRender(struct Player* player, struct RenderState* renderState);
 

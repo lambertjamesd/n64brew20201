@@ -34,6 +34,7 @@ struct LevelBase {
     unsigned char padding: 2;
     unsigned char defaultComand;
     unsigned char issueCommandTimer;
+    unsigned char followPlayer;
 };
 
 extern struct LevelBase* gPlayerAtBase[MAX_PLAYERS];

@@ -42,7 +42,7 @@ void minionCorrectOverlap(struct DynamicSceneOverlap* overlap) {
 
         if (entityB == entityA->attackTarget && (entityA->minionFlags & (MinionFlagsAttacking | MinionFlagsAttacked)) == MinionFlagsAttacking) {
             teamEntityApplyDamage(entityB, MINION_DPS * skAnimationLength(&minion_animations[MINION_ANIMATION_ATTACK]));
-        } else if (entityB->teamNumber != entityA->team.teamNumber && entityA->attackTarget == 0) {
+        } else if (entityB->teamNumber != entityA->team.teamNumber && entityA->attackTarget == 0 && entityA->currentCommand != MinionCommandFollow) {
             minionSetAttackTarget(entityA, entityB);
         }
     }
@@ -56,7 +56,7 @@ void minionAnimationEvent(struct SKAnimator* animator, void* data, struct SKAnim
     }
 }
 
-void minionInit(struct Minion* minion, enum MinionType type, struct Transform* at, unsigned char sourceBaseId, unsigned team, enum MinionCommand defualtCommand) {
+void minionInit(struct Minion* minion, enum MinionType type, struct Transform* at, unsigned char sourceBaseId, unsigned team, enum MinionCommand defualtCommand, unsigned followPlayer) {
     minion->team.teamNumber = team;
     minion->team.entityType = TeamEntityTypeMinion;
 
@@ -84,7 +84,7 @@ void minionInit(struct Minion* minion, enum MinionType type, struct Transform* a
     quatAxisAngle(&gUp, M_PI * 2.0f * rand() / RAND_MAX, &minion->transform.rotation);
 
     minion->currentCommand = -1;
-    minionIssueCommand(minion, defualtCommand);
+    minionIssueCommand(minion, defualtCommand, followPlayer);
 
     skAnimatorInit(&minion->animator, 1, minionAnimationEvent, minion);
     skAnimatorRunClip(&minion->animator, &minion_animations[MINION_ANIMATION_IDLE], SKAnimatorFlagsLoop);
@@ -107,7 +107,7 @@ void minionRender(struct Minion* minion, struct RenderState* renderState) {
     gSPPopMatrix(renderState->dl++, 1);
 }
 
-void minionIssueCommand(struct Minion* minion, enum MinionCommand command) {
+void minionIssueCommand(struct Minion* minion, enum MinionCommand command, unsigned fromPlayer) {
     if (command == MinionCommandDefend) {
         minion->defensePoint = minion->transform.position;
     }
@@ -115,6 +115,7 @@ void minionIssueCommand(struct Minion* minion, enum MinionCommand command) {
     minion->currentTarget = 0;
     minion->currentCommand = command;
     minion->attackTarget = 0;
+    minion->followingPlayer = fromPlayer;
 }
     
 void minionUpdate(struct Minion* minion) {
@@ -128,7 +129,7 @@ void minionUpdate(struct Minion* minion) {
 
     switch (minion->currentCommand) {
         case MinionCommandFollow:
-            target = &gCurrentLevel.players[minion->team.teamNumber].transform.position;
+            target = &gCurrentLevel.players[minion->followingPlayer].transform.position;
             minDistance = MINION_FOLLOW_DIST * SCENE_SCALE;
             break;
         case MinionCommandDefend:

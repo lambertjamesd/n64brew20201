@@ -47,7 +47,7 @@ void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* defin
 
     for (unsigned i = 0; i < playercount; ++i) {
         cameraInit(&levelScene->cameras[i], 45.0f, 50.0f, 6000.0f);
-        playerInit(&levelScene->players[i], i, &definition->playerStartLocations[i]);
+        playerInit(&levelScene->players[i], i, i, &definition->playerStartLocations[i]);
         vector3AddScaled(&levelScene->players[i].transform.position, &gForward, SCENE_SCALE * 2.0f, &levelScene->cameras[i].transform.position);
         vector3AddScaled(&levelScene->players[i].transform.position, &gUp, SCENE_SCALE * 2.0f, &levelScene->cameras[i].transform.position);
         baseCommandMenuInit(&levelScene->baseCommandMenu[i]);
@@ -230,12 +230,12 @@ void levelSceneUpdate(struct LevelScene* levelScene) {
     dynamicSceneCollide();
 }
 
-void levelSceneSpawnMinion(struct LevelScene* levelScene, enum MinionType type, struct Transform* at, unsigned char baseId, unsigned team, enum MinionCommand defualtCommand) {
+void levelSceneSpawnMinion(struct LevelScene* levelScene, enum MinionType type, struct Transform* at, unsigned char baseId, unsigned team, enum MinionCommand defualtCommand, unsigned followPlayer) {
     unsigned searchStart = levelScene->lastMinion;
 
     do {
         if (!(levelScene->minions[levelScene->lastMinion].minionFlags & MinionFlagsActive)) {
-            minionInit(&levelScene->minions[levelScene->lastMinion], type, at, baseId, team, defualtCommand);
+            minionInit(&levelScene->minions[levelScene->lastMinion], type, at, baseId, team, defualtCommand, followPlayer);
             break;
         }
         levelScene->lastMinion = (levelScene->lastMinion + 1) % levelScene->minionCount;
@@ -251,11 +251,11 @@ void levelBaseDespawnMinions(struct LevelScene* levelScene, unsigned char baseId
     }
 }
 
-void levelSceneIssueMinionCommand(struct LevelScene* levelScene, unsigned team, enum MinionCommand command) {
+void levelSceneIssueMinionCommand(struct LevelScene* levelScene, unsigned followingPlayer, enum MinionCommand command) {
     for (unsigned i = 0; i < levelScene->minionCount; ++i) {
         struct Minion* minion = &levelScene->minions[i];
-        if (minion->team.teamNumber == team && (minion->minionFlags & MinionFlagsActive) != 0 && minion->currentCommand == MinionCommandFollow) {
-            minionIssueCommand(minion, command);
+        if (minion->followingPlayer == followingPlayer && (minion->minionFlags & MinionFlagsActive) != 0 && minion->currentCommand == MinionCommandFollow) {
+            minionIssueCommand(minion, command, followingPlayer);
         }
     }
 }

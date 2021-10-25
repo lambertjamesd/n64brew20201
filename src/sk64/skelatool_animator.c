@@ -299,8 +299,6 @@ void skAnimatorCleanup(struct SKAnimator* animator) {
 }
 
 void skAnimatorRunClip(struct SKAnimator* animator, struct SKAnimationHeader* animation, int flags) {
-    if (animator->currentAnimation && animator->eventCallback)
-
     animator->flags = (unsigned short)(flags | SKAnimatorFlagsActive);
     animator->currentTime = 0.0f;
     animator->currTick = TICK_UNDEFINED;

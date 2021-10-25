@@ -9,8 +9,10 @@ struct RecallCircle {
     struct DynamicSceneEntry* collider;
 };
 
+struct Player;
+
 void recallCircleInit(struct RecallCircle* circle);
-void recallCircleActivate(struct RecallCircle* circle, struct Vector2* at, unsigned team);
+void recallCircleActivate(struct RecallCircle* circle, struct Vector2* at, struct Player* forPlayer);
 void recallCircleDisable(struct RecallCircle* circle);
 void recallCircleRender(struct RecallCircle* circle, struct RenderState* renderState, unsigned team);
 

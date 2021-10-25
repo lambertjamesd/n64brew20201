@@ -8,6 +8,7 @@
 #include "../data/models/characters.h"
 #include "util/time.h"
 #include "math/mathf.h"
+#include "player.h"
 
 #define RECALL_RADIUS           3.0f
 #define RECALL_SHAKE_PERIOD     0.1f
@@ -25,23 +26,24 @@ void recallCircleInit(struct RecallCircle* circle) {
 
 void recallCircleOnCollider(struct DynamicSceneOverlap* overlap) {
     if (overlap->otherEntry->flags & DynamicSceneEntryHasTeam) {
+        struct Player* player = (struct Player*)overlap->thisEntry->data;
         struct TeamEntity* teamEntity = (struct TeamEntity*)overlap->otherEntry->data;
 
         if (teamEntity->entityType == TeamEntityTypeMinion) {
-            minionIssueCommand((struct Minion*)teamEntity, MinionCommandFollow);
+            minionIssueCommand((struct Minion*)teamEntity, MinionCommandFollow, player->playerIndex);
         }
     }
 }
 
-void recallCircleActivate(struct RecallCircle* circle, struct Vector2* at, unsigned team) {
+void recallCircleActivate(struct RecallCircle* circle, struct Vector2* at, struct Player* forPlayer) {
     if (!circle->collider) {
         circle->collider = dynamicSceneNewEntry(
             &gRecallCollider.shapeCommon,
-            circle,
+            forPlayer,
             at,
             recallCircleOnCollider,
             DynamicSceneEntryIsTrigger,
-            COLLISION_LAYER_FOR_TEAM(team)
+            COLLISION_LAYER_FOR_TEAM(forPlayer->team.teamNumber)
         );
     } else {
         circle->collider->center = *at;
