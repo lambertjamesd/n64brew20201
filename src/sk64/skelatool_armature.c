@@ -11,7 +11,7 @@ void skInitObject(struct SKArmature* object, Gfx* displayList, u32 numberOfBones
     if (initialPose) {
         romCopy((void*)initialPose, (void*)object->boneTransforms, sizeof(Mtx) * numberOfBones);
     }
-    object->boneParentIndex = 0;
+    object->boneParentIndex = boneParentIndex;
 }
 
 void skCleanupObject(struct SKArmature* object) {
@@ -46,7 +46,7 @@ void skCalculateBonePosition(struct SKArmature* object, unsigned short boneIndex
     }
     *out = *bonePosition;
 
-    while (boneIndex != NO_BONE_PARENT) {
+    while (boneIndex < object->numberOfBones) {
         transformPoint(&object->boneTransforms[boneIndex], out, out);
         boneIndex = object->boneParentIndex[boneIndex];
     }

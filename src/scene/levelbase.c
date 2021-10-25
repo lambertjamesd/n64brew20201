@@ -207,8 +207,8 @@ void levelBaseUpdate(struct LevelBase* base) {
                     struct Transform minionTransform;
                     transformInitIdentity(&minionTransform);
                     vector3Add(&base->position, &gSpawnOffset[base->minionCount], &minionTransform.position);
-                    levelSceneSpawnMinion(&gCurrentLevel, MinionTypeMelee, &minionTransform, base->baseId, base->team.teamNumber, base->defaultComand, base->followPlayer);
-                    ++base->minionCount;
+                    // levelSceneSpawnMinion(&gCurrentLevel, MinionTypeMelee, &minionTransform, base->baseId, base->team.teamNumber, base->defaultComand, base->followPlayer);
+                    // ++base->minionCount;
 
                     base->stateTimeLeft = SPAWN_TIME;
                 }

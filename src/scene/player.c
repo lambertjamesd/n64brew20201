@@ -242,7 +242,7 @@ void playerInit(struct Player* player, unsigned playerIndex, unsigned team, stru
         doglow_DogLow_mesh, 
         DOGLOW_DEFAULT_BONES_COUNT, 
         CALC_ROM_POINTER(character_animations, doglow_default_bones),
-        CALC_RAM_POINTER(doglow_bone_parent, gCharacterSegment)
+        doglow_bone_parent
     );
 
     skAnimatorInit(&player->animator, DOGLOW_DEFAULT_BONES_COUNT, playerAnimationEvent, player);
