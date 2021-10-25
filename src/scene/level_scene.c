@@ -259,3 +259,23 @@ void levelSceneIssueMinionCommand(struct LevelScene* levelScene, unsigned follow
         }
     }
 }
+
+struct Vector3* levelSceneFindRespawnPoint(struct LevelScene* levelScene, struct Vector3* closeTo, unsigned team) {
+    struct Vector3* result = 0;
+    float score = 0.0;
+
+    for (unsigned i = 0; i < levelScene->baseCount; ++i) {
+        struct LevelBase* base = &levelScene->bases[i];
+
+        if (base->team.teamNumber == team && base->state != LevelBaseStateNeutral) {
+            float baseScore = vector3DistSqrd(closeTo, &base->position);
+
+            if (!result || baseScore < score) {
+                result = &base->position;
+                score = baseScore;
+            }
+        }
+    }
+
+    return result;
+}

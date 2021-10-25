@@ -46,6 +46,8 @@ struct Player {
     PlayerState state;
     unsigned short playerIndex;
     unsigned short flags;
+    float hp;
+    float stateTimer;
 };
 
 void playerInit(struct Player* player, unsigned playerIndex, unsigned team, struct Vector2* at);

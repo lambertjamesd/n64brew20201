@@ -55,6 +55,7 @@ void teamEntityApplyDamage(struct TeamEntity* entity, float amount) {
             ((struct Minion*)entity)->hp -= amount;
             break;
         case TeamEntityTypePlayer:
+            ((struct Player*)entity)->hp -= amount;
             break;
     }
 }

@@ -41,5 +41,6 @@ void levelSceneUpdate(struct LevelScene* levelScene);
 void levelSceneSpawnMinion(struct LevelScene* levelScene, enum MinionType type, struct Transform* at, unsigned char baseId, unsigned team, enum MinionCommand defualtCommand, unsigned followPlayer);
 void levelBaseDespawnMinions(struct LevelScene* levelScene, unsigned char baseId);
 void levelSceneIssueMinionCommand(struct LevelScene* levelScene, unsigned team, enum MinionCommand command);
+struct Vector3* levelSceneFindRespawnPoint(struct LevelScene* levelScene, struct Vector3* closeTo, unsigned team);
 
 #endif
