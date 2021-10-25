@@ -4,13 +4,14 @@
 #include "util/memory.h"
 #include "util/rom.h"
 
-void skInitObject(struct SKArmature* object, Gfx* displayList, u32 numberOfBones, struct Transform* initialPose) {
+void skInitObject(struct SKArmature* object, Gfx* displayList, u32 numberOfBones, struct Transform* initialPose, unsigned short* boneParentIndex) {
     object->displayList = displayList;
     object->numberOfBones = numberOfBones;
     object->boneTransforms = malloc(sizeof(Mtx) * numberOfBones);
     if (initialPose) {
         romCopy((void*)initialPose, (void*)object->boneTransforms, sizeof(Mtx) * numberOfBones);
     }
+    object->boneParentIndex = 0;
 }
 
 void skCleanupObject(struct SKArmature* object) {
@@ -36,5 +37,17 @@ void skRenderObject(struct SKArmature* object, struct RenderState* intoState) {
 void skCalculateTransforms(struct SKArmature* object, Mtx* into) {
     for (int i = 0; i < object->numberOfBones; ++i) {
         transformToMatrixL(&object->boneTransforms[i], &into[i]);
+    }
+}
+
+void skCalculateBonePosition(struct SKArmature* object, unsigned short boneIndex, struct Vector3* bonePosition, struct Vector3* out) {
+    if (!object->boneParentIndex) {
+        return;
+    }
+    *out = *bonePosition;
+
+    while (boneIndex != NO_BONE_PARENT) {
+        transformPoint(&object->boneTransforms[boneIndex], out, out);
+        boneIndex = object->boneParentIndex[boneIndex];
     }
 }

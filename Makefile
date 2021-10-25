@@ -38,7 +38,7 @@ BOOT_OBJ	=	build/boot.6102.o
 
 OBJECTS		=	$(DATAOBJECTS) $(ASMOBJECTS) $(BOOT_OBJ)
 
-DEPS = $(patsubst %.c, build/%.d, $(CODEFILES)) # $(patsubst %.c, build/%.d, $(DATAFILES))
+DEPS = $(patsubst %.c, build/%.d, $(CODEFILES)) $(patsubst %.c, build/%.d, $(DATAFILES))
 
 -include $(DEPS)
 
@@ -73,18 +73,15 @@ build/%.o: %.s
 # Resources
 ####################
 
-MODELS = $(shell find assets/models/ -type f -name '*.fbx')
-
-MODELS_GENERATED = $(patsubst assets/models/%.fbx, data/models/%/geometry.h, $(CODEFILES))
-
-data/models/%/geometry.h: assets/models/%.fbx
+data/models/minionanimations/geometry.h build/data/models/minionanimations/geometry_anim.inc.h build/data/models/minionanimations/geometry_animdef.inc.h:	assets/models/minionanimations.fbx
 	@mkdir -p $(@D)
-	skeletool64 -o $@ $<
+	skeletool64 -a -s 100 -n minion_animations -o data/models/minionanimations/geometry.h assets/models/minionanimations.fbx
 
+data/models/doglow/geometry.h build/data/models/doglow/geometry_anim.inc.h build/data/models/doglow/geometry_animdef.inc.h:	assets/models/commandermajor.fbx
+	@mkdir -p $(@D)
+	skeletool64 -s 100 -n doglow -o data/models/doglow/geometry.h assets/models/commandermajor.fbx
 
 MUSIC = $(shell find assets/music/ -type -f -name '*.mid')
-
-MUSIC_CONVERTED = $(patsubst assets/models/%.fbx, data/models/%/geometry.h, $(CODEFILES))
 
 build/assets/music/%.mid: assets/music/%.mid
 	@mkdir -p $(@D)

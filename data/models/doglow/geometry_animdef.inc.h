@@ -1,8 +1,10 @@
-extern unsigned short doglow_Armature_00__Walk[];
-extern unsigned short doglow_Armature_00__Walk_00_[];
-extern unsigned short doglow_Armature_00__Walk_00___[];
+extern unsigned short doglow_Armature_001_Idle[];
+extern unsigned short doglow_Armature_001_Jump[];
+extern unsigned short doglow_Armature_001_Punch_001[];
+extern unsigned short doglow_Armature_001_Punch_002[];
 struct SKAnimationHeader doglow_animations[] = {
-    {608, 30, 48, 0, (struct SKAnimationChunk*)doglow_Armature_00__Walk, 0},
-    {576, 30, 1, 0, (struct SKAnimationChunk*)doglow_Armature_00__Walk_00_, 0},
-    {576, 30, 1, 0, (struct SKAnimationChunk*)doglow_Armature_00__Walk_00___, 0},
+    {480, 30, 58, 0, (struct SKAnimationChunk*)doglow_Armature_001_Idle, 0},
+    {496, 30, 24, 0, (struct SKAnimationChunk*)doglow_Armature_001_Jump, 0},
+    {496, 30, 79, 0, (struct SKAnimationChunk*)doglow_Armature_001_Punch_001, 0},
+    {480, 30, 18, 0, (struct SKAnimationChunk*)doglow_Armature_001_Punch_002, 0},
 };

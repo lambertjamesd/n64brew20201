@@ -1,13 +1,23 @@
-#ifndef _output_H
-#define _output_H
+#ifndef _minion_animations_H
+#define _minion_animations_H
 
 #include <ultra64.h>
 #include "math/transform.h"
-#include "sk64/skelatool_animation_clip.h"
+#include "sk64/skelatool_clip.h"
 
-extern Gfx output_model_gfx[];
-extern struct Transform output_default_bones[];
-#define OUTPUT_DEFAULT_BONES_COUNT 1
-extern struct SKAnimationHeader output_animations[];
+#define MINION_ANIMATIONS_BONE_BONE 0
+#define MINION_ANIMATIONS_DEFAULT_BONES_COUNT 1
+extern struct Transform minion_animations_default_bones[];
+#define MINION_ANIMATIONS_MINION_ANIMATIONS_IDLE_INDEX 0
+#define MINION_ANIMATIONS_MINION_ANIMATIONS_MOVEFORWARD_INDEX 1
+#define MINION_ANIMATIONS_MINION_ANIMATIONS_MOVEFORWARD_00__INDEX 2
+#define MINION_ANIMATIONS_MINION_ANIMATIONS_ATTACK_00__INDEX 3
+#define MINION_ANIMATIONS_MINION_ANIMATIONS_ATTACK_00____INDEX 4
+#define MINION_ANIMATIONS_MINION_ANIMATIONS_DIE_00__INDEX 5
+#define MINION_ANIMATIONS_MINION_ANIMATIONS_ARMATURE_ATTACK_INDEX 6
+#define MINION_ANIMATIONS_MINION_ANIMATIONS_ARMATURE_DIE_INDEX 7
+#define MINION_ANIMATIONS_MINION_ANIMATIONS_ARMATURE_IDLE_INDEX 8
+#define MINION_ANIMATIONS_MINION_ANIMATIONS_ARMATURE_MOVEFORWARD_INDEX 9
+extern struct SKAnimationHeader minion_animations_animations[];
 
 #endif

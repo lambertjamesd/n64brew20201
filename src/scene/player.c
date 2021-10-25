@@ -13,6 +13,25 @@
 #include "util/rom.h"
 #include "graphics/gfx.h"
 
+#define PLAYER_ANIMATION_ATTACK_START(sourceId)   ((sourceId) << 8)
+#define PLAYER_IS_ATTACK_EVENT(eventId)         (((eventId) & 0xFF) == 0)
+#define PLAYER_ATTACK_EVENT_GET_SOURCE(eventId)     ((eventId) >> 8)
+
+#define PLAYER_ATTACK_END_ID                       0x1
+
+struct PlayerAttackInfo mAttacks[] = {
+    {
+        DOGLOW_ARM1_BONE, 
+        {0.0f, 0.0f, 6.5f * SCENE_SCALE}, 
+        {{CollisionShapeTypeCircle}, 0.5f * SCENE_SCALE},
+    },
+    {
+        DOGLOW_ARM2_BONE, 
+        {0.0f, 0.0f, 6.5f * SCENE_SCALE}, 
+        {{CollisionShapeTypeCircle}, 0.5f * SCENE_SCALE},
+    },
+};
+
 #include "../data/models/doglow/geometry_animdef.inc.h"
 
 #define PLAYER_AIR_SPEED            (PLAYER_MOVE_SPEED * 0.8f)
@@ -33,10 +52,55 @@ struct CollisionCircle gPlayerCollider = {
 
 struct Vector3 gRecallOffset = {0.0f, 0.0f, -4.0 * SCENE_SCALE};
 
+void playerAttackOverlap(struct DynamicSceneOverlap* overlap) {
+    struct Player* player = (struct Player*)overlap->thisEntry->data;
+
+    if ((overlap->otherEntry->flags & DynamicSceneEntryHasTeam) != 0 && player->attackInfo) {
+        struct TeamEntity* entityB = (struct TeamEntity*)overlap->otherEntry->data;
+        teamEntityApplyDamage(entityB, player->attackInfo->damage);
+    }
+}
+
+void playerCalculateAttackLocation(struct Player* player, struct PlayerAttackInfo* attackInfo, struct Vector2* output) {
+    struct Vector3 output3D;
+    skCalculateBonePosition(&player->armature, attackInfo->boneIndex, &attackInfo->localPosition, &output3D);
+    transformPoint(&player->transform, &output3D, &output3D);
+    output->x = output3D.x;
+    output->y = output3D.z;
+}
+
+void playerStartAttack(struct Player* player, struct PlayerAttackInfo* attackInfo) {
+    if (!player->attackCollider) {
+        struct Vector2 position;
+        playerCalculateAttackLocation(player, attackInfo, &position);
+        player->attackCollider = dynamicSceneNewEntry(
+            &attackInfo->collisionCircle.shapeCommon, 
+            player,
+            &position,
+            playerAttackOverlap,
+            DynamicSceneEntryIsTrigger,
+            CollisionLayersAllTeams ^ COLLISION_LAYER_FOR_TEAM(player->team.teamNumber)
+        );
+        player->attackInfo = attackInfo;
+    }
+}
+
+void playerEndAttack(struct Player* player) {
+    if (player->attackCollider) {
+        dynamicSceneDeleteEntry(player->attackCollider);
+        player->attackInfo = 0;
+        player->attackCollider = 0;
+    }
+}
+
 void playerAnimationEvent(struct SKAnimator* animator, void* data, struct SKAnimationEvent* event) {
     struct Player* player = (struct Player*)data;
 
-    
+    if (PLAYER_IS_ATTACK_EVENT(event->id)) {
+        playerStartAttack(player, &mAttacks[PLAYER_ATTACK_EVENT_GET_SOURCE(event->id)]);
+    } else if (event->id == PLAYER_ATTACK_END_ID) {
+        playerEndAttack(player);
+    }
 }
 
 void playerStateWalk(struct Player* player, struct PlayerInput* input);
@@ -47,6 +111,8 @@ void playerInit(struct Player* player, unsigned team, struct Vector2* at) {
     transformInitIdentity(&player->transform);
     player->transform.position.x = at->x;
     player->transform.position.z = at->y;
+    player->attackCollider = 0;
+    player->attackInfo = 0;
 
     player->velocity = gZeroVec;
     player->rightDir = gRight2;
@@ -68,11 +134,12 @@ void playerInit(struct Player* player, unsigned team, struct Vector2* at) {
         &player->armature, 
         doglow_DogLow_mesh, 
         DOGLOW_DEFAULT_BONES_COUNT, 
-        CALC_ROM_POINTER(character_animations, doglow_default_bones)
+        CALC_ROM_POINTER(character_animations, doglow_default_bones),
+        CALC_RAM_POINTER(doglow_bone_parent, gCharacterSegment)
     );
 
     skAnimatorInit(&player->animator, DOGLOW_DEFAULT_BONES_COUNT, playerAnimationEvent, player);
-    skAnimatorRunClip(&player->animator, &doglow_animations[0], SKAnimatorFlagsLoop);
+    skAnimatorRunClip(&player->animator, &doglow_animations[DOGLOW_DOGLOW_ARMATURE_001_IDLE_INDEX], SKAnimatorFlagsLoop);
 }
 
 void playerRotateTowardsInput(struct Player* player, struct PlayerInput* input, float rotationRate) {
@@ -173,6 +240,10 @@ void playerUpdate(struct Player* player, struct PlayerInput* input) {
     gPlayerAtBase[player->team.teamNumber] = 0;
 
     skAnimatorUpdate(&player->animator, player->armature.boneTransforms, 1.0f);
+
+    if (player->attackCollider && player->attackInfo) {
+        playerCalculateAttackLocation(player, player->attackInfo, &player->collider->center);
+    }
 
     if (lastBase && 
         lastBase->state == LevelBaseStateSpawning && 

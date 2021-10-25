@@ -44,7 +44,6 @@ void minionCorrectOverlap(struct DynamicSceneOverlap* overlap) {
             teamEntityApplyDamage(entityB, MINION_DPS * skAnimationLength(&minion_animations[MINION_ANIMATION_ATTACK]));
         } else if (entityB->teamNumber != entityA->team.teamNumber && entityA->attackTarget == 0) {
             minionSetAttackTarget(entityA, entityB);
-
         }
     }
 }

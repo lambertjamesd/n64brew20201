@@ -10,12 +10,20 @@
 #include "graphics/render_state.h"
 #include "playerinput.h"
 #include "recall_circle.h"
+#include "collision/circle.h"
 
 #define PLAYER_GFX_PER_PLAYER   5
 
 struct Player;
 
 typedef void (*PlayerState)(struct Player* player, struct PlayerInput* input);
+
+struct PlayerAttackInfo {
+    unsigned short boneIndex;
+    float damage;
+    struct Vector3 localPosition;
+    struct CollisionCircle collisionCircle;
+};
 
 struct Player {
     struct TeamEntity team;
@@ -26,6 +34,8 @@ struct Player {
     struct SKArmature armature;
     struct DynamicSceneEntry* collider;
     struct RecallCircle recallCircle;
+    struct DynamicSceneEntry* attackCollider;
+    struct PlayerAttackInfo* attackInfo;
     PlayerState state;
 };
 
