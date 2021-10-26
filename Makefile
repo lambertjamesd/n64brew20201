@@ -23,7 +23,49 @@ ASMFILES    =	$(shell find asm/ -type f -name '*.s')
 
 ASMOBJECTS  =	$(patsubst %.s, build/%.o, $(ASMFILES))
 
-CODEFILES = $(shell find src/ -type f -name '*.c')
+CODEFILES = src/moba64.c \
+	src/sk64/skelatool_animator.c \
+	src/sk64/skelatool_armature.c \
+	src/controls/controller.c \
+	src/scene/minion.c \
+	src/scene/teamentity.c \
+	src/scene/team_data.c \
+	src/scene/level_scene.c \
+	src/scene/camera.c \
+	src/scene/minion_animations.c \
+	src/scene/recall_circle.c \
+	src/scene/scene_management.c \
+	src/scene/punchtrail.c \
+	src/scene/levelbase.c \
+	src/scene/target_finder.c \
+	src/scene/player.c \
+	src/scene/playerinput.c \
+	src/math/quaternion.c \
+	src/math/vector2.c \
+	src/math/mathf.c \
+	src/math/box2d.c \
+	src/math/transform.c \
+	src/math/vector3.c \
+	src/math/color.c \
+	src/collision/shape.c \
+	src/collision/circle.c \
+	src/collision/dynamicscene.c \
+	src/util/rom.c \
+	src/util/time.c \
+	src/util/memory.c \
+	src/util/assert.c \
+	src/audio/audio.c \
+	src/audio/audiomgr.c \
+	src/levels/level_test.c \
+	src/menu/gbfont.c \
+	src/menu/basecommandmenu.c \
+	src/graphics/sprite.c \
+	src/graphics/render_state.c \
+	src/graphics/gfx.c \
+	src/graphics/spritefont.c
+
+echo_code: $(CODEFILES)
+	echo $(CODEFILES)
 
 CODEOBJECTS = $(patsubst %.c, build/%.o, $(CODEFILES))
 

@@ -3,8 +3,6 @@
 
 #include "gfx.h"
 #include "moba64.h"
-#include "gfxvalidator/validator.h"
-#include "gfxvalidator/error_printer.h"
 #include "util/memory.h"
 #include "sk64/skelatool_armature.h"
 #include "sk64/skelatool_defs.h"
