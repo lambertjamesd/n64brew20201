@@ -6,4 +6,3 @@ simple_cp.ld
 *.z64
 build/
 debugger
-src/gfxvalidator/

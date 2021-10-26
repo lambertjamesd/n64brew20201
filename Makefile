@@ -101,7 +101,8 @@ $(BOOT_OBJ): $(BOOT)
 	$(OBJCOPY) -I binary -B mips -O elf32-bigmips $< $@
 
 # without debugger
-CODEOBJECTS_NO_DEBUG = $(CODEOBJECTS) build/debugger/debugger_stub.o
+# CODEOBJECTS_NO_DEBUG = $(CODEOBJECTS) build/debugger/debugger_stub.o
+CODEOBJECTS_NO_DEBUG = $(CODEOBJECTS)
 
 $(CODESEGMENT)_no_debug.o:	$(CODEOBJECTS_NO_DEBUG)
 	$(LD) -o $(CODESEGMENT)_no_debug.o -r $(CODEOBJECTS_NO_DEBUG) $(LDFLAGS)

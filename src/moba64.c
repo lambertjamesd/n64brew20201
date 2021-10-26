@@ -4,7 +4,7 @@
 #include "moba64.h"
 #include "audio/audio.h"
 #include "graphics/gfx.h"
-#include "../debugger/debugger.h"
+// #include "../debugger/debugger.h"
 #include "util/memory.h"
 #include "util/time.h"
 #include "scene/scene_management.h"
@@ -157,8 +157,8 @@ static void initGame(void)
     controllersInit();
     initAudio();
 
-    OSThread* debugThreads[2];
-    debugThreads[0] = &gameThread;
-    enum GDBError err = gdbInitDebugger(gPiHandle, &dmaMessageQ, debugThreads, 1);
+    // OSThread* debugThreads[2];
+    // debugThreads[0] = &gameThread;
+    // enum GDBError err = gdbInitDebugger(gPiHandle, &dmaMessageQ, debugThreads, 1);
 }
 
