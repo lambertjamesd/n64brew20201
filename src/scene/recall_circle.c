@@ -15,6 +15,7 @@
 #define RECALL_SHAKE_APLITUDE   0.6f
 #define RECALL_SHAKE_OFFSET     0.8f
 
+
 struct CollisionCircle gRecallCollider = {
     {CollisionShapeTypeCircle},
     SCENE_SCALE * RECALL_RADIUS,
@@ -67,7 +68,7 @@ void recallCircleRender(struct RecallCircle* circle, struct RenderState* renderS
     if (!matrix) {
         return;
     }
-
+    
     struct Transform transform;
     transform.position.x = circle->collider->center.x;
     transform.position.y = FLOOR_HEIGHT;
@@ -75,7 +76,7 @@ void recallCircleRender(struct RecallCircle* circle, struct RenderState* renderS
     quatIdent(&transform.rotation);
     vector3Scale(&gOneVec, &transform.scale, RECALL_RADIUS);
     float shake = mathfMod(gTimePassed, RECALL_SHAKE_PERIOD);
-    transform.scale.y *= fabs(shake - RECALL_SHAKE_PERIOD * 0.5f) * (0.5f * RECALL_SHAKE_APLITUDE / RECALL_SHAKE_PERIOD) + RECALL_SHAKE_OFFSET;
+    transform.scale.y *= fabsf(shake - RECALL_SHAKE_PERIOD * 0.5f) * (0.5f * RECALL_SHAKE_APLITUDE / RECALL_SHAKE_PERIOD) + RECALL_SHAKE_OFFSET;
     transformToMatrixL(&transform, matrix);
 
 

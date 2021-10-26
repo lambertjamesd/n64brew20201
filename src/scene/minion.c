@@ -101,7 +101,7 @@ void minionRender(struct Minion* minion, struct RenderState* renderState) {
     struct Transform finalTransform;
     transformConcat(&minion->transform, &minion->animationTransform, &finalTransform);
     transformToMatrixL(&finalTransform, matrix);
-    gDPSetPrimColor(renderState->dl++, 255, 255, gTeamColors[minion->team.teamNumber].r, gTeamColors[minion->team.teamNumber].g, gTeamColors[minion->team.teamNumber].b, gTeamColors[minion->team.teamNumber].a);
+    gDPSetPrimColor(renderState->dl++, 0, 0, gTeamColors[minion->team.teamNumber].r, gTeamColors[minion->team.teamNumber].g, gTeamColors[minion->team.teamNumber].b, gTeamColors[minion->team.teamNumber].a);
     gSPMatrix(renderState->dl++, osVirtualToPhysical(matrix), G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
     gSPDisplayList(renderState->dl++, DogMinion_Dog_001_mesh);
     gSPPopMatrix(renderState->dl++, 1);

@@ -84,40 +84,6 @@ static void initproc(char *argv)
     for(;;);
 }
 
-void debugDrawScreen(u8 r, u8 g, u8 b, u32 frameCount) {
-    u32         drawbuffer = 0;
-    OSMesgQueue     retraceMessageQ;
-    OSMesg          retraceMessageBuf[20];
-
-    osViBlack(0);
-	osCreateMesgQueue(&retraceMessageQ, retraceMessageBuf, 20);
-	osViSetEvent(&retraceMessageQ, NULL, 1);
-
-    u16 color = (((u16)r & 0x1F) << 11) | (((u16)g & 0x1F) << 6) | (((u16)b & 0x1F) << 1) | 1;
-
-    while (frameCount) {
-        for (int y = 0; y < SCREEN_HT; ++y) {
-            for (int x = 0; x < SCREEN_WD; ++x) {
-                gInfo[drawbuffer].cfb[x + y * SCREEN_WD] = color;
-            }
-        }
-
-        osWritebackDCacheAll();
-
-        osViSwapBuffer(gInfo[drawbuffer].cfb);
-
-        drawbuffer ^= 1; /* switch the drawbuffer */
-
-        while (!MQ_IS_EMPTY(&retraceMessageQ))
-        {
-            (void) osRecvMesg(&retraceMessageQ, NULL, OS_MESG_NOBLOCK);
-        }
-        (void) osRecvMesg(&retraceMessageQ, NULL, OS_MESG_BLOCK);
-
-        frameCount--;
-    }
-}
-
 static void gameproc(void *argv)
 {
     u32         drawbuffer = 0;
@@ -125,6 +91,8 @@ static void gameproc(void *argv)
     GFXMsg      *msg = NULL;
 
     initGame();
+
+    timeUpdateDelta();
 
     while (1) 
     {

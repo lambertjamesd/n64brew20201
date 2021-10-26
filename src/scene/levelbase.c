@@ -9,6 +9,7 @@
 #include "team_data.h"
 #include "math/mathf.h"
 #include "player.h"
+#include "game_defs.h"
 
 #include "game_defs.h"
 
@@ -164,7 +165,9 @@ void levelBaseInit(struct LevelBase* base, struct BaseDefinition* definition, un
     base->team.entityType = TeamEntityTypeBase;
     base->team.teamNumber = makeNeutral ? TEAM_NONE : definition->startingTeam;
     base->position.x = definition->position.x;
+    base->position.y = FLOOR_HEIGHT;
     base->position.z = definition->position.y;
+    base->minionCount = 0;
     base->baseId = baseId;
     base->speedUpgrade = 0;
     base->capacityUpgrade = 0;
@@ -173,6 +176,7 @@ void levelBaseInit(struct LevelBase* base, struct BaseDefinition* definition, un
     base->state = LevelBaseStateNeutral;
     base->issueCommandTimer = 0;
     base->followPlayer = TEAM_NONE;
+    base->stateTimeLeft = SPAWN_TIME;
 
     if (base->team.teamNumber != TEAM_NONE) {
         levelBaseSetState(base, LevelBaseStateSpawning);

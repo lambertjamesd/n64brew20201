@@ -16,7 +16,7 @@ float sqrtf(float in);
 
 float cosf(float in);
 float sinf(float in);
-float fabs(float in);
+float fabsf(float in);
 float floorf(float in);
 
 #endif
