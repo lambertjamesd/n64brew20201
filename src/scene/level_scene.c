@@ -49,7 +49,7 @@ void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* defin
         cameraInit(&levelScene->cameras[i], 45.0f, 50.0f, 6000.0f);
         playerInit(&levelScene->players[i], i, i, &definition->playerStartLocations[i]);
         vector3AddScaled(&levelScene->players[i].transform.position, &gForward, SCENE_SCALE * 2.0f, &levelScene->cameras[i].transform.position);
-        vector3AddScaled(&levelScene->players[i].transform.position, &gUp, SCENE_SCALE * 2.0f, &levelScene->cameras[i].transform.position);
+        vector3AddScaled(&levelScene->cameras[i].transform.position, &gUp, SCENE_SCALE * 2.0f, &levelScene->cameras[i].transform.position);
         baseCommandMenuInit(&levelScene->baseCommandMenu[i]);
     }
 
@@ -156,6 +156,7 @@ void levelSceneRender(struct LevelScene* levelScene, struct RenderState* renderS
             gClippingRegions[i * 4 + 2],
             gClippingRegions[i * 4 + 3]
         );
+        gDPPipeSync(renderState->dl++);
         gDPSetRenderMode(renderState->dl++, G_RM_ZB_OPA_SURF, G_RM_ZB_OPA_SURF2);
         gSPDisplayList(renderState->dl++, levelScene->levelDL);
         gSPDisplayList(renderState->dl++, baseGfx);
