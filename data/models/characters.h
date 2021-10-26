@@ -10,5 +10,6 @@
 #include "baseflag/header.h"
 #include "basepole/header.h"
 #include "recallcircle/header.h"
+#include "punchtrail/geometry.h"
 
 #endif

@@ -81,6 +81,10 @@ data/models/doglow/geometry.h build/data/models/doglow/geometry_anim.inc.h build
 	@mkdir -p $(@D)
 	skeletool64 -s 100 -n doglow -o data/models/doglow/geometry.h assets/models/commandermajor.fbx
 
+data/models/punchtrail/geometry.h build/data/models/punchtrail/geometry_anim.inc.h build/data/models/punchtrail/geometry_animdef.inc.h:	assets/models/punchtrail.fbx
+	@mkdir -p $(@D)
+	skeletool64 -s 100 -n punchtrail -o data/models/punchtrail/geometry.h assets/models/punchtrail.fbx
+
 MUSIC = $(shell find assets/music/ -type -f -name '*.mid')
 
 build/assets/music/%.mid: assets/music/%.mid
@@ -98,8 +102,6 @@ $(BOOT_OBJ): $(BOOT)
 
 # without debugger
 CODEOBJECTS_NO_DEBUG = $(CODEOBJECTS) build/debugger/debugger_stub.o
-
-CODEOBJECTS_DEBUG = $(CODEOBJECTS) build/debugger/debugger.o build/debugger/serial.o 
 
 $(CODESEGMENT)_no_debug.o:	$(CODEOBJECTS_NO_DEBUG)
 	$(LD) -o $(CODESEGMENT)_no_debug.o -r $(CODEOBJECTS_NO_DEBUG) $(LDFLAGS)

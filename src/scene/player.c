@@ -23,12 +23,12 @@
 struct SKAnimationEvent gAttack001Events[] = {
     {8, PLAYER_ATTACK_START_ID},
     {10, PLAYER_ATTACK_WINDOW_ID},
-    {14, PLAYER_ATTACK_END_ID},
+    {10, PLAYER_ATTACK_END_ID},
 };
 
 struct SKAnimationEvent gAttack002Events[] = {
     {6, PLAYER_ATTACK_START_ID},
-    {12, PLAYER_ATTACK_END_ID},
+    {10, PLAYER_ATTACK_END_ID},
 };
 
 #define ATTACK_001_EVENT_COUNT      (sizeof(gAttack001Events)/sizeof(*gAttack001Events))
@@ -40,7 +40,7 @@ struct PlayerAttackInfo gPlayerAttacks[] = {
         1,
         DOGLOW_DOGLOW_ARMATURE_001_PUNCH_001_INDEX,
         2.0f,
-        {0.0f, 0.0f, 6.5f * SCENE_SCALE}, 
+        {0.0f, 0.65f * SCENE_SCALE, 0.0f}, 
         {{CollisionShapeTypeCircle}, 0.5f * SCENE_SCALE},
     },
     {
@@ -48,7 +48,7 @@ struct PlayerAttackInfo gPlayerAttacks[] = {
         0,
         DOGLOW_DOGLOW_ARMATURE_001_PUNCH_002_INDEX,
         3.0f,
-        {0.0f, 0.0f, 6.5f * SCENE_SCALE}, 
+        {0.0f, 0.65f * SCENE_SCALE, 0.0f}, 
         {{CollisionShapeTypeCircle}, 0.5f * SCENE_SCALE},
     },
 };
@@ -74,12 +74,9 @@ struct Vector3 gRecallOffset = {0.0f, 0.0f, -4.0 * SCENE_SCALE};
 #define PLAYER_MAX_ROTATE_SEC       (500.0f * (M_PI / 180.0f))
 #define PLAYER_ATTACK_MAX_ROTATE_SEC (180.0f * (M_PI / 180.0f))
 
-void playerCalculateAttackLocation(struct Player* player, struct PlayerAttackInfo* attackInfo, struct Vector2* output) {
-    struct Vector3 output3D;
-    skCalculateBonePosition(&player->armature, attackInfo->boneIndex, &attackInfo->localPosition, &output3D);
-    transformPoint(&player->transform, &output3D, &output3D);
-    output->x = output3D.x;
-    output->y = output3D.z;
+void playerCalculateAttackLocation(struct Player* player, struct PlayerAttackInfo* attackInfo, struct Vector3* output) {
+    skCalculateBonePosition(&player->armature, attackInfo->boneIndex, &attackInfo->localPosition, output);
+    transformPoint(&player->transform, output, output);
 }
 
 void playerAttackOverlap(struct DynamicSceneOverlap* overlap) {
@@ -93,8 +90,11 @@ void playerAttackOverlap(struct DynamicSceneOverlap* overlap) {
 
 void playerStartAttack(struct Player* player) {
     if (!player->attackCollider) {
+        struct Vector3 position3D;
         struct Vector2 position;
-        playerCalculateAttackLocation(player, player->attackInfo, &position);
+        playerCalculateAttackLocation(player, player->attackInfo, &position3D);
+        position.x = position3D.x;
+        position.y = position3D.z;
         player->attackCollider = dynamicSceneNewEntry(
             &player->attackInfo->collisionCircle.shapeCommon, 
             player,
@@ -103,6 +103,7 @@ void playerStartAttack(struct Player* player) {
             DynamicSceneEntryIsTrigger,
             CollisionLayersAllTeams ^ COLLISION_LAYER_FOR_TEAM(player->team.teamNumber)
         );
+        punchTrailInit(&player->punchTrail, &position3D, player->attackInfo->collisionCircle.radius / SCENE_SCALE);
     }
 }
 
@@ -312,7 +313,11 @@ void playerStateAttack(struct Player* player, struct PlayerInput* input) {
     }
 
     if (player->attackCollider && player->attackInfo) {
-        playerCalculateAttackLocation(player, player->attackInfo, &player->collider->center);
+        struct Vector3 attackPosition;
+        playerCalculateAttackLocation(player, player->attackInfo, &attackPosition);
+        punchTrailUpdate(&player->punchTrail, &attackPosition);
+        player->collider->center.x = attackPosition.x;
+        player->collider->center.y = attackPosition.z;
     }
 
     playerUpdateOther(player, input);
@@ -380,4 +385,7 @@ void playerRender(struct Player* player, struct RenderState* renderState) {
     gSPPopMatrix(renderState->dl++, 1);
 
     recallCircleRender(&player->recallCircle, renderState, player->team.teamNumber);
+    if (player->attackCollider) {
+        punchTrailRender(&player->punchTrail, renderState);
+    }
 }

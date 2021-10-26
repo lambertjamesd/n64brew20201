@@ -11,6 +11,7 @@
 #include "playerinput.h"
 #include "recall_circle.h"
 #include "collision/circle.h"
+#include "punchtrail.h"
 
 #define PLAYER_GFX_PER_PLAYER   5
 
@@ -43,6 +44,7 @@ struct Player {
     struct RecallCircle recallCircle;
     struct DynamicSceneEntry* attackCollider;
     struct PlayerAttackInfo* attackInfo;
+    struct PunchTrail punchTrail;
     PlayerState state;
     unsigned short playerIndex;
     unsigned short flags;

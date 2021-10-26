@@ -8,6 +8,7 @@
 #include "basepole/model.inc.h"
 #include "doglow/model.inc.h"
 #include "recallcircle/model.inc.h"
+#include "punchtrail/geometry_geo.inc.h"
 
 
 Vtx mario_Cube_mesh_vtx_cull[8] = {
