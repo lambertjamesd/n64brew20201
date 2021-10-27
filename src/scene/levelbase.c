@@ -85,6 +85,8 @@ void levelBaseSetState(struct LevelBase* base, enum LevelBaseState state) {
         case LevelBaseStateSpawning:
             base->stateTimeLeft = SPAWN_TIME;
             break;
+        default:
+            break;
     }
 }
 
@@ -157,6 +159,8 @@ void levelBaseStartUpgrade(struct LevelBase* base, enum LevelBaseState nextState
                 base->stateTimeLeft = gDefenseUpgradeTime[base->defenseUpgrade];
                 base->state = nextState;
             }
+            break;
+        default:
             break;
     };
 }

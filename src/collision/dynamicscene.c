@@ -70,8 +70,6 @@ void dynamicSortEntries(struct DynamicSceneEntry** start, struct DynamicSceneEnt
         }
     }
 
-    struct DynamicSceneEntry* slidingMerge;
-
     unsigned midOffset = (end - start) / 2;
 
     struct DynamicSceneEntry** mid = start + midOffset;
@@ -84,7 +82,7 @@ void dynamicSortEntries(struct DynamicSceneEntry** start, struct DynamicSceneEnt
     struct DynamicSceneEntry** outputIt = workingMemory;
 
     while (startIt < mid || midIt < end) {
-        if (midIt == end || startIt < mid && (*startIt)->boundingBox.min.x < (*midIt)->boundingBox.min.x) {
+        if (midIt == end || (startIt < mid && (*startIt)->boundingBox.min.x < (*midIt)->boundingBox.min.x)) {
             *outputIt = *startIt;
             ++startIt;
         } else {

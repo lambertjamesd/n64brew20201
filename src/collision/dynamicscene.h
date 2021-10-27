@@ -41,7 +41,7 @@ struct DynamicScene {
 
 extern struct DynamicScene gDynamicScene;
 
-void dynamicSceneInit();
+void dynamicSceneInit(struct DynamicScene* scene);
 
 struct DynamicSceneEntry* dynamicSceneNewEntry(
     struct CollisionShape* forShape, 

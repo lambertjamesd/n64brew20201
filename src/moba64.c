@@ -158,7 +158,7 @@ static void initGame(void)
 #ifdef WITH_DEBUGGER
     OSThread* debugThreads[2];
     debugThreads[0] = &gameThread;
-    enum GDBError err = gdbInitDebugger(gPiHandle, &dmaMessageQ, debugThreads, 1);
+    gdbInitDebugger(gPiHandle, &dmaMessageQ, debugThreads, 1);
 #endif
 }
 

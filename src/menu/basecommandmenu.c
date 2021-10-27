@@ -34,6 +34,8 @@ unsigned baseCommandStateToIndex(enum LevelBaseState state) {
             return 1;
         case LevelBaseStateUpgradingDefence:
             return 2;
+        default: 
+            break;
     }
     return 3;
 }
@@ -112,7 +114,7 @@ void baseCommandMenuUpdate(struct BaseCommandMenu* menu, unsigned team) {
             }
 
             if (controllerGetButtonUp(team, A_BUTTON) != 0) {
-                levelBaseStartUpgrade(menu->forBase, gBaseUpgardeIndex[menu->selectedUpgrade]);
+                levelBaseStartUpgrade(menu->forBase, gBaseUpgardeIndex[(unsigned)menu->selectedUpgrade]);
                 baseCommandMenuHide(menu);
                 return;
             }

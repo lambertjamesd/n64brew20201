@@ -2,12 +2,7 @@
 #define _MATH_VECTOR2_H
 
 struct Vector2 {
-    union {
-        struct {
-            float x, y;
-        };
-        float el[2];
-    };
+    float x, y;
 };
 
 extern struct Vector2 gRight2;

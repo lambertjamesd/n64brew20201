@@ -11,7 +11,7 @@ include /usr/include/n64/make/PRdefs
 MIDICVT:=/home/james/go/src/github.com/lambertjamesd/midicvt/midicvt
 
 OPTIMIZER		:= -O0
-LCDEFS			:= -DDEBUG -g -Isrc/ -I/usr/include/n64/nustd -Werror
+LCDEFS			:= -DDEBUG -g -Isrc/ -I/usr/include/n64/nustd -Werror -Wall
 N64LIB			:= -lultra_rom -lnustd
 
 ifeq ($(WITH_DEBUGGER),1)

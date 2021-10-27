@@ -32,7 +32,7 @@ void initHeap(void* heapStart, void* heapEnd)
 
 void *cacheFreePointer(void* target)
 {
-    return (void*)((int)target & 0x0FFFFFFF | 0xA0000000);
+    return (void*)(((int)target & 0x0FFFFFFF) | 0xA0000000);
 }
 
 void removeHeapSegment(struct HeapSegment* segment)
@@ -124,7 +124,6 @@ struct HeapSegment* getNextBlock(struct HeapSegment* at, int type)
 
 void *malloc(unsigned int size)
 {
-    void *result;
     struct HeapSegment* currentSegment;
     int segmentSize;
     // 8 byte align for DMA

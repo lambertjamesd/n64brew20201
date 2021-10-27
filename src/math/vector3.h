@@ -3,12 +3,7 @@
 #define _VECTOR3_H
 
 struct Vector3 {
-    union {
-        struct {
-            float x, y, z;
-        };
-        float el[3];
-    };
+    float x, y, z;
 };
 
 extern struct Vector3 gRight;

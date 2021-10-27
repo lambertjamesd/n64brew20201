@@ -14,7 +14,7 @@ void fontInit(struct Font* font, int layer, int spaceWidth, struct CharacterDefi
 
     for (int i = 0; i < charCount; ++i)
     {
-        font->characters[chars[i].character] = chars[i].data;
+        font->characters[(unsigned)chars[i].character] = chars[i].data;
     }
 }
 
@@ -29,7 +29,7 @@ void fontRenderText(struct RenderState* renderState, struct Font* font, const ch
 
     while (*str)
     {
-        struct SpriteTile curr = font->characters[*str];
+        struct SpriteTile curr = font->characters[(unsigned)*str];
         if (curr.w)
         {
             spriteDraw(renderState, font->spriteLayer, x, y, curr.w, curr.h, curr.x, curr.y, scaleShift, scaleShift);
