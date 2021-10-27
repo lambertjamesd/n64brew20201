@@ -4,7 +4,9 @@
 #include "moba64.h"
 #include "audio/audio.h"
 #include "graphics/gfx.h"
-// #include "../debugger/debugger.h"
+#ifdef WITH_DEBUGGER
+#include "../debugger/debugger.h"
+#endif
 #include "util/memory.h"
 #include "util/time.h"
 #include "scene/scene_management.h"
@@ -51,11 +53,7 @@ extern u8      validcontrollers;
 OSPiHandle	*gPiHandle;
 
 void boot(void *arg)
-{
-    u32    i;
-    u32    *argp;
-    u32    argbuf[16];
-    
+{    
     osInitialize();
 
     gPiHandle = osCartRomInit();
@@ -157,8 +155,10 @@ static void initGame(void)
     controllersInit();
     initAudio();
 
-    // OSThread* debugThreads[2];
-    // debugThreads[0] = &gameThread;
-    // enum GDBError err = gdbInitDebugger(gPiHandle, &dmaMessageQ, debugThreads, 1);
+#ifdef WITH_DEBUGGER
+    OSThread* debugThreads[2];
+    debugThreads[0] = &gameThread;
+    enum GDBError err = gdbInitDebugger(gPiHandle, &dmaMessageQ, debugThreads, 1);
+#endif
 }
 

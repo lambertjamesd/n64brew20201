@@ -19,5 +19,7 @@ void sceneUpdate() {
         case SceneStateInLevel:
             levelSceneUpdate(&gCurrentLevel);
             break;
+        default:
+            break;
     }
 }

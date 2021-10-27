@@ -14,6 +14,10 @@ OPTIMIZER		:= -O0
 LCDEFS			:= -DDEBUG -g -Isrc/ -I/usr/include/n64/nustd -Werror
 N64LIB			:= -lultra_rom -lnustd
 
+ifeq ($(WITH_DEBUGGER),1)
+LCDEFS += -DWITH_DEBUGGER
+endif
+
 BASE_TARGET_NAME = build/moba64
 
 LD_SCRIPT	= moba64.ld
@@ -23,49 +27,7 @@ ASMFILES    =	$(shell find asm/ -type f -name '*.s')
 
 ASMOBJECTS  =	$(patsubst %.s, build/%.o, $(ASMFILES))
 
-CODEFILES = src/moba64.c \
-	src/sk64/skelatool_animator.c \
-	src/sk64/skelatool_armature.c \
-	src/controls/controller.c \
-	src/scene/minion.c \
-	src/scene/teamentity.c \
-	src/scene/team_data.c \
-	src/scene/level_scene.c \
-	src/scene/camera.c \
-	src/scene/minion_animations.c \
-	src/scene/recall_circle.c \
-	src/scene/scene_management.c \
-	src/scene/punchtrail.c \
-	src/scene/levelbase.c \
-	src/scene/target_finder.c \
-	src/scene/player.c \
-	src/scene/playerinput.c \
-	src/math/quaternion.c \
-	src/math/vector2.c \
-	src/math/mathf.c \
-	src/math/box2d.c \
-	src/math/transform.c \
-	src/math/vector3.c \
-	src/math/color.c \
-	src/collision/shape.c \
-	src/collision/circle.c \
-	src/collision/dynamicscene.c \
-	src/util/rom.c \
-	src/util/time.c \
-	src/util/memory.c \
-	src/util/assert.c \
-	src/audio/audio.c \
-	src/audio/audiomgr.c \
-	src/levels/level_test.c \
-	src/menu/gbfont.c \
-	src/menu/basecommandmenu.c \
-	src/graphics/sprite.c \
-	src/graphics/render_state.c \
-	src/graphics/gfx.c \
-	src/graphics/spritefont.c
-
-echo_code: $(CODEFILES)
-	echo $(CODEFILES)
+CODEFILES = $(shell find src/ -type f -name '*.c')
 
 CODEOBJECTS = $(patsubst %.c, build/%.o, $(CODEFILES))
 
@@ -127,13 +89,13 @@ data/models/punchtrail/geometry.h build/data/models/punchtrail/geometry_anim.inc
 	@mkdir -p $(@D)
 	skeletool64 -s 100 -n punchtrail -o data/models/punchtrail/geometry.h assets/models/punchtrail.fbx
 
-MUSIC = $(shell find assets/music/ -type -f -name '*.mid')
+# MUSIC = $(shell find assets/music/ -type -f -name '*.mid')
 
-build/assets/music/%.mid: assets/music/%.mid
-	@mkdir -p $(@D)
-	$(MIDICVT) $< $@
+# build/assets/music/%.mid: assets/music/%.mid
+# 	@mkdir -p $(@D)
+# 	$(MIDICVT) $< $@
 
-asm/sound_data.s: build/assets/music/battle.mid
+# asm/sound_data.s: build/assets/music/battle.mid
 
 ####################
 ## Linking
@@ -143,8 +105,12 @@ $(BOOT_OBJ): $(BOOT)
 	$(OBJCOPY) -I binary -B mips -O elf32-bigmips $< $@
 
 # without debugger
-# CODEOBJECTS_NO_DEBUG = $(CODEOBJECTS) build/debugger/debugger_stub.o
+
 CODEOBJECTS_NO_DEBUG = $(CODEOBJECTS)
+
+ifeq ($(WITH_DEBUGGER),1)
+CODEOBJECTS_NO_DEBUG += build/debugger/debugger_stub.o
+endif
 
 $(CODESEGMENT)_no_debug.o:	$(CODEOBJECTS_NO_DEBUG)
 	$(LD) -o $(CODESEGMENT)_no_debug.o -r $(CODEOBJECTS_NO_DEBUG) $(LDFLAGS)
@@ -159,7 +125,11 @@ $(BASE_TARGET_NAME).z64: $(CODESEGMENT)_no_debug.o $(OBJECTS) $(CP_LD_SCRIPT)_no
 	makemask $(BASE_TARGET_NAME).z64
 
 # with debugger
-CODEOBJECTS_DEBUG = $(CODEOBJECTS) build/debugger/debugger.o build/debugger/serial.o 
+CODEOBJECTS_DEBUG = $(CODEOBJECTS) 
+
+ifeq ($(WITH_DEBUGGER),1)
+CODEOBJECTS_DEBUG += build/debugger/debugger.o build/debugger/serial.o 
+endif
 
 $(CODESEGMENT)_debug.o:	$(CODEOBJECTS_DEBUG)
 	$(LD) -o $(CODESEGMENT)_debug.o -r $(CODEOBJECTS_DEBUG) $(LDFLAGS)

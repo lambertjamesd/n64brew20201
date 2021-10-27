@@ -38,7 +38,7 @@ unsigned short gViewportPosition[] = {
 };
 
 void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* definition, unsigned int playercount, unsigned char humanPlayerCount) {
-    dynamicSceneInit();
+    dynamicSceneInit(&gDynamicScene);
     initGBFont();
 
     levelScene->levelDL = definition->sceneRender;

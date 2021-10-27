@@ -28,8 +28,8 @@ enum GFXValidatorError gfxPush(struct GFXValidatorState* state, Gfx* translatedN
     if (state->result->gfxStackSize == GFX_MAX_GFX_STACK) {
         return GFXValidatorStackOverflow;
     } else {
-        state->result->gfxTranslatedStack[state->result->gfxStackSize] = translatedNext;
-        state->result->gfxVirtualStack[state->result->gfxStackSize] = next;
+        state->result->gfxTranslatedStack[(unsigned)state->result->gfxStackSize] = translatedNext;
+        state->result->gfxVirtualStack[(unsigned)state->result->gfxStackSize] = next;
         state->result->gfxStackSize++;
         return GFXValidatorErrorNone;
     }
@@ -62,6 +62,10 @@ enum GFXValidatorError gfxTranslateAddress(struct GFXValidatorState* state, int 
 enum GFXValidatorError gfxValidateAddress(struct GFXValidatorState* state, int address, int alignedTo) {
     int translated;
     enum GFXValidatorError result = gfxTranslateAddress(state, address, &translated);
+
+    if (result != GFXValidatorErrorNone) {
+        return result;
+    }
 
     if (!gfxIsAligned(translated, alignedTo)) {
         return GFXValidatorDataAlignment;
@@ -294,7 +298,7 @@ enum GFXValidatorError gfxValidateMoveWord(struct GFXValidatorState* state, Gfx*
 enum GFXValidatorError gfxValidateSetCImg(struct GFXValidatorState* state, Gfx* at) {
     int format = _SHIFTR(at->words.w0, 21, 3);
     int size = _SHIFTR(at->words.w0, 19, 2);
-    int width = _SHIFTR(at->words.w0, 0, 12) + 1;
+    // int width = _SHIFTR(at->words.w0, 0, 12) + 1;
 
     if (format == G_IM_FMT_RGBA) {
         if (size != G_IM_SIZ_16b && size != G_IM_SIZ_32b) {
