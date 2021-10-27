@@ -6,3 +6,4 @@ simple_cp.ld
 *.z64
 build/
 debugger
+tools/

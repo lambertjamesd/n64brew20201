@@ -13,6 +13,7 @@
 #include "controls/controller.h"
 #include "sk64/skelatool_animator.h"
 #include "scene/minion.h"
+#include "audio/soundplayer.h"
 
 /**** threads used by this file ****/
 static OSThread gameThread;
@@ -131,6 +132,22 @@ static void gameproc(void *argv)
 
 extern char     _heapStart[];
 
+void* layoutMemory(void* maxMemory) {
+    u16* currBuffer = maxMemory;
+    currBuffer -= SCREEN_HT * SCREEN_WD;
+    gInfo[0].cfb = currBuffer;
+    currBuffer -= SCREEN_HT * SCREEN_WD;
+    gInfo[1].cfb = currBuffer;
+
+    currBuffer -= AUDIO_HEAP_SIZE / sizeof(u16);
+    gAudioHeapBuffer = (u8*)currBuffer;
+
+    currBuffer -= (RDP_OUTPUT_SIZE + 16) / sizeof(u16);
+    rdp_output = currBuffer;
+
+    return currBuffer;
+}
+
 static void initGame(void)
 {   
     /**** set up a needed message q's ****/
@@ -148,12 +165,13 @@ static void initGame(void)
 
 
     /**** Call the initialization routines ****/
-    void* heapEnd = initGFXBuffers((void*)PHYS_TO_K0(osMemSize)); 
+    void* heapEnd = layoutMemory((void*)PHYS_TO_K0(osMemSize)); 
     initHeap(_heapStart, heapEnd);
     skInitDataPool(gPiHandle);
     initGFX();
     controllersInit();
     initAudio();
+    soundPlayerInit();
 
 #ifdef WITH_DEBUGGER
     OSThread* debugThreads[2];

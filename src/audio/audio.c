@@ -7,7 +7,7 @@ extern OSSched         sc;
 
 
 /**** audio globals ****/
-u8 audioHeap[AUDIO_HEAP_SIZE];
+u8* gAudioHeapBuffer;
 
 ALSeqPlayer	   *seqp;
 static u8          *seqPtr;
@@ -16,7 +16,7 @@ static ALSeq       *seq;
 static ALSeqMarker seqStart;
 static ALSeqMarker seqEnd;
 
-ALHeap             hp;
+ALHeap             gAudioHeap;
 
 void initAudio(void) 
 {
@@ -26,13 +26,13 @@ void initAudio(void)
     ALSeqpConfig  seqc;
     amConfig      amc;
     
-    alHeapInit(&hp, audioHeap, sizeof(audioHeap));    
+    alHeapInit(&gAudioHeap, gAudioHeapBuffer, AUDIO_HEAP_SIZE);    
 
     /*
      * Load the bank file from ROM
      */
     bankLen = _bankSegmentRomEnd - _bankSegmentRomStart;
-    bankPtr = alHeapAlloc(&hp, 1, bankLen);
+    bankPtr = alHeapAlloc(&gAudioHeap, 1, bankLen);
     romCopy(_bankSegmentRomStart, (char *)bankPtr, bankLen);
     
     alBnkfNew(bankPtr, (u8 *) _tableSegmentRomStart);
@@ -41,7 +41,7 @@ void initAudio(void)
      * Load the sequence file from ROM
      */
     seqLen = _seqSegmentRomEnd - _seqSegmentRomStart;
-    seqPtr = alHeapAlloc(&hp, 1, seqLen);
+    seqPtr = alHeapAlloc(&gAudioHeap, 1, seqLen);
     romCopy(_seqSegmentRomStart, (char *) seqPtr, seqLen);
 
     /*
@@ -53,7 +53,7 @@ void initAudio(void)
     c.dmaproc    = 0;                  /* audio mgr will fill this in */
     c.fxType	 = AL_FX_SMALLROOM;
     c.outputRate = 0;                  /* audio mgr will fill this in */
-    c.heap       = &hp;
+    c.heap       = &gAudioHeap;
     
     amc.outputRate = 44100;
     amc.framesPerField = NUM_FIELDS;
@@ -67,17 +67,17 @@ void initAudio(void)
     seqc.maxVoices      = MAX_VOICES;
     seqc.maxEvents      = MAX_EVENTS;
     seqc.maxChannels    = 16;
-    seqc.heap           = &hp;
+    seqc.heap           = &gAudioHeap;
     seqc.initOsc        = 0;
     seqc.updateOsc      = 0;
     seqc.stopOsc        = 0;
 #ifdef _DEBUG
     seqc.debugFlags     = NO_VOICE_ERR_MASK |NOTE_OFF_ERR_MASK | NO_SOUND_ERR_MASK;
 #endif
-    seqp = alHeapAlloc(&hp, 1, sizeof(ALSeqPlayer));
+    seqp = alHeapAlloc(&gAudioHeap, 1, sizeof(ALSeqPlayer));
     alSeqpNew(seqp, &seqc);
 
-    seq = alHeapAlloc(&hp, 1, sizeof(ALSeq));
+    seq = alHeapAlloc(&gAudioHeap, 1, sizeof(ALSeq));
     alSeqNew(seq, seqPtr, seqLen);    
     alSeqNewMarker(seq, &seqStart, 0);
     alSeqNewMarker(seq, &seqEnd, -1);

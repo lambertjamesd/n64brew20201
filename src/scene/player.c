@@ -13,6 +13,9 @@
 #include "util/rom.h"
 #include "graphics/gfx.h"
 #include "sk64/skelatool_clip.h"
+#include "audio/soundplayer.h"
+#include "audio/clips.h"
+#include "math/mathf.h"
 
 #define PLAYER_ATTACK_START_ID                     0x0
 #define PLAYER_ATTACK_END_ID                       0x1
@@ -29,6 +32,16 @@ struct SKAnimationEvent gAttack001Events[] = {
 struct SKAnimationEvent gAttack002Events[] = {
     {6, PLAYER_ATTACK_START_ID},
     {10, PLAYER_ATTACK_END_ID},
+};
+
+unsigned short gJumpClipIds[] = {
+    SOUNDS_DOG_JUMP_GRUNT_1,
+    SOUNDS_DOG_JUMP_GRUNT_2,
+    SOUNDS_DOG_JUMP_GRUNT_3,
+    SOUNDS_DOG_JUMP_GRUNT_4,
+    SOUNDS_DOG_JUMP_GRUNT_5,
+    SOUNDS_DOG_JUMP_GRUNT_6,
+    SOUNDS_DOG_JUMP_GRUNT_7,
 };
 
 #define ATTACK_001_EVENT_COUNT      (sizeof(gAttack001Events)/sizeof(*gAttack001Events))
@@ -358,6 +371,7 @@ void playerStateWalk(struct Player* player, struct PlayerInput* input) {
     if (input->actionFlags & PlayerInputActionsJump) {
         player->velocity.y = PLAYER_JUMP_IMPULSE;
         player->state = playerStateJump;
+        soundPlayerPlay(gJumpClipIds[randomInRange(0, sizeof(gJumpClipIds)/sizeof(&gJumpClipIds))]);
     }
 
     if (playerInputGetDown(input, PlayerInputActionsAttack)) {

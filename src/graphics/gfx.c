@@ -25,8 +25,7 @@ char         *gMenuSegment = 0;
 char         *gCharacterSegment = 0;
 char         *gLevelSegment = 0;
 
-#define RDP_OUTPUT_SIZE 0x4000
-static void* rdp_output;
+void* rdp_output;
 
 unsigned short	__attribute__((aligned(64))) zbuffer[SCREEN_WD*SCREEN_HT];
 u64 __attribute__((aligned(16))) dram_stack[SP_DRAM_STACK_SIZE64];
@@ -47,19 +46,6 @@ void initGFX()
     gInfo[1].msg.gen.type = OS_SC_DONE_MSG;
     /* The Vi manager was started by scheduler by this point in time */
     osViSetSpecialFeatures(OS_VI_DITHER_FILTER_ON);
-}
-
-void* initGFXBuffers(void* maxMemory) {
-    u16* currBuffer = maxMemory;
-    currBuffer -= SCREEN_HT * SCREEN_WD;
-    gInfo[0].cfb = currBuffer;
-    currBuffer -= SCREEN_HT * SCREEN_WD;
-    gInfo[1].cfb = currBuffer;
-
-    currBuffer -= (RDP_OUTPUT_SIZE + 16) / sizeof(u16);
-    rdp_output = currBuffer;
-
-    return currBuffer;
 }
 
 void createGfxTask(GFXInfo *i) 

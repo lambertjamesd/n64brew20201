@@ -3,6 +3,7 @@
 #define _MATH_MATHF_H
 
 int randomInt();
+int randomInRange(int min, int maxPlusOne);
 
 float fsign(float in);
 float mathfLerp(float from, float to, float t);

@@ -8,7 +8,8 @@
 # --------------------------------------------------------------------
 include /usr/include/n64/make/PRdefs
 
-MIDICVT:=/home/james/go/src/github.com/lambertjamesd/midicvt/midicvt
+MIDICVT:=tools/midicvt
+SFZ2N64:=tools/sfz2n64
 
 OPTIMIZER		:= -O0
 LCDEFS			:= -DDEBUG -g -Isrc/ -I/usr/include/n64/nustd -Werror -Wall
@@ -89,13 +90,24 @@ data/models/punchtrail/geometry.h build/data/models/punchtrail/geometry_anim.inc
 	@mkdir -p $(@D)
 	skeletool64 -s 100 -n punchtrail -o data/models/punchtrail/geometry.h assets/models/punchtrail.fbx
 
-# MUSIC = $(shell find assets/music/ -type -f -name '*.mid')
+MUSIC = $(shell find assets/music/ -type -f -name '*.mid')
 
-# build/assets/music/%.mid: assets/music/%.mid
-# 	@mkdir -p $(@D)
-# 	$(MIDICVT) $< $@
+build/assets/music/%.mid: assets/music/%.mid
+	@mkdir -p $(@D)
+	$(MIDICVT) $< $@
 
-# asm/sound_data.s: build/assets/music/battle.mid
+SOUND_CLIPS = $(shell find assets/sounds/ -type f -name '*.aiff')
+
+src/audio/clips.h: build_scripts/generate_sound_ids.js $(SOUND_CLIPS)
+	node build_scripts/generate_sound_ids.js -o $@ -p SOUNDS_ $(SOUND_CLIPS)
+
+build/assets/sounds/sounds.sounds build/assets/sounds/sounds.sounds.tbl: $(SOUND_CLIPS)
+	@mkdir -p $(@D)
+	$(SFZ2N64) --compress -o $@ $^
+
+asm/sound_data.s: build/assets/music/battle.mid \
+	build/assets/sounds/sounds.sounds \
+	build/assets/sounds/sounds.sounds.tbl
 
 ####################
 ## Linking

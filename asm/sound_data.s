@@ -16,3 +16,13 @@ glabel _seqSegmentRomStart
 .incbin "/usr/lib/n64/sequences/BassDrive.seq"
 .balign 16
 glabel _seqSegmentRomEnd
+
+glabel _soundsSegmentRomStart
+.incbin "build/assets/sounds/sounds.sounds"
+.balign 16
+glabel _soundsSegmentRomEnd
+
+glabel _soundsTblSegmentRomStart
+.incbin "build/assets/sounds/sounds.sounds.tbl"
+.balign 16
+glabel _soundsTblSegmentRomEnd

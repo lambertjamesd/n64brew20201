@@ -44,7 +44,6 @@ extern char _bankSegmentRomStart[], _bankSegmentRomEnd[];
 
 void     initAudio(void);
 void    initGFX();
-void*    initGFXBuffers(void* maxMemory);
 void     createGfxTask(GFXInfo *i);
 
 #endif /* _LANGUAGE_C */

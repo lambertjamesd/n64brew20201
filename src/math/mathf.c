@@ -3,9 +3,15 @@
 
 unsigned int gRandomSeed = 1;
 
+#define MAX_INT_VALUE   0x7fff
+
 int randomInt() {
     gRandomSeed = gRandomSeed * 22695477 + 1;
-    return (gRandomSeed >> 16) & 0x7fff;
+    return (gRandomSeed >> 16) & MAX_INT_VALUE;
+}
+
+int randomInRange(int min, int maxPlusOne) {
+    return randomInt() * (maxPlusOne - min) / (MAX_INT_VALUE + 1) + min;
 }
 
 float fsign(float in) {

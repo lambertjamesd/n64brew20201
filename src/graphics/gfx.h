@@ -13,6 +13,7 @@
 #define	MENU_SEGMENT		2
 #define CHARACTER_SEGMENT   3
 #define LEVEL_SEGMENT   4
+#define RDP_OUTPUT_SIZE 0x4000
 
 #ifdef _LANGUAGE_C /* needed because file is included by "spec" */
 
@@ -68,6 +69,8 @@ extern u64	gfxYieldBuf2[];
 
 /* matrix stack buffer: */
 extern u64          dram_stack[];
+
+extern void* rdp_output;
 
 #endif	/* _LANGUAGE_C */
 #endif /* __simplegfx__ */
