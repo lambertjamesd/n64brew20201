@@ -14,7 +14,7 @@
 #include "punchtrail.h"
 #include "audio/soundplayer.h"
 
-#define PLAYER_GFX_PER_PLAYER   5
+#define PLAYER_GFX_PER_PLAYER   6
 
 struct Player;
 

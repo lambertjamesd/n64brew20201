@@ -16,6 +16,7 @@
 #include "audio/soundplayer.h"
 #include "audio/clips.h"
 #include "math/mathf.h"
+#include "team_data.h"
 
 #define PLAYER_ATTACK_START_ID                     0x0
 #define PLAYER_ATTACK_END_ID                       0x1
@@ -410,6 +411,7 @@ void playerRender(struct Player* player, struct RenderState* renderState) {
 
     transformToMatrixL(&player->transform, matrix);
     gSPMatrix(renderState->dl++, osVirtualToPhysical(matrix), G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
+    gSPDisplayList(renderState->dl++, gTeamPalleteTexture[player->team.teamNumber]);
     skRenderObject(&player->armature, renderState);
     gSPPopMatrix(renderState->dl++, 1);
 

@@ -17,8 +17,8 @@
 #include "minion_animations.h"
 
 #define MINION_FOLLOW_DIST  3.0f
-#define MINION_MOVE_SPEED   (PLAYER_MOVE_SPEED * 0.9f)
-#define MINION_ACCELERATION PLAYER_MOVE_ACCELERATION
+#define MINION_MOVE_SPEED   (PLAYER_MOVE_SPEED * 10.0f)
+#define MINION_ACCELERATION (PLAYER_MOVE_ACCELERATION * 2.0f)
 #define MINION_HP           2
 #define MINION_DPS          1
 
@@ -179,8 +179,7 @@ void minionUpdate(struct Minion* minion) {
         float distSqr = vector3MagSqrd(&offset);
 
         if (distSqr > minDistance * minDistance) {
-            vector3Scale(&offset, &offset, 1.0f / sqrtf(distSqr));
-            vector3Scale(&offset, &targetVelocity, MINION_MOVE_SPEED);
+            vector3Scale(&offset, &targetVelocity, MINION_MOVE_SPEED / sqrtf(distSqr));
         }
     }
 

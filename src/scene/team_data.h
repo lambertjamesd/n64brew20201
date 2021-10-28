@@ -1,6 +1,7 @@
 #ifndef _TEAM_DATA_H
 #define _TEAM_DATA_H
 
+#include <ultra64.h>
 #include "math/color.h"
 
 // Blue Team
@@ -25,5 +26,6 @@
 
 extern struct Coloru8 gTeamColors[];
 extern struct Coloru8 gTeamDarkColors[];
+extern Gfx* gTeamPalleteTexture[];
 
 #endif
