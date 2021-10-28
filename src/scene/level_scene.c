@@ -51,7 +51,7 @@ struct ViewportLayout gViewportPosition[] = {
             {0, SCREEN_HT/2+1, SCREEN_WD/2-1, SCREEN_HT},
             {0, 0, 0, 0},
         },
-        .minimapLocation = {(SCREEN_WD * 3 / 4 - MINIMAP_SIZE) / 2, SCREEN_HT - MINIMAP_SIZE - 32, (SCREEN_WD * 3 / 4 + MINIMAP_SIZE) / 2, SCREEN_HT - 32},
+        .minimapLocation = {SCREEN_WD * 3 / 4 - SCREEN_HT / 4 + 16, SCREEN_HT / 2 + 16, SCREEN_WD * 3 / 4 + SCREEN_HT / 4 - 16, SCREEN_HT - 16},
     },
     // Four player
     {
