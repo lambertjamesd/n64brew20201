@@ -14,6 +14,7 @@
 #include "sk64/skelatool_animator.h"
 #include "scene/minion.h"
 #include "audio/soundplayer.h"
+#include "scene/scene_management.h"
 
 /**** threads used by this file ****/
 static OSThread gameThread;
@@ -112,6 +113,7 @@ static void gameproc(void *argv)
                 timeUpdateDelta();
                 skReadMessages();
                 sceneUpdate();
+                soundPlayerUpdate();
 
                 break;
 
@@ -172,6 +174,7 @@ static void initGame(void)
     controllersInit();
     initAudio();
     soundPlayerInit();
+    loadLevelScene(&gLevels[0]);
 
 #ifdef WITH_DEBUGGER
     OSThread* debugThreads[2];

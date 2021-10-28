@@ -10,6 +10,7 @@ include /usr/include/n64/make/PRdefs
 
 MIDICVT:=tools/midicvt
 SFZ2N64:=tools/sfz2n64
+SKELATOOL64:=tools/skeletool64
 
 OPTIMIZER		:= -O0
 LCDEFS			:= -DDEBUG -g -Isrc/ -I/usr/include/n64/nustd -Werror -Wall
@@ -80,15 +81,15 @@ build/%.o: %.s
 
 data/models/minionanimations/geometry.h build/data/models/minionanimations/geometry_anim.inc.h build/data/models/minionanimations/geometry_animdef.inc.h:	assets/models/minionanimations.fbx
 	@mkdir -p $(@D)
-	skeletool64 -a -s 100 -n minion_animations -o data/models/minionanimations/geometry.h assets/models/minionanimations.fbx
+	$(SKELATOOL64) -a -s 100 -n minion_animations -o data/models/minionanimations/geometry.h assets/models/minionanimations.fbx
 
 data/models/doglow/geometry.h build/data/models/doglow/geometry_anim.inc.h build/data/models/doglow/geometry_animdef.inc.h:	assets/models/commandermajor.fbx
 	@mkdir -p $(@D)
-	skeletool64 -s 100 -n doglow -o data/models/doglow/geometry.h assets/models/commandermajor.fbx
+	$(SKELATOOL64) -s 100 -n doglow -o data/models/doglow/geometry.h assets/models/commandermajor.fbx
 
 data/models/punchtrail/geometry.h build/data/models/punchtrail/geometry_anim.inc.h build/data/models/punchtrail/geometry_animdef.inc.h:	assets/models/punchtrail.fbx
 	@mkdir -p $(@D)
-	skeletool64 -s 100 -n punchtrail -o data/models/punchtrail/geometry.h assets/models/punchtrail.fbx
+	$(SKELATOOL64) -s 100 -n punchtrail -o data/models/punchtrail/geometry.h assets/models/punchtrail.fbx
 
 MUSIC = $(shell find assets/music/ -type -f -name '*.mid')
 

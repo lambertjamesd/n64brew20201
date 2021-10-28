@@ -22,7 +22,7 @@ int soundMatchScore(ALSound* forSound, struct ActiveSoundInfo* against) {
 
     alSndpSetSound(&gSoundPlayer, against->soundId);
 
-    if (alSndpGetState(&gSoundPlayer) != AL_STOPPED) {
+    if (alSndpGetState(&gSoundPlayer) != AL_STOPPED || (against->flags & SoundPlayerFlagsLoop) != 0) {
         return SoundMatchScoreNone;
     }
 
@@ -80,21 +80,57 @@ void soundPlayerInit() {
     alSndpNew(&gSoundPlayer, &sndConfig);
 }
 
-SoundID soundPlayerPlay(unsigned clipId) {
+SoundID soundPlayerPlay(unsigned clipId, enum SoundPlayerFlags flags) {
     if (clipId >= gSoundClipArray->soundCount) {
-        return -1;
+        return SOUND_ID_NONE;
     }
 
     struct ActiveSoundInfo* soundInfo = findSoundInfo(gSoundClipArray->sounds[clipId]);
 
     if (!soundInfo) {
-        return -1;
+        return SOUND_ID_NONE;
     }
 
     initActiveSoundForSound(gSoundClipArray->sounds[clipId], soundInfo);
 
+    soundInfo->flags = flags;
     alSndpSetSound(&gSoundPlayer, soundInfo->soundId);
     alSndpPlay(&gSoundPlayer);
 
     return soundInfo - gActiveSounds;
+}
+
+void soundPlayerUpdatePosition(SoundID soundId, struct Vector3* position) {
+    if (soundId == SOUND_ID_NONE) {
+        return;
+    }
+
+    gActiveSounds[soundId].position = *position;
+}
+
+void soundPlayerUpdate() {
+    for (unsigned i = 0; i < MAX_SOUNDS; ++i) {
+        struct ActiveSoundInfo* activeSound = &gActiveSounds[i];
+        
+        if (activeSound->flags & SoundPlayerFlagsLoop) {
+            alSndpSetSound(&gSoundPlayer, activeSound->soundId);
+            if (alSndpGetState(&gSoundPlayer) == AL_STOPPED) {
+                alSndpPlay(&gSoundPlayer);
+            }
+        }
+    }
+}
+
+void soundPlayerStop(SoundID* soundId) {
+    if (!soundId || *soundId == SOUND_ID_NONE) {
+        return;
+    }
+
+    struct ActiveSoundInfo* soundInfo = &gActiveSounds[*soundId];
+    soundInfo->flags = 0;
+    alSndpSetSound(&gSoundPlayer, soundInfo->soundId);
+    if (alSndpGetState(&gSoundPlayer) == AL_PLAYING) {
+        alSndpStop(&gSoundPlayer);
+    }
+    *soundId = SOUND_ID_NONE;
 }

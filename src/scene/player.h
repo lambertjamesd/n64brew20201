@@ -12,6 +12,7 @@
 #include "recall_circle.h"
 #include "collision/circle.h"
 #include "punchtrail.h"
+#include "audio/soundplayer.h"
 
 #define PLAYER_GFX_PER_PLAYER   5
 
@@ -48,6 +49,7 @@ struct Player {
     PlayerState state;
     unsigned short playerIndex;
     unsigned short flags;
+    SoundID walkSoundEffect;
     float hp;
     float stateTimer;
 };

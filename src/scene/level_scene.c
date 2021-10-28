@@ -46,7 +46,7 @@ void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* defin
     levelScene->playerCount = playercount;
 
     for (unsigned i = 0; i < playercount; ++i) {
-        cameraInit(&levelScene->cameras[i], 45.0f, 50.0f, 6000.0f);
+        cameraInit(&levelScene->cameras[i], 45.0f, 100.0f, 18000.0f);
         playerInit(&levelScene->players[i], i, i, &definition->playerStartLocations[i]);
         vector3AddScaled(&levelScene->players[i].transform.position, &gForward, SCENE_SCALE * 2.0f, &levelScene->cameras[i].transform.position);
         vector3AddScaled(&levelScene->cameras[i].transform.position, &gUp, SCENE_SCALE * 2.0f, &levelScene->cameras[i].transform.position);

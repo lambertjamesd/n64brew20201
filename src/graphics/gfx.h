@@ -59,6 +59,7 @@ extern char _menuSegmentRomEnd[];
 
 extern char* gStaticSegment;
 extern char* gCharacterSegment;
+extern char* gMenuSegment;
 extern char* gLevelSegment;
 
 /* frame buffer, zbuffer: */

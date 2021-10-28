@@ -36,7 +36,6 @@ extern OSMesgQueue      gfxFrameMsgQ;
 extern OSMesg           gfxFrameMsgBuf[MAX_MESGS];
 extern OSPiHandle	*gPiHandle;
 
-extern char _staticSegmentRomStart[], _staticSegmentRomEnd[];
 extern char _tableSegmentRomStart[], _tableSegmentRomEnd[];
 extern char _seqSegmentRomStart[], _seqSegmentRomEnd[];
 extern char _bankSegmentRomStart[], _bankSegmentRomEnd[];

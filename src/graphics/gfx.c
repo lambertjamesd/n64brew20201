@@ -33,14 +33,7 @@ u64 __attribute__((aligned(16))) gfxYieldBuf2[OS_YIELD_DATA_SIZE/sizeof(u64)];
 
 void initGFX() 
 { 
-    LOAD_SEGMENT(static, gStaticSegment);
-    LOAD_SEGMENT(menu, gMenuSegment);
-    LOAD_SEGMENT(characters, gCharacterSegment);
-    LOAD_SEGMENT(level_test, gLevelSegment);
-
     skSetSegmentLocation(CHARACTER_ANIMATION_SEGMENT, (unsigned)_character_animationsSegmentRomStart);
-
-    loadLevelScene();
     
     gInfo[0].msg.gen.type = OS_SC_DONE_MSG;
     gInfo[1].msg.gen.type = OS_SC_DONE_MSG;

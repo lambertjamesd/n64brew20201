@@ -20,4 +20,6 @@ struct LevelDefinition {
     Gfx* sceneRender;
 };
 
+struct LevelDefinition* levelDefinitionUnpack(struct LevelDefinition* addressPtr, void* segmentRamStart);
+
 #endif

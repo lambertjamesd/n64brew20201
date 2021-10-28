@@ -234,6 +234,7 @@ void playerInit(struct Player* player, unsigned playerIndex, unsigned team, stru
     player->playerIndex = playerIndex;
     player->flags = 0;
     player->hp = PLAYER_MAX_HP;
+    player->walkSoundEffect = SOUND_ID_NONE;
 
     player->velocity = gZeroVec;
     player->rightDir = gRight2;
@@ -368,14 +369,28 @@ void playerStateWalk(struct Player* player, struct PlayerInput* input) {
         recallCircleDisable(&player->recallCircle);
     }
 
+    int isMoving = vector3MagSqrd(&player->velocity) > 0.0001f;
+
     if (input->actionFlags & PlayerInputActionsJump) {
         player->velocity.y = PLAYER_JUMP_IMPULSE;
         player->state = playerStateJump;
-        soundPlayerPlay(gJumpClipIds[randomInRange(0, sizeof(gJumpClipIds)/sizeof(&gJumpClipIds))]);
+        soundPlayerPlay(gJumpClipIds[randomInRange(0, sizeof(gJumpClipIds)/sizeof(&gJumpClipIds))], 0);
+        isMoving = 0;
     }
 
     if (playerInputGetDown(input, PlayerInputActionsAttack)) {
         playerEnterAttackState(player, &gPlayerAttacks[0]);
+        isMoving = 0;
+    }
+
+    int hasWalkingSound = player->walkSoundEffect != SOUND_ID_NONE;
+
+    if (isMoving != hasWalkingSound) {
+        if (isMoving) {
+            player->walkSoundEffect = soundPlayerPlay(SOUNDS_DOG_WALKING_LOOP_1, SoundPlayerFlagsLoop);
+        } else {
+            soundPlayerStop(&player->walkSoundEffect);
+        }
     }
 
     playerUpdateOther(player, input);

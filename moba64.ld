@@ -20,6 +20,14 @@ OUTPUT_ARCH (mips)
     _##name##SegmentBssEnd = ADDR(.name.noload) + SIZEOF(.name.noload); \
     _##name##SegmentBssSize = SIZEOF(.name.noload);
 
+#define DEFINE_LEVEL(name) \
+   BEGIN_SEG(name, 0x04000000) \
+   { \
+      build/data/levels/name/level.o(.data); \
+      build/data/levels/name/level.o(.bss); \
+   } \
+   END_SEG(name)
+
 SECTIONS
 {
    __romPos = 0;
@@ -89,6 +97,8 @@ SECTIONS
       build/data/levels/test/test.o(.bss);
    }
    END_SEG(level_test)
+
+#include "src/levels/level_list.h"
 
    BEGIN_SEG(character_animations, CHARACTER_ANIMATION_SEGMENT_ADDRESS)
    {
