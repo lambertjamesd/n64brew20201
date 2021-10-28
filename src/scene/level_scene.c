@@ -10,34 +10,63 @@
 #include "graphics/sprite.h"
 #include "menu/basecommandmenu.h"
 #include "menu/gbfont.h"
+#include "minimap.h"
 
 static Vp gSplitScreenViewports[4];
 static unsigned short gClippingRegions[4 * 4];
 
-unsigned short gViewportPosition[] = {
+struct ViewportLayout {
+    unsigned short viewportLocations[4][4];
+    unsigned short minimapLocation[4];
+};
+
+#define MINIMAP_SIZE    64
+
+struct ViewportLayout gViewportPosition[] = {
     // Single player
-    0, 0, SCREEN_WD, SCREEN_HT,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
+    {
+        .viewportLocations = {
+            {0, 0, SCREEN_WD, SCREEN_HT},
+            {0, 0, 0, 0},
+            {0, 0, 0, 0},
+            {0, 0, 0, 0},
+        },
+        .minimapLocation = {SCREEN_WD - MINIMAP_SIZE - 32, SCREEN_HT - MINIMAP_SIZE - 32, SCREEN_WD - 32, SCREEN_HT - 32},
+    },
     // Two player
-    0, 0, SCREEN_WD/2-1, SCREEN_HT,
-    SCREEN_WD/2+1, 0, SCREEN_WD, SCREEN_HT,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
+    {
+        .viewportLocations = {
+            {0, 0, SCREEN_WD/2-1, SCREEN_HT},
+            {SCREEN_WD/2+1, 0, SCREEN_WD, SCREEN_HT},
+            {0, 0, 0, 0},
+            {0, 0, 0, 0},
+        },
+        .minimapLocation = {(SCREEN_WD - MINIMAP_SIZE) / 2, SCREEN_HT - MINIMAP_SIZE - 32, (SCREEN_WD + MINIMAP_SIZE) / 2, SCREEN_HT - 32},
+    },
     // Three player
-    0, 0, SCREEN_WD/2-1, SCREEN_HT/2-1,
-    SCREEN_WD/2+1, 0, SCREEN_WD, SCREEN_HT/2-1,
-    0, SCREEN_HT/2+1, SCREEN_WD/2-1, SCREEN_HT,
-    0, 0, 0, 0,
+    {
+        .viewportLocations = {
+            {0, 0, SCREEN_WD/2-1, SCREEN_HT/2-1},
+            {SCREEN_WD/2+1, 0, SCREEN_WD, SCREEN_HT/2-1},
+            {0, SCREEN_HT/2+1, SCREEN_WD/2-1, SCREEN_HT},
+            {0, 0, 0, 0},
+        },
+        .minimapLocation = {(SCREEN_WD * 3 / 4 - MINIMAP_SIZE) / 2, SCREEN_HT - MINIMAP_SIZE - 32, (SCREEN_WD * 3 / 4 + MINIMAP_SIZE) / 2, SCREEN_HT - 32},
+    },
     // Four player
-    0, 0, SCREEN_WD/2-1, SCREEN_HT/2-1,
-    SCREEN_WD/2+1, 0, SCREEN_WD, SCREEN_HT/2-1,
-    0, SCREEN_HT/2+1, SCREEN_WD/2-1, SCREEN_HT,
-    SCREEN_WD/2+1, SCREEN_HT/2+1, SCREEN_WD, SCREEN_HT,
+    {
+        .viewportLocations = {
+            {0, 0, SCREEN_WD/2-1, SCREEN_HT/2-1},
+            {SCREEN_WD/2+1, 0, SCREEN_WD, SCREEN_HT/2-1},
+            {0, SCREEN_HT/2+1, SCREEN_WD/2-1, SCREEN_HT},
+            {SCREEN_WD/2+1, SCREEN_HT/2+1, SCREEN_WD, SCREEN_HT},
+        },
+        .minimapLocation = {(SCREEN_WD - MINIMAP_SIZE) / 2, (SCREEN_HT - MINIMAP_SIZE) / 2, (SCREEN_WD + MINIMAP_SIZE) / 2, (SCREEN_HT + MINIMAP_SIZE) / 2},
+    },
 };
 
 void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* definition, unsigned int playercount, unsigned char humanPlayerCount) {
+    levelScene->definition = definition;
     dynamicSceneInit(&gDynamicScene);
     initGBFont();
 
@@ -75,13 +104,13 @@ void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* defin
     levelScene->humanPlayerCount = humanPlayerCount;
 
     // 4 numbers per viewport, 4 viewports per slot
-    unsigned viewportBase = (levelScene->humanPlayerCount - 1) * 4 * 4;
+    struct ViewportLayout* viewprtLayout = &gViewportPosition[levelScene->humanPlayerCount - 1];
     
     for (unsigned i = 0; i < levelScene->humanPlayerCount; ++i) {
-        unsigned l = gViewportPosition[viewportBase + 0];
-        unsigned t = gViewportPosition[viewportBase + 1];
-        unsigned r = gViewportPosition[viewportBase + 2];
-        unsigned b = gViewportPosition[viewportBase + 3];
+        unsigned l = viewprtLayout->viewportLocations[i][0];
+        unsigned t = viewprtLayout->viewportLocations[i][1];
+        unsigned r = viewprtLayout->viewportLocations[i][2];
+        unsigned b = viewprtLayout->viewportLocations[i][3];
 
         gSplitScreenViewports[i].vp.vscale[0] = (r - l) * 4 / 2;
         gSplitScreenViewports[i].vp.vscale[1] = (b - t) * 4 / 2;
@@ -97,8 +126,6 @@ void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* defin
         gClippingRegions[i * 4 + 1] = t;
         gClippingRegions[i * 4 + 2] = r;
         gClippingRegions[i * 4 + 3] = b;
-
-        viewportBase += 4;
     }
 
     osWritebackDCache(&gSplitScreenViewports[0], sizeof(gSplitScreenViewports));
@@ -182,6 +209,8 @@ void levelSceneRender(struct LevelScene* levelScene, struct RenderState* renderS
         SCREEN_WD,
         SCREEN_HT
     );
+
+    minimapRender(levelScene, renderState, gViewportPosition[levelScene->humanPlayerCount-1].minimapLocation);
 
     spriteFinish(renderState);
 }

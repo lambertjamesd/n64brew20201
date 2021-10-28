@@ -17,6 +17,7 @@
 #define TARGET_FINDER_COUNT        2
 
 struct LevelScene {
+    struct LevelDefinition* definition;
     struct Camera cameras[MAX_PLAYERS];
     struct Player players[MAX_PLAYERS];
     struct BaseCommandMenu baseCommandMenu[MAX_PLAYERS];

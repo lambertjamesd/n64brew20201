@@ -3,6 +3,7 @@
 
 #include <ultra64.h>
 #include "math/vector2.h"
+#include "math/box2d.h"
 
 #define TEAM(index) (index)
 #define TEAM_NONE   4
@@ -17,6 +18,7 @@ struct LevelDefinition {
     struct Vector2* playerStartLocations;
     unsigned int baseCount;
     struct BaseDefinition* bases;
+    struct Box2D levelBoundaries;
     Gfx* sceneRender;
 };
 

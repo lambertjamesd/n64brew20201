@@ -45,5 +45,6 @@ void levelBaseRender(struct LevelBase* base, struct RenderState* renderState);
 void levelBaseReleaseMinion(struct LevelBase* base);
 void levelBaseStartUpgrade(struct LevelBase* base, enum LevelBaseState nextState);
 void levelBaseSetDefaultCommand(struct LevelBase* base, unsigned command);
+int levelBaseGetFactionID(struct LevelBase* base);
 
 #endif

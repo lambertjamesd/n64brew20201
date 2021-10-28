@@ -311,3 +311,11 @@ void levelBaseSetDefaultCommand(struct LevelBase* base, unsigned command) {
     base->defaultComand = command;
     base->issueCommandTimer = 2;
 }
+
+int levelBaseGetFactionID(struct LevelBase* base) {
+    if (base->state == LevelBaseStateNeutral) {
+        return TEAM_NONE;
+    } else {
+        return base->team.teamNumber;
+    }
+}
