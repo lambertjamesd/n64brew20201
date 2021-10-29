@@ -52,10 +52,23 @@ void teamEntityCorrectOverlap(struct DynamicSceneOverlap* overlap) {
 void teamEntityApplyDamage(struct TeamEntity* entity, float amount) {
     switch (entity->entityType) {
         case TeamEntityTypeMinion:
-            ((struct Minion*)entity)->hp -= amount;
+            minionApplyDamage((struct Minion*)entity, amount);
             break;
         case TeamEntityTypePlayer:
-            ((struct Player*)entity)->hp -= amount;
+            playerApplyDamage((struct Player*)entity, amount);
             break;
     }
+}
+
+int teamEntityIsAlive(struct TeamEntity* entity) {
+    switch (entity->entityType) {
+        case TeamEntityTypeMinion:
+            return minionIsAlive((struct Minion*)entity);
+        case TeamEntityTypePlayer:
+            return playerIsAlive((struct Player*)entity);
+        case TeamEntityTypeBase:
+            return 1;
+    }
+
+    return 0;
 }

@@ -24,8 +24,13 @@
 #define TEAM_DARK_COLOR_3   43, 54, 69
 // Detail- 189, 78, 31
 
+#define TEAM_DAMAGE_COLOR   202, 43, 62
+
 extern struct Coloru8 gTeamColors[];
 extern struct Coloru8 gTeamDarkColors[];
 extern Gfx* gTeamPalleteTexture[];
+
+#define NUETRAL_FACTION_INDEX   4
+#define DAMAGE_PALLETE_INDEX    5
 
 #endif

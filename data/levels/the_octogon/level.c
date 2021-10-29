@@ -344,6 +344,7 @@ Gfx the_octogon_model_gfx[] = {
 	gsDPSetCombineLERP(SHADE, 0, TEXEL0, 0, 0, 0, 0, ENVIRONMENT, SHADE, 0, TEXEL0, 0, 0, 0, 0, ENVIRONMENT),
 	gsSPTexture(65535, 65535, 0, 0, 1),
 	gsDPTileSync(),
+    gsDPSetTextureFilter(G_TF_POINT),
     gsDPSetTextureLUT(G_TT_NONE),
 	gsDPSetTextureImage(G_IM_FMT_I, G_IM_SIZ_8b_LOAD_BLOCK, 1, the_octogon_Ground_TextureGreyscale_i8),
 	gsDPSetTile(G_IM_FMT_I, G_IM_SIZ_8b_LOAD_BLOCK, 0, 0, 7, 0, G_TX_WRAP | G_TX_NOMIRROR, 5, 0, G_TX_WRAP | G_TX_NOMIRROR, 5, 0),

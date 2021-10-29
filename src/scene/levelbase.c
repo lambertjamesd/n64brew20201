@@ -192,6 +192,8 @@ void levelBaseInit(struct LevelBase* base, struct BaseDefinition* definition, un
         base->captureProgress = CAPTURE_TIME;
     }
 
+    base->lastCaptureProgress = base->captureProgress;
+
     base->collider = dynamicSceneNewEntry(
         &gBaseCollider.shapeCommon, 
         base, 
@@ -206,6 +208,8 @@ void levelBaseInit(struct LevelBase* base, struct BaseDefinition* definition, un
 }
 
 void levelBaseUpdate(struct LevelBase* base) {
+    base->lastCaptureProgress = base->captureProgress;
+
     switch (base->state) {
         case LevelBaseStateSpawning:
             if (base->minionCount <= base->capacityUpgrade) {
@@ -290,7 +294,7 @@ void levelBaseRender(struct LevelBase* base, struct RenderState* renderState) {
     gSPDisplayList(renderState->dl++, base_flag_pole_Pole_mesh);
     gSPPopMatrix(renderState->dl++, 1);
 
-    if (base->team.teamNumber != TEAM_NONE) {
+    if (base->team.teamNumber != TEAM_NONE && base->captureProgress > 0.1f) {
         poleTransform.position.y += SCENE_SCALE * poleTransform.scale.y * mathfLerp(MIN_FLAG_HEIGHT, MAX_FLAG_HEIGHT, base->captureProgress / CAPTURE_TIME);
         poleTransform.scale.y = 1.0f;
         quatAxisAngle(&gUp, cosf(gTimePassed * 3.0f) * 0.25f + cosf(gTimePassed * 5.0f) * 0.125f + cosf(gTimePassed * 7.0f) * 0.125f, &poleTransform.rotation);
@@ -317,5 +321,13 @@ int levelBaseGetFactionID(struct LevelBase* base) {
         return TEAM_NONE;
     } else {
         return base->team.teamNumber;
+    }
+}
+
+int levelBaseIsBeingCaptured(struct LevelBase* base) {
+    if (base->state != LevelBaseStateNeutral) {
+        return base->captureProgress < CAPTURE_TIME;
+    } else {
+        return base->captureProgress != base->lastCaptureProgress;
     }
 }

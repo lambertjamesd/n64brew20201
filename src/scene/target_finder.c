@@ -62,13 +62,13 @@ struct TeamEntity* targetFinderFindNearestTarget(struct LevelScene* forScene, st
     float bestDistance = 0;
 
     for (unsigned i = 0; i < forScene->playerCount; ++i) {
-        if (forScene->players[i].team.teamNumber != againstTeam) {
+        if (playerIsAlive(&forScene->players[i]) && forScene->players[i].team.teamNumber != againstTeam) {
             result = findCloserEntity(result, &forScene->players[i].team, from, &bestDistance);
         }
     }
     
     for (unsigned i = 0; i < forScene->minionCount; ++i) {
-        if ((forScene->minions[i].minionFlags & MinionFlagsActive) != 0 && forScene->minions[i].team.teamNumber != againstTeam) {
+        if (minionIsAlive(&forScene->minions[i]) && forScene->minions[i].team.teamNumber != againstTeam) {
             result = findCloserEntity(result, &forScene->minions[i].team, from, &bestDistance);
         }
     }

@@ -18,6 +18,7 @@ struct SpriteTile
     char h;
 };
 
+void spriteWriteRaw(struct RenderState* renderState, int layer, Gfx* src, int count);
 void spriteSetLayer(struct RenderState* renderState, int layer, Gfx* graphics);
 void spriteSolid(struct RenderState* renderState, int layer, int x, int y, int w, int h);
 void spriteDraw(struct RenderState* renderState, int layer, int x, int y, int w, int h, int sx, int sy, int scaleShiftX, int scaleShiftY);

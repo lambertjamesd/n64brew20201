@@ -8,6 +8,8 @@ struct Coloru8 {
     unsigned char a;
 };
 
+extern struct Coloru8 gColorBlack;
+
 void colorU8Lerp(struct Coloru8* from, struct Coloru8* to, float lerp, struct Coloru8* output);
 
 #endif

@@ -25,6 +25,7 @@ struct LevelBase {
     struct DynamicSceneEntry* collider;
     float stateTimeLeft;
     float captureProgress;
+    float lastCaptureProgress;
     unsigned char state;
     unsigned char minionCount;
     unsigned char baseId;
@@ -46,5 +47,6 @@ void levelBaseReleaseMinion(struct LevelBase* base);
 void levelBaseStartUpgrade(struct LevelBase* base, enum LevelBaseState nextState);
 void levelBaseSetDefaultCommand(struct LevelBase* base, unsigned command);
 int levelBaseGetFactionID(struct LevelBase* base);
+int levelBaseIsBeingCaptured(struct LevelBase* base);
 
 #endif

@@ -6,6 +6,7 @@ struct Coloru8 gTeamColors[] = {
     {TEAM_MAIN_COLOR_2, 255},
     {TEAM_MAIN_COLOR_3, 255},
     {200, 200, 200, 255}, // neutral faction
+	{TEAM_DAMAGE_COLOR, 255},
 };
 
 struct Coloru8 gTeamDarkColors[] = {
@@ -14,6 +15,7 @@ struct Coloru8 gTeamDarkColors[] = {
     {TEAM_DARK_COLOR_2, 255},
     {TEAM_DARK_COLOR_3, 255},
     {100, 100, 100, 255}, // neutral faction
+	{TEAM_DAMAGE_COLOR, 255},
 };
 
 u64 gTeamColorsTexture[] = {
@@ -36,6 +38,10 @@ u64 gTeamColorsYellowPallete[] = {
 
 u64 gTeamColorsGreenPallete[] = {
 	0x075b10c9a533b6f1, 
+};
+
+u64 gTeamColorsDamagePallete[] = {
+	0xc951304560c9b14f, 
 };
 
 Gfx gTeamPalleteTexture0[] = {
@@ -123,9 +129,32 @@ Gfx gTeamPalleteTexture3[] = {
 	gsSPEndDisplayList(),
 };
 
+Gfx gTeamPalleteTextureDamage[] = {
+	gsDPPipeSync(),
+	gsSPTexture(65535 >> 1, 65535 >> 1, 0, 0, 1),
+	gsDPSetTextureLUT(G_TT_RGBA16),
+	gsDPSetTextureImage(G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, gTeamColorsDamagePallete),
+	gsDPTileSync(),
+	gsDPSetTile(0, 0, 0, 256, 7, 0, G_TX_WRAP | G_TX_NOMIRROR, 0, 0, G_TX_WRAP | G_TX_NOMIRROR, 0, 0),
+	gsDPLoadSync(),
+	gsDPLoadTLUTCmd(7, 3),
+	gsDPPipeSync(),
+	gsDPTileSync(),
+	gsDPSetTextureImage(G_IM_FMT_CI, G_IM_SIZ_16b, 1, gTeamColorsTexture),
+	gsDPSetTile(G_IM_FMT_CI, G_IM_SIZ_16b, 0, 0, 7, 0, G_TX_WRAP | G_TX_NOMIRROR, 4, 0, G_TX_WRAP | G_TX_NOMIRROR, 4, 0),
+	gsDPLoadSync(),
+	gsDPLoadBlock(7, 0, 0, 63, 2048),
+	gsDPPipeSync(),
+	gsDPSetTile(G_IM_FMT_CI, G_IM_SIZ_4b, 1, 0, 0, 0, G_TX_WRAP | G_TX_NOMIRROR, 4, 0, G_TX_WRAP | G_TX_NOMIRROR, 4, 0),
+	gsDPSetTileSize(0, 0, 0, 60, 60),
+	gsSPEndDisplayList(),
+};
+
 Gfx* gTeamPalleteTexture[] = {
     gTeamPalleteTexture0,
     gTeamPalleteTexture1,
     gTeamPalleteTexture2,
     gTeamPalleteTexture3,
+	0,
+	gTeamPalleteTextureDamage,
 };

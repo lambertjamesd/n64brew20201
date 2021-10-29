@@ -3,6 +3,8 @@
 #include "math/transform.h"
 
 void cameraInit(struct Camera* camera, float fov, float near, float far) {
+    camera->mode = CameraModeFollow;
+    quatIdent(&camera->lockedOrientation);
     transformInitIdentity(&camera->transform);
     camera->fov = fov;
     camera->nearPlane = near;
@@ -37,17 +39,35 @@ void cameraSetupMatrices(struct Camera* camera, struct RenderState* renderState,
 }
 
 void cameraUpdate(struct Camera* camera, struct Vector3* target, float followDistance, float cameraHeight) {
-    struct Vector3 direction;
-    struct Quaternion targetLook;
-    vector3Sub(target, &camera->transform.position, &direction);
-    quatLook(&direction, &gUp, &targetLook);
-    quatLerp(&camera->transform.rotation, &targetLook, 0.05f, &camera->transform.rotation);
-    quatNormalize(&camera->transform.rotation, &camera->transform.rotation);
+    if (camera->mode == CameraModeFollow) {
+        struct Vector3 direction;
+        struct Quaternion targetLook;
+        vector3Sub(target, &camera->transform.position, &direction);
+        quatLook(&direction, &gUp, &targetLook);
+        quatLerp(&camera->transform.rotation, &targetLook, 0.05f, &camera->transform.rotation);
+        quatNormalize(&camera->transform.rotation, &camera->transform.rotation);
 
-    struct Vector3 offset;
-    vector3Sub(&camera->transform.position, target, &offset);
-    vector3Normalize(&offset, &offset);
-    vector3AddScaled(target, &offset, followDistance, &offset);
-    vector3Lerp(&camera->transform.position, &offset, 0.05f, &camera->transform.position);
-    camera->transform.position.y = target->y + cameraHeight;
+        struct Vector3 offset;
+        vector3Sub(&camera->transform.position, target, &offset);
+        vector3Normalize(&offset, &offset);
+        vector3AddScaled(target, &offset, followDistance, &offset);
+        offset.y = target->y + cameraHeight;
+        vector3Lerp(&camera->transform.position, &offset, 0.05f, &camera->transform.position);
+    } else {
+        quatLerp(&camera->transform.rotation, &camera->lockedOrientation, 0.2f, &camera->transform.rotation);
+        struct Vector3 targetPos;
+        struct Vector3 forward;
+        quatMultVector(&camera->transform.rotation, &gForward, &forward);
+        vector3AddScaled(target, &forward, followDistance, &targetPos);
+        vector3Lerp(&camera->transform.position, &targetPos, 0.5f, &camera->transform.position);
+    }
+}
+
+void cameraSetLockedMode(struct Camera* camera, struct Quaternion* rotation) {
+    camera->mode = CameraModeLocked;
+    camera->lockedOrientation = *rotation;
+}
+
+void cameraSetFollowMode(struct Camera* camera) {
+    camera->mode = CameraModeFollow;
 }

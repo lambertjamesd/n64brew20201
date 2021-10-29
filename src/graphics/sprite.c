@@ -1,10 +1,13 @@
 
 #include "sprite.h"
 #include "assert.h"
+#include "gfx.h"
+#include "game_defs.h"
+#include "util/time.h"
 
 #define DL_CHUNK_SIZE       32
 
-void writeDLToSprite(struct RenderState* renderState, int layer, Gfx* src, int count)
+void spriteWriteRaw(struct RenderState* renderState, int layer, Gfx* src, int count)
 {
     while (count)
     {
@@ -50,13 +53,16 @@ void writeDLToSprite(struct RenderState* renderState, int layer, Gfx* src, int c
     }
 }
 
-void spriteSetLayer(struct RenderState* renderState, int layer, Gfx* graphics)
-{
+void spriteSetLayer(struct RenderState* renderState, int layer, Gfx* graphics) {
     renderState->spriteState.layerSetup[layer] = graphics;
 }
 
 void spriteSolid(struct RenderState* renderState, int layer, int x, int y, int w, int h) {
-    gDPFillRectangle(renderState->dl++, x, y, x + w, y + h);
+    Gfx workingMem[4];
+    Gfx* curr = workingMem;
+    gDPFillRectangle(curr++, x, y, x + w, y + h);
+    spriteWriteRaw(renderState, layer, workingMem, curr - workingMem);
+    
 }
 
 void spriteDraw(struct RenderState* renderState, int layer, int x, int y, int w, int h, int sx, int sy, int sw, int sh)
@@ -76,7 +82,7 @@ void spriteDraw(struct RenderState* renderState, int layer, int x, int y, int w,
         0x400 >> sh
     );
 
-    writeDLToSprite(renderState, layer, workingMem, curr - workingMem);
+    spriteWriteRaw(renderState, layer, workingMem, curr - workingMem);
 }
 
 void spriteDrawTile(struct RenderState* renderState, int layer, int x, int y, int w, int h, struct SpriteTile tile)
@@ -96,7 +102,7 @@ void spriteDrawTile(struct RenderState* renderState, int layer, int x, int y, in
         (tile.h << 10) / h
     );
 
-    writeDLToSprite(renderState, layer, workingMem, curr - workingMem);
+    spriteWriteRaw(renderState, layer, workingMem, curr - workingMem);
 }
 
 void spriteSetColor(struct RenderState* renderState, int layer, u8 r, u8 g, u8 b, u8 a)
@@ -108,7 +114,7 @@ void spriteSetColor(struct RenderState* renderState, int layer, u8 r, u8 g, u8 b
         Gfx workingMem;
         Gfx* curr = &workingMem;
         gDPSetEnvColor(curr++, r, g, b, a);
-        writeDLToSprite(renderState, layer, &workingMem, curr - &workingMem);
+        spriteWriteRaw(renderState, layer, &workingMem, curr - &workingMem);
         renderState->spriteState.layerColor[layer] = key;
     }
 }
@@ -126,6 +132,18 @@ void spriteInit(struct RenderState* renderState)
 
 void spriteFinish(struct RenderState* renderState)
 {
+    Mtx* menuMatrices = renderStateRequestMatrices(renderState, 2);
+
+    if (!menuMatrices) {
+        return;
+    }
+
+    guOrtho(&menuMatrices[0], 0, SCREEN_WD, SCREEN_HT, 0, -SCENE_SCALE, SCENE_SCALE, 1.0f);
+    guRotate(&menuMatrices[1], -90.0f, 1.0f, 0.0f, 0.0f);
+
+    gSPMatrix(renderState->dl++, &menuMatrices[0], G_MTX_PROJECTION | G_MTX_NOPUSH | G_MTX_LOAD);
+    gSPMatrix(renderState->dl++, &menuMatrices[1], G_MTX_MODELVIEW | G_MTX_NOPUSH | G_MTX_LOAD);
+
     for (int i = 0; i < MAX_LAYER_COUNT; ++i)
     {
         if (renderState->spriteState.layerDL[i] && renderState->spriteState.layerSetup[i])

@@ -13,6 +13,12 @@
 #include "minimap.h"
 
 static Vp gSplitScreenViewports[4];
+static Vp gFullScreenVP = {
+  .vp = {
+    .vscale = {SCREEN_WD*2, SCREEN_HT*2, G_MAXZ/2, 0},	/* scale */
+    .vtrans = {SCREEN_WD*2, SCREEN_HT*2, G_MAXZ/2, 0},	/* translate */
+  }
+};
 static unsigned short gClippingRegions[4 * 4];
 
 struct ViewportLayout {
@@ -201,6 +207,7 @@ void levelSceneRender(struct LevelScene* levelScene, struct RenderState* renderS
         );
     }
 
+    gSPViewport(renderState->dl++, osVirtualToPhysical(&gFullScreenVP));
     gDPSetScissor(
         renderState->dl++, 
         G_SC_NON_INTERLACE, 
@@ -213,6 +220,26 @@ void levelSceneRender(struct LevelScene* levelScene, struct RenderState* renderS
     minimapRender(levelScene, renderState, gViewportPosition[levelScene->humanPlayerCount-1].minimapLocation);
 
     spriteFinish(renderState);
+}
+
+void leveSceneUpdateCamera(struct LevelScene* levelScene, unsigned playerIndex) {
+    struct Vector3 target = levelScene->players[playerIndex].transform.position;
+    vector3AddScaled(&target, &gUp, 2.0f * SCENE_SCALE, &target);
+
+    if (levelScene->cameras[playerIndex].mode == CameraModeFollow) {
+        struct Vector3 velocityLeader;
+        vector3Scale(&levelScene->players[playerIndex].velocity, &velocityLeader, SCENE_SCALE * 0.5f);
+        velocityLeader.y = 0.0f;
+        vector3Add(&target, &velocityLeader, &target);
+    }
+
+    if (controllerGetButtonDown(playerIndex, Z_TRIG)) {
+        cameraSetLockedMode(&levelScene->cameras[playerIndex], &levelScene->players[playerIndex].transform.rotation);
+    } else if (controllerGetButtonUp(playerIndex, Z_TRIG)) {
+        cameraSetFollowMode(&levelScene->cameras[playerIndex]);
+    }
+
+    cameraUpdate(&levelScene->cameras[playerIndex], &target, 15.0f * SCENE_SCALE, 5.0f * SCENE_SCALE);
 }
 
 void levelSceneUpdate(struct LevelScene* levelScene) {
@@ -233,13 +260,7 @@ void levelSceneUpdate(struct LevelScene* levelScene) {
 
         baseCommandMenuUpdate(&levelScene->baseCommandMenu[playerIndex], playerIndex);
         playerUpdate(&levelScene->players[playerIndex], &playerInput);
-        struct Vector3 target = levelScene->players[playerIndex].transform.position;
-        vector3AddScaled(&target, &gUp, 2.0f * SCENE_SCALE, &target);
-        struct Vector3 velocityLeader;
-        vector3Scale(&levelScene->players[playerIndex].velocity, &velocityLeader, SCENE_SCALE * 0.5f);
-        velocityLeader.y = 0.0f;
-        vector3Add(&target, &velocityLeader, &target);
-        cameraUpdate(&levelScene->cameras[playerIndex], &target, 15.0f * SCENE_SCALE, 5.0f * SCENE_SCALE);
+        leveSceneUpdateCamera(levelScene, playerIndex);
     }
 
 

@@ -28,7 +28,6 @@ void controllersInit(void)
     gControllerMessage.type = SIMPLE_CONTROLLER_MSG;
 
     osSetEventMesg(OS_EVENT_SI, &gfxFrameMsgQ, (OSMesg)&gControllerMessage);
-
 }
 
 void controllersUpdate(void)

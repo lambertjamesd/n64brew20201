@@ -15,12 +15,16 @@
 #include "scene_management.h"
 #include "team_data.h"
 #include "minion_animations.h"
+#include "math/mathf.h"
 
 #define MINION_FOLLOW_DIST  3.0f
 #define MINION_MOVE_SPEED   (PLAYER_MOVE_SPEED * 10.0f)
 #define MINION_ACCELERATION (PLAYER_MOVE_ACCELERATION * 2.0f)
 #define MINION_HP           2
 #define MINION_DPS          1
+#define INVINCIBILITY_TIME  0.5f
+#define INVINCIBLE_FLASH_FREQ                      0.1f
+#define ATTACK_RADIUS       (1.0f * SCENE_SCALE)
 
 struct CollisionCircle gMinionCollider = {
     {CollisionShapeTypeCircle},
@@ -37,13 +41,11 @@ void minionCorrectOverlap(struct DynamicSceneOverlap* overlap) {
     teamEntityCorrectOverlap(overlap);
 
     if (overlap->otherEntry->flags & DynamicSceneEntryHasTeam) {
-        struct Minion* entityA = (struct Minion*)overlap->thisEntry->data;
+        struct Minion* minion = (struct Minion*)overlap->thisEntry->data;
         struct TeamEntity* entityB = (struct TeamEntity*)overlap->otherEntry->data;
 
-        if (entityB == entityA->attackTarget && (entityA->minionFlags & (MinionFlagsAttacking | MinionFlagsAttacked)) == MinionFlagsAttacking) {
-            teamEntityApplyDamage(entityB, MINION_DPS * skAnimationLength(&minion_animations[MINION_ANIMATION_ATTACK]));
-        } else if (entityB->teamNumber != entityA->team.teamNumber && entityA->attackTarget == 0 && entityA->currentCommand != MinionCommandFollow) {
-            minionSetAttackTarget(entityA, entityB);
+        if (entityB->teamNumber != minion->team.teamNumber && minion->attackTarget == 0 && minion->currentCommand != MinionCommandFollow) {
+            minionSetAttackTarget(minion, entityB);
         }
     }
 }
@@ -51,8 +53,15 @@ void minionCorrectOverlap(struct DynamicSceneOverlap* overlap) {
 void minionAnimationEvent(struct SKAnimator* animator, void* data, struct SKAnimationEvent* event) {
     struct Minion* minion = (struct Minion*)data;
 
-    if (event->id == MINION_ANIMATION_EVENT_ATTACK) {
-        minion->minionFlags |= MinionFlagsAttacking;
+    if (event->id == MINION_ANIMATION_EVENT_ATTACK && minion->attackTarget) {
+        float distSqr = vector3DistSqrd(teamEntityGetPosition(minion->attackTarget), &minion->transform.position);
+        if (distSqr < ATTACK_RADIUS * ATTACK_RADIUS) {
+            teamEntityApplyDamage(minion->attackTarget, MINION_DPS * skAnimationLength(&minion_animations[MINION_ANIMATION_ATTACK]));
+        } else {
+            minion->attackTarget = 0;
+        }
+    } else if (event->id == SK_ANIMATION_EVENT_END) {
+        minion->attackTarget = 0;
     }
 }
 
@@ -66,6 +75,7 @@ void minionInit(struct Minion* minion, enum MinionType type, struct Transform* a
     minion->sourceBaseId = sourceBaseId;
     minion->velocity = gZeroVec;
     minion->hp = MINION_HP;
+    minion->damageTimer = 0.0f;
 
     struct Vector2 position;
 
@@ -101,7 +111,16 @@ void minionRender(struct Minion* minion, struct RenderState* renderState) {
     struct Transform finalTransform;
     transformConcat(&minion->transform, &minion->animationTransform, &finalTransform);
     transformToMatrixL(&finalTransform, matrix);
-    gDPSetPrimColor(renderState->dl++, 0, 0, gTeamColors[minion->team.teamNumber].r, gTeamColors[minion->team.teamNumber].g, gTeamColors[minion->team.teamNumber].b, gTeamColors[minion->team.teamNumber].a);
+
+    int isDamageFlash = 0;
+
+    if (minion->damageTimer > 0.0f) {
+        isDamageFlash = mathfMod(minion->damageTimer, INVINCIBLE_FLASH_FREQ) > (INVINCIBLE_FLASH_FREQ * 0.5f);
+    }
+
+    struct Coloru8 color = gTeamColors[isDamageFlash ? DAMAGE_PALLETE_INDEX : minion->team.teamNumber];
+
+    gDPSetPrimColor(renderState->dl++, 0, 0, color.r, color.g, color.b, color.a);
     gSPMatrix(renderState->dl++, osVirtualToPhysical(matrix), G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
     gSPDisplayList(renderState->dl++, DogMinion_Dog_001_mesh);
     gSPPopMatrix(renderState->dl++, 1);
@@ -122,9 +141,21 @@ void minionUpdate(struct Minion* minion) {
     struct Vector3* target;
     float minDistance = 0.0f;
 
+    if (minion->damageTimer > 0.0f) {
+        minion->damageTimer -= gTimeDelta;
+
+        if (minion->damageTimer < 0.0f) {
+            minion->damageTimer = 0.0f;
+        }
+    }
+
     if (minion->hp <= 0) {
         minionCleanup(minion);
         return;
+    }
+
+    if (minion->currentTarget && !teamEntityIsAlive(minion->currentTarget)) {
+        minion->currentTarget = 0;
     }
 
     switch (minion->currentCommand) {
@@ -156,17 +187,13 @@ void minionUpdate(struct Minion* minion) {
     }
 
     if (minion->attackTarget) {
-        if ((minion->minionFlags & MinionFlagsAttacking) != 0) {
-            minion->minionFlags |= MinionFlagsAttacked;
-        }
-
-        if (!skAnimatorIsRunning(&minion->animator)) {
-            minion->minionFlags &= ~(MinionFlagsAttacking | MinionFlagsAttacked);
+        if (!teamEntityIsAlive(minion->attackTarget)) {
             minion->attackTarget = 0;
+        } else if (!skAnimatorIsRunning(&minion->animator)) {
             skAnimatorRunClip(&minion->animator, &minion_animations[MINION_ANIMATION_IDLE], SKAnimatorFlagsLoop);
         } else {
             target = teamEntityGetPosition(minion->attackTarget);
-            minDistance = 0.0f;
+            minDistance = ATTACK_RADIUS;
         }
     }
 
@@ -175,6 +202,7 @@ void minionUpdate(struct Minion* minion) {
     if (target) {
         struct Vector3 offset;
         vector3Sub(target, &minion->transform.position, &offset);
+        offset.y = 0.0f;
 
         float distSqr = vector3MagSqrd(&offset);
 
@@ -212,6 +240,16 @@ void minionCleanup(struct Minion* minion) {
 
 void minionSetAttackTarget(struct Minion* minion, struct TeamEntity* target) {
     minion->attackTarget = target;
-    minion->minionFlags &= ~(MinionFlagsAttacking | MinionFlagsAttacked);
     skAnimatorRunClip(&minion->animator, &minion_animations[MINION_ANIMATION_ATTACK], 0);
+}
+
+void minionApplyDamage(struct Minion* minion, float amount) {
+    if (minion->damageTimer <= 0.0f) {
+        minion->damageTimer = INVINCIBILITY_TIME;
+        minion->hp -= amount;
+    }
+}
+
+int minionIsAlive(struct Minion* minion) {
+    return (minion->minionFlags & MinionFlagsActive) != 0 && minion->hp > 0;
 }

@@ -51,11 +51,14 @@ struct Player {
     unsigned short flags;
     SoundID walkSoundEffect;
     float hp;
+    float damageTimer;
     float stateTimer;
 };
 
 void playerInit(struct Player* player, unsigned playerIndex, unsigned team, struct Vector2* at);
 void playerUpdate(struct Player* player, struct PlayerInput* input);
 void playerRender(struct Player* player, struct RenderState* renderState);
+void playerApplyDamage(struct Player* player, float amount);
+int playerIsAlive(struct Player* player);
 
 #endif

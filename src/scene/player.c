@@ -23,6 +23,9 @@
 #define PLAYER_ATTACK_WINDOW_ID                    0x2
 #define PLAYER_MAX_HP                              8.0f
 #define PLAYER_RESPAWN_TIME                        5.0f
+#define PLAYER_INVINCIBILITY_TIME                  0.5f
+#define INVINCIBLE_JUMP_HEIGHT                     1.0f
+#define INVINCIBLE_FLASH_FREQ                      0.1f
 
 struct SKAnimationEvent gAttack001Events[] = {
     {8, PLAYER_ATTACK_START_ID},
@@ -53,7 +56,7 @@ struct PlayerAttackInfo gPlayerAttacks[] = {
         DOGLOW_ARM1_BONE, 
         1,
         DOGLOW_DOGLOW_ARMATURE_001_PUNCH_001_INDEX,
-        2.0f,
+        1.5f,
         {0.0f, 0.65f * SCENE_SCALE, 0.0f}, 
         {{CollisionShapeTypeCircle}, 0.5f * SCENE_SCALE},
     },
@@ -61,7 +64,7 @@ struct PlayerAttackInfo gPlayerAttacks[] = {
         DOGLOW_ARM2_BONE, 
         0,
         DOGLOW_DOGLOW_ARMATURE_001_PUNCH_002_INDEX,
-        3.0f,
+        2.0f,
         {0.0f, 0.65f * SCENE_SCALE, 0.0f}, 
         {{CollisionShapeTypeCircle}, 0.5f * SCENE_SCALE},
     },
@@ -82,7 +85,7 @@ struct Vector3 gRecallOffset = {0.0f, 0.0f, -4.0 * SCENE_SCALE};
 
 #define PLAYER_JUMP_ACCEL           (-GRAVITY * 0.5f)
 
-#define PLAYER_JUMP_IMPULSE         12.0f
+#define PLAYER_JUMP_IMPULSE         18.0f
 
 #define PLAYER_AIR_MAX_ROTATE_SEC   (90.0f * (M_PI / 180.0f))
 #define PLAYER_MAX_ROTATE_SEC       (500.0f * (M_PI / 180.0f))
@@ -195,6 +198,14 @@ void playerUpdateOther(struct Player* player, struct PlayerInput* input) {
     playerUpdateLastBase(player, input);
     playerCheckCommands(player, input);
 
+    if (player->damageTimer > 0.0f) {
+        player->damageTimer -= gTimeDelta;
+
+        if (player->damageTimer < 0.0f) {
+            player->damageTimer = 0.0f;
+        }
+    }
+
     if (player->hp <= 0.0f) {
         playerEnterDeadState(player);
     }
@@ -235,6 +246,7 @@ void playerInit(struct Player* player, unsigned playerIndex, unsigned team, stru
     player->playerIndex = playerIndex;
     player->flags = 0;
     player->hp = PLAYER_MAX_HP;
+    player->damageTimer = 0.0f;
     player->walkSoundEffect = SOUND_ID_NONE;
 
     player->velocity = gZeroVec;
@@ -411,7 +423,14 @@ void playerRender(struct Player* player, struct RenderState* renderState) {
 
     transformToMatrixL(&player->transform, matrix);
     gSPMatrix(renderState->dl++, osVirtualToPhysical(matrix), G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
-    gSPDisplayList(renderState->dl++, gTeamPalleteTexture[player->team.teamNumber]);
+
+    int isDamageFlash = 0;
+
+    if (player->damageTimer > 0.0f) {
+        isDamageFlash = mathfMod(player->damageTimer, INVINCIBLE_FLASH_FREQ) > (INVINCIBLE_FLASH_FREQ * 0.5f);
+    }
+
+    gSPDisplayList(renderState->dl++, gTeamPalleteTexture[isDamageFlash ? DAMAGE_PALLETE_INDEX : player->team.teamNumber]);
     skRenderObject(&player->armature, renderState);
     gSPPopMatrix(renderState->dl++, 1);
 
@@ -419,4 +438,15 @@ void playerRender(struct Player* player, struct RenderState* renderState) {
     if (player->attackCollider) {
         punchTrailRender(&player->punchTrail, renderState);
     }
+}
+
+void playerApplyDamage(struct Player* player, float amount) {
+    if (player->damageTimer <= 0.0f && player->transform.position.y < INVINCIBLE_JUMP_HEIGHT) {
+        player->damageTimer = PLAYER_INVINCIBILITY_TIME;
+        player->hp -= amount;
+    }
+}
+
+int playerIsAlive(struct Player* player) {
+    return player->hp > 0 && player->state != playerStateDead;
 }

@@ -42,6 +42,7 @@ struct Minion {
     unsigned char currentCommand;
     unsigned char followingPlayer;
     float hp;
+    float damageTimer;
 
     struct DynamicSceneEntry* collider;
 
@@ -55,5 +56,7 @@ void minionUpdate(struct Minion* minion);
 void minionCleanup(struct Minion* minion);
 void minionIssueCommand(struct Minion* minion, enum MinionCommand command, unsigned fromPlayer);
 void minionSetAttackTarget(struct Minion* minion, struct TeamEntity* target);
+void minionApplyDamage(struct Minion* minion, float amount);
+int minionIsAlive(struct Minion* minion);
 
 #endif
