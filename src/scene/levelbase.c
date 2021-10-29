@@ -203,8 +203,8 @@ void levelBaseInit(struct LevelBase* base, struct BaseDefinition* definition, un
         CollisionLayersBase
     );
 
-    // base->defaultComand = MinionCommandDefend;
-    base->defaultComand = MinionCommandAttack;
+    base->defaultComand = MinionCommandDefend;
+    // base->defaultComand = MinionCommandAttack;
 }
 
 void levelBaseUpdate(struct LevelBase* base) {
