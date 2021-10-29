@@ -30,6 +30,8 @@ Gfx gUseCommandIcons[] = {
     gsDPSetEnvColor(255, 255, 255, 255),
 	gsDPSetCombineLERP(TEXEL0, 0, ENVIRONMENT, 0, TEXEL0, 0, ENVIRONMENT, 0, TEXEL0, 0, ENVIRONMENT, 0, TEXEL0, 0, ENVIRONMENT, 0),
     gsDPSetTextureFilter(G_TF_POINT),
+    gsDPSetCycleType(G_CYC_1CYCLE),
+    gsDPSetTextureLUT(G_TT_NONE),
 	gsSPTexture(65535, 65535, 0, 0, 1),
 	gsDPSetTextureLUT(G_TT_RGBA16),
 	gsDPSetTextureImage(G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, buttonicons_baseicons_ci4_pal_rgba16),

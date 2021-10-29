@@ -70,6 +70,8 @@ char __attribute__((aligned(8))) gbfont_img[] = {
 Gfx gUseFontTexture[] = {
     gsDPPipeSync(),
     gsSPClearGeometryMode(G_ZBUFFER),
+	gsSPClearGeometryMode(G_LIGHTING | G_SHADE | G_ZBUFFER),
+    gsDPSetTexturePersp(G_TP_NONE),
     gsDPSetRenderMode(G_RM_XLU_SURF, G_RM_XLU_SURF2),
     gsDPSetEnvColor(255, 255, 255, 255),
     gsDPSetCombineLERP(TEXEL0, 0, ENVIRONMENT, 0, TEXEL0, 0, ENVIRONMENT, 0, TEXEL0, 0, ENVIRONMENT, 0, TEXEL0, 0, ENVIRONMENT, 0),

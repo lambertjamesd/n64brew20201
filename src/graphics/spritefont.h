@@ -21,5 +21,6 @@ struct Font
 
 void fontInit(struct Font* font, int layer, int spaceWidth, struct CharacterDefinition* chars, int charCount);
 void fontRenderText(struct RenderState* renderState, struct Font* font, const char* str, int x, int y, int scaleShift);
+int fontMeasure(struct Font* font, const char* str, int scaleShift);
 
 #endif

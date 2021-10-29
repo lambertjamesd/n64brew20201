@@ -141,6 +141,7 @@ void baseCommandMenuUpdate(struct BaseCommandMenu* menu, unsigned team) {
 }
 
 void baseCommandMenuRenderCommandSelect(struct BaseCommandMenu* menu, struct RenderState* renderState, unsigned horizontalCenter, unsigned verticalCenter) {
+    spriteSetColor(renderState, LAYER_SOLID_COLOR, 0, 0, 0, 128);
     spriteSolid(
         renderState,
         LAYER_SOLID_COLOR,
@@ -200,6 +201,7 @@ void baseCommandMenuRenderCommandSelect(struct BaseCommandMenu* menu, struct Ren
 }
 
 void baseCommandMenuRenderUpgradeSelect(struct BaseCommandMenu* menu, struct RenderState* renderState, unsigned horizontalCenter, unsigned verticalCenter) {
+    spriteSetColor(renderState, LAYER_SOLID_COLOR, 0, 0, 0, 128);
     spriteSolid(
         renderState,
         LAYER_SOLID_COLOR,
@@ -258,10 +260,10 @@ void baseCommandMenuRenderUpgradeSelect(struct BaseCommandMenu* menu, struct Ren
     );
 }
 
-void baseCommandMenuRender(struct BaseCommandMenu* menu, struct RenderState* renderState, unsigned screenL, unsigned screenT, unsigned screenR, unsigned screenB) {
+void baseCommandMenuRender(struct BaseCommandMenu* menu, struct RenderState* renderState, unsigned short* screenPos) {
     if (menu->flags & BaseCommandMenuFlagsShowingMenu && menu->forBase) {
-        unsigned horizontalCenter = (screenL + screenR) >> 1;
-        unsigned verticalCenter = (screenT + screenB) >> 1;
+        unsigned horizontalCenter = (screenPos[0] + screenPos[2]) >> 1;
+        unsigned verticalCenter = (screenPos[1] + screenPos[3]) >> 1;
         if (menu->flags & BaseCommandMenuFlagsShowingUpgrades) {
             baseCommandMenuRenderUpgradeSelect(menu, renderState, horizontalCenter, verticalCenter);
         } else {
@@ -270,7 +272,7 @@ void baseCommandMenuRender(struct BaseCommandMenu* menu, struct RenderState* ren
 
         // LAYER_UPGRADE_ICONS
     } else if (menu->flags & BaseCommandMenuFlagsShowingOpenCommand && menu->forBase) {
-        unsigned screenCenter = (screenL + screenR) >> 1;
+        unsigned screenCenter = (screenPos[2] + screenPos[0]) >> 1;
 
         struct SpriteTile spriteTile;
         spriteTile.x = 0;
@@ -281,7 +283,7 @@ void baseCommandMenuRender(struct BaseCommandMenu* menu, struct RenderState* ren
             renderState, 
             LAYER_COMMAND_BUTTONS, 
             screenCenter - 24, 
-            screenB - OPEN_MENU_BOTTOM_OFFSET -  16, 
+            screenPos[3] - OPEN_MENU_BOTTOM_OFFSET -  16, 
             16, 
             16, 
             spriteTile
@@ -291,7 +293,7 @@ void baseCommandMenuRender(struct BaseCommandMenu* menu, struct RenderState* ren
             renderState, 
             LAYER_COMMAND_BUTTONS, 
             screenCenter - 8, 
-            screenB - OPEN_MENU_BOTTOM_OFFSET -  16, 
+            screenPos[3] - OPEN_MENU_BOTTOM_OFFSET -  16, 
             16, 
             16, 
             gBaseCommandTiles[menu->forBase->defaultComand]

@@ -26,6 +26,6 @@ void baseCommandMenuHide(struct BaseCommandMenu* menu);
 int baseCommandMenuIsShowing(struct BaseCommandMenu* menu);
 void baseCommandMenuUpdate(struct BaseCommandMenu* menu, unsigned team);
 
-void baseCommandMenuRender(struct BaseCommandMenu* menu, struct RenderState* renderState, unsigned screenL, unsigned screenR, unsigned screenT, unsigned screenB);
+void baseCommandMenuRender(struct BaseCommandMenu* menu, struct RenderState* renderState, unsigned short* screenPos);
 
 #endif

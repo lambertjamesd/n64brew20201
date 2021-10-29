@@ -48,3 +48,22 @@ void fontRenderText(struct RenderState* renderState, struct Font* font, const ch
         ++str;
     }
 }
+
+int fontMeasure(struct Font* font, const char* str, int scaleShift) {
+    int result = 0;
+
+    while (*str)
+    {
+        struct SpriteTile curr = font->characters[(unsigned)*str];
+
+        if (*str == ' ') {
+            result += font->spaceWidth << scaleShift;
+        } else {
+            result += curr.w << scaleShift;
+        }
+
+        ++str;
+    }
+
+    return result;
+}

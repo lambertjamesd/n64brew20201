@@ -16,6 +16,12 @@
 #define MAX_MINIONS_PER_BASE       3
 #define TARGET_FINDER_COUNT        2
 
+enum LevelSceneState {
+    LevelSceneStateIntro,
+    LevelSceneStatePlaying,
+    LevelSceneStateDone,
+};
+
 struct LevelScene {
     struct LevelDefinition* definition;
     struct Camera cameras[MAX_PLAYERS];
@@ -23,6 +29,7 @@ struct LevelScene {
     struct BaseCommandMenu baseCommandMenu[MAX_PLAYERS];
     unsigned char playerCount;
     unsigned char humanPlayerCount;
+    unsigned char winningTeam;
 
     struct LevelBase *bases;
     unsigned int baseCount;
@@ -33,6 +40,8 @@ struct LevelScene {
     unsigned lastMinion;
 
     struct TargetFinder targetFinders[TARGET_FINDER_COUNT];
+
+    enum LevelSceneState state;
 };
 
 void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* definition, unsigned int playercount, unsigned char humanPlayerCount);
@@ -43,5 +52,6 @@ void levelSceneSpawnMinion(struct LevelScene* levelScene, enum MinionType type, 
 void levelBaseDespawnMinions(struct LevelScene* levelScene, unsigned char baseId);
 void levelSceneIssueMinionCommand(struct LevelScene* levelScene, unsigned team, enum MinionCommand command);
 struct Vector3* levelSceneFindRespawnPoint(struct LevelScene* levelScene, struct Vector3* closeTo, unsigned team);
+int levelSceneFindWinningTeam(struct LevelScene* levelScene);
 
 #endif

@@ -9,6 +9,7 @@
 #include "../data/menu/menu.h"
 #include "graphics/sprite.h"
 #include "menu/basecommandmenu.h"
+#include "menu/playerstatusmenu.h"
 #include "menu/gbfont.h"
 #include "minimap.h"
 
@@ -134,6 +135,9 @@ void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* defin
         gClippingRegions[i * 4 + 3] = b;
     }
 
+    levelScene->state = LevelSceneStatePlaying;
+    levelScene->winningTeam = TEAM_NONE;
+
     osWritebackDCache(&gSplitScreenViewports[0], sizeof(gSplitScreenViewports));
 }
 
@@ -200,11 +204,9 @@ void levelSceneRender(struct LevelScene* levelScene, struct RenderState* renderS
         baseCommandMenuRender(
             &levelScene->baseCommandMenu[i], 
             renderState, 
-            gClippingRegions[i * 4 + 0],
-            gClippingRegions[i * 4 + 1],
-            gClippingRegions[i * 4 + 2],
-            gClippingRegions[i * 4 + 3]
+            &gClippingRegions[i * 4]
         );
+        playerStatusMenuRender(&levelScene->players[i], renderState, levelScene->winningTeam, &gClippingRegions[i * 4]);
     }
 
     gSPViewport(renderState->dl++, osVirtualToPhysical(&gFullScreenVP));
@@ -243,20 +245,34 @@ void leveSceneUpdateCamera(struct LevelScene* levelScene, unsigned playerIndex) 
 }
 
 void levelSceneUpdate(struct LevelScene* levelScene) {
+    levelScene->winningTeam = levelSceneFindWinningTeam(levelScene);
+
+    if (levelScene->winningTeam != TEAM_NONE) {
+        levelScene->state = LevelSceneStateDone;
+    }
+
     for (unsigned playerIndex = 0; playerIndex < levelScene->playerCount; ++playerIndex) {
         struct PlayerInput playerInput;
 
-        if (baseCommandMenuIsShowing(&levelScene->baseCommandMenu[playerIndex])) {
-            playerInputNoInput(&playerInput);
+        if (levelScene->state == LevelSceneStatePlaying) {
+            if (baseCommandMenuIsShowing(&levelScene->baseCommandMenu[playerIndex])) {
+                playerInputNoInput(&playerInput);
+            } else {
+                playerInputPopulateWithJoystickData(
+                    controllersGetControllerData(playerIndex), 
+                    controllerGetLastButton(playerIndex), 
+                    &levelScene->cameras[playerIndex].transform.rotation,
+                    &playerInput
+                );
+            }
         } else {
-            playerInputPopulateWithJoystickData(
-                controllersGetControllerData(playerIndex), 
-                controllerGetLastButton(playerIndex), 
-                &levelScene->cameras[playerIndex].transform.rotation,
-                &playerInput
-            );
+            playerInputNoInput(&playerInput);
+            baseCommandMenuHide(&levelScene->baseCommandMenu[playerIndex]);
         }
 
+        if (!playerIsAlive(&levelScene->players[playerIndex])) {
+            baseCommandMenuHide(&levelScene->baseCommandMenu[playerIndex]);
+        }
 
         baseCommandMenuUpdate(&levelScene->baseCommandMenu[playerIndex], playerIndex);
         playerUpdate(&levelScene->players[playerIndex], &playerInput);
@@ -324,6 +340,45 @@ struct Vector3* levelSceneFindRespawnPoint(struct LevelScene* levelScene, struct
             if (!result || baseScore < score) {
                 result = &base->position;
                 score = baseScore;
+            }
+        }
+    }
+
+    return result;
+}
+
+int levelSceneFindWinningTeam(struct LevelScene* levelScene) {
+    int result = -1;
+
+    for (unsigned i = 0; i < levelScene->baseCount; ++i) {
+        if (levelScene->bases[i].state != LevelBaseStateNeutral &&
+            levelScene->bases[i].team.teamNumber != result) {
+            if (result == -1) {
+                result = levelScene->bases[i].team.teamNumber;
+            } else {
+                return TEAM_NONE;
+            }
+        }
+    }
+
+    for (unsigned i = 0; i < levelScene->playerCount; ++i) {
+        if (playerIsAlive(&levelScene->players[i]) &&
+            levelScene->players[i].team.teamNumber != result) {
+            if (result == -1) {
+                result = levelScene->players[i].team.teamNumber;
+            } else {
+                return TEAM_NONE;
+            }
+        }
+    }
+
+    for (unsigned i = 0; i < levelScene->minionCount; ++i) {
+        if (minionIsAlive(&levelScene->minions[i]) &&
+            levelScene->minions[i].team.teamNumber != result) {
+            if (result == -1) {
+                result = levelScene->minions[i].team.teamNumber;
+            } else {
+                return TEAM_NONE;
             }
         }
     }
