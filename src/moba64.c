@@ -15,6 +15,7 @@
 #include "scene/minion.h"
 #include "audio/soundplayer.h"
 #include "scene/scene_management.h"
+#include "audio/dynamic_music.h"
 
 /**** threads used by this file ****/
 static OSThread gameThread;
@@ -114,6 +115,7 @@ static void gameproc(void *argv)
                 skReadMessages();
                 sceneUpdate();
                 soundPlayerUpdate();
+                dynamicMusicUpdate();
 
                 break;
 

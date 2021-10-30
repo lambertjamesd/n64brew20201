@@ -9,7 +9,7 @@ extern OSSched         sc;
 /**** audio globals ****/
 u8* gAudioHeapBuffer;
 
-ALSeqPlayer	   *seqp;
+ALSeqPlayer	   *gSequencePlayer;
 static u8          *seqPtr;
 static s32         seqLen;
 static ALSeq       *seq;
@@ -74,17 +74,17 @@ void initAudio(void)
 #ifdef _DEBUG
     seqc.debugFlags     = NO_VOICE_ERR_MASK |NOTE_OFF_ERR_MASK | NO_SOUND_ERR_MASK;
 #endif
-    seqp = alHeapAlloc(&gAudioHeap, 1, sizeof(ALSeqPlayer));
-    alSeqpNew(seqp, &seqc);
+    gSequencePlayer = alHeapAlloc(&gAudioHeap, 1, sizeof(ALSeqPlayer));
+    alSeqpNew(gSequencePlayer, &seqc);
 
     seq = alHeapAlloc(&gAudioHeap, 1, sizeof(ALSeq));
     alSeqNew(seq, seqPtr, seqLen);    
-    alSeqNewMarker(seq, &seqStart, 0);
-    alSeqNewMarker(seq, &seqEnd, -1);
+    alSeqNewMarker(seq, &seqStart, 100);
+    alSeqNewMarker(seq, &seqEnd, 3940);
 
-    alSeqpLoop(seqp, &seqStart, &seqEnd, -1);
-    alSeqpSetSeq(seqp, seq);
-    alSeqpSetBank(seqp, bankPtr->bankArray[0]);
-    alSeqpPlay(seqp);
+    alSeqpLoop(gSequencePlayer, &seqStart, &seqEnd, -1);
+    alSeqpSetSeq(gSequencePlayer, seq);
+    alSeqpSetBank(gSequencePlayer, bankPtr->bankArray[0]);
+    alSeqpPlay(gSequencePlayer);
 }
 

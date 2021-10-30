@@ -16,6 +16,7 @@
 #include "team_data.h"
 #include "minion_animations.h"
 #include "math/mathf.h"
+#include "events.h"
 
 #define MINION_FOLLOW_DIST  3.0f
 #define MINION_MOVE_SPEED   (PLAYER_MOVE_SPEED * 10.0f)
@@ -151,6 +152,7 @@ void minionUpdate(struct Minion* minion) {
 
     if (minion->hp <= 0) {
         minionCleanup(minion);
+        gLastDeathTime = gTimePassed;
         return;
     }
 

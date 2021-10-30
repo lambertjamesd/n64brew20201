@@ -10,6 +10,7 @@
 #include "math/mathf.h"
 #include "player.h"
 #include "game_defs.h"
+#include "events.h"
 
 #include "game_defs.h"
 
@@ -110,6 +111,7 @@ void levelBaseTrigger(struct DynamicSceneOverlap* overlap) {
         
         if (teamEntity->teamNumber != base->team.teamNumber) {
             base->captureProgress -= gTimeDelta * gSpawnTimeCaptureScalar[base->defenseUpgrade];
+            gLastCaptureTime = gTimePassed;
 
             if (base->captureProgress <= 0.0f) {
                 base->captureProgress = 0.0f;
@@ -131,6 +133,8 @@ void levelBaseTrigger(struct DynamicSceneOverlap* overlap) {
                     // TODO don't despawn minions if recaptured by same player
                     levelBaseDespawnMinions(&gCurrentLevel, base->baseId);
                 }
+            } else {
+                gLastCaptureTime = gTimePassed;
             }
         }
     }

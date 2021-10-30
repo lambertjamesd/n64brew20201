@@ -13,7 +13,7 @@ glabel _bankSegmentRomStart
 glabel _bankSegmentRomEnd
 
 glabel _seqSegmentRomStart
-.incbin "/usr/lib/n64/sequences/BassDrive.seq"
+.incbin "build/assets/music/multilayer_midi_demo.mid"
 .balign 16
 glabel _seqSegmentRomEnd
 

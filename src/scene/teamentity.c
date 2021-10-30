@@ -2,6 +2,8 @@
 #include "minion.h"
 #include "player.h"
 #include "levelbase.h"
+#include "util/time.h"
+#include "events.h"
 
 struct Vector3* teamEntityGetPosition(struct TeamEntity* entity) {
     if (!entity) {
@@ -50,6 +52,8 @@ void teamEntityCorrectOverlap(struct DynamicSceneOverlap* overlap) {
 }
 
 void teamEntityApplyDamage(struct TeamEntity* entity, float amount) {
+    gLastDamageTime = gTimePassed;
+
     switch (entity->entityType) {
         case TeamEntityTypeMinion:
             minionApplyDamage((struct Minion*)entity, amount);

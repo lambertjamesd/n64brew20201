@@ -12,6 +12,8 @@
 #include "menu/playerstatusmenu.h"
 #include "menu/gbfont.h"
 #include "minimap.h"
+#include "audio/dynamic_music.h"
+#include "events.h"
 
 static Vp gSplitScreenViewports[4];
 static Vp gFullScreenVP = {
@@ -25,6 +27,13 @@ static unsigned short gClippingRegions[4 * 4];
 struct ViewportLayout {
     unsigned short viewportLocations[4][4];
     unsigned short minimapLocation[4];
+};
+
+struct DynamicMarker gIntensityMarkers[] = {
+    {0, {127, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {25, {127, 0, 127, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {50, {127, 0, 127, 127, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+    {75, {127, 0, 127, 127, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
 };
 
 #define MINIMAP_SIZE    64
@@ -138,6 +147,8 @@ void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* defin
     levelScene->state = LevelSceneStatePlaying;
     levelScene->winningTeam = TEAM_NONE;
 
+    dynamicMusicUseMarkers(gIntensityMarkers, sizeof(gIntensityMarkers) / sizeof(*gIntensityMarkers));
+
     osWritebackDCache(&gSplitScreenViewports[0], sizeof(gSplitScreenViewports));
 }
 
@@ -244,6 +255,29 @@ void leveSceneUpdateCamera(struct LevelScene* levelScene, unsigned playerIndex) 
     cameraUpdate(&levelScene->cameras[playerIndex], &target, 15.0f * SCENE_SCALE, 5.0f * SCENE_SCALE);
 }
 
+unsigned short levelSceneCaluclateIntensity() {
+    if (gTimePassed - gLastDeathTime < 5.0f) {
+        return 75;
+    } else if (gTimePassed - gLastDamageTime < 5.0f) {
+        return 50;
+    } else if (gTimePassed - gLastCaptureTime < 5.0f) {
+        return 25;
+    } else {
+        return 0;
+    }
+}
+
+void levelSceneUpdateMusic(struct LevelScene* levelScene) {
+    unsigned short targetIntensity = levelSceneCaluclateIntensity();
+    unsigned short currentIntesnity = dynamicMusicGetIntensity();
+
+    if (targetIntensity < currentIntesnity) {
+        dynamicMusicSetIntensity(currentIntesnity - 1);
+    } else if (targetIntensity > currentIntesnity) {
+        dynamicMusicSetIntensity(currentIntesnity + 1);
+    }
+}
+
 void levelSceneUpdate(struct LevelScene* levelScene) {
     levelScene->winningTeam = levelSceneFindWinningTeam(levelScene);
 
@@ -295,6 +329,7 @@ void levelSceneUpdate(struct LevelScene* levelScene) {
     }
 
     dynamicSceneCollide();
+    levelSceneUpdateMusic(levelScene);
 }
 
 void levelSceneSpawnMinion(struct LevelScene* levelScene, enum MinionType type, struct Transform* at, unsigned char baseId, unsigned team, enum MinionCommand defualtCommand, unsigned followPlayer) {

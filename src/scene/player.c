@@ -17,6 +17,7 @@
 #include "audio/clips.h"
 #include "math/mathf.h"
 #include "team_data.h"
+#include "events.h"
 
 #define PLAYER_ATTACK_START_ID                     0x0
 #define PLAYER_ATTACK_END_ID                       0x1
@@ -207,6 +208,7 @@ void playerUpdateOther(struct Player* player, struct PlayerInput* input) {
     }
 
     if (player->hp <= 0.0f) {
+        gLastDeathTime = gTimePassed;
         playerEnterDeadState(player);
     }
 }
