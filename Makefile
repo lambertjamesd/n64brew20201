@@ -67,7 +67,7 @@ include $(COMMONRULES)
 
 build/%.o: %.c
 	@mkdir -p $(@D)
-	$(CC) $(GCINCS) $(LCINCS) -MF"$(@:.o=.d)" -MG -MM -MP -MT"$@" "$<"
+	$(CC) $(CFLAGS) -MM $^ -MF "$(@:.o=.d)" -MT"$@"
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 build/%.o: %.s
@@ -83,7 +83,7 @@ data/models/minionanimations/geometry.h build/data/models/minionanimations/geome
 	@mkdir -p $(@D)
 	$(SKELATOOL64) -a -s 100 -n minion_animations -o data/models/minionanimations/geometry.h assets/models/minionanimations.fbx
 
-data/models/doglow/geometry.h build/data/models/doglow/geometry_anim.inc.h build/data/models/doglow/geometry_animdef.inc.h:	assets/models/commandermajor.fbx
+data/models/doglow/geometry.h data/models/doglow/geometry_geo.inc.h build/data/models/doglow/geometry_anim.inc.h build/data/models/doglow/geometry_animdef.inc.h:	assets/models/commandermajor.fbx
 	@mkdir -p $(@D)
 	$(SKELATOOL64) -s 100 -n doglow -o data/models/doglow/geometry.h assets/models/commandermajor.fbx
 
@@ -106,7 +106,7 @@ build/assets/sounds/sounds.sounds build/assets/sounds/sounds.sounds.tbl: $(SOUND
 	@mkdir -p $(@D)
 	$(SFZ2N64) --compress -o $@ $^
 
-asm/sound_data.s: build/assets/music/battle.mid \
+asm/sound_data.s: build/assets/music/multilayer_midi_demo.mid \
 	build/assets/sounds/sounds.sounds \
 	build/assets/sounds/sounds.sounds.tbl
 
