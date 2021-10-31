@@ -21,7 +21,7 @@ struct LevelDefinition {
     struct BaseDefinition* bases;
     struct Box2D levelBoundaries;
     Gfx* sceneRender;
-    struct StaticScene staticScene;
+    // struct StaticScene staticScene;
 };
 
 struct LevelDefinition* levelDefinitionUnpack(struct LevelDefinition* addressPtr, void* segmentRamStart);
