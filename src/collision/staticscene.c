@@ -1,15 +1,20 @@
 
 #include "staticscene.h"
 
-void staticSceneConstrainToBoundaries(struct StaticScene* staticScene, struct Vector2* pos, float radius) {
+void staticSceneConstrainToBoundaries(struct StaticScene* staticScene, struct Vector2* pos, struct Vector2* velocity, float radius) {
     for (unsigned i = 0; i < staticScene->boundaryCount; ++i) {
         struct Vector2 offset;
         vector2Sub(pos, &staticScene->boundary[i].at, &offset);
         float intersectionDepth = vector2Dot(&offset, &staticScene->boundary[i].normal) - radius;
 
         if (intersectionDepth < 0.0f) {
-            vector2Scale(&staticScene->boundary[i].normal, -intersectionDepth, &offset);
-            vector2Add(pos, &offset, pos);
+            struct Vector2 offsetCorrection;
+            vector2Scale(&staticScene->boundary[i].normal, -intersectionDepth, &offsetCorrection);
+            vector2Add(pos, &offsetCorrection, pos);
+
+            struct Vector2 velocityIntoFace;
+            vector2Scale(&staticScene->boundary[i].normal, vector2Dot(&staticScene->boundary[i].normal, velocity), &velocityIntoFace);
+            vector2Sub(velocity, &velocityIntoFace, velocity);
         }
     }
 }

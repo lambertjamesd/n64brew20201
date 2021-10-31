@@ -18,6 +18,7 @@
 #include "math/mathf.h"
 #include "team_data.h"
 #include "events.h"
+#include "collision/staticscene.h"
 
 #define PLAYER_ATTACK_START_ID                     0x0
 #define PLAYER_ATTACK_END_ID                       0x1
@@ -165,9 +166,6 @@ void playerUpdatePosition(struct Player* player) {
         player->transform.position.y = FLOOR_HEIGHT;
         player->velocity.y = 0.0f;
     }
-
-    player->collider->center.x = player->transform.position.x;
-    player->collider->center.y = player->transform.position.z;
 }
 
 void playerUpdateLastBase(struct Player* player, struct PlayerInput* input) {
@@ -414,6 +412,16 @@ void playerStateWalk(struct Player* player, struct PlayerInput* input) {
 void playerUpdate(struct Player* player, struct PlayerInput* input) {
     player->state(player, input);
     skAnimatorUpdate(&player->animator, player->armature.boneTransforms, 1.0f);
+    player->collider->center.x = player->transform.position.x;
+    player->collider->center.y = player->transform.position.z;
+    struct Vector2 vel2D;
+    vel2D.x = player->velocity.x;
+    vel2D.y = player->velocity.z;
+    staticSceneConstrainToBoundaries(&gCurrentLevel.definition->staticScene, &player->collider->center, &vel2D, gPlayerCollider.radius);
+    player->transform.position.x = player->collider->center.x;
+    player->transform.position.z = player->collider->center.y;
+    player->velocity.x = vel2D.x;
+    player->velocity.z = vel2D.y;
 }
 
 void playerRender(struct Player* player, struct RenderState* renderState) {

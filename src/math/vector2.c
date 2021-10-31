@@ -44,7 +44,7 @@ float vector2Dot(struct Vector2* a, struct Vector2* b) {
 
 void vector2Add(struct Vector2* a, struct Vector2* b, struct Vector2* out) {
     out->x = a->x + b->x;
-    out->y = a->y * b->y;
+    out->y = a->y + b->y;
 }
 
 void vector2Sub(struct Vector2* a, struct Vector2* b, struct Vector2* out) {
