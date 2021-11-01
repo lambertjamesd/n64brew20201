@@ -80,11 +80,11 @@ void initAudio(void)
     seq = alHeapAlloc(&gAudioHeap, 1, sizeof(ALSeq));
     alSeqNew(seq, seqPtr, seqLen);    
     alSeqNewMarker(seq, &seqStart, 100);
-    alSeqNewMarker(seq, &seqEnd, 3940);
+    alSeqNewMarker(seq, &seqEnd, -1);
 
     alSeqpLoop(gSequencePlayer, &seqStart, &seqEnd, -1);
     alSeqpSetSeq(gSequencePlayer, seq);
     alSeqpSetBank(gSequencePlayer, bankPtr->bankArray[0]);
-    // alSeqpPlay(gSequencePlayer);
+    alSeqpPlay(gSequencePlayer);
 }
 

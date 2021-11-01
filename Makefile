@@ -91,11 +91,14 @@ data/models/punchtrail/geometry.h build/data/models/punchtrail/geometry_anim.inc
 	@mkdir -p $(@D)
 	$(SKELATOOL64) -s 100 -n punchtrail -o data/models/punchtrail/geometry.h assets/models/punchtrail.fbx
 
-MUSIC = $(shell find assets/music/ -type -f -name '*.mid')
+MUSIC = $(shell find assets/music/ -type f -name '*.mid')
+
+CLEAN_MUSIC = $(patsubst %.mid, build/%.mid, $(MUSIC))
 
 build/assets/music/%.mid: assets/music/%.mid
 	@mkdir -p $(@D)
 	$(MIDICVT) $< $@
+	truncate $@ --size 32KB
 
 SOUND_CLIPS = $(shell find assets/sounds/ -type f -name '*.aiff')
 
@@ -105,10 +108,20 @@ src/audio/clips.h: build_scripts/generate_sound_ids.js $(SOUND_CLIPS)
 build/assets/sounds/sounds.sounds build/assets/sounds/sounds.sounds.tbl: $(SOUND_CLIPS)
 	@mkdir -p $(@D)
 	$(SFZ2N64) --compress -o $@ $^
+	truncate build/assets/sounds/sounds.sounds --size 32KB
+	truncate build/assets/sounds/sounds.sounds.tbl --size 1MB
 
 asm/sound_data.s: build/assets/music/multilayer_midi_demo.mid \
 	build/assets/sounds/sounds.sounds \
-	build/assets/sounds/sounds.sounds.tbl
+	build/assets/sounds/sounds.sounds.tbl \
+	build/assets/soundbanks/banks.ctl \
+	build/assets/soundbanks/banks.tbl
+
+build/assets/soundbanks/banks.ctl build/assets/soundbanks.banks.tbl: assets/soundbanks/banks.ins ${SFZ2N64}
+	@mkdir -p $(@D)
+	${SFZ2N64} --compress -o build/assets/soundbanks/banks.ctl assets/soundbanks/banks.ins
+	truncate build/assets/soundbanks/banks.ctl --size 32KB
+	truncate build/assets/soundbanks/banks.tbl --size 1MB
 
 ####################
 ## Linking
@@ -157,3 +170,38 @@ $(BASE_TARGET_NAME)_debug.z64: $(CODESEGMENT)_debug.o $(OBJECTS) $(CP_LD_SCRIPT)
 
 clean:
 	rm -rf build
+
+################
+# Patch info
+################
+
+build/musicpatch.zip: $(BASE_TARGET_NAME).z64 \
+	$(CLEAN_MUSIC) \
+	build/assets/soundbanks/banks.ctl \
+	build/assets/soundbanks.banks.tbl \
+	build/assets/sounds/sounds.sounds \
+	build/assets/sounds/sounds.sounds.tbl
+
+	@mkdir -p build/musicpatch
+
+	tools/createpatch build/musicpatch/patch $(BASE_TARGET_NAME).z64 \
+		$(CLEAN_MUSIC) \
+		build/assets/soundbanks/banks.ctl \
+		build/assets/soundbanks/banks.tbl \
+		build/assets/sounds/sounds.sounds \
+		build/assets/sounds/sounds.sounds.tbl
+
+	node build_scripts/generate_patch_script.js -m patch $(MUSIC) -i patch/banks.ctl assets/soundbanks/banks.ins -s patch/sounds.sounds $(SOUND_CLIPS) > build/musicpatch/apply.bat
+
+
+	@mkdir -p build/musicpatch/assets
+	cp -r assets/music build/musicpatch/assets/music
+	cp -r assets/soundbanks build/musicpatch/assets/soundbanks
+	cp -r assets/sounds build/musicpatch/assets/sounds
+
+	@mkdir -p build/musicpatch/tools
+	cp -r tools/applypatch.exe build/musicpatch/tools
+	cp -r tools/midicvt.exe build/musicpatch/tools
+	cp -r tools/sfz2n64.exe build/musicpatch/tools
+
+	zip -r build/musicpatch.zip build/musicpatch/

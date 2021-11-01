@@ -3,12 +3,12 @@
 .section .data
 
 glabel _tableSegmentRomStart
-.incbin "/usr/lib/n64/soundbanks/GenMidiBank.tbl"
+.incbin "build/assets/soundbanks/banks.tbl"
 .balign 16
 glabel _tableSegmentRomEnd
 
 glabel _bankSegmentRomStart
-.incbin "/usr/lib/n64/soundbanks/GenMidiBank.ctl"
+.incbin "build/assets/soundbanks/banks.ctl"
 .balign 16
 glabel _bankSegmentRomEnd
 

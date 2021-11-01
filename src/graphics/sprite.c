@@ -111,10 +111,11 @@ void spriteSetColor(struct RenderState* renderState, int layer, u8 r, u8 g, u8 b
 
     if (key != renderState->spriteState.layerColor[layer])
     {
-        Gfx workingMem;
-        Gfx* curr = &workingMem;
+        Gfx workingMem[2];
+        Gfx* curr = workingMem;
+        gDPPipeSync(curr++);
         gDPSetEnvColor(curr++, r, g, b, a);
-        spriteWriteRaw(renderState, layer, &workingMem, curr - &workingMem);
+        spriteWriteRaw(renderState, layer, workingMem, curr - workingMem);
         renderState->spriteState.layerColor[layer] = key;
     }
 }

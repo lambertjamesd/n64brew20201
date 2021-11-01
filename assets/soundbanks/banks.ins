@@ -1,0 +1,123 @@
+
+envelope _027Electric_Guitar_cleanSoundEnv
+{
+    attackTime = 10000;
+    attackVolume = 127;
+    decayTime = 2000000;
+    decayVolume = 50;
+    releaseTime = 500000;
+}
+
+keymap _027Electric_Guitar_cleanSoundKeymap
+{
+    velocityMin = 0;
+    velocityMax = 127;
+    keyMin = 0;
+    keyMax = 59;
+    keyBase = 67;
+    detune = 0;
+}
+
+sound _027Electric_Guitar_cleanSound
+{
+    use("./samples/_025Acoustic_Guitar_steelSoundSnd.aifc");
+    pan = 64;
+    volume = 127;
+    keymap = _027Electric_Guitar_cleanSoundKeymap;
+    envelope = _027Electric_Guitar_cleanSoundEnv;
+}
+
+keymap _027Electric_Guitar_cleanSoundKeymap2
+{
+    velocityMin = 0;
+    velocityMax = 127;
+    keyMin = 60;
+    keyMax = 68;
+    keyBase = 76;
+    detune = 0;
+}
+
+sound _027Electric_Guitar_cleanSound2
+{
+    use("./samples/_025Acoustic_Guitar_steelSoundSnd2.aifc");
+    pan = 64;
+    volume = 127;
+    keymap = _027Electric_Guitar_cleanSoundKeymap2;
+    envelope = _027Electric_Guitar_cleanSoundEnv;
+}
+
+keymap _027Electric_Guitar_cleanSoundKeymap3
+{
+    velocityMin = 0;
+    velocityMax = 127;
+    keyMin = 69;
+    keyMax = 97;
+    keyBase = 85;
+    detune = 0;
+}
+
+sound _027Electric_Guitar_cleanSound3
+{
+    use("./samples/_025Acoustic_Guitar_steelSoundSnd3.aifc");
+    pan = 64;
+    volume = 127;
+    keymap = _027Electric_Guitar_cleanSoundKeymap3;
+    envelope = _027Electric_Guitar_cleanSoundEnv;
+}
+
+instrument _027Electric_Guitar_clean
+{
+    volume = 127;
+    pan = 64;
+    priority = 5;
+    bendRange = 200;
+    sound = _027Electric_Guitar_cleanSound;
+    sound = _027Electric_Guitar_cleanSound2;
+    sound = _027Electric_Guitar_cleanSound3;
+}
+
+
+envelope Neutron_Synth_Bass_C3Env
+{
+    attackTime = 0;
+    attackVolume = 127;
+    decayTime = 500000;
+    decayVolume = 100;
+    releaseTime = 200000;
+}
+
+
+keymap Neutron_Synth_Bass_C3SoundKeymap
+{
+    velocityMin = 0;
+    velocityMax = 127;
+    keyMin = 0;
+    keyMax = 60;
+    keyBase = 45;
+    detune = 0;
+}
+
+sound Neutron_Synth_Bass_C3Sound
+{
+    use("./samples/Neutron_Synth_Bass_C3.aiff");
+    pan = 64;
+    volume = 127;
+    keymap = Neutron_Synth_Bass_C3SoundKeymap;
+    envelope = Neutron_Synth_Bass_C3Env;
+}
+
+instrument Neutron_Synth_Bass_C3
+{
+    volume = 127;
+    pan = 64;
+    priority = 5;
+    bendRange = 200;
+    sound = Neutron_Synth_Bass_C3Sound;
+}
+
+bank midi
+{
+    sampleRate = 44100;
+    instrument [27] = _027Electric_Guitar_clean;
+    instrument [37] = Neutron_Synth_Bass_C3;
+}
