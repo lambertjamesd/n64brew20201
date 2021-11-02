@@ -2,6 +2,7 @@
 #define _SCENE_PLAYER_H
 
 #include "teamentity.h"
+#include "levelbase.h"
 #include "math/transform.h"
 #include "sk64/skelatool_animator.h"
 #include "sk64/skelatool_armature.h"
@@ -16,6 +17,8 @@
 #include "faction.h"
 
 #define PLAYER_GFX_PER_PLAYER   7
+
+#define PLAYER_DEFENSE_RADIUS  10.0f
 
 struct Player;
 

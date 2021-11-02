@@ -18,6 +18,7 @@
 #include "team_data.h"
 #include "events.h"
 #include "collision/staticscene.h"
+#include <stdbool.h>
 
 #define PLAYER_MAX_HP                              8.0f
 #define PLAYER_RESPAWN_TIME                        5.0f
@@ -413,6 +414,7 @@ void playerStateDead(struct Player* player, struct PlayerInput* input) {
 }
 
 void playerStateWalk(struct Player* player, struct PlayerInput* input) {
+
     playerRotateTowardsInput(player, input, PLAYER_MAX_ROTATE_SEC);
     playerAccelerateTowards(player, &input->targetWorldDirection, PLAYER_MOVE_SPEED, PLAYER_MOVE_ACCELERATION, PLAYER_STOP_ACCELERATION);
 

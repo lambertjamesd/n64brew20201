@@ -14,6 +14,7 @@
 #include "menu/basecommandmenu.h"
 #include "itemdrop.h"
 #include "controlscrambler.h"
+#include "ai_controller.h"
 
 #define MAX_MINIONS_PER_BASE       3
 #define TARGET_FINDER_COUNT        2
@@ -29,9 +30,11 @@ struct LevelScene {
     struct Camera cameras[MAX_PLAYERS];
     struct Player players[MAX_PLAYERS];
     struct ControlsScrambler scramblers[MAX_PLAYERS];
+    struct AIController* bots;
     struct BaseCommandMenu baseCommandMenu[MAX_PLAYERS];
     unsigned char playerCount;
     unsigned char humanPlayerCount;
+    unsigned char botsCount;
     unsigned char winningTeam;
 
     struct LevelBase *bases;
@@ -50,6 +53,9 @@ struct LevelScene {
 
     enum LevelSceneState state;
 };
+
+struct Player* levelGetClosestEnemyPlayer(struct LevelScene* forScene, struct Vector3* closeTo, unsigned team, float* outDist);
+struct Minion* levelGetClosestEnemyMinion(struct LevelScene* forScene, struct Vector3* closeTo, unsigned team, float* outDist);
 
 void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* definition, unsigned int playercount, unsigned char humanPlayerCount);
 void levelSceneRender(struct LevelScene* levelScene, struct RenderState* renderState);

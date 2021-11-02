@@ -1,4 +1,5 @@
 
+#include <stdbool.h>
 #include "level_scene.h"
 #include "util/memory.h"
 #include "controls/controller.h"
@@ -20,6 +21,7 @@
 #include "sk64/skelatool_defs.h"
 
 #include "collision/polygon.h"
+#include "math/vector3.h"
 
 static Vp gSplitScreenViewports[4];
 static Vp gFullScreenVP = {
@@ -93,25 +95,41 @@ void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* defin
     initGBFont();
 
     levelScene->levelDL = definition->sceneRender;
-    
-    levelScene->playerCount = playercount;
-
-    for (unsigned i = 0; i < playercount; ++i) {
-        cameraInit(&levelScene->cameras[i], 45.0f, 100.0f, 18000.0f);
-        playerInit(&levelScene->players[i], i, i, &definition->playerStartLocations[i]);
-        controlsScramblerInit(&levelScene->scramblers[i]);
-        vector3AddScaled(&levelScene->players[i].transform.position, &gForward, SCENE_SCALE * 2.0f, &levelScene->cameras[i].transform.position);
-        vector3AddScaled(&levelScene->cameras[i].transform.position, &gUp, SCENE_SCALE * 2.0f, &levelScene->cameras[i].transform.position);
-        baseCommandMenuInit(&levelScene->baseCommandMenu[i]);
-    }
-
-    quatAxisAngle(&gRight, -M_PI * 0.3333f, &levelScene->cameras[0].transform.rotation);
 
     levelScene->baseCount = definition->baseCount;
     levelScene->bases = malloc(sizeof(struct LevelBase) * definition->baseCount);
     for (unsigned i = 0; i < definition->baseCount; ++i) {
         levelBaseInit(&levelScene->bases[i], &definition->bases[i], (unsigned char)i, definition->bases[i].startingTeam >= playercount);
     }
+    
+    levelScene->playerCount = playercount;
+
+    //initializing player controlled characters 
+    for(unsigned i = 0; i < humanPlayerCount; ++i){
+        playerInit(&levelScene->players[i], i, i, &definition->playerStartLocations[i]);
+        controlsScramblerInit(&levelScene->scramblers[i]);
+        cameraInit(&levelScene->cameras[i], 45.0f, 100.0f, 18000.0f);
+        vector3AddScaled(&levelScene->players[i].transform.position, &gForward, SCENE_SCALE * 2.0f, &levelScene->cameras[i].transform.position);
+        vector3AddScaled(&levelScene->cameras[i].transform.position, &gUp, SCENE_SCALE * 2.0f, &levelScene->cameras[i].transform.position);
+        baseCommandMenuInit(&levelScene->baseCommandMenu[i]);
+        
+    }
+    //initializing AI controlled characters
+    unsigned numBots = playercount - humanPlayerCount;
+    levelScene->botsCount = numBots;
+    if(numBots > 0){
+        levelScene->bots = malloc(sizeof(struct AIController) * numBots);
+        for (unsigned i = humanPlayerCount; i < playercount; ++i) {
+            playerInit(&levelScene->players[i], i, i, &definition->playerStartLocations[i]);
+            //struct LevelBase* startBase = levelGetClosestBase(&levelScene->players[i].transform.position, levelScene, i);
+            struct LevelBase* startBase = getClosestUncapturedBase(levelScene->bases, levelScene->baseCount, &levelScene->players[i].transform.position, i);
+
+            InitAI(&levelScene->bots[i - humanPlayerCount], i, i);
+            setTargetBase(&levelScene->bots[i - humanPlayerCount], startBase);
+        }
+    }
+    
+    quatAxisAngle(&gRight, -M_PI * 0.3333f, &levelScene->cameras[0].transform.rotation);
 
     levelScene->decorMatrices = malloc(sizeof(Mtx) * definition->decorCount);
 
@@ -180,7 +198,31 @@ void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* defin
 
     osWritebackDCache(&gSplitScreenViewports[0], sizeof(gSplitScreenViewports));
 }
-
+/*
+struct LevelBase* levelGetClosestBase(struct Vector3* closeTo, struct LevelScene* levelScene, unsigned team ){
+    struct LevelBase* bases = levelScene->bases;
+    struct Vector3 basePos;
+    basePos.x = bases[0].position.x;
+    basePos.y = bases[0].position.y;
+    basePos.z = bases[0].position.z;
+    
+    float minDist = vector3DistSqrd(&basePos, closeTo);
+    unsigned int minIndex = 0;
+    for(unsigned int i = 1; i < levelScene->baseCount; i++){
+        if(levelBaseGetFactionID(&bases[i]) == team) continue;
+        basePos.x = bases[i].position.x;
+        basePos.y = bases[i].position.y;
+        basePos.z = bases[i].position.z;
+        float currDist = vector3DistSqrd(&basePos, closeTo);
+        if(currDist < minDist){
+            minIndex = i;
+            minDist = currDist;
+        }
+    }
+    struct LevelBase* outBase = &bases[minIndex];
+    return outBase;
+}
+*/
 void levelSceneRender(struct LevelScene* levelScene, struct RenderState* renderState) {
     spriteSetLayer(renderState, LAYER_SOLID_COLOR, gUseSolidColor);
     spriteSetLayer(renderState, LAYER_COMMAND_BUTTONS, gUseCommandIcons);
@@ -226,7 +268,7 @@ void levelSceneRender(struct LevelScene* levelScene, struct RenderState* renderS
 
     gSPEndDisplayList(renderState->transparentDL++);
 
-    for (unsigned int i = 0; i < levelScene->humanPlayerCount; ++i) {
+    for (unsigned int i = 0; i < levelScene->playerCount; ++i) {
         Vp* viewport = &gSplitScreenViewports[i];
         cameraSetupMatrices(
             &levelScene->cameras[i], 
@@ -319,6 +361,90 @@ void levelSceneUpdateMusic(struct LevelScene* levelScene) {
     }
 }
 
+void levelSceneCollectBotPlayerInput(struct LevelScene* levelScene, unsigned playerIndex, struct PlayerInput* playerInput) {
+    unsigned botIndex = playerIndex - levelScene->humanPlayerCount;
+
+    //if current target base has been captured by our team, tell the team leadr to switch to another base
+    if(levelScene->bots[botIndex].targetBase != NULL && 
+    levelBaseGetFactionID(levelScene->bots[botIndex].targetBase) == levelScene->players[playerIndex].team.teamNumber){
+        struct LevelBase* newBase = getClosestUncapturedBase(levelScene->bases, levelScene->baseCount, 
+        &levelScene->players[playerIndex].transform.position, 
+        playerIndex);
+        if(newBase != NULL) setTargetBase(&levelScene->bots[botIndex], newBase);
+    }
+
+    //if the player just got hit 
+    if(levelScene->bots[botIndex].attackTarget == NULL && levelScene->players[playerIndex].damageHandler.damageTimer > 0.0f){
+        float minionDist;
+        float playerDist;
+
+        struct Player* playerEnt = levelGetClosestEnemyPlayer(levelScene,
+        &levelScene->players[playerIndex].transform.position,
+        playerIndex,
+        &playerDist);
+
+        struct Minion* minionEnt = levelGetClosestEnemyMinion(levelScene,
+        &levelScene->players[playerIndex].transform.position,
+        playerIndex,
+        &minionDist);
+        if(minionDist < playerDist) {
+            if(minionEnt->team.teamNumber != levelScene->players[playerIndex].team.teamNumber)
+            levelScene->bots[botIndex].attackTarget = (struct TeamEntity*)minionEnt;
+        }
+        else {
+            if(playerEnt->team.teamNumber != levelScene->players[playerIndex].team.teamNumber)
+            levelScene->bots[botIndex].attackTarget = (struct TeamEntity*)playerEnt;
+        }
+    }
+
+    moveAItowardsTarget(&levelScene->bots[botIndex], 
+    &levelScene->players[playerIndex].transform.position, playerInput);
+
+    if(playerInput->targetWorldDirection.x == 0 && playerInput->targetWorldDirection.y == 0 && playerInput->targetWorldDirection.z == 0){
+        playerInputNoInput(playerInput);
+        levelScene->players[playerIndex].velocity.x = 0;
+        levelScene->players[playerIndex].velocity.y = 0;
+        levelScene->players[playerIndex].velocity.z = 0;
+    } 
+}
+
+void levelSceneCollectHumanPlayerInput(struct LevelScene* levelScene, unsigned playerIndex, struct PlayerInput* playerInput) {
+    if (baseCommandMenuIsShowing(&levelScene->baseCommandMenu[playerIndex])) {
+        playerInputNoInput(playerInput);
+    } else {
+        struct Quaternion cameraRotation;
+        float cameraRoll = controlsScramblerGetCameraRotation(&levelScene->scramblers[playerIndex]);
+
+        if (cameraRoll) {
+            struct Quaternion roll;
+            quatAxisAngle(&gForward, cameraRoll, &roll);
+            quatMultiply(&levelScene->cameras[playerIndex].transform.rotation, &roll, &cameraRotation);
+        } else {
+            cameraRotation = levelScene->cameras[playerIndex].transform.rotation;
+        }
+
+        playerInputPopulateWithJoystickData(
+            controllersGetControllerData(playerIndex), 
+            &cameraRotation,
+            controlsScramblerIsActive(&levelScene->scramblers[playerIndex], ControlsScramblerDPADSwap) ? PlayerInputFlagsSwapJoystickAndDPad : 0,
+            playerInput
+        );
+    }
+}
+
+void levelSceneCollectPlayerInput(struct LevelScene* levelScene, unsigned playerIndex, struct PlayerInput* playerInput) {
+    if (levelScene->state == LevelSceneStatePlaying) {
+        if (playerIndex < levelScene->humanPlayerCount) {
+            levelSceneCollectHumanPlayerInput(levelScene, playerIndex, playerInput);
+        } else {
+            levelSceneCollectBotPlayerInput(levelScene, playerIndex, playerInput);
+        }
+    } else {
+        playerInputNoInput(&levelScene->scramblers[playerIndex].playerInput);
+        baseCommandMenuHide(&levelScene->baseCommandMenu[playerIndex]);
+    }
+}
+
 void levelSceneUpdate(struct LevelScene* levelScene) {
     levelScene->winningTeam = levelSceneFindWinningTeam(levelScene);
 
@@ -331,32 +457,7 @@ void levelSceneUpdate(struct LevelScene* levelScene) {
 
         controlsScramblerUpdate(&levelScene->scramblers[playerIndex]);
 
-        if (levelScene->state == LevelSceneStatePlaying) {
-            if (baseCommandMenuIsShowing(&levelScene->baseCommandMenu[playerIndex])) {
-                playerInputNoInput(playerInput);
-            } else {
-                struct Quaternion cameraRotation;
-                float cameraRoll = controlsScramblerGetCameraRotation(&levelScene->scramblers[playerIndex]);
-
-                if (cameraRoll) {
-                    struct Quaternion roll;
-                    quatAxisAngle(&gForward, cameraRoll, &roll);
-                    quatMultiply(&levelScene->cameras[playerIndex].transform.rotation, &roll, &cameraRotation);
-                } else {
-                    cameraRotation = levelScene->cameras[playerIndex].transform.rotation;
-                }
-
-                playerInputPopulateWithJoystickData(
-                    controllersGetControllerData(playerIndex), 
-                    &cameraRotation,
-                    controlsScramblerIsActive(&levelScene->scramblers[playerIndex], ControlsScramblerDPADSwap) ? PlayerInputFlagsSwapJoystickAndDPad : 0,
-                    playerInput
-                );
-            }
-        } else {
-            playerInputNoInput(playerInput);
-            baseCommandMenuHide(&levelScene->baseCommandMenu[playerIndex]);
-        }
+        levelSceneCollectPlayerInput(levelScene, playerIndex, playerInput);
 
         if (!playerIsAlive(&levelScene->players[playerIndex])) {
             baseCommandMenuHide(&levelScene->baseCommandMenu[playerIndex]);
@@ -485,4 +586,44 @@ void levelSceneApplyScrambler(struct LevelScene* levelScene, unsigned fromTeam, 
             controlsScramblerTrigger(&levelScene->scramblers[i], scambler);
         }
     }
+}
+
+struct Player* levelGetClosestEnemyPlayer(struct LevelScene* forScene, struct Vector3* closeTo, unsigned team, float* outDist){
+    struct Vector3* currPos = &forScene->players[0].transform.position;
+    float minDist = vector3DistSqrd(currPos, closeTo);
+    unsigned int minIndex = 0;
+
+        for(unsigned entInd = 1; entInd < forScene->playerCount; ++entInd){
+        if(forScene->players[entInd].team.teamNumber != team){
+            currPos = &forScene->players[entInd].transform.position;
+            float thisDist = vector3DistSqrd(currPos, closeTo);
+            if(thisDist < minDist){
+                minIndex = entInd;
+                minDist = thisDist;
+            }
+        }
+    }
+
+    *outDist = minDist;
+    return &forScene->players[minIndex];
+}
+
+struct Minion* levelGetClosestEnemyMinion(struct LevelScene* forScene, struct Vector3* closeTo, unsigned team, float* outDist){
+    struct Vector3* currPos = &forScene->minions[0].transform.position;
+    float minDist = vector3DistSqrd(currPos, closeTo);
+    unsigned int minIndex = 0;
+
+    for(unsigned entInd = 1; entInd < forScene->minionCount; ++entInd){
+        if(forScene->minions[entInd].team.teamNumber != team){
+            currPos = &forScene->minions[entInd].transform.position;
+            float thisDist = vector3DistSqrd(currPos, closeTo);
+            if(thisDist < minDist){
+                minIndex = entInd;
+                minDist = thisDist;
+            }
+        }
+    }
+
+    *outDist = minDist;
+    return &forScene->minions[minIndex];
 }
