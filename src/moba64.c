@@ -173,6 +173,7 @@ static void initGame(void)
     void* heapEnd = layoutMemory((void*)PHYS_TO_K0(osMemSize)); 
     initHeap(_heapStart, heapEnd);
     minionAnimationsInit();
+    playerGlobalInit();
     skInitDataPool(gPiHandle);
     initGFX();
     controllersInit();

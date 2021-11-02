@@ -30,14 +30,14 @@
 #define INVINCIBLE_FLASH_FREQ                      0.1f
 
 struct SKAnimationEvent gAttack001Events[] = {
-    {8, PLAYER_ATTACK_START_ID},
-    {10, PLAYER_ATTACK_WINDOW_ID},
-    {10, PLAYER_ATTACK_END_ID},
+    {9, PLAYER_ATTACK_START_ID},
+    {11, PLAYER_ATTACK_WINDOW_ID},
+    {12, PLAYER_ATTACK_END_ID},
 };
 
 struct SKAnimationEvent gAttack002Events[] = {
-    {6, PLAYER_ATTACK_START_ID},
-    {10, PLAYER_ATTACK_END_ID},
+    {4, PLAYER_ATTACK_START_ID},
+    {8, PLAYER_ATTACK_END_ID},
 };
 
 unsigned short gJumpClipIds[] = {
@@ -70,6 +70,14 @@ struct PlayerAttackInfo gPlayerAttacks[] = {
         {0.0f, 0.65f * SCENE_SCALE, 0.0f}, 
         {{CollisionShapeTypeCircle}, 0.5f * SCENE_SCALE},
     },
+    {
+        DOGLOW_BOOT1_BONE, 
+        0,
+        DOGLOW_DOGLOW_ARMATURE_001_PUNCH_002_INDEX,
+        0.5f,
+        {0.0f, 0.65f * SCENE_SCALE, 0.0f}, 
+        {{CollisionShapeTypeCircle}, 1.5f * SCENE_SCALE},
+    },
 };
 
 struct CollisionCircle gPlayerCollider = {
@@ -92,6 +100,17 @@ struct Vector3 gRecallOffset = {0.0f, 0.0f, -4.0 * SCENE_SCALE};
 #define PLAYER_AIR_MAX_ROTATE_SEC   (90.0f * (M_PI / 180.0f))
 #define PLAYER_MAX_ROTATE_SEC       (500.0f * (M_PI / 180.0f))
 #define PLAYER_ATTACK_MAX_ROTATE_SEC (180.0f * (M_PI / 180.0f))
+#define PLAYER_JUMP_ATTACK_HOVER_TIME       0.1f
+#define PLAYER_JUMP_ATTACK_FALL_VELOICTY    -20.0f
+
+
+void playerGlobalInit() {
+    doglow_animations[DOGLOW_DOGLOW_ARMATURE_001_PUNCH_001_INDEX].numEvents = ATTACK_001_EVENT_COUNT;
+    doglow_animations[DOGLOW_DOGLOW_ARMATURE_001_PUNCH_001_INDEX].animationEvents = gAttack001Events;
+
+    doglow_animations[DOGLOW_DOGLOW_ARMATURE_001_PUNCH_002_INDEX].numEvents = ATTACK_002_EVENT_COUNT;
+    doglow_animations[DOGLOW_DOGLOW_ARMATURE_001_PUNCH_002_INDEX].animationEvents = gAttack002Events;
+}
 
 void playerCalculateAttackLocation(struct Player* player, struct PlayerAttackInfo* attackInfo, struct Vector3* output) {
     skCalculateBonePosition(&player->armature, attackInfo->boneIndex, &attackInfo->localPosition, output);
@@ -137,17 +156,20 @@ void playerStateAttack(struct Player* player, struct PlayerInput* input);
 void playerStateWalk(struct Player* player, struct PlayerInput* input);
 void playerStateAttack(struct Player* player, struct PlayerInput* input);
 void playerStateDead(struct Player* player, struct PlayerInput* input);
+void playerStateJump(struct Player* player, struct PlayerInput* input);
+void playerStateJumpAttackStart(struct Player* player, struct PlayerInput* input);
 
 void playerEnterWalkState(struct Player* player) {
     player->state = playerStateWalk;
+    playerEndAttack(player);
     player->attackInfo = 0;
-    // skAnimatorRunClip(&player->animator, &doglow_animations[DOGLOW_DOGLOW_ARMATURE_001_IDLE_INDEX], SKAnimatorFlagsLoop);
 }
 
 void playerEnterAttackState(struct Player* player, struct PlayerAttackInfo* attackInfo) {
     skAnimatorRunClip(&player->animator, &doglow_animations[attackInfo->animationId], 0);
     player->attackInfo = attackInfo;
     player->state = playerStateAttack;
+    player->animationSpeed = 1.0f;
 }
 
 void playerEnterDeadState(struct Player* player) {
@@ -156,6 +178,21 @@ void playerEnterDeadState(struct Player* player) {
     player->state = playerStateDead;
     player->stateTimer = PLAYER_RESPAWN_TIME;
     player->collider->collisionLayers = 0;
+}
+
+void playerEnterJumpState(struct Player* player) {
+    player->velocity.y = PLAYER_JUMP_IMPULSE;
+    player->state = playerStateJump;
+    player->animationSpeed = 1.0f;
+    soundPlayerPlay(gJumpClipIds[randomInRange(0, sizeof(gJumpClipIds)/sizeof(&gJumpClipIds))], 0);
+    skAnimatorRunClip(&player->animator, &doglow_animations[DOGLOW_DOGLOW_ARMATURE_001_JUMP_INDEX], 0);
+}
+
+void playerEnterJumpAttackState(struct Player* player) {
+    player->state = playerStateJumpAttackStart;
+    player->stateTimer = PLAYER_JUMP_ATTACK_HOVER_TIME;
+    player->velocity = gZeroVec;
+    skAnimatorRunClip(&player->animator, &doglow_animations[DOGLOW_DOGLOW_ARMATURE_001_JUMP_ATTACK_INDEX], 0);
 }
 
 void playerUpdatePosition(struct Player* player) {
@@ -248,6 +285,7 @@ void playerInit(struct Player* player, unsigned playerIndex, unsigned team, stru
     player->hp = PLAYER_MAX_HP;
     player->damageTimer = 0.0f;
     player->walkSoundEffect = SOUND_ID_NONE;
+    player->animationSpeed = 1.0f;
 
     player->velocity = gZeroVec;
     player->rightDir = gRight2;
@@ -306,16 +344,59 @@ void playerAccelerateTowards(struct Player* player, struct Vector3* targetDirect
     vector3MoveTowards(&player->velocity, &targetVelocity, acceleration * gTimeDelta, &player->velocity);
 }
 
+void playerUpdateAttack(struct Player* player) {
+    if (player->attackCollider && player->attackInfo) {
+        struct Vector3 attackPosition;
+        playerCalculateAttackLocation(player, player->attackInfo, &attackPosition);
+        punchTrailUpdate(&player->punchTrail, &attackPosition);
+        player->collider->center.x = attackPosition.x;
+        player->collider->center.y = attackPosition.z;
+    }
+}
+
+void playerStateJumpAttack(struct Player* player, struct PlayerInput* input) {
+    player->velocity.y = PLAYER_JUMP_ATTACK_FALL_VELOICTY;
+
+    if (player->transform.position.y <= 0.0f && player->velocity.y <= 0.0f) {
+        playerEnterWalkState(player);
+    }
+
+    playerUpdateAttack(player);
+    
+    playerUpdateOther(player, input);
+}
+
+void playerStateJumpAttackStart(struct Player* player, struct PlayerInput* input) {
+    if (player->stateTimer <= 0.0f) {
+        player->attackInfo = &gPlayerAttacks[2];
+        playerStartAttack(player);
+        player->state = playerStateJumpAttack;
+    } else {
+        player->stateTimer -= gTimeDelta;
+    }
+}
+
 void playerStateFreefall(struct Player* player, struct PlayerInput* input) {
     playerRotateTowardsInput(player, input, PLAYER_AIR_MAX_ROTATE_SEC);
     playerAccelerateTowards(player, &input->targetWorldDirection, PLAYER_AIR_SPEED, PLAYER_AIR_ACCELERATION, PLAYER_AIR_ACCELERATION);
 
+    int wasGoingUp = player->velocity.y > 0.0f;
+
+
+    if (playerInputGetDown(input, PlayerInputActionsAttack)) {
+        playerEnterJumpAttackState(player);
+        return;
+    }
 
     if (player->transform.position.y <= 0.0f && player->velocity.y <= 0.0f) {
-        player->state = playerStateWalk;
+        playerEnterWalkState(player);
     }
 
     playerUpdateOther(player, input);
+
+    if (player->velocity.y <= 0.0f && wasGoingUp) {
+        skAnimatorRunClip(&player->animator, &doglow_animations[DOGLOW_DOGLOW_ARMATURE_001_FALL_INDEX], 0);
+    }
 }
 
 void playerStateJump(struct Player* player, struct PlayerInput* input) {
@@ -339,13 +420,8 @@ void playerStateAttack(struct Player* player, struct PlayerInput* input) {
         }
     }
 
-    if (player->attackCollider && player->attackInfo) {
-        struct Vector3 attackPosition;
-        playerCalculateAttackLocation(player, player->attackInfo, &attackPosition);
-        punchTrailUpdate(&player->punchTrail, &attackPosition);
-        player->collider->center.x = attackPosition.x;
-        player->collider->center.y = attackPosition.z;
-    }
+    playerUpdateAttack(player);
+
 
     playerUpdateOther(player, input);
 }
@@ -382,18 +458,29 @@ void playerStateWalk(struct Player* player, struct PlayerInput* input) {
         recallCircleDisable(&player->recallCircle);
     }
 
-    int isMoving = vector3MagSqrd(&player->velocity) > 0.0001f;
+    float speed = sqrtf(vector3MagSqrd(&player->velocity));
+
+    player->animationSpeed = speed / PLAYER_MOVE_SPEED;
+
+    int isMoving = speed > 0.01f;
 
     if (input->actionFlags & PlayerInputActionsJump) {
-        player->velocity.y = PLAYER_JUMP_IMPULSE;
-        player->state = playerStateJump;
-        soundPlayerPlay(gJumpClipIds[randomInRange(0, sizeof(gJumpClipIds)/sizeof(&gJumpClipIds))], 0);
+        playerEnterJumpState(player);
         isMoving = 0;
-    }
-
-    if (playerInputGetDown(input, PlayerInputActionsAttack)) {
+    } else if (playerInputGetDown(input, PlayerInputActionsAttack)) {
         playerEnterAttackState(player, &gPlayerAttacks[0]);
         isMoving = 0;
+    } else {
+        if (isMoving) {
+            if (player->animator.currentAnimation != &doglow_animations[DOGLOW_DOGLOW_ARMATURE_001_WALK_INDEX]) {
+                skAnimatorRunClip(&player->animator, &doglow_animations[DOGLOW_DOGLOW_ARMATURE_001_WALK_INDEX], SKAnimatorFlagsLoop);
+            }
+        } else {
+            player->animationSpeed = 1.0f;
+            if (player->animator.currentAnimation != &doglow_animations[DOGLOW_DOGLOW_ARMATURE_001_IDLE_INDEX]) {
+                skAnimatorRunClip(&player->animator, &doglow_animations[DOGLOW_DOGLOW_ARMATURE_001_IDLE_INDEX], SKAnimatorFlagsLoop);
+            }
+        }
     }
 
     int hasWalkingSound = player->walkSoundEffect != SOUND_ID_NONE;
@@ -411,7 +498,7 @@ void playerStateWalk(struct Player* player, struct PlayerInput* input) {
 
 void playerUpdate(struct Player* player, struct PlayerInput* input) {
     player->state(player, input);
-    skAnimatorUpdate(&player->animator, player->armature.boneTransforms, 1.0f);
+    skAnimatorUpdate(&player->animator, player->armature.boneTransforms, player->animationSpeed);
     player->collider->center.x = player->transform.position.x;
     player->collider->center.y = player->transform.position.z;
     struct Vector2 vel2D;

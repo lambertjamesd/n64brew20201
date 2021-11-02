@@ -1,4 +1,5 @@
 
+#include <assert.h>
 #include "skelatool_animator.h"
 #include "util/memory.h"
 #include "util/time.h"
@@ -181,6 +182,7 @@ u32 skTranslateSegment(unsigned address) {
 }
 
 void skelatoolWaitForNextMessage() {
+    assert(gSKAnimationPool.mesgQueue.validCount);
     OSMesg msg;
     osRecvMesg(&gSKAnimationPool.mesgQueue, &msg, OS_MESG_BLOCK);
     skProcess(msg);
@@ -211,7 +213,7 @@ void skRequestChunk(struct SKAnimator* animator) {
     char* dest = skRingMemoryAlloc(&gSKAnimationPool.memoryPool, chunkSize);
 
     // wait until enough memory is avaialble
-    while (!dest || gSKAnimationPool.mesgQueue.validCount == gSKAnimationPool.mesgQueue.msgCount) {
+    while ((!dest || gSKAnimationPool.mesgQueue.validCount == gSKAnimationPool.mesgQueue.msgCount) && gSKAnimationPool.mesgQueue.validCount != 0) {
         // something is wrong, avoid an infinite loop
         if (retries == SK_POOL_QUEUE_SIZE) {
             animator->flags &= ~SKAnimatorFlagsActive;
@@ -220,6 +222,11 @@ void skRequestChunk(struct SKAnimator* animator) {
         skelatoolWaitForNextMessage();
         dest = skRingMemoryAlloc(&gSKAnimationPool.memoryPool, chunkSize);
         ++retries;
+    }
+
+    if (!dest) {
+        animator->flags &= ~SKAnimatorFlagsActive;
+        return;
     }
 
     // if this animator already has an open request wait for it to finish before starting a new one
