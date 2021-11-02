@@ -57,7 +57,7 @@ void minionAnimationEvent(struct SKAnimator* animator, void* data, struct SKAnim
     if (event->id == MINION_ANIMATION_EVENT_ATTACK && minion->attackTarget) {
         float distSqr = vector3DistSqrd(teamEntityGetPosition(minion->attackTarget), &minion->transform.position);
         if (distSqr < ATTACK_RADIUS * ATTACK_RADIUS) {
-            teamEntityApplyDamage(minion->attackTarget, MINION_DPS * skAnimationLength(&minion_animations[MINION_ANIMATION_ATTACK]));
+            teamEntityApplyDamage(minion->attackTarget, MINION_DPS * skAnimationLength(&minion_animations_animations[MINION_ANIMATIONS_MINION_ANIMATIONS_ARMATURE_ATTACK_INDEX]));
         } else {
             minion->attackTarget = 0;
         }
@@ -98,7 +98,7 @@ void minionInit(struct Minion* minion, enum MinionType type, struct Transform* a
     minionIssueCommand(minion, defualtCommand, followPlayer);
 
     skAnimatorInit(&minion->animator, 1, minionAnimationEvent, minion);
-    skAnimatorRunClip(&minion->animator, &minion_animations[MINION_ANIMATION_IDLE], SKAnimatorFlagsLoop);
+    skAnimatorRunClip(&minion->animator, &minion_animations_animations[MINION_ANIMATIONS_MINION_ANIMATIONS_ARMATURE_IDLE_INDEX], SKAnimatorFlagsLoop);
     transformInitIdentity(&minion->animationTransform);
 }
 
@@ -151,8 +151,15 @@ void minionUpdate(struct Minion* minion) {
     }
 
     if (minion->hp <= 0) {
-        minionCleanup(minion);
-        gLastDeathTime = gTimePassed;
+        if (minion->collider) {
+            dynamicSceneDeleteEntry(minion->collider);
+            minion->collider = 0;
+        }
+
+        if (!skAnimatorIsRunning(&minion->animator)) {
+            minionCleanup(minion);
+        }
+        skAnimatorUpdate(&minion->animator, &minion->animationTransform, 1.0f);
         return;
     }
 
@@ -182,7 +189,7 @@ void minionUpdate(struct Minion* minion) {
             target = teamEntityGetPosition(minion->currentTarget);
 
             if (minion->currentTarget && minion->currentTarget->entityType == TeamEntityTypeBase) {
-                minDistance = 1.0f;
+                minDistance = SCENE_SCALE;
             }
 
             break;
@@ -192,7 +199,7 @@ void minionUpdate(struct Minion* minion) {
         if (!teamEntityIsAlive(minion->attackTarget)) {
             minion->attackTarget = 0;
         } else if (!skAnimatorIsRunning(&minion->animator)) {
-            skAnimatorRunClip(&minion->animator, &minion_animations[MINION_ANIMATION_IDLE], SKAnimatorFlagsLoop);
+            skAnimatorRunClip(&minion->animator, &minion_animations_animations[MINION_ANIMATIONS_MINION_ANIMATIONS_ARMATURE_IDLE_INDEX], SKAnimatorFlagsLoop);
         } else {
             target = teamEntityGetPosition(minion->attackTarget);
             minDistance = ATTACK_RADIUS;
@@ -200,6 +207,8 @@ void minionUpdate(struct Minion* minion) {
     }
 
     struct Vector3 targetVelocity = gZeroVec;
+
+    int useWalkAnimation = 0;
 
     if (target) {
         struct Vector3 offset;
@@ -210,6 +219,19 @@ void minionUpdate(struct Minion* minion) {
 
         if (distSqr > minDistance * minDistance) {
             vector3Scale(&offset, &targetVelocity, MINION_MOVE_SPEED / sqrtf(distSqr));
+            useWalkAnimation = 1;
+        }
+    }
+
+    if (useWalkAnimation) {
+        if (minion->animator.currentAnimation == 0 ||
+            minion->animator.currentAnimation == &minion_animations_animations[MINION_ANIMATIONS_MINION_ANIMATIONS_ARMATURE_IDLE_INDEX]) {
+            skAnimatorRunClip(&minion->animator, &minion_animations_animations[MINION_ANIMATIONS_MINION_ANIMATIONS_ARMATURE_MOVEFORWARD_INDEX], SKAnimatorFlagsLoop);
+        }
+    } else {
+        if (minion->animator.currentAnimation == 0 ||
+            minion->animator.currentAnimation == &minion_animations_animations[MINION_ANIMATIONS_MINION_ANIMATIONS_ARMATURE_MOVEFORWARD_INDEX]) {
+            skAnimatorRunClip(&minion->animator, &minion_animations_animations[MINION_ANIMATIONS_MINION_ANIMATIONS_ARMATURE_IDLE_INDEX], SKAnimatorFlagsLoop);
         }
     }
 
@@ -218,8 +240,8 @@ void minionUpdate(struct Minion* minion) {
     vector3AddScaled(&minion->transform.position, &minion->velocity, SCENE_SCALE * gTimeDelta, &minion->transform.position);
 
     struct Vector2 right;
-    right.x = minion->velocity.z;
-    right.y = minion->velocity.x;
+    right.x = minion->velocity.x;
+    right.y = -minion->velocity.z;
 
     if (right.x != 0.0f || right.y != 0.0f) {
         vector2Normalize(&right, &right);
@@ -236,19 +258,23 @@ void minionCleanup(struct Minion* minion) {
     if (minion->minionFlags & MinionFlagsActive) {
         minion->minionFlags = 0;
         levelBaseReleaseMinion(&gCurrentLevel.bases[minion->sourceBaseId]);
-        dynamicSceneDeleteEntry(minion->collider);
     }
 }
 
 void minionSetAttackTarget(struct Minion* minion, struct TeamEntity* target) {
     minion->attackTarget = target;
-    skAnimatorRunClip(&minion->animator, &minion_animations[MINION_ANIMATION_ATTACK], 0);
+    skAnimatorRunClip(&minion->animator, &minion_animations_animations[MINION_ANIMATIONS_MINION_ANIMATIONS_ARMATURE_ATTACK_INDEX], 0);
 }
 
 void minionApplyDamage(struct Minion* minion, float amount) {
-    if (minion->damageTimer <= 0.0f) {
+    if (minion->damageTimer <= 0.0f && minion->hp > 0.0f) {
         minion->damageTimer = INVINCIBILITY_TIME;
         minion->hp -= amount;
+
+        if (minion->hp <= 0.0f) {
+            gLastDeathTime = gTimePassed;
+            skAnimatorRunClip(&minion->animator, &minion_animations_animations[MINION_ANIMATIONS_MINION_ANIMATIONS_ARMATURE_DIE_INDEX], 0);
+        }
     }
 }
 

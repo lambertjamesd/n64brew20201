@@ -171,6 +171,7 @@ void levelBaseStartUpgrade(struct LevelBase* base, enum LevelBaseState nextState
 
 void levelBaseInit(struct LevelBase* base, struct BaseDefinition* definition, unsigned char baseId, unsigned int makeNeutral) {
     base->team.entityType = TeamEntityTypeBase;
+    makeNeutral = definition->startingTeam != 1;
     base->team.teamNumber = makeNeutral ? TEAM_NONE : definition->startingTeam;
     base->position.x = definition->position.x;
     base->position.y = FLOOR_HEIGHT;

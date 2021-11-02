@@ -193,11 +193,10 @@ build/musicpatch.zip: $(BASE_TARGET_NAME).z64 \
 
 	node build_scripts/generate_patch_script.js -m patch $(MUSIC) -i patch/banks.ctl assets/soundbanks/banks.ins -s patch/sounds.sounds $(SOUND_CLIPS) > build/musicpatch/apply.bat
 
-
 	@mkdir -p build/musicpatch/assets
-	cp -r assets/music build/musicpatch/assets/music
-	cp -r assets/soundbanks build/musicpatch/assets/soundbanks
-	cp -r assets/sounds build/musicpatch/assets/sounds
+	cp -r assets/music build/musicpatch/assets
+	cp -r assets/soundbanks build/musicpatch/assets
+	cp -r assets/sounds build/musicpatch/assets
 
 	@mkdir -p build/musicpatch/tools
 	cp -r tools/applypatch.exe build/musicpatch/tools

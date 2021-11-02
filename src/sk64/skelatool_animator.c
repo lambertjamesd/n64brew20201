@@ -134,7 +134,6 @@ void skApplyChunk(struct SKAnimator* animator, struct SKAnimationChunk* chunk) {
         nextFrame = skApplyKeyframe(animator, nextFrame);
     }
 
-    animator->flags &= ~SKAnimatorFlagsPendingRequest;
     animator->nextChunkSource += animator->nextSourceChunkSize;
     animator->nextSourceTick = chunk->nextChunkTick;
     animator->nextSourceChunkSize = chunk->nextChunkSize;
@@ -151,6 +150,7 @@ void skProcess(OSIoMesg* message) {
         struct SKAnimationChunk* nextChunk = (struct SKAnimationChunk*)message->dramAddr;
         unsigned nextChunkSize = animator->nextSourceChunkSize;
         skApplyChunk(animator, nextChunk);
+        animator->flags &= ~SKAnimatorFlagsPendingRequest;
         skRingMemoryFree(&gSKAnimationPool.memoryPool, nextChunkSize);
     }
 }
@@ -220,6 +220,11 @@ void skRequestChunk(struct SKAnimator* animator) {
         skelatoolWaitForNextMessage();
         dest = skRingMemoryAlloc(&gSKAnimationPool.memoryPool, chunkSize);
         ++retries;
+    }
+
+    // if this animator already has an open request wait for it to finish before starting a new one
+    while ((animator->flags & SKAnimatorFlagsPendingRequest) != 0 && gSKAnimationPool.mesgQueue.validCount > 0) {
+        skelatoolWaitForNextMessage();
     }
 
     animator->flags |= SKAnimatorFlagsPendingRequest;

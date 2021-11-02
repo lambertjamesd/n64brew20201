@@ -16,6 +16,7 @@
 #include "audio/soundplayer.h"
 #include "scene/scene_management.h"
 #include "audio/dynamic_music.h"
+#include "scene/minion_animations.h"
 
 /**** threads used by this file ****/
 static OSThread gameThread;
@@ -171,6 +172,7 @@ static void initGame(void)
     /**** Call the initialization routines ****/
     void* heapEnd = layoutMemory((void*)PHYS_TO_K0(osMemSize)); 
     initHeap(_heapStart, heapEnd);
+    minionAnimationsInit();
     skInitDataPool(gPiHandle);
     initGFX();
     controllersInit();

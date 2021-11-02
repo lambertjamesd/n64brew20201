@@ -147,7 +147,7 @@ void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* defin
     levelScene->state = LevelSceneStatePlaying;
     levelScene->winningTeam = TEAM_NONE;
 
-    dynamicMusicUseMarkers(gIntensityMarkers, sizeof(gIntensityMarkers) / sizeof(*gIntensityMarkers));
+    // dynamicMusicUseMarkers(gIntensityMarkers, sizeof(gIntensityMarkers) / sizeof(*gIntensityMarkers));
 
     osWritebackDCache(&gSplitScreenViewports[0], sizeof(gSplitScreenViewports));
 }
