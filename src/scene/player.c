@@ -102,6 +102,7 @@ struct Vector3 gRecallOffset = {0.0f, 0.0f, -4.0 * SCENE_SCALE};
 #define PLAYER_ATTACK_MAX_ROTATE_SEC (180.0f * (M_PI / 180.0f))
 #define PLAYER_JUMP_ATTACK_HOVER_TIME       0.1f
 #define PLAYER_JUMP_ATTACK_FALL_VELOICTY    -20.0f
+#define PLAYER_JUMP_ATTCK_DELAY             0.5f
 
 
 void playerGlobalInit() {
@@ -158,6 +159,7 @@ void playerStateAttack(struct Player* player, struct PlayerInput* input);
 void playerStateDead(struct Player* player, struct PlayerInput* input);
 void playerStateJump(struct Player* player, struct PlayerInput* input);
 void playerStateJumpAttackStart(struct Player* player, struct PlayerInput* input);
+void playerStateDelay(struct Player* player, struct PlayerInput* input);
 
 void playerEnterWalkState(struct Player* player) {
     player->state = playerStateWalk;
@@ -193,6 +195,11 @@ void playerEnterJumpAttackState(struct Player* player) {
     player->stateTimer = PLAYER_JUMP_ATTACK_HOVER_TIME;
     player->velocity = gZeroVec;
     skAnimatorRunClip(&player->animator, &doglow_animations[DOGLOW_DOGLOW_ARMATURE_001_JUMP_ATTACK_INDEX], 0);
+}
+
+void playerEnterDelayState(struct Player* player, float duration) {
+    player->state = playerStateDelay;
+    player->stateTimer = duration;
 }
 
 void playerUpdatePosition(struct Player* player) {
@@ -272,6 +279,21 @@ void playerAnimationEvent(struct SKAnimator* animator, void* data, struct SKAnim
     }
 }
 
+void playerCorrectOverlap(struct DynamicSceneOverlap* overlap) {
+    struct Player* player = (struct Player*)overlap->thisEntry->data;
+
+    struct Vector2 normVelocity;
+    struct Vector2 vel2D;
+    vel2D.x = player->velocity.x;
+    vel2D.y = player->velocity.z;
+    vector2Scale(&overlap->shapeOverlap.normal, vector2Dot(&vel2D, &overlap->shapeOverlap.normal), &normVelocity);
+    vector2Sub(&vel2D, &normVelocity, &vel2D);
+    player->velocity.x = vel2D.x;
+    player->velocity.z = vel2D.y;
+
+    teamEntityCorrectOverlap(overlap);
+}
+
 void playerInit(struct Player* player, unsigned playerIndex, unsigned team, struct Vector2* at) {
     player->team.entityType = TeamEntityTypePlayer;
     player->team.teamNumber = team;
@@ -294,7 +316,7 @@ void playerInit(struct Player* player, unsigned playerIndex, unsigned team, stru
         &gPlayerCollider.shapeCommon,
         player,
         at,
-        teamEntityCorrectOverlap,
+        playerCorrectOverlap,
         DynamicSceneEntryHasTeam,
         CollisionLayersTangible | CollisionLayersBase | COLLISION_LAYER_FOR_TEAM(team)
     );
@@ -354,11 +376,21 @@ void playerUpdateAttack(struct Player* player) {
     }
 }
 
+void playerStateDelay(struct Player* player, struct PlayerInput* input) {
+    player->stateTimer -= gTimeDelta;
+    
+    if (player->stateTimer <= 0.0f) {
+        playerEnterWalkState(player);
+    }
+}
+
 void playerStateJumpAttack(struct Player* player, struct PlayerInput* input) {
     player->velocity.y = PLAYER_JUMP_ATTACK_FALL_VELOICTY;
 
     if (player->transform.position.y <= 0.0f && player->velocity.y <= 0.0f) {
-        playerEnterWalkState(player);
+        skAnimatorRunClip(&player->animator, &doglow_animations[DOGLOW_DOGLOW_ARMATURE_001_JUMP_ATTACK_LANDING_INDEX], 0);
+        playerEndAttack(player);
+        playerEnterDelayState(player, PLAYER_JUMP_ATTCK_DELAY);
     }
 
     playerUpdateAttack(player);
@@ -527,6 +559,7 @@ void playerRender(struct Player* player, struct RenderState* renderState) {
         isDamageFlash = mathfMod(player->damageTimer, INVINCIBLE_FLASH_FREQ) > (INVINCIBLE_FLASH_FREQ * 0.5f);
     }
 
+    gDPPipeSync(renderState->dl++);
     gSPDisplayList(renderState->dl++, gTeamPalleteTexture[isDamageFlash ? DAMAGE_PALLETE_INDEX : player->team.teamNumber]);
     skRenderObject(&player->armature, renderState);
     gSPPopMatrix(renderState->dl++, 1);

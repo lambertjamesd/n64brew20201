@@ -9,7 +9,7 @@
 #include "leveldefinition.h"
 #include "game_defs.h"
 
-#define BASE_GFX_PER_BASE   11
+#define BASE_GFX_PER_BASE   12
 
 enum LevelBaseState {
     LevelBaseStateNeutral,
@@ -36,6 +36,7 @@ struct LevelBase {
     unsigned char defaultComand;
     unsigned char issueCommandTimer;
     unsigned char followPlayer;
+    unsigned char baseControlCount[MAX_PLAYERS];
 };
 
 extern struct LevelBase* gPlayerAtBase[MAX_PLAYERS];

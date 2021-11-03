@@ -1,4 +1,6 @@
 
+#include <assert.h>
+
 #include "levelbase.h"
 #include "collision/circle.h"
 #include "collision/collisionlayers.h"
@@ -108,35 +110,8 @@ void levelBaseTrigger(struct DynamicSceneOverlap* overlap) {
         if (base->team.teamNumber == teamEntity->teamNumber && base->issueCommandTimer && teamEntity->entityType == TeamEntityTypeMinion) {
             minionIssueCommand((struct Minion*)teamEntity, base->defaultComand, base->followPlayer);
         }
-        
-        if (teamEntity->teamNumber != base->team.teamNumber) {
-            base->captureProgress -= gTimeDelta * gSpawnTimeCaptureScalar[base->defenseUpgrade];
-            gLastCaptureTime = gTimePassed;
 
-            if (base->captureProgress <= 0.0f) {
-                base->captureProgress = 0.0f;
-                base->team.teamNumber = TEAM_NONE;
-                base->state = LevelBaseStateNeutral;
-                base->defaultComand = MinionCommandDefend;
-                base->collider->collisionLayers = DynamicSceneEntryIsTrigger | DynamicSceneEntryHasTeam | COLLISION_LAYER_FOR_TEAM(TEAM_NONE);
-            }
-        } else {
-            base->captureProgress += gTimeDelta * gSpawnTimeCaptureScalar[base->defenseUpgrade];
-
-            if (base->captureProgress >= CAPTURE_TIME) {
-                base->captureProgress = CAPTURE_TIME;
-
-                if (base->state == LevelBaseStateNeutral) {
-                    base->state = LevelBaseStateSpawning;
-                    base->stateTimeLeft = SPAWN_TIME;
-                    base->collider->collisionLayers = DynamicSceneEntryIsTrigger | DynamicSceneEntryHasTeam | COLLISION_LAYER_FOR_TEAM(teamEntity->teamNumber);
-                    // TODO don't despawn minions if recaptured by same player
-                    levelBaseDespawnMinions(&gCurrentLevel, base->baseId);
-                }
-            } else {
-                gLastCaptureTime = gTimePassed;
-            }
-        }
+        ++base->baseControlCount[teamEntity->teamNumber];
     }
 }
 
@@ -171,7 +146,6 @@ void levelBaseStartUpgrade(struct LevelBase* base, enum LevelBaseState nextState
 
 void levelBaseInit(struct LevelBase* base, struct BaseDefinition* definition, unsigned char baseId, unsigned int makeNeutral) {
     base->team.entityType = TeamEntityTypeBase;
-    makeNeutral = definition->startingTeam != 1;
     base->team.teamNumber = makeNeutral ? TEAM_NONE : definition->startingTeam;
     base->position.x = definition->position.x;
     base->position.y = FLOOR_HEIGHT;
@@ -186,6 +160,10 @@ void levelBaseInit(struct LevelBase* base, struct BaseDefinition* definition, un
     base->issueCommandTimer = 0;
     base->followPlayer = TEAM_NONE;
     base->stateTimeLeft = SPAWN_TIME;
+
+    for (unsigned i = 0; i < MAX_PLAYERS; ++i) {
+        base->baseControlCount[i] = 0;
+    }
 
     if (base->team.teamNumber != TEAM_NONE) {
         levelBaseSetState(base, LevelBaseStateSpawning);
@@ -214,6 +192,60 @@ void levelBaseInit(struct LevelBase* base, struct BaseDefinition* definition, un
 
 void levelBaseUpdate(struct LevelBase* base) {
     base->lastCaptureProgress = base->captureProgress;
+    
+    int controllingTeam = TEAM_NONE;
+    int controlCount = 0;
+
+    for (unsigned i = 0; i < MAX_PLAYERS; ++i) {
+        if (base->baseControlCount[i]) {
+            if (base->baseControlCount[i] > controlCount) {
+                controllingTeam = i;
+                controlCount = base->baseControlCount[i];
+            } else if (base->baseControlCount[i] == controlCount) {
+                controllingTeam = TEAM_NONE;
+                break;
+            }
+        }
+
+        base->baseControlCount[i] = 0;
+    }
+
+    if (controllingTeam != TEAM_NONE) {
+        if (controllingTeam != base->team.teamNumber) {
+            base->captureProgress -= gTimeDelta * gSpawnTimeCaptureScalar[base->defenseUpgrade];
+            gLastCaptureTime = gTimePassed;
+
+            if (base->captureProgress <= 0.0f) {
+                base->captureProgress = 0.0f;
+                base->team.teamNumber = TEAM_NONE;
+                base->state = LevelBaseStateNeutral;
+                base->defaultComand = MinionCommandDefend;
+                base->collider->collisionLayers = DynamicSceneEntryIsTrigger | DynamicSceneEntryHasTeam | COLLISION_LAYER_FOR_TEAM(TEAM_NONE);
+            }
+        } else {
+            base->captureProgress += gTimeDelta * gSpawnTimeCaptureScalar[base->defenseUpgrade];
+
+            if (base->captureProgress >= CAPTURE_TIME) {
+                base->captureProgress = CAPTURE_TIME;
+
+                if (base->state == LevelBaseStateNeutral) {
+                    base->state = LevelBaseStateSpawning;
+                    base->stateTimeLeft = SPAWN_TIME;
+                    base->collider->collisionLayers = DynamicSceneEntryIsTrigger | DynamicSceneEntryHasTeam | COLLISION_LAYER_FOR_TEAM(controllingTeam);
+                    // TODO don't despawn minions if recaptured by same player
+                    levelBaseDespawnMinions(&gCurrentLevel, base->baseId);
+                }
+            } else {
+                gLastCaptureTime = gTimePassed;
+            }
+        }
+    } else if (base->state != LevelBaseStateNeutral) {
+        base->captureProgress += gTimeDelta * gSpawnTimeCaptureScalar[base->defenseUpgrade] * 0.5f;
+
+        if (base->captureProgress >= CAPTURE_TIME) {
+            base->captureProgress = CAPTURE_TIME;
+        }
+    }
 
     switch (base->state) {
         case LevelBaseStateSpawning:
@@ -287,6 +319,7 @@ void levelBaseRender(struct LevelBase* base, struct RenderState* renderState) {
         color = gTeamDarkColors[base->team.teamNumber];
     }
 
+    gDPPipeSync(renderState->dl++);
     gDPSetPrimColor(renderState->dl++, 255, 255, color.r, color.g, color.b, color.a);
     gSPDisplayList(renderState->dl++, base_BasePad_mesh);
     gSPPopMatrix(renderState->dl++, 1);

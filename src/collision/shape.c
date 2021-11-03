@@ -1,28 +1,32 @@
 
 #include "shape.h"
 #include "circle.h"
+#include "polygon.h"
 
 CollisionFunction collisionFunctionTable[CollisionShapeTypeCount * CollisionShapeTypeCount] = {
-    collisionCircleCircle, 0,
-    0, 0,
+    collisionCircleCircle, collisionCirclePolygon,
+    collisionCirclePolygon, 0,
 };
 
-void collisionShapeBoundingBox(struct CollisionShape* shape, struct Vector2* at, struct Box2D* outuput) {
+void collisionShapeBoundingBox(struct CollisionShape* shape, struct Vector2* at, struct Box2D* output) {
     switch (shape->type)
     {
+        case CollisionShapeTypePolygon:
+            collisionPolygonBoundingBox((struct CollisionPolygon*)shape, at, output);
+            break;
         case CollisionShapeTypeCircle:
-            collisionCircleBoundingBox((struct CollisionCircle*)shape, at, outuput);
+            collisionCircleBoundingBox((struct CollisionCircle*)shape, at, output);
             break;
         default:
-            outuput->max = *at;
-            outuput->max = *at;
+            output->max = *at;
+            output->max = *at;
             break;
     }
 }
 
 int collisionCollidePair(struct CollisionShape* a, struct CollisionShape* b, struct Vector2* aToB, struct ShapeOverlap* shapeOverlap) {
     int didFlip = 0;
-    if (a->type < b->type) {
+    if (a->type > b->type) {
         struct CollisionShape* tmp = a;
         a = b;
         b = tmp;

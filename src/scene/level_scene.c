@@ -14,6 +14,9 @@
 #include "minimap.h"
 #include "audio/dynamic_music.h"
 #include "events.h"
+#include "collision/collisionlayers.h"
+
+#include "collision/polygon.h"
 
 static Vp gSplitScreenViewports[4];
 static Vp gFullScreenVP = {

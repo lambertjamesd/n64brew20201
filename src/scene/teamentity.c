@@ -45,7 +45,6 @@ void teamEntityCorrectOverlap(struct DynamicSceneOverlap* overlap) {
         }
 
         vector3AddScaled(aPos, &overlap3D, -weight * overlap->shapeOverlap.depth, aPos);
-        vector3AddScaled(bPos, &overlap3D, (1.0f - weight) * overlap->shapeOverlap.depth, bPos);
     } else {
         vector3AddScaled(aPos, &overlap3D, -overlap->shapeOverlap.depth, aPos);
     }

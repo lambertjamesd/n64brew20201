@@ -4,6 +4,7 @@
 
 struct Vector2 gRight2 = {1.0f, 0.0f};
 struct Vector2 gUp2 = {0.0f, 1.0f};
+struct Vector2 gZeroVec2 = {0.0f, 0.0f};
 
 void vector2ComplexMul(struct Vector2* a, struct Vector2* b, struct Vector2* out) {
     float x = a->x * b->x - a->y * b->y;
@@ -34,6 +35,13 @@ void vector2RotateTowards(struct Vector2* from, struct Vector2* towards, struct 
     }
 }
 
+void vector2Rotate90(struct Vector2* input, struct Vector2* out) {
+    // in case input == out
+    float tmp = input->x;
+    out->x = -input->y;
+    out->y = tmp;
+}
+
 float vector2Cross(struct Vector2* a, struct Vector2* b) {
     return a->x * b->y - a->y * b->x;
 }
@@ -61,6 +69,13 @@ float vector2MagSqr(struct Vector2* a)  {
     return a->x * a->x + a->y * a->y;
 }
 
+float vector2DistSqr(struct Vector2* a, struct Vector2* b) {
+    float dx = a->x - b->x;
+    float dy = a->y - b->y;
+
+    return dx * dx + dy * dy;
+}
+
 void vector2Normalize(struct Vector2* a, struct Vector2* out) {
     if (a->x == 0.0f && a->y == 0.0f) {
         *out = *a;
@@ -73,6 +88,6 @@ void vector2Normalize(struct Vector2* a, struct Vector2* out) {
 }
 
 void vector2Negate(struct Vector2* a, struct Vector2* out) {
-    out->x = a->x;
-    out->y = a->y;
+    out->x = -a->x;
+    out->y = -a->y;
 }
