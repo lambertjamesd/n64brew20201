@@ -1,11 +1,11 @@
 #include "levels.h"
 
-#define DEFINE_LEVEL(name)  extern char _##name##SegmentRomStart[], _##name##SegmentRomEnd[]; \
+#define DEFINE_LEVEL(name, theme)  extern char _##name##SegmentRomStart[], _##name##SegmentRomEnd[]; \
     extern struct LevelDefinition name##_Definition;
 #include "level_list.h"
 #undef DEFINE_LEVEL
 
-#define DEFINE_LEVEL(name)  {&name##_Definition, _##name##SegmentRomStart, _##name##SegmentRomEnd},
+#define DEFINE_LEVEL(name, theme)  {&name##_Definition, _##name##SegmentRomStart, _##name##SegmentRomEnd},
 
 struct LevelMetadata gLevels[] = {
 #include "level_list.h"

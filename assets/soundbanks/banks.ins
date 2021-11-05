@@ -21,8 +21,8 @@ keymap _027Electric_Guitar_cleanSoundKeymap
 sound _027Electric_Guitar_cleanSound
 {
     use("./samples/_025Acoustic_Guitar_steelSoundSnd.aifc");
-    pan = 64;
-    volume = 127;
+    pan = 0;
+    volume = 42;
     keymap = _027Electric_Guitar_cleanSoundKeymap;
     envelope = _027Electric_Guitar_cleanSoundEnv;
 }
@@ -41,7 +41,7 @@ sound _027Electric_Guitar_cleanSound2
 {
     use("./samples/_025Acoustic_Guitar_steelSoundSnd2.aifc");
     pan = 64;
-    volume = 127;
+    volume = 42;
     keymap = _027Electric_Guitar_cleanSoundKeymap2;
     envelope = _027Electric_Guitar_cleanSoundEnv;
 }
@@ -60,15 +60,15 @@ sound _027Electric_Guitar_cleanSound3
 {
     use("./samples/_025Acoustic_Guitar_steelSoundSnd3.aifc");
     pan = 64;
-    volume = 127;
+    volume = 42;
     keymap = _027Electric_Guitar_cleanSoundKeymap3;
     envelope = _027Electric_Guitar_cleanSoundEnv;
 }
 
 instrument _027Electric_Guitar_clean
 {
-    volume = 127;
-    pan = 64;
+    volume = 42;
+    pan = 0;
     priority = 5;
     bendRange = 200;
     sound = _027Electric_Guitar_cleanSound;

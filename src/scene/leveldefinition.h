@@ -14,11 +14,19 @@ struct BaseDefinition {
     unsigned char startingTeam;
 };
 
+struct DecorDefinition {
+    struct Vector2 position;
+    float rotation;
+    unsigned decorID;
+};
+
 struct LevelDefinition {
     unsigned int maxPlayerCount;
     struct Vector2* playerStartLocations;
-    unsigned int baseCount;
+    unsigned short baseCount;
+    unsigned short decorCount;
     struct BaseDefinition* bases;
+    struct DecorDefinition decor;
     struct Box2D levelBoundaries;
     Gfx* sceneRender;
     struct StaticScene staticScene;

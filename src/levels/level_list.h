@@ -1,1 +1,1 @@
-DEFINE_LEVEL(the_octogon)
+DEFINE_LEVEL(The_Octogon, Mars)

@@ -1,0 +1,11 @@
+LevelList: ../../src/levels/level_list.h
+ThemeList: ../../src/levels/theme_list.h
+
+Themes:
+    - Name: Mars
+      Output: ../../data/level_themes/Mars/theme.h
+
+      Levels:
+        - Name: The Octogon
+          Filename: TheOctogon.fbx
+          Output: ../../data/levels/The_Octogon/level.h

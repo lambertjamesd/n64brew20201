@@ -53,5 +53,6 @@ ${midiFiles.map(midi => {
 }).join('\n')}
 
 .\\tools\\applypatch.exe patch
+.\\tools\\makemask.exe output.z64
 
 `);

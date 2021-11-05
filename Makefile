@@ -198,9 +198,10 @@ build/musicpatch.zip: $(BASE_TARGET_NAME).z64 \
 	cp -r assets/soundbanks build/musicpatch/assets
 	cp -r assets/sounds build/musicpatch/assets
 
-	@mkdir -p build/musicpatch/tools
-	cp -r tools/applypatch.exe build/musicpatch/tools
-	cp -r tools/midicvt.exe build/musicpatch/tools
-	cp -r tools/sfz2n64.exe build/musicpatch/tools
+	# @mkdir -p build/musicpatch/tools
+	# cp -r tools/applypatch.exe build/musicpatch/tools
+	# cp -r tools/midicvt.exe build/musicpatch/tools
+	# cp -r tools/sfz2n64.exe build/musicpatch/tools
+	# cp -r tools/makemask.exe build/musicpatch/tools
 
 	zip -r build/musicpatch.zip build/musicpatch/
