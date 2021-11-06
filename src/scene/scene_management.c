@@ -20,12 +20,21 @@ void loadLevelScene(struct LevelMetadata* metadata) {
 
     if (gLevelSegment) {
         free(gLevelSegment);
+        gLevelSegment = 0;
+    }
+
+    if (gThemeSegment) {
+        free(gThemeSegment);
+        gThemeSegment = 0;
     }
 
     gLevelSegment = malloc(metadata->romSegmentEnd - metadata->romSegmentStart);
     romCopy(metadata->romSegmentStart, gLevelSegment, metadata->romSegmentEnd - metadata->romSegmentStart);
 
-    struct LevelDefinition* definition = levelDefinitionUnpack(metadata->fullDefinition, gLevelSegment);
+    gThemeSegment = malloc(metadata->theme->romSegmentEnd - metadata->theme->romSegmentStart);
+    romCopy(metadata->theme->romSegmentStart, gThemeSegment, metadata->theme->romSegmentEnd - metadata->theme->romSegmentStart);
+
+    struct LevelDefinition* definition = levelDefinitionUnpack(metadata->fullDefinition, gLevelSegment, gThemeSegment);
 
     levelSceneInit(&gCurrentLevel, definition, 4, 4);
     gSceneState = SceneStateInLevel;

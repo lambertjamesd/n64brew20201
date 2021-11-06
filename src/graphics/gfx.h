@@ -12,7 +12,8 @@
 #define	STATIC_SEGMENT		1
 #define	MENU_SEGMENT		2
 #define CHARACTER_SEGMENT   3
-#define LEVEL_SEGMENT   4
+#define LEVEL_SEGMENT       4
+#define THEME_SEGMENT       5
 #define RDP_OUTPUT_SIZE 0x4000
 
 #ifdef _LANGUAGE_C /* needed because file is included by "spec" */
@@ -61,6 +62,7 @@ extern char* gStaticSegment;
 extern char* gCharacterSegment;
 extern char* gMenuSegment;
 extern char* gLevelSegment;
+extern char* gThemeSegment;
 
 /* frame buffer, zbuffer: */
 extern unsigned short	zbuffer[];

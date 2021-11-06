@@ -1,4 +1,5 @@
 #include "level.h"
+#include "../../level_themes/Mars/theme.h"
 #include <ultra64.h>
 
 u64 The_Octogon_Ground_TextureGreyscale_i8[] = {
@@ -769,13 +770,19 @@ struct SceneBoundary The_Octogon_Boundary[] = {
     {{-5623.97, -2432.96}, {0.954731, 0.297471}},
 };
 
+struct DecorDefinition The_Octogon_Decor[] = {
+    {{0, 0, 2293.43}, {-0.707107, 0, 0, 0.707107}, ROCK004_DECOR_ID},
+};
 struct LevelDefinition The_Octogon_Definition = {
     .maxPlayerCount = 4,
     .playerStartLocations = The_Octogon_StartingPositions,
     .baseCount = 9,
+    .decorCount = 1,
     .bases = The_Octogon_Bases,
+    .decor = The_Octogon_Decor,
     .levelBoundaries = {{-6382.02, -6382.02}, {6382.02, 6382.02}},
     .sceneRender = The_Octogon_model_gfx,
+    .theme = &MarsTheme,
     .staticScene = {The_Octogon_Boundary, 8},
 };
 

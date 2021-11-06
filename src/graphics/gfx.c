@@ -24,6 +24,7 @@ char         *gStaticSegment = 0;
 char         *gMenuSegment = 0;
 char         *gCharacterSegment = 0;
 char         *gLevelSegment = 0;
+char         *gThemeSegment = 0;
 
 void* rdp_output;
 
@@ -57,6 +58,7 @@ void createGfxTask(GFXInfo *i)
     gSPSegment(renderState->dl++, MENU_SEGMENT, osVirtualToPhysical(gMenuSegment));
     gSPSegment(renderState->dl++, CHARACTER_SEGMENT, osVirtualToPhysical(gCharacterSegment));
     gSPSegment(renderState->dl++, LEVEL_SEGMENT, osVirtualToPhysical(gLevelSegment));
+    gSPSegment(renderState->dl++, THEME_SEGMENT, osVirtualToPhysical(gThemeSegment));
 
     /**** Graphics pipeline state initialization ****/
     gSPDisplayList(renderState->dl++, setup_rspstate);

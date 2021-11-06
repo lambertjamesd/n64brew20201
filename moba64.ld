@@ -29,12 +29,12 @@ OUTPUT_ARCH (mips)
    END_SEG(name) \
 
 #define DEFINE_THEME(theme) \
-   BEGIN_SEG(name, 0x05000000) \
+   BEGIN_SEG(theme, 0x05000000) \
    { \
       build/data/level_themes/theme/the##me.o(.data); \
       build/data/level_themes/theme/the##me.o(.bss); \
    } \
-   END_SEG(name) \
+   END_SEG(theme) \
 
 
 SECTIONS

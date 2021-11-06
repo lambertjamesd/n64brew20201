@@ -3,6 +3,9 @@
 
 #include "levels/themedefinition.h"
 
+
+extern Gfx Mars_Rock004DisplayList[];
+#define ROCK004_DECOR_ID 0
 extern struct ThemeDefinition MarsTheme;
 
 #endif

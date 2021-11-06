@@ -33,6 +33,8 @@ struct LevelScene {
 
     struct LevelBase *bases;
     unsigned int baseCount;
+
+    Mtx* decorMatrices;
     
     Gfx* levelDL;
     struct Minion* minions;

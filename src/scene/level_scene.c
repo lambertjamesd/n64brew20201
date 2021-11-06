@@ -15,6 +15,8 @@
 #include "audio/dynamic_music.h"
 #include "events.h"
 #include "collision/collisionlayers.h"
+#include "levels/themedefinition.h"
+#include "sk64/skelatool_defs.h"
 
 #include "collision/polygon.h"
 
@@ -107,6 +109,21 @@ void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* defin
     levelScene->bases = malloc(sizeof(struct LevelBase) * definition->baseCount);
     for (unsigned i = 0; i < definition->baseCount; ++i) {
         levelBaseInit(&levelScene->bases[i], &definition->bases[i], (unsigned char)i, definition->bases[i].startingTeam >= playercount);
+    }
+
+    levelScene->decorMatrices = malloc(sizeof(Mtx) * definition->decorCount);
+
+    for (unsigned i = 0; i < definition->decorCount; ++i) {
+        struct Transform decorTransform;
+        decorTransform.position = definition->decor[i].position;
+        decorTransform.rotation = definition->decor[i].rotation;
+        decorTransform.scale = gOneVec;
+        transformToMatrixL(&decorTransform, &levelScene->decorMatrices[i]);
+
+        struct Vector2 pos2D;
+        pos2D.x = decorTransform.position.x;
+        pos2D.y = decorTransform.position.z;
+        dynamicSceneNewEntry(definition->theme->decorShapes[i], 0, &pos2D, 0, 0, CollisionLayersTangible | CollisionLayersStatic);
     }
 
     levelScene->minionCount = definition->baseCount * MAX_MINIONS_PER_BASE;
@@ -209,6 +226,7 @@ void levelSceneRender(struct LevelScene* levelScene, struct RenderState* renderS
         );
         gDPPipeSync(renderState->dl++);
         gDPSetRenderMode(renderState->dl++, G_RM_ZB_OPA_SURF, G_RM_ZB_OPA_SURF2);
+        gSPSegment(renderState->dl++, MATRIX_TRANSFORM_SEGMENT, levelScene->decorMatrices);
         gSPDisplayList(renderState->dl++, levelScene->levelDL);
         gSPDisplayList(renderState->dl++, baseGfx);
         gSPDisplayList(renderState->dl++, playerGfx);

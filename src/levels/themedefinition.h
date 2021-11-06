@@ -3,13 +3,15 @@
 
 #include <ultra64.h>
 #include "collision/shape.h"
+#include "collision/polygon.h"
 
 struct ThemeDefinition {
     Gfx** decorMaterials;
     Gfx** decorDisplayLists;
     struct CollisionShape** decorShapes;
+    unsigned short decorCount;
 };
 
-struct ThemeDefinition* levelDefinitionUnpack(struct ThemeDefinition* addressPtr, void* segmentRamStart);
+struct ThemeDefinition* levelThemeUnpack(struct ThemeDefinition* addressPtr, void* segmentRamStart);
 
 #endif

@@ -297,7 +297,7 @@ Vtx Mars_Decor_Rock004_002_normal[] = {
 
 
 
-Gfx Mars_DecorDisplayLists_1[] = {
+Gfx Mars_Rock004DisplayList[] = {
     gsSPVertex(&Mars_Decor_Rock004_002_normal[0], 30, 0),
     gsSP2Triangles(0, 1, 2, 0, 3, 4, 5, 0),
     gsSP2Triangles(6, 7, 8, 0, 9, 10, 11, 0),
@@ -360,15 +360,28 @@ Gfx Mars_DecorDisplayLists_1[] = {
 };
 
 Gfx* Mars_DecorDisplayLists[] = {
-    Mars_DecorDisplayLists_1,
+    Mars_Rock004DisplayList,
 };
 
+struct CollisionPolygonEdge Mars_Rock004ShapeEdges[] = {
+    {{-516.505, -480.143}, {0, -1}, 1033.01},
+    {{516.506, -480.143}, {1, 1.27119e-07}, 960.287},
+    {{516.505, 480.143}, {0, 1}, 1033.01},
+    {{-516.506, 480.143}, {-1, -1.27119e-07}, 960.287},
+};
+struct CollisionPolygon Mars_Rock004Shape = {
+    .shapeCommon = {CollisionShapeTypePolygon},
+    .boundingBox = {{-516.506, -480.143},{516.506, 480.143}},
+    .edges = Mars_Rock004ShapeEdges,
+    .edgeCount = 4,
+};
 struct CollisionShape* Mars_DecorShapes[] = {
-    0,
+    (struct CollisionShape*)&Mars_Rock004Shape,
 };
 
 struct ThemeDefinition MarsTheme = {
     .decorMaterials = Mars_DecorMaterials,
     .decorDisplayLists = Mars_DecorDisplayLists,
     .decorShapes = Mars_DecorShapes,
+    .decorCount = 1,
 };

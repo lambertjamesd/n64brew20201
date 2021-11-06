@@ -2,6 +2,7 @@
 #include "shape.h"
 #include "circle.h"
 #include "polygon.h"
+#include "util/rom.h"
 
 CollisionFunction collisionFunctionTable[CollisionShapeTypeCount * CollisionShapeTypeCount] = {
     collisionCircleCircle, collisionCirclePolygon,
@@ -47,4 +48,13 @@ int collisionCollidePair(struct CollisionShape* a, struct CollisionShape* b, str
     }
     
     return 0;
+}
+
+struct CollisionShape* collisionShapeUnpack(struct CollisionShape* shape, void* segmentRamStart) {
+    struct CollisionShape* result = CALC_RAM_POINTER(shape, segmentRamStart);
+    if (result->type == CollisionShapeTypePolygon) {
+        struct CollisionPolygon* asPolygon = (struct CollisionPolygon*)result;
+        asPolygon->edges = CALC_RAM_POINTER(asPolygon->edges, segmentRamStart);
+    }
+    return result;
 }
