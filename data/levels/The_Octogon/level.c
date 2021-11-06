@@ -1,26 +1,8 @@
 #include "level.h"
 #include "../../level_themes/Mars/theme.h"
+#include "sk64/skelatool_defs.h"
 #include <ultra64.h>
 
-u64 The_Octogon_Ground_TextureGreyscale_i8[] = {
-    0xb4a784968e9e8489, 0xa0a2b7b49b94a5b0, 0xacaea09689b0aea0, 0xacb0b2a7aca7969b, 0xa2b289ac9496899b, 0x9b96ae9eb4a09ba7, 0xa5a0b7bbaeacb469, 0xac8e58bba5964d84, 
-    0xaca5a7a2a784999e, 0x9b9ea9b2b77c8eac, 0x6caeacb2b4ae9b52, 0xae47b4b2b4844384, 0x819bb2b28c5d433e, 0x8cb0b2a596b2a069, 0x47b0aeaea78462a7, 0xb0a7b0b7b4848489, 
-    0x9b848c946c566784, 0xa7a59e8c84aca05f, 0x5f9ea279494b81a2, 0xb7ac9eaea0b0aea2, 0x84678c6e845f5645, 0x9e8199719eb999b7, 0xb79e844d4b408771, 0xb2bd9b45a7b4b4a9, 
-    0xa7794d3da7968e84, 0x9b67437ca2b2b4b2, 0xac79473ea0aeb2b7, 0x7ca26c96a287aeb9, 0xa79b588c6e7e9e81, 0x8e79a77c67a7b2a2, 0x76694d99a567b474, 0x9b795d678184a0b2, 
-    0xb4455f999b9e7194, 0x9b96819ea7b7a7a0, 0x9b494067b4b2b4a5, 0xacb4a274a0aea291, 0x9b84847481a771a2, 0x7c84a0acb481949e, 0x798e7caea7ac96b2, 0xb4bdb29b79949e87, 
-    0xa77e89845d87b4ac, 0xaca5a5b4ae995f76, 0x9181a7aea991b9b4, 0x49b299a58e5899b2, 0x918e8449a7814b5f, 0x877e81b49eacb2b2, 0x9b7cb0b2b2a5bbb4, 0xa2a0bbb496b4b7b4, 
-    0xb4acb4a5a75d5258, 0x5f8491ac8caca2a7, 0x8c4ba25296b7bbb4, 0xaeb2b9a2b0b7b4b9, 0x96a2999b7e8c525b, 0x497c678194719eb4, 0xa58eb2aeb4aeb4b7, 0xb7b4b49ba0a5a952, 
-    0x9b81747496816e69, 0x81586c81879996a7, 0xaeaea549b479a9b0, 0xb4b7b4a5969eac9b, 0x9b949b847e697196, 0x8162719191acbbb4, 0xb9b781819ea2a745, 0xa9a27e819e9e8ea0, 
-    0xb276848979799b8c, 0xa2a9877c9484a29b, 0xa7b7b4b4b29e8447, 0x7c844f849ba5a599, 0x9b8989845f8e719e, 0x87719184945d8e40, 0xb287aca2b9bb5b69, 0x798e89849b94719b, 
-    0xb289566e696e8174, 0x795f625f7e817c67, 0x6e949bb0b2a2ae69, 0x4d798481849e8471, 0xb4897156546e4369, 0x5d8174875d69917c, 0x64a2a5a2849ea59e, 0x96528c81918184b7, 
-    0x846754564f5d4f5d, 0x8c948471794f5d67, 0x9b9484499eae897e, 0x4581648c947c9e87, 0xb24b69545d8496a7, 0x79a55d69624d679e, 0x717e91a29967695d, 0x8c7c69748745a7a7, 
-    0x9b9e898784749b79, 0xa59baea06c968c69, 0x69717cae875f6c6e, 0x675b528c8e8c8c84, 0xb27ea5817667769b, 0xb4b2a7b08c849b6e, 0x9e84459b96549481, 0x4056583d7c9eac9e, 
-    0xb2b2947e997c8c99, 0xa9a7a78991b29b84, 0x967e71649ba0a7a0, 0x524d744b94946994, 0x845fb2a59b8eaca5, 0x9e6c89a284675d69, 0x946c7e5f4f79b294, 0x4b496e7ea76c56ac, 
-    0xb2b2b2b2a09ea947, 0xb2b2994984b28987, 0x6956918c5b4d9b94, 0x79699199a26769a2, 0xb28481a0a789797e, 0x6e84946e8c919b3d, 0xb2b2b2715f819ea5, 0xa7a59ea29ba79eb2, 
-    0xa2a7919e96a59481, 0x846e8ca29ba9a769, 0x7484845d5269aca9, 0xa29e6ea9a2a2a9ac, 0x89a09ba29ea56987, 0x8187a2a7a9ae8c9e, 0x94948c435f76999e, 0xa794a28eb4b7b2b2, 
-    0x9ba7b4b796a29b8c, 0x91a2a5a7b4a28484, 0x8e948c58a291a296, 0x8ca2a2ac96a2b4b4, 0x9ba0a9a284a2a0a0, 0xa7a2a29ba289a2a2, 0xa289a2a291a2a2a2, 0xa79696a296a2a2b4, 
-
-};
 Vtx The_Octogon_Geometry_color[] = {
     {{{-4057, -2, -3982}, 0, {2528, -1542}, {255, 24, 0, 255}}},
     {{{-3649, -2, -5244}, 0, {3167, -1335}, {255, 24, 0, 255}}},
@@ -340,20 +322,7 @@ Vtx The_Octogon_Geometry_color[] = {
 
 Gfx The_Octogon_model_gfx[] = {
     // Material Ground.001
-    gsDPPipeSync(),
-    gsSPClearGeometryMode(G_LIGHTING),
-    gsDPSetCombineLERP(SHADE, 0, TEXEL0, 0, 0, 0, 0, ENVIRONMENT, SHADE, 0, TEXEL0, 0, 0, 0, 0, ENVIRONMENT),
-    gsSPTexture(65535, 65535, 0, 0, 1),
-    gsDPTileSync(),
-    gsDPSetTextureFilter(G_TF_POINT),
-    gsDPSetTextureLUT(G_TT_NONE),
-    gsDPSetTextureImage(G_IM_FMT_I, G_IM_SIZ_8b_LOAD_BLOCK, 1, The_Octogon_Ground_TextureGreyscale_i8),
-    gsDPSetTile(G_IM_FMT_I, G_IM_SIZ_8b_LOAD_BLOCK, 0, 0, 7, 0, G_TX_WRAP | G_TX_NOMIRROR, 5, 0, G_TX_WRAP | G_TX_NOMIRROR, 5, 0),
-    gsDPLoadSync(),
-    gsDPLoadBlock(7, 0, 0, 511, 512),
-    gsDPPipeSync(),
-    gsDPSetTile(G_IM_FMT_I, G_IM_SIZ_8b, 4, 0, 0, 0, G_TX_WRAP | G_TX_NOMIRROR, 5, 0, G_TX_WRAP | G_TX_NOMIRROR, 5, 0),
-    gsDPSetTileSize(0, 0, 0, 124, 124),
+    gsSPDisplayList(Mars_Ground_001),
     // End Material Ground.001
     gsSPVertex(&The_Octogon_Geometry_color[0], 32, 0),
     gsSP2Triangles(0, 1, 2, 0, 0, 2, 3, 0),
@@ -738,6 +707,11 @@ Gfx The_Octogon_model_gfx[] = {
     gsSP2Triangles(6, 12, 13, 0, 6, 13, 7, 0),
     gsSP2Triangles(4, 10, 11, 0, 4, 11, 5, 0),
     gsSP2Triangles(18, 14, 15, 0, 18, 15, 19, 0),
+    // Begin decor
+    gsSPDisplayList(Mars_Rock),
+    gsSPMatrix((Mtx*)MATRIX_TRANSFORM_SEGMENT_ADDRESS + 0, G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH),
+    gsSPDisplayList(Mars_Rock004DisplayList),
+    gsSPPopMatrix(G_MTX_MODELVIEW),
     gsSPEndDisplayList(),
 };
 struct BaseDefinition The_Octogon_Bases[] = {
@@ -771,7 +745,7 @@ struct SceneBoundary The_Octogon_Boundary[] = {
 };
 
 struct DecorDefinition The_Octogon_Decor[] = {
-    {{0, 0, 2293.43}, {-0.707107, 0, 0, 0.707107}, ROCK004_DECOR_ID},
+    {{0, 0, 2293.43}, {0, -0.707107, 0, 0.707107}, ROCK004_DECOR_ID},
 };
 struct LevelDefinition The_Octogon_Definition = {
     .maxPlayerCount = 4,

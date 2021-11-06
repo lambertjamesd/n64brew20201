@@ -123,6 +123,11 @@ build/assets/soundbanks/banks.ctl build/assets/soundbanks.banks.tbl: assets/soun
 	truncate build/assets/soundbanks/banks.ctl --size 32KB
 	truncate build/assets/soundbanks/banks.tbl --size 1MB
 
+LEVELS = $(shell find assets/levels/ -type f -name '*.fbx')
+
+src/levels/level_list.h: assets/levels/level_definition.yaml assets/materials/levels.yaml $(LEVELS)
+	${SKELATOOL64} -o data/levels/the_octogon/level.h -s 100 -m assets/materials/levels.yaml -d assets/levels/level_definition.yaml
+
 ####################
 ## Linking
 ####################

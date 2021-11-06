@@ -3,6 +3,8 @@
 
 #include "levels/themedefinition.h"
 
+extern Gfx Mars_Ground_001[];
+extern Gfx Mars_Rock[];
 
 extern Gfx Mars_Rock004DisplayList[];
 #define ROCK004_DECOR_ID 0

@@ -51,6 +51,10 @@ int collisionCollidePair(struct CollisionShape* a, struct CollisionShape* b, str
 }
 
 struct CollisionShape* collisionShapeUnpack(struct CollisionShape* shape, void* segmentRamStart) {
+    if (!shape) {
+        return 0;
+    }
+
     struct CollisionShape* result = CALC_RAM_POINTER(shape, segmentRamStart);
     if (result->type == CollisionShapeTypePolygon) {
         struct CollisionPolygon* asPolygon = (struct CollisionPolygon*)result;

@@ -120,10 +120,12 @@ void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* defin
         decorTransform.scale = gOneVec;
         transformToMatrixL(&decorTransform, &levelScene->decorMatrices[i]);
 
-        struct Vector2 pos2D;
-        pos2D.x = decorTransform.position.x;
-        pos2D.y = decorTransform.position.z;
-        dynamicSceneNewEntry(definition->theme->decorShapes[i], 0, &pos2D, 0, 0, CollisionLayersTangible | CollisionLayersStatic);
+        if (definition->theme->decorShapes[i]) {
+            struct Vector2 pos2D;
+            pos2D.x = decorTransform.position.x;
+            pos2D.y = decorTransform.position.z;
+            dynamicSceneNewEntry(definition->theme->decorShapes[i], 0, &pos2D, 0, 0, CollisionLayersTangible | CollisionLayersStatic);
+        }
     }
 
     levelScene->minionCount = definition->baseCount * MAX_MINIONS_PER_BASE;
