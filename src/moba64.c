@@ -179,7 +179,7 @@ static void initGame(void)
     controllersInit();
     initAudio();
     soundPlayerInit();
-    loadLevelScene(&gLevels[1]);
+    loadLevelScene(&gLevels[2]);
 
 #ifdef WITH_DEBUGGER
     OSThread* debugThreads[2];

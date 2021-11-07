@@ -120,11 +120,13 @@ void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* defin
         decorTransform.scale = gOneVec;
         transformToMatrixL(&decorTransform, &levelScene->decorMatrices[i]);
 
-        if (definition->theme->decorShapes[i]) {
+        unsigned id = definition->decor[i].decorID;
+
+        if (definition->theme->decorShapes[id]) {
             struct Vector2 pos2D;
             pos2D.x = decorTransform.position.x;
             pos2D.y = decorTransform.position.z;
-            struct DynamicSceneEntry* entry = dynamicSceneNewEntry(definition->theme->decorShapes[i], 0, &pos2D, 0, 0, CollisionLayersTangible | CollisionLayersStatic);
+            struct DynamicSceneEntry* entry = dynamicSceneNewEntry(definition->theme->decorShapes[id], 0, &pos2D, 0, 0, CollisionLayersTangible | CollisionLayersStatic);
             dynamicEntrySetRotation3D(entry, &decorTransform.rotation);
         }
     }

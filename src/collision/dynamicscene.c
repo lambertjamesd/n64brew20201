@@ -21,6 +21,10 @@ struct DynamicSceneEntry* dynamicSceneNewEntry(
     unsigned flags,
     unsigned collisionLayers
 ) {
+    if (!forShape) {
+        return 0;
+    }
+
     if (gDynamicScene.actorCount < DYNAMIC_SCENE_ENTRY_COUNT) {
         struct DynamicSceneEntry* result = gDynamicScene.entryOrder[gDynamicScene.actorCount];
         result->forShape = forShape;

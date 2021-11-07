@@ -13,3 +13,7 @@ Themes:
         - Name: Level Template
           Filename: LevelTemplate.fbx
           Output: ../../data/levels/Level_Template/level.h
+          
+        - Name: Course 01
+          Filename: Course_01.fbx
+          Output: ../../data/levels/Course_01/level.h
