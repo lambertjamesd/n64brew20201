@@ -26,8 +26,10 @@ struct DynamicSceneEntry* dynamicSceneNewEntry(
         result->forShape = forShape;
         result->data = data;
         result->center = *at;
+        result->rotation.x = 1.0f;
+        result->rotation.y = 0.0f;
         result->onCollide = onCollide;
-        result->flags = flags;
+        result->flags = flags | DynamicSceneEntryDirtyBox;
         result->collisionLayers = collisionLayers;
         ++gDynamicScene.actorCount;
         return result;
@@ -105,7 +107,29 @@ void dynamicSceneCheckCollision(struct DynamicSceneEntry* a, struct DynamicScene
     struct Vector2 offset;
     vector2Sub(&b->center, &a->center, &offset);
 
+    int shouldRotate = 0;
+
+    if (a->forShape->type == CollisionShapeTypePolygon && (a->rotation.x != 1.0f || b->rotation.y != 0.0f)) {
+        shouldRotate = 1;
+        struct Vector2 invRotation;
+        vector2ComplexConj(&a->rotation, &invRotation);
+        vector2ComplexMul(&offset, &invRotation, &offset);
+    } else if (b->forShape->type == CollisionShapeTypePolygon && (b->rotation.x != 1.0f || b->rotation.y != 0.0f)) {
+        shouldRotate = 1;
+        struct Vector2 invRotation;
+        vector2ComplexConj(&b->rotation, &invRotation);
+        vector2ComplexMul(&offset, &invRotation, &offset);
+    }
+
     if (collisionCollidePair(a->forShape, b->forShape, &offset, ((a->flags | b->flags) & DynamicSceneEntryIsTrigger) ? 0 : &overlap.shapeOverlap)) {
+        if (shouldRotate) {
+            if (a->forShape->type == CollisionShapeTypePolygon) {
+                vector2ComplexMul(&overlap.shapeOverlap.normal, &a->rotation, &overlap.shapeOverlap.normal);
+            } else {
+                vector2ComplexMul(&overlap.shapeOverlap.normal, &b->rotation, &overlap.shapeOverlap.normal);
+            }
+        }
+
         if (a->onCollide && !(b->flags & DynamicSceneEntryIsTrigger)) {
             overlap.thisEntry = a;
             overlap.otherEntry = b;
@@ -124,7 +148,12 @@ void dynamicSceneCheckCollision(struct DynamicSceneEntry* a, struct DynamicScene
 void dynamicSceneCollide() {
     // update bounding boxes
     for (unsigned i = 0; i < gDynamicScene.actorCount; ++i) {
-        collisionShapeBoundingBox(gDynamicScene.entryOrder[i]->forShape, &gDynamicScene.entryOrder[i]->center, &gDynamicScene.entryOrder[i]->boundingBox);
+        struct DynamicSceneEntry* currentEntry = gDynamicScene.entryOrder[i];
+        
+        if (currentEntry->flags & DynamicSceneEntryDirtyBox) {
+            collisionShapeBoundingBox(currentEntry->forShape, &currentEntry->center, &currentEntry->rotation, &currentEntry->boundingBox);
+            currentEntry->flags &= ~DynamicSceneEntryDirtyBox;
+        }
     }
 
     // sort by bounding box min x
@@ -166,4 +195,25 @@ void dynamicSceneCollide() {
         gDynamicScene.workingMemory[writeIndex] = currentEntry;
         activeEntries = writeIndex + 1;
     }
+}
+
+void dynamicEntrySetPos(struct DynamicSceneEntry* entry, struct Vector2* pos) {
+    entry->center = *pos;
+    entry->flags |= DynamicSceneEntryDirtyBox;
+}
+
+void dynamicEntrySetPos3D(struct DynamicSceneEntry* entry, struct Vector3* pos) {
+    entry->center.x = pos->x;
+    entry->center.y = pos->z;
+    entry->flags |= DynamicSceneEntryDirtyBox;
+}
+
+void dynamicEntrySetRotation3D(struct DynamicSceneEntry* entry, struct Quaternion* rotation) {
+    struct Vector3 right;
+    quatMultVector(rotation, &gRight, &right);
+    right.y = 0.0f;
+    vector3Normalize(&right, &right);
+    entry->rotation.x = right.x;
+    entry->rotation.y = right.z;
+    entry->flags |= DynamicSceneEntryDirtyBox;
 }

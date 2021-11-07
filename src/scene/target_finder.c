@@ -89,12 +89,12 @@ void targetFinderUpdate(struct TargetFinder* finder) {
     finder->trigger->collisionLayers = 0;
     // put the trigger off screen to minimize cycles checking collisions
     finder->trigger->center.x = (finder->minionIndex + 1000.0f) * 100.0f;
+    finder->trigger->collisionLayers |= DynamicSceneEntryDirtyBox;
 
     if ((minion->minionFlags & MinionFlagsActive) != 0) {
         if (minion->currentCommand == MinionCommandDefend) {
             finder->trigger->collisionLayers = CollisionLayersAllTeams ^ COLLISION_LAYER_FOR_TEAM(minion->team.teamNumber);
-            finder->trigger->center.x = minion->defensePoint.x;
-            finder->trigger->center.y = minion->defensePoint.z;
+            dynamicEntrySetPos3D(finder->trigger, &minion->defensePoint);
         } else if (minion->currentCommand == MinionCommandAttack) {
             minion->currentTarget = targetFinderFindNearestTarget(&gCurrentLevel, &minion->transform.position, minion->team.teamNumber);
         }

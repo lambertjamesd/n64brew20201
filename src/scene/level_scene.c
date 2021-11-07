@@ -124,7 +124,8 @@ void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* defin
             struct Vector2 pos2D;
             pos2D.x = decorTransform.position.x;
             pos2D.y = decorTransform.position.z;
-            dynamicSceneNewEntry(definition->theme->decorShapes[i], 0, &pos2D, 0, 0, CollisionLayersTangible | CollisionLayersStatic);
+            struct DynamicSceneEntry* entry = dynamicSceneNewEntry(definition->theme->decorShapes[i], 0, &pos2D, 0, 0, CollisionLayersTangible | CollisionLayersStatic);
+            dynamicEntrySetRotation3D(entry, &decorTransform.rotation);
         }
     }
 

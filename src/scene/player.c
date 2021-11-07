@@ -371,8 +371,7 @@ void playerUpdateAttack(struct Player* player) {
         struct Vector3 attackPosition;
         playerCalculateAttackLocation(player, player->attackInfo, &attackPosition);
         punchTrailUpdate(&player->punchTrail, &attackPosition);
-        player->collider->center.x = attackPosition.x;
-        player->collider->center.y = attackPosition.z;
+        dynamicEntrySetPos3D(player->attackCollider, &attackPosition);
     }
 }
 
@@ -531,12 +530,12 @@ void playerStateWalk(struct Player* player, struct PlayerInput* input) {
 void playerUpdate(struct Player* player, struct PlayerInput* input) {
     player->state(player, input);
     skAnimatorUpdate(&player->animator, player->armature.boneTransforms, player->animationSpeed);
-    player->collider->center.x = player->transform.position.x;
-    player->collider->center.y = player->transform.position.z;
+    dynamicEntrySetPos3D(player->collider, &player->transform.position);
     struct Vector2 vel2D;
     vel2D.x = player->velocity.x;
     vel2D.y = player->velocity.z;
     staticSceneConstrainToBoundaries(&gCurrentLevel.definition->staticScene, &player->collider->center, &vel2D, gPlayerCollider.radius);
+    player->collider->flags |= DynamicSceneEntryDirtyBox;
     player->transform.position.x = player->collider->center.x;
     player->transform.position.z = player->collider->center.y;
     player->velocity.x = vel2D.x;

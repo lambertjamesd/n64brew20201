@@ -44,9 +44,17 @@ Resources:
     Type: u64
     IsArray: True
     Content: 0xa255d31769cf0000
+  Metal_lights:
+    Type: Lights1
+    IsArray: False
+    Content: gdSPDefLights1(0x55, 0x61, 0x67, 0xAB, 0xC3, 0xCF, 0x28, 0x28, 0x28)
+  Crate_lights:
+    Type: Lights1
+    IsArray: False
+    Content: gdSPDefLights1(0x4A, 0x33, 0xF, 0x95, 0x66, 0x1F, 0x28, 0x28, 0x28)
 
 Materials:
-  Ground.001:
+  Ground:
     UsedResources: ["Ground_TextureGreyscale_i8"]
     Content: |-
       gsDPPipeSync(),
@@ -84,3 +92,21 @@ Materials:
       gsDPPipeSync(),
       gsDPSetTile(G_IM_FMT_CI, G_IM_SIZ_4b, 4, 0, 0, 0, G_TX_WRAP | G_TX_NOMIRROR, 5, 0, G_TX_WRAP | G_TX_NOMIRROR, 6, 0),
       gsDPSetTileSize(0, 0, 0, 252, 124),
+  Metal:
+    UsedResources: ["Metal_lights"]
+    VertexType: Normal
+    Content: |-
+      gsDPPipeSync(),
+      gsSPSetGeometryMode(G_LIGHTING),
+      gsDPSetCombineLERP(0, 0, 0, SHADE, 0, 0, 0, ENVIRONMENT, 0, 0, 0, SHADE, 0, 0, 0, ENVIRONMENT),
+      gsSPTexture(65535, 65535, 0, 0, 1),
+      gsSPSetLights1(Metal_lights),
+  Crate:
+    UsedResources: ["Crate_lights"]
+    VertexType: Normal
+    Content: |-
+      gsDPPipeSync(),
+      gsSPSetGeometryMode(G_LIGHTING),
+      gsDPSetCombineLERP(0, 0, 0, SHADE, 0, 0, 0, ENVIRONMENT, 0, 0, 0, SHADE, 0, 0, 0, ENVIRONMENT),
+      gsSPTexture(65535, 65535, 0, 0, 1),
+      gsSPSetLights1(Crate_lights),

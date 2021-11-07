@@ -248,8 +248,7 @@ void minionUpdate(struct Minion* minion) {
         quatAxisComplex(&gUp, &right, &minion->transform.rotation);
     }
 
-    minion->collider->center.x = minion->transform.position.x;
-    minion->collider->center.y = minion->transform.position.z;
+    dynamicEntrySetPos3D(minion->collider, &minion->transform.position);
 
     skAnimatorUpdate(&minion->animator, &minion->animationTransform, 1.0f);
 }

@@ -12,6 +12,11 @@ void vector2ComplexMul(struct Vector2* a, struct Vector2* b, struct Vector2* out
     out->x = x;
 }
 
+void vector2ComplexConj(struct Vector2* a, struct Vector2* out) {
+    out->x = a->x;
+    out->y = -a->y;
+}
+
 void vector2ComplexFromAngle(float radians, struct Vector2* out) {
     out->x = cosf(radians);
     out->y = sinf(radians);
@@ -90,4 +95,14 @@ void vector2Normalize(struct Vector2* a, struct Vector2* out) {
 void vector2Negate(struct Vector2* a, struct Vector2* out) {
     out->x = -a->x;
     out->y = -a->y;
+}
+
+void vector2Min(struct Vector2* a, struct Vector2* b, struct Vector2* out) {
+    out->x = minf(a->x, b->x);
+    out->y = minf(a->y, b->y);
+}
+
+void vector2Max(struct Vector2* a, struct Vector2* b, struct Vector2* out) {
+    out->x = maxf(a->x, b->x);
+    out->y = maxf(a->y, b->y);
 }

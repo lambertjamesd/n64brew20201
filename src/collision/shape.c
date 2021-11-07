@@ -9,14 +9,14 @@ CollisionFunction collisionFunctionTable[CollisionShapeTypeCount * CollisionShap
     collisionCirclePolygon, 0,
 };
 
-void collisionShapeBoundingBox(struct CollisionShape* shape, struct Vector2* at, struct Box2D* output) {
+void collisionShapeBoundingBox(struct CollisionShape* shape, struct Vector2* at, struct Vector2* rotation, struct Box2D* output) {
     switch (shape->type)
     {
         case CollisionShapeTypePolygon:
-            collisionPolygonBoundingBox((struct CollisionPolygon*)shape, at, output);
+            collisionPolygonBoundingBox((struct CollisionPolygon*)shape, at, rotation, output);
             break;
         case CollisionShapeTypeCircle:
-            collisionCircleBoundingBox((struct CollisionCircle*)shape, at, output);
+            collisionCircleBoundingBox((struct CollisionCircle*)shape, at, rotation, output);
             break;
         default:
             output->max = *at;

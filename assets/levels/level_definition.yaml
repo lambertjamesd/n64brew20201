@@ -9,3 +9,7 @@ Themes:
         - Name: The Octogon
           Filename: TheOctogon.fbx
           Output: ../../data/levels/The_Octogon/level.h
+          
+        - Name: Level Template
+          Filename: LevelTemplate.fbx
+          Output: ../../data/levels/Level_Template/level.h

@@ -4,6 +4,7 @@
 #include <ultra64.h>
 #include "collision/shape.h"
 #include "collision/polygon.h"
+#include "collision/circle.h"
 
 struct ThemeDefinition {
     Gfx** decorMaterials;

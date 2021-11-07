@@ -47,7 +47,7 @@ void recallCircleActivate(struct RecallCircle* circle, struct Vector2* at, struc
             COLLISION_LAYER_FOR_TEAM(forPlayer->team.teamNumber)
         );
     } else {
-        circle->collider->center = *at;
+        dynamicEntrySetPos(circle->collider, at);
     }
 }
 
