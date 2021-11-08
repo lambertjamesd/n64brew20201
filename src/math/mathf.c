@@ -14,6 +14,10 @@ int randomInRange(int min, int maxPlusOne) {
     return randomInt() * (maxPlusOne - min) / (MAX_INT_VALUE + 1) + min;
 }
 
+float randomInRangef(float min, float maxPlusOne) {
+    return randomInt() * (maxPlusOne - min) / (MAX_INT_VALUE + 1) + min;
+}
+
 float fsign(float in) {
     if (in > 0.0f) {
         return 1.0f;

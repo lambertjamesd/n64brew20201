@@ -75,8 +75,7 @@ void minionInit(struct Minion* minion, enum MinionType type, struct Transform* a
     minion->minionFlags = MinionFlagsActive;
     minion->sourceBaseId = sourceBaseId;
     minion->velocity = gZeroVec;
-    minion->hp = MINION_HP;
-    minion->damageTimer = 0.0f;
+    damageHandlerInit(&minion->damageHandler, MINION_HP);
 
     struct Vector2 position;
 
@@ -113,11 +112,7 @@ void minionRender(struct Minion* minion, struct RenderState* renderState) {
     transformConcat(&minion->transform, &minion->animationTransform, &finalTransform);
     transformToMatrixL(&finalTransform, matrix);
 
-    int isDamageFlash = 0;
-
-    if (minion->damageTimer > 0.0f) {
-        isDamageFlash = mathfMod(minion->damageTimer, INVINCIBLE_FLASH_FREQ) > (INVINCIBLE_FLASH_FREQ * 0.5f);
-    }
+    int isDamageFlash = damageHandlerIsFlashing(&minion->damageHandler);
 
     struct Coloru8 color = gTeamColors[isDamageFlash ? DAMAGE_PALLETE_INDEX : minion->team.teamNumber];
 
@@ -142,15 +137,9 @@ void minionUpdate(struct Minion* minion) {
     struct Vector3* target;
     float minDistance = 0.0f;
 
-    if (minion->damageTimer > 0.0f) {
-        minion->damageTimer -= gTimeDelta;
+    damageHandlerUpdate(&minion->damageHandler);
 
-        if (minion->damageTimer < 0.0f) {
-            minion->damageTimer = 0.0f;
-        }
-    }
-
-    if (minion->hp <= 0) {
+    if (minion->damageHandler.hp <= 0) {
         if (minion->collider) {
             dynamicSceneDeleteEntry(minion->collider);
             minion->collider = 0;
@@ -266,11 +255,10 @@ void minionSetAttackTarget(struct Minion* minion, struct TeamEntity* target) {
 }
 
 void minionApplyDamage(struct Minion* minion, float amount) {
-    if (minion->damageTimer <= 0.0f && minion->hp > 0.0f) {
-        minion->damageTimer = INVINCIBILITY_TIME;
-        minion->hp -= amount;
+    if (minion->damageHandler.hp > 0.0f) {
+        damageHandlerApplyDamage(&minion->damageHandler, amount, INVINCIBILITY_TIME);
 
-        if (minion->hp <= 0.0f) {
+        if (minion->damageHandler.hp <= 0.0f) {
             gLastDeathTime = gTimePassed;
             skAnimatorRunClip(&minion->animator, &minion_animations_animations[MINION_ANIMATIONS_MINION_ANIMATIONS_ARMATURE_DIE_INDEX], 0);
         }
@@ -278,5 +266,5 @@ void minionApplyDamage(struct Minion* minion, float amount) {
 }
 
 int minionIsAlive(struct Minion* minion) {
-    return (minion->minionFlags & MinionFlagsActive) != 0 && minion->hp > 0;
+    return (minion->minionFlags & MinionFlagsActive) != 0 && minion->damageHandler.hp > 0;
 }

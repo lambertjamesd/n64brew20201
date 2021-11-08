@@ -27,7 +27,6 @@
 #define PLAYER_RESPAWN_TIME                        5.0f
 #define PLAYER_INVINCIBILITY_TIME                  0.5f
 #define INVINCIBLE_JUMP_HEIGHT                     1.0f
-#define INVINCIBLE_FLASH_FREQ                      0.1f
 
 struct SKAnimationEvent gAttack001Events[] = {
     {9, PLAYER_ATTACK_START_ID},
@@ -241,15 +240,9 @@ void playerUpdateOther(struct Player* player, struct PlayerInput* input) {
     playerUpdateLastBase(player, input);
     playerCheckCommands(player, input);
 
-    if (player->damageTimer > 0.0f) {
-        player->damageTimer -= gTimeDelta;
+    damageHandlerUpdate(&player->damageHandler);
 
-        if (player->damageTimer < 0.0f) {
-            player->damageTimer = 0.0f;
-        }
-    }
-
-    if (player->hp <= 0.0f) {
+    if (player->damageHandler.hp <= 0.0f) {
         gLastDeathTime = gTimePassed;
         playerEnterDeadState(player);
     }
@@ -304,8 +297,7 @@ void playerInit(struct Player* player, unsigned playerIndex, unsigned team, stru
     player->attackInfo = 0;
     player->playerIndex = playerIndex;
     player->flags = 0;
-    player->hp = PLAYER_MAX_HP;
-    player->damageTimer = 0.0f;
+    damageHandlerInit(&player->damageHandler, PLAYER_MAX_HP);
     player->walkSoundEffect = SOUND_ID_NONE;
     player->animationSpeed = 1.0f;
 
@@ -466,7 +458,7 @@ void playerStateDead(struct Player* player, struct PlayerInput* input) {
         if (respawnPoint) {
             player->collider->collisionLayers = CollisionLayersTangible | CollisionLayersBase | COLLISION_LAYER_FOR_TEAM(player->team.teamNumber);
             player->transform.position = *respawnPoint;
-            player->hp = PLAYER_MAX_HP;
+            damageHandlerInit(&player->damageHandler, PLAYER_MAX_HP);
             playerEnterWalkState(player);
         }
     }
@@ -552,11 +544,7 @@ void playerRender(struct Player* player, struct RenderState* renderState) {
     transformToMatrixL(&player->transform, matrix);
     gSPMatrix(renderState->dl++, osVirtualToPhysical(matrix), G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
 
-    int isDamageFlash = 0;
-
-    if (player->damageTimer > 0.0f) {
-        isDamageFlash = mathfMod(player->damageTimer, INVINCIBLE_FLASH_FREQ) > (INVINCIBLE_FLASH_FREQ * 0.5f);
-    }
+    int isDamageFlash = damageHandlerIsFlashing(&player->damageHandler);
 
     gDPPipeSync(renderState->dl++);
     gSPDisplayList(renderState->dl++, gTeamPalleteTexture[isDamageFlash ? DAMAGE_PALLETE_INDEX : player->team.teamNumber]);
@@ -570,12 +558,11 @@ void playerRender(struct Player* player, struct RenderState* renderState) {
 }
 
 void playerApplyDamage(struct Player* player, float amount) {
-    if (player->damageTimer <= 0.0f && player->transform.position.y < INVINCIBLE_JUMP_HEIGHT) {
-        player->damageTimer = PLAYER_INVINCIBILITY_TIME;
-        player->hp -= amount;
+    if (player->transform.position.y < INVINCIBLE_JUMP_HEIGHT) {
+        damageHandlerApplyDamage(&player->damageHandler, amount, PLAYER_INVINCIBILITY_TIME);
     }
 }
 
 int playerIsAlive(struct Player* player) {
-    return player->hp > 0 && player->state != playerStateDead;
+    return player->damageHandler.hp > 0 && player->state != playerStateDead;
 }

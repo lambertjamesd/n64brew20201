@@ -13,6 +13,7 @@
 #include "collision/circle.h"
 #include "punchtrail.h"
 #include "audio/soundplayer.h"
+#include "damagehandler.h"
 
 #define PLAYER_GFX_PER_PLAYER   7
 
@@ -50,8 +51,7 @@ struct Player {
     unsigned short playerIndex;
     unsigned short flags;
     SoundID walkSoundEffect;
-    float hp;
-    float damageTimer;
+    struct DamageHandler damageHandler;
     float stateTimer;
     float animationSpeed;
 };

@@ -4,6 +4,7 @@
 
 int randomInt();
 int randomInRange(int min, int maxPlusOne);
+float randomInRangef(float min, float maxPlusOne);
 
 float fsign(float in);
 float mathfLerp(float from, float to, float t);

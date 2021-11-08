@@ -14,5 +14,6 @@ struct StaticScene {
 };
 
 void staticSceneConstrainToBoundaries(struct StaticScene* staticScene, struct Vector2* pos, struct Vector2* velocity, float radius);
+int staticSceneInInsideBoundary(struct StaticScene* staticScene, struct Vector2* pos, float radius);
 
 #endif

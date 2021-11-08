@@ -7,6 +7,7 @@
 #include "graphics/render_state.h"
 #include "teamentity.h"
 #include "collision/dynamicscene.h"
+#include "damagehandler.h"
 
 #define MINION_DEFENSE_RADIUS  10.0f
 #define MINION_GFX_PER_MINION  4
@@ -41,8 +42,7 @@ struct Minion {
     unsigned char sourceBaseId;
     unsigned char currentCommand;
     unsigned char followingPlayer;
-    float hp;
-    float damageTimer;
+    struct DamageHandler damageHandler;
 
     struct DynamicSceneEntry* collider;
 

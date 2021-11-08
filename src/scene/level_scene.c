@@ -142,6 +142,8 @@ void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* defin
         targetFinderInit(&levelScene->targetFinders[finderIndex], (levelScene->minionCount / TARGET_FINDER_COUNT) * finderIndex);
     }
 
+    itemDropsInit(&levelScene->itemDrops);
+
     levelScene->humanPlayerCount = humanPlayerCount;
 
     // 4 numbers per viewport, 4 viewports per slot
@@ -215,7 +217,9 @@ void levelSceneRender(struct LevelScene* levelScene, struct RenderState* renderS
     Gfx* playerEnd = renderStateReplaceDL(renderState, prevDL);
     assert(playerEnd <= playerGfx + PLAYER_GFX_PER_PLAYER * levelScene->playerCount + 1);
 
-    gSPEndDisplayList(renderState->transparentDL++);    
+    Gfx* itemDropsGfx = itemDropsRender(&levelScene->itemDrops, renderState);
+
+    gSPEndDisplayList(renderState->transparentDL++);
 
     for (unsigned int i = 0; i < levelScene->humanPlayerCount; ++i) {
         Vp* viewport = &gSplitScreenViewports[i];
@@ -236,6 +240,7 @@ void levelSceneRender(struct LevelScene* levelScene, struct RenderState* renderS
         gSPDisplayList(renderState->dl++, baseGfx);
         gSPDisplayList(renderState->dl++, playerGfx);
         gSPDisplayList(renderState->dl++, minionGfx);
+        gSPDisplayList(renderState->dl++, itemDropsGfx);
         gSPDisplayList(renderState->dl++, renderState->transparentQueueStart);
 
         baseCommandMenuRender(
@@ -353,6 +358,8 @@ void levelSceneUpdate(struct LevelScene* levelScene) {
     for (unsigned finderIndex = 0; finderIndex < TARGET_FINDER_COUNT; ++finderIndex) {
         targetFinderUpdate(&levelScene->targetFinders[finderIndex]);
     }
+
+    itemDropsUpdate(&levelScene->itemDrops);
 
     dynamicSceneCollide();
     levelSceneUpdateMusic(levelScene);

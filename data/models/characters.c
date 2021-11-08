@@ -9,7 +9,9 @@
 #include "doglow/model.inc.h"
 #include "recallcircle/model.inc.h"
 #include "punchtrail/geometry_geo.inc.h"
-
+#include "itemdrop/model.inc.h"
+#include "itemdropbase/model.inc.h"
+#include "target/model.inc.h"
 
 Vtx mario_Cube_mesh_vtx_cull[8] = {
 	{{{-213, -213, -213},0, {-16, -16},{0x0, 0x0, 0x0, 0xFF}}},

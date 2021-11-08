@@ -11,5 +11,8 @@
 #include "basepole/header.h"
 #include "recallcircle/header.h"
 #include "punchtrail/geometry.h"
+#include "itemdrop/header.h"
+#include "itemdropbase/header.h"
+#include "target/header.h"
 
 #endif

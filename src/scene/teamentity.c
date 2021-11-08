@@ -75,3 +75,11 @@ int teamEntityIsAlive(struct TeamEntity* entity) {
 
     return 0;
 }
+
+struct TeamEntity* teamEntityGetFromCollision(struct DynamicSceneEntry* entity) {
+    if (entity->flags & DynamicSceneEntryHasTeam) {
+        return (struct TeamEntity*)entity->data;
+    } else {
+        return 0;
+    }
+}

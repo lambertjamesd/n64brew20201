@@ -21,4 +21,6 @@ void teamEntityCorrectOverlap(struct DynamicSceneOverlap* overlap);
 void teamEntityApplyDamage(struct TeamEntity* entity, float amount);
 int teamEntityIsAlive(struct TeamEntity* entity);
 
+struct TeamEntity* teamEntityGetFromCollision(struct DynamicSceneEntry* entity);
+
 #endif

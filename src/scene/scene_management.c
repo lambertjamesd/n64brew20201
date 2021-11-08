@@ -36,7 +36,7 @@ void loadLevelScene(struct LevelMetadata* metadata) {
 
     struct LevelDefinition* definition = levelDefinitionUnpack(metadata->fullDefinition, gLevelSegment, gThemeSegment);
 
-    levelSceneInit(&gCurrentLevel, definition, 4, 4);
+    levelSceneInit(&gCurrentLevel, definition, 2, 1);
     gSceneState = SceneStateInLevel;
 }
 

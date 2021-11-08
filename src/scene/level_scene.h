@@ -12,6 +12,7 @@
 #include "player.h"
 #include "target_finder.h"
 #include "menu/basecommandmenu.h"
+#include "itemdrop.h"
 
 #define MAX_MINIONS_PER_BASE       3
 #define TARGET_FINDER_COUNT        2
@@ -42,6 +43,8 @@ struct LevelScene {
     unsigned lastMinion;
 
     struct TargetFinder targetFinders[TARGET_FINDER_COUNT];
+
+    struct ItemDrops itemDrops;
 
     enum LevelSceneState state;
 };
