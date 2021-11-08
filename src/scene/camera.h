@@ -23,9 +23,9 @@ struct Camera {
 };
 
 void cameraInit(struct Camera* camera, float fov, float near, float far);
-void cameraBuildViewMatrix(struct Camera* camera, Mtx* matrix);
+void cameraBuildViewMatrix(struct Camera* camera, Mtx* matrix, float rotateView);
 void cameraBuildProjectionMatrix(struct Camera* camera, Mtx* matrix, u16* perspectiveNorm, float aspectRatio);
-void cameraSetupMatrices(struct Camera* camera, struct RenderState* renderState, float aspectRatio);
+void cameraSetupMatrices(struct Camera* camera, struct RenderState* renderState, float aspectRatio, float rotateView);
 
 void cameraUpdate(struct Camera* camera, struct Vector3* target, float followDistance, float cameraHeight);
 

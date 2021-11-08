@@ -98,6 +98,7 @@ void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* defin
     for (unsigned i = 0; i < playercount; ++i) {
         cameraInit(&levelScene->cameras[i], 45.0f, 100.0f, 18000.0f);
         playerInit(&levelScene->players[i], i, i, &definition->playerStartLocations[i]);
+        controlsScramblerInit(&levelScene->scramblers[i]);
         vector3AddScaled(&levelScene->players[i].transform.position, &gForward, SCENE_SCALE * 2.0f, &levelScene->cameras[i].transform.position);
         vector3AddScaled(&levelScene->cameras[i].transform.position, &gUp, SCENE_SCALE * 2.0f, &levelScene->cameras[i].transform.position);
         baseCommandMenuInit(&levelScene->baseCommandMenu[i]);
@@ -208,11 +209,13 @@ void levelSceneRender(struct LevelScene* levelScene, struct RenderState* renderS
     assert(baseEnd <= baseGfx + MINION_GFX_PER_MINION * levelScene->baseCount + 1);
 
     // render players
-    Gfx* playerGfx = renderStateAllocateDLChunk(renderState, PLAYER_GFX_PER_PLAYER * levelScene->playerCount + 1);
+    Gfx* playerGfx = renderStateAllocateDLChunk(renderState, PLAYER_GFX_PER_PLAYER * levelScene->playerCount + 3);
     prevDL = renderStateReplaceDL(renderState, playerGfx);
     for (unsigned int i = 0; i < levelScene->playerCount; ++i) {
         playerRender(&levelScene->players[i], renderState);
     }
+    gDPPipeSync(renderState->dl++);
+	gDPSetTextureLUT(renderState->dl++, G_TT_NONE);
     gSPEndDisplayList(renderState->dl++);
     Gfx* playerEnd = renderStateReplaceDL(renderState, prevDL);
     assert(playerEnd <= playerGfx + PLAYER_GFX_PER_PLAYER * levelScene->playerCount + 1);
@@ -223,7 +226,12 @@ void levelSceneRender(struct LevelScene* levelScene, struct RenderState* renderS
 
     for (unsigned int i = 0; i < levelScene->humanPlayerCount; ++i) {
         Vp* viewport = &gSplitScreenViewports[i];
-        cameraSetupMatrices(&levelScene->cameras[i], renderState, (float)viewport->vp.vscale[0] / (float)viewport->vp.vscale[1]);
+        cameraSetupMatrices(
+            &levelScene->cameras[i], 
+            renderState, 
+            (float)viewport->vp.vscale[0] / (float)viewport->vp.vscale[1],
+            controlsScramblerGetCameraRotation(&levelScene->scramblers[i])
+        );
         gSPViewport(renderState->dl++, osVirtualToPhysical(viewport));
         gDPSetScissor(
             renderState->dl++, 
@@ -317,21 +325,34 @@ void levelSceneUpdate(struct LevelScene* levelScene) {
     }
 
     for (unsigned playerIndex = 0; playerIndex < levelScene->playerCount; ++playerIndex) {
-        struct PlayerInput playerInput;
+        struct PlayerInput* playerInput = &levelScene->scramblers[playerIndex].playerInput;
+
+        controlsScramblerUpdate(&levelScene->scramblers[playerIndex]);
 
         if (levelScene->state == LevelSceneStatePlaying) {
             if (baseCommandMenuIsShowing(&levelScene->baseCommandMenu[playerIndex])) {
-                playerInputNoInput(&playerInput);
+                playerInputNoInput(playerInput);
             } else {
+                struct Quaternion cameraRotation;
+                float cameraRoll = controlsScramblerGetCameraRotation(&levelScene->scramblers[playerIndex]);
+
+                if (cameraRoll) {
+                    struct Quaternion roll;
+                    quatAxisAngle(&gForward, cameraRoll, &roll);
+                    quatMultiply(&levelScene->cameras[playerIndex].transform.rotation, &roll, &cameraRotation);
+                } else {
+                    cameraRotation = levelScene->cameras[playerIndex].transform.rotation;
+                }
+
                 playerInputPopulateWithJoystickData(
                     controllersGetControllerData(playerIndex), 
-                    controllerGetLastButton(playerIndex), 
-                    &levelScene->cameras[playerIndex].transform.rotation,
-                    &playerInput
+                    &cameraRotation,
+                    controlsScramblerIsActive(&levelScene->scramblers[playerIndex], ControlsScramblerDPADSwap) ? PlayerInputFlagsSwapJoystickAndDPad : 0,
+                    playerInput
                 );
             }
         } else {
-            playerInputNoInput(&playerInput);
+            playerInputNoInput(playerInput);
             baseCommandMenuHide(&levelScene->baseCommandMenu[playerIndex]);
         }
 
@@ -339,8 +360,10 @@ void levelSceneUpdate(struct LevelScene* levelScene) {
             baseCommandMenuHide(&levelScene->baseCommandMenu[playerIndex]);
         }
 
+        controlsScramblerApply(&levelScene->scramblers[playerIndex]);
+
         baseCommandMenuUpdate(&levelScene->baseCommandMenu[playerIndex], playerIndex);
-        playerUpdate(&levelScene->players[playerIndex], &playerInput);
+        playerUpdate(&levelScene->players[playerIndex], playerInput);
         leveSceneUpdateCamera(levelScene, playerIndex);
     }
 
@@ -452,4 +475,12 @@ int levelSceneFindWinningTeam(struct LevelScene* levelScene) {
     }
 
     return result;
+}
+
+void levelSceneApplyScrambler(struct LevelScene* levelScene, unsigned fromTeam, enum ControlsScramblerType scambler) {
+    for (unsigned i = 0; i < levelScene->playerCount; ++i) {
+        if (levelScene->players[i].team.teamNumber != fromTeam) {
+            controlsScramblerTrigger(&levelScene->scramblers[i], scambler);
+        }
+    }
 }

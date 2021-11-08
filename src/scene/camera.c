@@ -11,9 +11,20 @@ void cameraInit(struct Camera* camera, float fov, float near, float far) {
     camera->farPlane = far;
 }
 
-void cameraBuildViewMatrix(struct Camera* camera, Mtx* matrix) {
+void cameraBuildViewMatrix(struct Camera* camera, Mtx* matrix, float rotateView) {
+    struct Transform cameraTransCopy = camera->transform;
+
+    if (rotateView) {
+        struct Quaternion rotateBy;
+        quatAxisAngle(&gForward, rotateView, &rotateBy);
+        struct Quaternion tmp;
+        quatMultiply(&cameraTransCopy.rotation, &rotateBy, &tmp);
+        cameraTransCopy.rotation = tmp;
+    }
+
     struct Transform inverse;
-    transformInvert(&camera->transform, &inverse);
+    transformInvert(&cameraTransCopy, &inverse);
+
     transformToMatrixL(&inverse, matrix);
 }
 
@@ -21,14 +32,14 @@ void cameraBuildProjectionMatrix(struct Camera* camera, Mtx* matrix, u16* perspe
     guPerspective(matrix, perspectiveNormalize, camera->fov, aspectRatio, camera->nearPlane, camera->farPlane, 1.0f);
 }
 
-void cameraSetupMatrices(struct Camera* camera, struct RenderState* renderState, float aspectRatio) {
+void cameraSetupMatrices(struct Camera* camera, struct RenderState* renderState, float aspectRatio, float rotateView) {
         Mtx* viewProjMatrix = renderStateRequestMatrices(renderState, 2);
         
         if (!viewProjMatrix) {
             return;
         }
 
-        cameraBuildViewMatrix(camera, &viewProjMatrix[0]);
+        cameraBuildViewMatrix(camera, &viewProjMatrix[0], rotateView);
         gSPMatrix(renderState->dl++, osVirtualToPhysical(&viewProjMatrix[0]), G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
 
         u16 perspectiveNormalize;

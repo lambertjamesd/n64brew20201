@@ -13,6 +13,7 @@
 #include "target_finder.h"
 #include "menu/basecommandmenu.h"
 #include "itemdrop.h"
+#include "controlscrambler.h"
 
 #define MAX_MINIONS_PER_BASE       3
 #define TARGET_FINDER_COUNT        2
@@ -27,6 +28,7 @@ struct LevelScene {
     struct LevelDefinition* definition;
     struct Camera cameras[MAX_PLAYERS];
     struct Player players[MAX_PLAYERS];
+    struct ControlsScrambler scramblers[MAX_PLAYERS];
     struct BaseCommandMenu baseCommandMenu[MAX_PLAYERS];
     unsigned char playerCount;
     unsigned char humanPlayerCount;
@@ -58,5 +60,7 @@ void levelBaseDespawnMinions(struct LevelScene* levelScene, unsigned char baseId
 void levelSceneIssueMinionCommand(struct LevelScene* levelScene, unsigned team, enum MinionCommand command);
 struct Vector3* levelSceneFindRespawnPoint(struct LevelScene* levelScene, struct Vector3* closeTo, unsigned team);
 int levelSceneFindWinningTeam(struct LevelScene* levelScene);
+
+void levelSceneApplyScrambler(struct LevelScene* levelScene, unsigned fromTeam, enum ControlsScramblerType scambler);
 
 #endif

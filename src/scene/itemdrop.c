@@ -9,6 +9,7 @@
 #include "../data/models/itemdrop/header.h"
 #include "../data/models/itemdropbase/header.h"
 #include "../data/models/target/header.h"
+#include "controlscrambler.h"
 
 #define DROP_TIME       4.0f
 #define DROP_LIFETIME   60.0f
@@ -71,6 +72,7 @@ void itemDropCollide(struct DynamicSceneOverlap* overlap) {
 
             if (entity->entityType == TeamEntityTypePlayer) {
                 itemDropCleanup(drop);
+                levelSceneApplyScrambler(&gCurrentLevel, entity->teamNumber, randomInRange(0, ControlsScramblerTypeCount));
             }
 
             break;

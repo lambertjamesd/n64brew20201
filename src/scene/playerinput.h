@@ -14,14 +14,19 @@ enum PlayerInputActions {
     PlayerInputActionsCommandOpenBaseMenu = (1 << 5),
 };
 
+enum PlayerInputFlags {
+    PlayerInputFlagsSwapJoystickAndDPad = (1 << 0),
+};
+
 struct PlayerInput {
     struct Vector3 targetWorldDirection;
+    struct Vector3 lastWorldDirection;
     unsigned short actionFlags;
     unsigned short prevActions;
 };
 
 void playerInputNoInput(struct PlayerInput* output);
-void playerInputPopulateWithJoystickData(OSContPad* pad, unsigned short lastButtons, struct Quaternion* cameraRotation, struct PlayerInput* output);
+void playerInputPopulateWithJoystickData(OSContPad* pad, struct Quaternion* cameraRotation, enum PlayerInputFlags flags, struct PlayerInput* output);
 
 unsigned playerInputGetDown(struct PlayerInput* output, enum PlayerInputActions command);
 unsigned short playerInputMapActionFlags(unsigned short buttons);
