@@ -3,6 +3,10 @@
 void InitAI(struct AIController* inController, unsigned playerIndex, unsigned teamIndex){
     inController->playerIndex = playerIndex;
     inController->teamIndex = teamIndex;
+    inController->botAction = 0;
+    inController->currTarget = gZeroVec;
+    inController->targetBase = 0;
+    inController->attackTarget = 0;
 }
 
 void moveAItowardsTarget(struct AIController* inController, struct Vector3* currLocation, struct PlayerInput* inputRef){

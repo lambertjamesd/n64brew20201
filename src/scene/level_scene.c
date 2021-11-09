@@ -105,7 +105,7 @@ void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* defin
     levelScene->playerCount = playercount;
 
     //initializing player controlled characters 
-    for(unsigned i = 0; i < humanPlayerCount; ++i){
+    for(unsigned i = 0; i < playercount; ++i){
         playerInit(&levelScene->players[i], i, i, &definition->playerStartLocations[i]);
         controlsScramblerInit(&levelScene->scramblers[i]);
         cameraInit(&levelScene->cameras[i], 45.0f, 100.0f, 18000.0f);
@@ -120,7 +120,6 @@ void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* defin
     if(numBots > 0){
         levelScene->bots = malloc(sizeof(struct AIController) * numBots);
         for (unsigned i = humanPlayerCount; i < playercount; ++i) {
-            playerInit(&levelScene->players[i], i, i, &definition->playerStartLocations[i]);
             //struct LevelBase* startBase = levelGetClosestBase(&levelScene->players[i].transform.position, levelScene, i);
             struct LevelBase* startBase = getClosestUncapturedBase(levelScene->bases, levelScene->baseCount, &levelScene->players[i].transform.position, i);
 
@@ -365,12 +364,16 @@ void levelSceneCollectBotPlayerInput(struct LevelScene* levelScene, unsigned pla
     unsigned botIndex = playerIndex - levelScene->humanPlayerCount;
 
     //if current target base has been captured by our team, tell the team leadr to switch to another base
-    if(levelScene->bots[botIndex].targetBase != NULL && 
-    levelBaseGetFactionID(levelScene->bots[botIndex].targetBase) == levelScene->players[playerIndex].team.teamNumber){
-        struct LevelBase* newBase = getClosestUncapturedBase(levelScene->bases, levelScene->baseCount, 
-        &levelScene->players[playerIndex].transform.position, 
-        playerIndex);
-        if(newBase != NULL) setTargetBase(&levelScene->bots[botIndex], newBase);
+    if(levelScene->bots[botIndex].targetBase != NULL && levelBaseGetFactionID(levelScene->bots[botIndex].targetBase) == levelScene->players[playerIndex].team.teamNumber) {
+        struct LevelBase* newBase = getClosestUncapturedBase(
+            levelScene->bases, 
+            levelScene->baseCount, 
+            &levelScene->players[playerIndex].transform.position, 
+            playerIndex
+        );
+        if(newBase != NULL) {
+            setTargetBase(&levelScene->bots[botIndex], newBase);
+        }
     }
 
     //if the player just got hit 
@@ -378,22 +381,28 @@ void levelSceneCollectBotPlayerInput(struct LevelScene* levelScene, unsigned pla
         float minionDist;
         float playerDist;
 
-        struct Player* playerEnt = levelGetClosestEnemyPlayer(levelScene,
-        &levelScene->players[playerIndex].transform.position,
-        playerIndex,
-        &playerDist);
+        struct Player* playerEnt = levelGetClosestEnemyPlayer(
+            levelScene,
+            &levelScene->players[playerIndex].transform.position,
+            playerIndex,
+            &playerDist
+        );
 
-        struct Minion* minionEnt = levelGetClosestEnemyMinion(levelScene,
-        &levelScene->players[playerIndex].transform.position,
-        playerIndex,
-        &minionDist);
-        if(minionDist < playerDist) {
-            if(minionEnt->team.teamNumber != levelScene->players[playerIndex].team.teamNumber)
-            levelScene->bots[botIndex].attackTarget = (struct TeamEntity*)minionEnt;
-        }
-        else {
-            if(playerEnt->team.teamNumber != levelScene->players[playerIndex].team.teamNumber)
-            levelScene->bots[botIndex].attackTarget = (struct TeamEntity*)playerEnt;
+        struct Minion* minionEnt = levelGetClosestEnemyMinion(
+            levelScene,
+            &levelScene->players[playerIndex].transform.position,
+            playerIndex,
+            &minionDist
+        );
+
+        if(minionEnt && minionDist < playerDist) {
+            if(minionEnt->team.teamNumber != levelScene->players[playerIndex].team.teamNumber) {
+                levelScene->bots[botIndex].attackTarget = (struct TeamEntity*)minionEnt;
+            }
+        } else {
+            if(playerEnt->team.teamNumber != levelScene->players[playerIndex].team.teamNumber) {
+                levelScene->bots[botIndex].attackTarget = (struct TeamEntity*)playerEnt;
+            }
         }
     }
 
@@ -440,7 +449,7 @@ void levelSceneCollectPlayerInput(struct LevelScene* levelScene, unsigned player
             levelSceneCollectBotPlayerInput(levelScene, playerIndex, playerInput);
         }
     } else {
-        playerInputNoInput(&levelScene->scramblers[playerIndex].playerInput);
+        playerInputNoInput(playerInput);
         baseCommandMenuHide(&levelScene->baseCommandMenu[playerIndex]);
     }
 }
@@ -609,19 +618,22 @@ struct Player* levelGetClosestEnemyPlayer(struct LevelScene* forScene, struct Ve
 }
 
 struct Minion* levelGetClosestEnemyMinion(struct LevelScene* forScene, struct Vector3* closeTo, unsigned team, float* outDist){
-    struct Vector3* currPos = &forScene->minions[0].transform.position;
-    float minDist = vector3DistSqrd(currPos, closeTo);
-    unsigned int minIndex = 0;
+    float minDist = 100000000.0f;
+    unsigned int minIndex = ~0;
 
-    for(unsigned entInd = 1; entInd < forScene->minionCount; ++entInd){
-        if(forScene->minions[entInd].team.teamNumber != team){
-            currPos = &forScene->minions[entInd].transform.position;
+    for(unsigned entInd = 0; entInd < forScene->minionCount; ++entInd){
+        if(minionIsAlive(&forScene->minions[entInd]) && forScene->minions[entInd].team.teamNumber != team){
+            struct Vector3* currPos = &forScene->minions[entInd].transform.position;
             float thisDist = vector3DistSqrd(currPos, closeTo);
             if(thisDist < minDist){
                 minIndex = entInd;
                 minDist = thisDist;
             }
         }
+    }
+
+    if (minIndex == ~0) {
+        return 0;
     }
 
     *outDist = minDist;
