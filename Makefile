@@ -85,7 +85,11 @@ data/models/minionanimations/geometry.h build/data/models/minionanimations/geome
 
 data/models/doglow/geometry.h data/models/doglow/geometry_geo.inc.h build/data/models/doglow/geometry_anim.inc.h build/data/models/doglow/geometry_animdef.inc.h:	assets/models/commandermajor.fbx
 	@mkdir -p $(@D)
-	$(SKELATOOL64) -s 100 -n doglow -o data/models/doglow/geometry.h assets/models/commandermajor.fbx
+	$(SKELATOOL64) -s 100 -n doglow -r -90,90,0 -o data/models/doglow/geometry.h assets/models/commandermajor.fbx
+
+data/models/catlow/geometry.h data/models/catlow/geometry_geo.inc.h build/data/models/catlow/geometry_anim.inc.h build/data/models/catlow/geometry_animdef.inc.h:	assets/models/Commander_Admiral_Animated.fbx
+	@mkdir -p $(@D)
+	$(SKELATOOL64) -s 100 -n catlow -r -90,90,0 -o data/models/catlow/geometry.h assets/models/Commander_Admiral_Animated.fbx
 
 data/models/punchtrail/geometry.h build/data/models/punchtrail/geometry_anim.inc.h build/data/models/punchtrail/geometry_animdef.inc.h:	assets/models/punchtrail.fbx
 	@mkdir -p $(@D)

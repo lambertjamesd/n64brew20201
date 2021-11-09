@@ -10,10 +10,10 @@
 #include "graphics/render_state.h"
 #include "playerinput.h"
 #include "recall_circle.h"
-#include "collision/circle.h"
 #include "punchtrail.h"
 #include "audio/soundplayer.h"
 #include "damagehandler.h"
+#include "faction.h"
 
 #define PLAYER_GFX_PER_PLAYER   7
 
@@ -24,15 +24,6 @@ typedef void (*PlayerState)(struct Player* player, struct PlayerInput* input);
 enum PlayerFlags {
     PlayerFlagsInAttackWindow = (1 << 0),
     PlayerFlagsAttackEarly = (1 << 1),
-};
-
-struct PlayerAttackInfo {
-    unsigned char boneIndex;
-    unsigned char chainedTo;
-    unsigned char animationId;
-    float damage;
-    struct Vector3 localPosition;
-    struct CollisionCircle collisionCircle;
 };
 
 struct Player {
@@ -56,8 +47,6 @@ struct Player {
     float animationSpeed;
 };
 
-
-void playerGlobalInit();
 void playerInit(struct Player* player, unsigned playerIndex, unsigned team, struct Vector2* at);
 void playerUpdate(struct Player* player, struct PlayerInput* input);
 void playerRender(struct Player* player, struct RenderState* renderState);

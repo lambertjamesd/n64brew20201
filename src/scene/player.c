@@ -1,6 +1,5 @@
 
 #include "player.h"
-#include "../data/models/characters.h"
 #include "collision/circle.h"
 #include "collision/collisionlayers.h"
 #include "game_defs.h"
@@ -20,24 +19,11 @@
 #include "events.h"
 #include "collision/staticscene.h"
 
-#define PLAYER_ATTACK_START_ID                     0x0
-#define PLAYER_ATTACK_END_ID                       0x1
-#define PLAYER_ATTACK_WINDOW_ID                    0x2
 #define PLAYER_MAX_HP                              8.0f
 #define PLAYER_RESPAWN_TIME                        5.0f
 #define PLAYER_INVINCIBILITY_TIME                  0.5f
 #define INVINCIBLE_JUMP_HEIGHT                     1.0f
 
-struct SKAnimationEvent gAttack001Events[] = {
-    {9, PLAYER_ATTACK_START_ID},
-    {11, PLAYER_ATTACK_WINDOW_ID},
-    {12, PLAYER_ATTACK_END_ID},
-};
-
-struct SKAnimationEvent gAttack002Events[] = {
-    {4, PLAYER_ATTACK_START_ID},
-    {8, PLAYER_ATTACK_END_ID},
-};
 
 unsigned short gJumpClipIds[] = {
     SOUNDS_DOG_JUMP_GRUNT_1,
@@ -49,44 +35,12 @@ unsigned short gJumpClipIds[] = {
     SOUNDS_DOG_JUMP_GRUNT_7,
 };
 
-#define ATTACK_001_EVENT_COUNT      (sizeof(gAttack001Events)/sizeof(*gAttack001Events))
-#define ATTACK_002_EVENT_COUNT      (sizeof(gAttack001Events)/sizeof(*gAttack002Events))
-
-struct PlayerAttackInfo gPlayerAttacks[] = {
-    {
-        DOGLOW_ARM1_BONE, 
-        1,
-        DOGLOW_DOGLOW_ARMATURE_001_PUNCH_001_INDEX,
-        1.5f,
-        {0.0f, 0.65f * SCENE_SCALE, 0.0f}, 
-        {{CollisionShapeTypeCircle}, 0.5f * SCENE_SCALE},
-    },
-    {
-        DOGLOW_ARM2_BONE, 
-        0,
-        DOGLOW_DOGLOW_ARMATURE_001_PUNCH_002_INDEX,
-        2.0f,
-        {0.0f, 0.65f * SCENE_SCALE, 0.0f}, 
-        {{CollisionShapeTypeCircle}, 0.5f * SCENE_SCALE},
-    },
-    {
-        DOGLOW_BOOT1_BONE, 
-        0,
-        DOGLOW_DOGLOW_ARMATURE_001_PUNCH_002_INDEX,
-        0.5f,
-        {0.0f, 0.65f * SCENE_SCALE, 0.0f}, 
-        {{CollisionShapeTypeCircle}, 1.5f * SCENE_SCALE},
-    },
-};
-
 struct CollisionCircle gPlayerCollider = {
     {CollisionShapeTypeCircle},
     SCENE_SCALE * 0.5f,
 };
 
 struct Vector3 gRecallOffset = {0.0f, 0.0f, -4.0 * SCENE_SCALE};
-
-#include "../data/models/doglow/geometry_animdef.inc.h"
 
 #define PLAYER_AIR_SPEED            (PLAYER_MOVE_SPEED * 0.8f)
 #define PLAYER_STOP_ACCELERATION    50.0f
@@ -103,14 +57,6 @@ struct Vector3 gRecallOffset = {0.0f, 0.0f, -4.0 * SCENE_SCALE};
 #define PLAYER_JUMP_ATTACK_FALL_VELOICTY    -20.0f
 #define PLAYER_JUMP_ATTCK_DELAY             0.5f
 
-
-void playerGlobalInit() {
-    doglow_animations[DOGLOW_DOGLOW_ARMATURE_001_PUNCH_001_INDEX].numEvents = ATTACK_001_EVENT_COUNT;
-    doglow_animations[DOGLOW_DOGLOW_ARMATURE_001_PUNCH_001_INDEX].animationEvents = gAttack001Events;
-
-    doglow_animations[DOGLOW_DOGLOW_ARMATURE_001_PUNCH_002_INDEX].numEvents = ATTACK_002_EVENT_COUNT;
-    doglow_animations[DOGLOW_DOGLOW_ARMATURE_001_PUNCH_002_INDEX].animationEvents = gAttack002Events;
-}
 
 void playerCalculateAttackLocation(struct Player* player, struct PlayerAttackInfo* attackInfo, struct Vector3* output) {
     skCalculateBonePosition(&player->armature, attackInfo->boneIndex, &attackInfo->localPosition, output);
@@ -167,7 +113,7 @@ void playerEnterWalkState(struct Player* player) {
 }
 
 void playerEnterAttackState(struct Player* player, struct PlayerAttackInfo* attackInfo) {
-    skAnimatorRunClip(&player->animator, &doglow_animations[attackInfo->animationId], 0);
+    skAnimatorRunClip(&player->animator, attackInfo->animation, 0);
     player->attackInfo = attackInfo;
     player->state = playerStateAttack;
     player->animationSpeed = 1.0f;
@@ -175,7 +121,7 @@ void playerEnterAttackState(struct Player* player, struct PlayerAttackInfo* atta
 
 void playerEnterDeadState(struct Player* player) {
     playerEndAttack(player);
-    skAnimatorRunClip(&player->animator, &doglow_animations[DOGLOW_DOGLOW_ARMATURE_001_DIE_INDEX], 0);
+    skAnimatorRunClip(&player->animator, factionGetAnimation(player->team.teamNumber, PlayerAnimationDie), 0);
     player->state = playerStateDead;
     player->stateTimer = PLAYER_RESPAWN_TIME;
     player->collider->collisionLayers = 0;
@@ -186,14 +132,14 @@ void playerEnterJumpState(struct Player* player) {
     player->state = playerStateJump;
     player->animationSpeed = 1.0f;
     soundPlayerPlay(gJumpClipIds[randomInRange(0, sizeof(gJumpClipIds)/sizeof(&gJumpClipIds))], 0);
-    skAnimatorRunClip(&player->animator, &doglow_animations[DOGLOW_DOGLOW_ARMATURE_001_JUMP_INDEX], 0);
+    skAnimatorRunClip(&player->animator, factionGetAnimation(player->team.teamNumber, PlayerAnimationJump), 0);
 }
 
 void playerEnterJumpAttackState(struct Player* player) {
     player->state = playerStateJumpAttackStart;
     player->stateTimer = PLAYER_JUMP_ATTACK_HOVER_TIME;
     player->velocity = gZeroVec;
-    skAnimatorRunClip(&player->animator, &doglow_animations[DOGLOW_DOGLOW_ARMATURE_001_JUMP_ATTACK_INDEX], 0);
+    skAnimatorRunClip(&player->animator, factionGetAnimation(player->team.teamNumber, PlayerAnimationJumpAttack), 0);
 }
 
 void playerEnterDelayState(struct Player* player, float duration) {
@@ -319,14 +265,14 @@ void playerInit(struct Player* player, unsigned playerIndex, unsigned team, stru
     
     skInitObject(
         &player->armature, 
-        doglow_DogLow_mesh, 
-        DOGLOW_DEFAULT_BONES_COUNT, 
-        CALC_ROM_POINTER(character_animations, doglow_default_bones),
-        doglow_bone_parent
+        gTeamFactions[player->team.teamNumber]->playerMesh, 
+        gTeamFactions[player->team.teamNumber]->playerBoneCount, 
+        CALC_ROM_POINTER(character_animations, gTeamFactions[player->team.teamNumber]->playerDefaultPose),
+        gTeamFactions[player->team.teamNumber]->playerBoneParent
     );
 
-    skAnimatorInit(&player->animator, DOGLOW_DEFAULT_BONES_COUNT, playerAnimationEvent, player);
-    skAnimatorRunClip(&player->animator, &doglow_animations[DOGLOW_DOGLOW_ARMATURE_001_IDLE_INDEX], SKAnimatorFlagsLoop);
+    skAnimatorInit(&player->animator, gTeamFactions[player->team.teamNumber]->playerBoneCount, playerAnimationEvent, player);
+    skAnimatorRunClip(&player->animator, factionGetAnimation(player->team.teamNumber, PlayerAnimationIdle), SKAnimatorFlagsLoop);
 }
 
 void playerRotateTowardsInput(struct Player* player, struct PlayerInput* input, float rotationRate) {
@@ -379,7 +325,7 @@ void playerStateJumpAttack(struct Player* player, struct PlayerInput* input) {
     player->velocity.y = PLAYER_JUMP_ATTACK_FALL_VELOICTY;
 
     if (player->transform.position.y <= 0.0f && player->velocity.y <= 0.0f) {
-        skAnimatorRunClip(&player->animator, &doglow_animations[DOGLOW_DOGLOW_ARMATURE_001_JUMP_ATTACK_LANDING_INDEX], 0);
+        skAnimatorRunClip(&player->animator, factionGetAnimation(player->team.teamNumber, PlayerAnimationJumpAttackLanding), 0);
         playerEndAttack(player);
         playerEnterDelayState(player, PLAYER_JUMP_ATTCK_DELAY);
     }
@@ -391,7 +337,7 @@ void playerStateJumpAttack(struct Player* player, struct PlayerInput* input) {
 
 void playerStateJumpAttackStart(struct Player* player, struct PlayerInput* input) {
     if (player->stateTimer <= 0.0f) {
-        player->attackInfo = &gPlayerAttacks[2];
+        player->attackInfo = factionGetAttack(player->team.teamNumber, PlayerAttackJumpAttack);
         playerStartAttack(player);
         player->state = playerStateJumpAttack;
     } else {
@@ -418,7 +364,7 @@ void playerStateFreefall(struct Player* player, struct PlayerInput* input) {
     playerUpdateOther(player, input);
 
     if (player->velocity.y <= 0.0f && wasGoingUp) {
-        skAnimatorRunClip(&player->animator, &doglow_animations[DOGLOW_DOGLOW_ARMATURE_001_FALL_INDEX], 0);
+        skAnimatorRunClip(&player->animator, factionGetAnimation(player->team.teamNumber, PlayerAnimationFall), 0);
     }
 }
 
@@ -437,7 +383,7 @@ void playerStateAttack(struct Player* player, struct PlayerInput* input) {
 
     if (playerInputGetDown(input, PlayerInputActionsAttack)) {
         if ((player->flags & (PlayerFlagsInAttackWindow | PlayerFlagsAttackEarly)) == PlayerFlagsInAttackWindow) {
-            playerEnterAttackState(player, &gPlayerAttacks[player->attackInfo->chainedTo]);
+            playerEnterAttackState(player, factionGetAttack(player->team.teamNumber, player->attackInfo->chainedTo));
         } else {
             player->flags |= PlayerFlagsAttackEarly;
         }
@@ -491,17 +437,17 @@ void playerStateWalk(struct Player* player, struct PlayerInput* input) {
         playerEnterJumpState(player);
         isMoving = 0;
     } else if (playerInputGetDown(input, PlayerInputActionsAttack)) {
-        playerEnterAttackState(player, &gPlayerAttacks[0]);
+        playerEnterAttackState(player, factionGetAttack(player->team.teamNumber, PlayerAttackPunch));
         isMoving = 0;
     } else {
         if (isMoving) {
-            if (player->animator.currentAnimation != &doglow_animations[DOGLOW_DOGLOW_ARMATURE_001_WALK_INDEX]) {
-                skAnimatorRunClip(&player->animator, &doglow_animations[DOGLOW_DOGLOW_ARMATURE_001_WALK_INDEX], SKAnimatorFlagsLoop);
+            if (player->animator.currentAnimation != factionGetAnimation(player->team.teamNumber, PlayerAnimationWalk)) {
+                skAnimatorRunClip(&player->animator, factionGetAnimation(player->team.teamNumber, PlayerAnimationWalk), SKAnimatorFlagsLoop);
             }
         } else {
             player->animationSpeed = 1.0f;
-            if (player->animator.currentAnimation != &doglow_animations[DOGLOW_DOGLOW_ARMATURE_001_IDLE_INDEX]) {
-                skAnimatorRunClip(&player->animator, &doglow_animations[DOGLOW_DOGLOW_ARMATURE_001_IDLE_INDEX], SKAnimatorFlagsLoop);
+            if (player->animator.currentAnimation != factionGetAnimation(player->team.teamNumber, PlayerAnimationIdle)) {
+                skAnimatorRunClip(&player->animator, factionGetAnimation(player->team.teamNumber, PlayerAnimationIdle), SKAnimatorFlagsLoop);
             }
         }
     }

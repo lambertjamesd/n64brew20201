@@ -4,4 +4,5 @@
 #include "sk64/skelatool_clip.h"
 #include "math/transform.h"
 
+#include "catlow/geometry_anim.inc.h"
 #include "doglow/geometry_anim.inc.h"

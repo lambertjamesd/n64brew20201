@@ -17,6 +17,7 @@
 #include "scene/scene_management.h"
 #include "audio/dynamic_music.h"
 #include "scene/minion_animations.h"
+#include "scene/faction.h"
 
 /**** threads used by this file ****/
 static OSThread gameThread;
@@ -173,13 +174,13 @@ static void initGame(void)
     void* heapEnd = layoutMemory((void*)PHYS_TO_K0(osMemSize)); 
     initHeap(_heapStart, heapEnd);
     minionAnimationsInit();
-    playerGlobalInit();
+    factionGlobalInit();
     skInitDataPool(gPiHandle);
     initGFX();
     controllersInit();
     initAudio();
     soundPlayerInit();
-    loadLevelScene(&gLevels[0]);
+    loadLevelScene(&gLevels[2]);
 
 #ifdef WITH_DEBUGGER
     OSThread* debugThreads[2];

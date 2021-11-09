@@ -8,7 +8,6 @@
 #include <stdlib.h>
 
 #include "sk64/skelatool_clip.h"
-#include "../data/models/characters.h"
 #include "scene_management.h"
 #include "collision/circle.h"
 #include "collision/collisionlayers.h"
@@ -17,6 +16,7 @@
 #include "minion_animations.h"
 #include "math/mathf.h"
 #include "events.h"
+#include "faction.h"
 
 #define MINION_FOLLOW_DIST  3.0f
 #define MINION_MOVE_SPEED   (PLAYER_MOVE_SPEED * 10.0f)
@@ -118,7 +118,7 @@ void minionRender(struct Minion* minion, struct RenderState* renderState) {
 
     gDPSetPrimColor(renderState->dl++, 0, 0, color.r, color.g, color.b, color.a);
     gSPMatrix(renderState->dl++, osVirtualToPhysical(matrix), G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
-    gSPDisplayList(renderState->dl++, DogMinion_Dog_001_mesh);
+    gSPDisplayList(renderState->dl++, gTeamFactions[minion->team.teamNumber]->minionMesh);
     gSPPopMatrix(renderState->dl++, 1);
 }
 

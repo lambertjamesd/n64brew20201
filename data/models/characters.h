@@ -4,8 +4,10 @@
 
 #include <ultra64.h>
 
+#include "catminion/header.h"
 #include "dogminion/header.h"
 #include "base/header.h"
+#include "catlow/header.h"
 #include "doglow/header.h"
 #include "baseflag/header.h"
 #include "basepole/header.h"

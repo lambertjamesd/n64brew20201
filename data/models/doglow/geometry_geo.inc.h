@@ -1015,6 +1015,8 @@ Vtx doglow_Cube_022_normal_10[] = {
 
 
 Gfx doglow_model_gfx[] = {
+    // Material BlueTeam
+    // End Material BlueTeam
     // Root
     gsSPMatrix((Mtx*)MATRIX_TRANSFORM_SEGMENT_ADDRESS + 0, G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH),
     gsSPVertex(&doglow_Cube_022_normal[0], 30, 0),
@@ -1038,6 +1040,8 @@ Gfx doglow_model_gfx[] = {
     gsSPVertex(&doglow_Cube_022_normal[90], 12, 0),
     gsSP2Triangles(0, 1, 2, 0, 3, 4, 5, 0),
     gsSP2Triangles(6, 7, 8, 0, 9, 10, 11, 0),
+    // Material BlueTeam
+    // End Material BlueTeam
     // Shoulder1
     gsSPMatrix((Mtx*)MATRIX_TRANSFORM_SEGMENT_ADDRESS + 1, G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH),
     gsSPVertex(&doglow_Cube_022_normal_1[0], 30, 0),
@@ -1052,6 +1056,8 @@ Gfx doglow_model_gfx[] = {
     gsSP2Triangles(12, 13, 14, 0, 15, 16, 17, 0),
     gsSP2Triangles(18, 19, 20, 0, 21, 22, 23, 0),
     gsSP2Triangles(24, 25, 26, 0, 27, 28, 29, 0),
+    // Material BlueTeam
+    // End Material BlueTeam
     // Arm1
     gsSPMatrix((Mtx*)MATRIX_TRANSFORM_SEGMENT_ADDRESS + 2, G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH),
     gsSPVertex(&doglow_Cube_022_normal_2[0], 32, 0),
@@ -1096,6 +1102,8 @@ Gfx doglow_model_gfx[] = {
     gsSP2Triangles(12, 13, 14, 0, 12, 14, 15, 0),
     gsSP2Triangles(20, 16, 17, 0, 18, 20, 17, 0),
     gsSP1Triangle(20, 18, 19, 0),
+    // Material BlueTeam
+    // End Material BlueTeam
     gsSPPopMatrixN(G_MTX_MODELVIEW, 2),
     // Thigh1
     gsSPMatrix((Mtx*)MATRIX_TRANSFORM_SEGMENT_ADDRESS + 3, G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH),
@@ -1114,6 +1122,8 @@ Gfx doglow_model_gfx[] = {
     gsSPVertex(&doglow_Cube_022_normal_3[60], 12, 0),
     gsSP2Triangles(0, 1, 2, 0, 3, 4, 5, 0),
     gsSP2Triangles(6, 7, 8, 0, 9, 10, 11, 0),
+    // Material BlueTeam
+    // End Material BlueTeam
     // Boot1
     gsSPMatrix((Mtx*)MATRIX_TRANSFORM_SEGMENT_ADDRESS + 4, G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH),
     gsSPVertex(&doglow_Cube_022_normal_4[0], 30, 0),
@@ -1131,6 +1141,8 @@ Gfx doglow_model_gfx[] = {
     gsSPVertex(&doglow_Cube_022_normal_4[60], 12, 0),
     gsSP2Triangles(0, 1, 2, 0, 3, 4, 5, 0),
     gsSP2Triangles(6, 7, 8, 0, 9, 10, 11, 0),
+    // Material BlueTeam
+    // End Material BlueTeam
     gsSPPopMatrixN(G_MTX_MODELVIEW, 2),
     // Head
     gsSPMatrix((Mtx*)MATRIX_TRANSFORM_SEGMENT_ADDRESS + 5, G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH),
@@ -1161,6 +1173,8 @@ Gfx doglow_model_gfx[] = {
     gsSPVertex(&doglow_Cube_022_normal_5[120], 12, 0),
     gsSP2Triangles(0, 1, 2, 0, 3, 4, 5, 0),
     gsSP2Triangles(6, 7, 8, 0, 9, 10, 11, 0),
+    // Material BlueTeam
+    // End Material BlueTeam
     gsSPPopMatrix(G_MTX_MODELVIEW),
     // Tail
     gsSPMatrix((Mtx*)MATRIX_TRANSFORM_SEGMENT_ADDRESS + 6, G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH),
@@ -1172,6 +1186,8 @@ Gfx doglow_model_gfx[] = {
     gsSP2Triangles(15, 17, 18, 0, 19, 20, 21, 0),
     gsSP2Triangles(19, 21, 22, 0, 23, 24, 25, 0),
     gsSP2Triangles(26, 27, 28, 0, 29, 30, 31, 0),
+    // Material BlueTeam
+    // End Material BlueTeam
     gsSPPopMatrix(G_MTX_MODELVIEW),
     // Shoulder2
     gsSPMatrix((Mtx*)MATRIX_TRANSFORM_SEGMENT_ADDRESS + 7, G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH),
@@ -1187,6 +1203,8 @@ Gfx doglow_model_gfx[] = {
     gsSP2Triangles(12, 13, 14, 0, 15, 16, 17, 0),
     gsSP2Triangles(18, 19, 20, 0, 21, 22, 23, 0),
     gsSP2Triangles(24, 25, 26, 0, 27, 28, 29, 0),
+    // Material BlueTeam
+    // End Material BlueTeam
     // Arm2
     gsSPMatrix((Mtx*)MATRIX_TRANSFORM_SEGMENT_ADDRESS + 8, G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH),
     gsSPVertex(&doglow_Cube_022_normal_8[0], 31, 0),
@@ -1232,6 +1250,8 @@ Gfx doglow_model_gfx[] = {
     gsSP2Triangles(11, 13, 14, 0, 15, 16, 17, 0),
     gsSP2Triangles(15, 17, 18, 0, 23, 19, 20, 0),
     gsSP2Triangles(21, 23, 20, 0, 23, 21, 22, 0),
+    // Material BlueTeam
+    // End Material BlueTeam
     gsSPPopMatrixN(G_MTX_MODELVIEW, 2),
     // Thigh2
     gsSPMatrix((Mtx*)MATRIX_TRANSFORM_SEGMENT_ADDRESS + 9, G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH),
@@ -1250,6 +1270,8 @@ Gfx doglow_model_gfx[] = {
     gsSPVertex(&doglow_Cube_022_normal_9[60], 12, 0),
     gsSP2Triangles(0, 1, 2, 0, 3, 4, 5, 0),
     gsSP2Triangles(6, 7, 8, 0, 9, 10, 11, 0),
+    // Material BlueTeam
+    // End Material BlueTeam
     // Boot2
     gsSPMatrix((Mtx*)MATRIX_TRANSFORM_SEGMENT_ADDRESS + 10, G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH),
     gsSPVertex(&doglow_Cube_022_normal_10[0], 30, 0),

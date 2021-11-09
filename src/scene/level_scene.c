@@ -7,6 +7,7 @@
 #include "assert.h"
 #include "graphics/gfx.h"
 #include "../data/menu/menu.h"
+#include "../data/models/characters.h"
 #include "graphics/sprite.h"
 #include "menu/basecommandmenu.h"
 #include "menu/playerstatusmenu.h"
@@ -187,8 +188,9 @@ void levelSceneRender(struct LevelScene* levelScene, struct RenderState* renderS
     spriteSetLayer(renderState, LAYER_UPGRADE_ICONS, gUseUpgradeIcons);
 
     // render minions
-    Gfx* minionGfx = renderStateAllocateDLChunk(renderState, MINION_GFX_PER_MINION * levelScene->minionCount + 1);
+    Gfx* minionGfx = renderStateAllocateDLChunk(renderState, MINION_GFX_PER_MINION * levelScene->minionCount + 2);
     Gfx* prevDL = renderStateReplaceDL(renderState, minionGfx);
+    gSPDisplayList(renderState->dl++, mat_Minion_f3d_material);
     for (unsigned int minionIndex = 0; minionIndex < levelScene->minionCount; ++minionIndex) {
         if (levelScene->minions[minionIndex].minionFlags & MinionFlagsActive) {
             minionRender(&levelScene->minions[minionIndex], renderState);
