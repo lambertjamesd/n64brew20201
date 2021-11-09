@@ -392,7 +392,6 @@ void playerStateAttack(struct Player* player, struct PlayerInput* input) {
 
     playerUpdateAttack(player);
 
-
     playerUpdateOther(player, input);
 }
 

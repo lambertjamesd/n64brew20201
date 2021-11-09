@@ -188,7 +188,14 @@ void skelatoolWaitForNextMessage() {
     skProcess(msg);
 }
 
-char tmp[1024];
+void skWaitForPendingRequest(struct SKAnimator* animator) {
+    // if this animator already has an open request wait for it to finish before starting a new one
+    while ((animator->flags & SKAnimatorFlagsPendingRequest) != 0 && gSKAnimationPool.mesgQueue.validCount > 0) {
+        skelatoolWaitForNextMessage();
+    }
+}
+
+
 
 void skRequestChunk(struct SKAnimator* animator) {
     unsigned short chunkSize = animator->nextSourceChunkSize;
@@ -229,10 +236,7 @@ void skRequestChunk(struct SKAnimator* animator) {
         return;
     }
 
-    // if this animator already has an open request wait for it to finish before starting a new one
-    while ((animator->flags & SKAnimatorFlagsPendingRequest) != 0 && gSKAnimationPool.mesgQueue.validCount > 0) {
-        skelatoolWaitForNextMessage();
-    }
+    skWaitForPendingRequest(animator);
 
     animator->flags |= SKAnimatorFlagsPendingRequest;
 
@@ -311,6 +315,8 @@ void skAnimatorCleanup(struct SKAnimator* animator) {
 }
 
 void skAnimatorRunClip(struct SKAnimator* animator, struct SKAnimationHeader* animation, int flags) {
+    skWaitForPendingRequest(animator);
+
     animator->flags = (unsigned short)(flags | SKAnimatorFlagsActive);
     animator->currentTime = 0.0f;
     animator->currTick = TICK_UNDEFINED;
