@@ -165,6 +165,10 @@ struct DecorDefinition Level_Template_Decor[] = {
     {{-146.485, 136.501, -1530.49}, {-0.407277, -0.281324, -0.223327, 0.839707}, DISH_DECOR_ID},
     {{-48.5003, 0, -3712.41}, {0, -1, 0, -4.37114e-08}, BROKEN_BASE_DECOR_ID},
 };
+struct Vector3 Level_Template_PathingNodes[] = {
+};
+char Level_Template_NextNode[] = {
+};
 struct LevelDefinition Level_Template_Definition = {
     .maxPlayerCount = 4,
     .playerStartLocations = Level_Template_StartingPositions,
@@ -176,5 +180,6 @@ struct LevelDefinition Level_Template_Definition = {
     .sceneRender = Level_Template_model_gfx,
     .theme = &MarsTheme,
     .staticScene = {Level_Template_Boundary, 4},
+    .pathfinding = {.nodeCount = 0, .nodePositions = Level_Template_PathingNodes, .nextNode = Level_Template_NextNode},
 };
 

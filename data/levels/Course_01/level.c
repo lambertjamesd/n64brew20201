@@ -253,6 +253,10 @@ struct DecorDefinition Course_01_Decor[] = {
     {{920.841, 0, 3668.19}, {0, -1, 0, -4.37114e-08}, CRATE_DECOR_ID},
     {{-1746.33, 0, 3804.09}, {0, -1, 0, -4.37114e-08}, CRATE_DECOR_ID},
 };
+struct Vector3 Course_01_PathingNodes[] = {
+};
+char Course_01_NextNode[] = {
+};
 struct LevelDefinition Course_01_Definition = {
     .maxPlayerCount = 4,
     .playerStartLocations = Course_01_StartingPositions,
@@ -264,5 +268,6 @@ struct LevelDefinition Course_01_Definition = {
     .sceneRender = Course_01_model_gfx,
     .theme = &MarsTheme,
     .staticScene = {Course_01_Boundary, 4},
+    .pathfinding = {.nodeCount = 0, .nodePositions = Course_01_PathingNodes, .nextNode = Course_01_NextNode},
 };
 

@@ -747,6 +747,10 @@ struct SceneBoundary The_Octogon_Boundary[] = {
 struct DecorDefinition The_Octogon_Decor[] = {
     {{0, 0, 2293.43}, {0, -1, 0, -4.37114e-08}, ROCK004_DECOR_ID},
 };
+struct Vector3 The_Octogon_PathingNodes[] = {
+};
+char The_Octogon_NextNode[] = {
+};
 struct LevelDefinition The_Octogon_Definition = {
     .maxPlayerCount = 4,
     .playerStartLocations = The_Octogon_StartingPositions,
@@ -758,5 +762,6 @@ struct LevelDefinition The_Octogon_Definition = {
     .sceneRender = The_Octogon_model_gfx,
     .theme = &MarsTheme,
     .staticScene = {The_Octogon_Boundary, 8},
+    .pathfinding = {.nodeCount = 0, .nodePositions = The_Octogon_PathingNodes, .nextNode = The_Octogon_NextNode},
 };
 

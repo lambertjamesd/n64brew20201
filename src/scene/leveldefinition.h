@@ -23,6 +23,12 @@ struct DecorDefinition {
     unsigned decorID;
 };
 
+struct PathfindingDefinition {
+    unsigned short nodeCount;
+    struct Vector3* nodePositions;
+    char *nextNode;
+};
+
 struct LevelDefinition {
     unsigned int maxPlayerCount;
     struct Vector2* playerStartLocations;
@@ -34,6 +40,7 @@ struct LevelDefinition {
     Gfx* sceneRender;
     struct ThemeDefinition* theme;
     struct StaticScene staticScene;
+    struct PathfindingDefinition pathfinding;
 };
 
 struct LevelDefinition* levelDefinitionUnpack(struct LevelDefinition* addressPtr, void* segmentRamStart, void* themeSegmentStart);
