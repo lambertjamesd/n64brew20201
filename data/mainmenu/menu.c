@@ -1,6 +1,10 @@
 
 #include "menu.h"
-#include "images/player_1.h"
+#include "models/mars.geo.h"
+#include "images/players_1.h"
+#include "images/players_2.h"
+#include "images/players_3.h"
+#include "images/players_4.h"
 
 Gfx gMainMenuSolidColor[] = {
     gsDPPipeSync(),

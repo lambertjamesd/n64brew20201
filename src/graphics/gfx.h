@@ -47,6 +47,7 @@ extern Gfx	setup_rdpstate[];
 extern Gfx	setup_rspstate[];
 extern Gfx 	logo_dl[];
 extern Gfx 	bg_dl[];
+extern Vp gFullScreenVP;
 
 extern char _charactersSegmentRomStart[];
 extern char _charactersSegmentRomEnd[];

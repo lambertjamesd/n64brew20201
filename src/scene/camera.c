@@ -33,20 +33,19 @@ void cameraBuildProjectionMatrix(struct Camera* camera, Mtx* matrix, u16* perspe
 }
 
 void cameraSetupMatrices(struct Camera* camera, struct RenderState* renderState, float aspectRatio, float rotateView) {
-        Mtx* viewProjMatrix = renderStateRequestMatrices(renderState, 2);
-        
-        if (!viewProjMatrix) {
-            return;
-        }
+    Mtx* viewProjMatrix = renderStateRequestMatrices(renderState, 2);
+    
+    if (!viewProjMatrix) {
+        return;
+    }
 
-        cameraBuildViewMatrix(camera, &viewProjMatrix[0], rotateView);
-        gSPMatrix(renderState->dl++, osVirtualToPhysical(&viewProjMatrix[0]), G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
+    cameraBuildViewMatrix(camera, &viewProjMatrix[0], rotateView);
+    gSPMatrix(renderState->dl++, osVirtualToPhysical(&viewProjMatrix[0]), G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
 
-        u16 perspectiveNormalize;
-        cameraBuildProjectionMatrix(camera, &viewProjMatrix[1], &perspectiveNormalize, aspectRatio);
-        gSPMatrix(renderState->dl++, osVirtualToPhysical(&viewProjMatrix[1]), G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
-        gSPPerspNormalize(renderState->dl++, perspectiveNormalize);
-
+    u16 perspectiveNormalize;
+    cameraBuildProjectionMatrix(camera, &viewProjMatrix[1], &perspectiveNormalize, aspectRatio);
+    gSPMatrix(renderState->dl++, osVirtualToPhysical(&viewProjMatrix[1]), G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
+    gSPPerspNormalize(renderState->dl++, perspectiveNormalize);
 }
 
 void cameraUpdate(struct Camera* camera, struct Vector3* target, float followDistance, float cameraHeight) {

@@ -24,12 +24,6 @@
 #include "math/vector3.h"
 
 static Vp gSplitScreenViewports[4];
-static Vp gFullScreenVP = {
-  .vp = {
-    .vscale = {SCREEN_WD*2, SCREEN_HT*2, G_MAXZ/2, 0},	/* scale */
-    .vtrans = {SCREEN_WD*2, SCREEN_HT*2, G_MAXZ/2, 0},	/* translate */
-  }
-};
 static unsigned short gClippingRegions[4 * 4];
 
 struct ViewportLayout {

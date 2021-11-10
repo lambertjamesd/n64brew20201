@@ -28,6 +28,13 @@ char         *gThemeSegment = 0;
 
 void* rdp_output;
 
+Vp gFullScreenVP = {
+  .vp = {
+    .vscale = {SCREEN_WD*2, SCREEN_HT*2, G_MAXZ/2, 0},	/* scale */
+    .vtrans = {SCREEN_WD*2, SCREEN_HT*2, G_MAXZ/2, 0},	/* translate */
+  }
+};
+
 unsigned short	__attribute__((aligned(64))) zbuffer[SCREEN_WD*SCREEN_HT];
 u64 __attribute__((aligned(16))) dram_stack[SP_DRAM_STACK_SIZE64];
 u64 __attribute__((aligned(16))) gfxYieldBuf2[OS_YIELD_DATA_SIZE/sizeof(u64)];

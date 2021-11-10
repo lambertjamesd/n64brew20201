@@ -2,9 +2,10 @@
 #define _MAIN_MENU_H
 
 #include "graphics/render_state.h"
+#include "scene/camera.h"
 
 struct MainMenu {
-
+    struct Camera camera;
 };
 
 void mainMenuInit(struct MainMenu* mainMenu);
