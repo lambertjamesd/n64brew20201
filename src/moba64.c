@@ -105,7 +105,7 @@ static void gameproc(void *argv)
         {
             case (OS_SC_RETRACE_MSG):
                 /**** Create a new gfx task unless we already have 2  ****/                 
-                if (pendingGFX < 2) 
+                if (pendingGFX < 2 && !sceneIsLoading()) 
                 {
                     createGfxTask(&gInfo[drawbuffer]);
                     pendingGFX++;
@@ -115,7 +115,7 @@ static void gameproc(void *argv)
                 controllersTriggerRead();
                 timeUpdateDelta();
                 skReadMessages();
-                sceneUpdate();
+                sceneUpdate(pendingGFX > 0);
                 soundPlayerUpdate();
                 dynamicMusicUpdate();
 
@@ -135,8 +135,6 @@ static void gameproc(void *argv)
         }
     }
 }
-
-extern char     _heapStart[];
 
 void* layoutMemory(void* maxMemory) {
     u16* currBuffer = maxMemory;
@@ -171,8 +169,8 @@ static void initGame(void)
 
 
     /**** Call the initialization routines ****/
-    void* heapEnd = layoutMemory((void*)PHYS_TO_K0(osMemSize)); 
-    initHeap(_heapStart, heapEnd);
+    char* heapEnd = layoutMemory((void*)PHYS_TO_K0(osMemSize)); 
+    heapInit(_heapStart, heapEnd);
     minionAnimationsInit();
     factionGlobalInit();
     skInitDataPool(gPiHandle);
@@ -180,7 +178,8 @@ static void initGame(void)
     controllersInit();
     initAudio();
     soundPlayerInit();
-    loadLevelScene(&gLevels[2]);
+    // sceneQueueLoadLevel(&gLevels[2]);
+    sceneQueueMainMenu();
 
 #ifdef WITH_DEBUGGER
     OSThread* debugThreads[2];

@@ -92,7 +92,7 @@ void createGfxTask(GFXInfo *i)
     gDPSetCycleType(renderState->dl++, G_CYC_1CYCLE); 
 
     /**** Draw objects */
-    levelSceneRender(&gCurrentLevel, renderState);
+    sceneRender(renderState);
     
     /**** Put an end on the top-level display list  ****/
     gDPFullSync(renderState->dl++);

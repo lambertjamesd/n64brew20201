@@ -84,7 +84,9 @@ struct SKAnimationDataPool {
 };
 
 void skInitDataPool(OSPiHandle* handle);
+void skResetDataPool();
 void skReadMessages();
+int skHasPendingMessages();
 void skSetSegmentLocation(unsigned segmentNumber, unsigned segmentLocatoin);
 
 void skAnimatorInit(struct SKAnimator* animator, unsigned boneCount, SKAnimationEventCallback animtionCallback, void* callbackData);

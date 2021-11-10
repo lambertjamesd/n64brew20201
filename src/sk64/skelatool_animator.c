@@ -8,6 +8,8 @@
 
 static struct SKAnimationDataPool gSKAnimationPool;
 
+void skWaitForNextMessage();
+
 void skRingMemoryInit(struct SKRingMemory* memory) {
     memory->freeStart = memory->memoryStart;
     memory->usedStart = memory->memoryStart;
@@ -158,11 +160,19 @@ void skProcess(OSIoMesg* message) {
 
 void skInitDataPool(OSPiHandle* handle) {
     gSKAnimationPool.handle = handle;
-    gSKAnimationPool.nextMessage = 0;
     osCreateMesgQueue(&gSKAnimationPool.mesgQueue, gSKAnimationPool.mesgBuffer, SK_POOL_QUEUE_SIZE);
+    zeroMemory(gSKAnimationPool.segmentLocations, sizeof(gSKAnimationPool.segmentLocations));
+    skResetDataPool();
+}
+
+void skResetDataPool() {
+    while (skHasPendingMessages()) {
+        skWaitForNextMessage();
+    }
+
+    gSKAnimationPool.nextMessage = 0;
     skRingMemoryInit(&gSKAnimationPool.memoryPool);
     zeroMemory(gSKAnimationPool.animatorsForMessages, sizeof(struct SKAnimator*) * SK_POOL_QUEUE_SIZE);
-    zeroMemory(gSKAnimationPool.segmentLocations, sizeof(gSKAnimationPool.segmentLocations));
 }
 
 void skReadMessages() {
@@ -170,6 +180,10 @@ void skReadMessages() {
     while (osRecvMesg(&gSKAnimationPool.mesgQueue, &msg, OS_MESG_NOBLOCK) != -1) {
         skProcess(msg);
     }
+}
+
+int skHasPendingMessages() {
+    return gSKAnimationPool.mesgQueue.validCount > 0;
 }
 
 void skSetSegmentLocation(unsigned segmentNumber, unsigned segmentLocation) {
@@ -181,7 +195,7 @@ u32 skTranslateSegment(unsigned address) {
     return (address & 0xFFFFFF) + gSKAnimationPool.segmentLocations[segment];
 }
 
-void skelatoolWaitForNextMessage() {
+void skWaitForNextMessage() {
     assert(gSKAnimationPool.mesgQueue.validCount);
     OSMesg msg;
     osRecvMesg(&gSKAnimationPool.mesgQueue, &msg, OS_MESG_BLOCK);
@@ -191,7 +205,7 @@ void skelatoolWaitForNextMessage() {
 void skWaitForPendingRequest(struct SKAnimator* animator) {
     // if this animator already has an open request wait for it to finish before starting a new one
     while ((animator->flags & SKAnimatorFlagsPendingRequest) != 0 && gSKAnimationPool.mesgQueue.validCount > 0) {
-        skelatoolWaitForNextMessage();
+        skWaitForNextMessage();
     }
 }
 
@@ -226,7 +240,7 @@ void skRequestChunk(struct SKAnimator* animator) {
             animator->flags &= ~SKAnimatorFlagsActive;
             return;
         }
-        skelatoolWaitForNextMessage();
+        skWaitForNextMessage();
         dest = skRingMemoryAlloc(&gSKAnimationPool.memoryPool, chunkSize);
         ++retries;
     }

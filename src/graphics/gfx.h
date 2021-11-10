@@ -14,6 +14,8 @@
 #define CHARACTER_SEGMENT   3
 #define LEVEL_SEGMENT       4
 #define THEME_SEGMENT       5
+#define THEME_SEGMENT       5
+
 #define RDP_OUTPUT_SIZE 0x4000
 
 #ifdef _LANGUAGE_C /* needed because file is included by "spec" */
@@ -55,8 +57,11 @@ extern char _level_testSegmentRomEnd[];
 extern char _character_animationsSegmentRomStart[];
 extern char _character_animationsSegmentStart[];
 
-extern char _menuSegmentRomStart[];
-extern char _menuSegmentRomEnd[];
+extern char _gameplaymenuSegmentRomStart[];
+extern char _gameplaymenuSegmentRomEnd[];
+
+extern char _mainmenuSegmentRomStart[];
+extern char _mainmenuSegmentRomEnd[];
 
 extern char* gStaticSegment;
 extern char* gCharacterSegment;

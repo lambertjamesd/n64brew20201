@@ -7,7 +7,7 @@
 #include "collision/dynamicscene.h"
 #include "assert.h"
 #include "graphics/gfx.h"
-#include "../data/menu/menu.h"
+#include "../data/gameplaymenu/menu.h"
 #include "../data/models/characters.h"
 #include "graphics/sprite.h"
 #include "menu/basecommandmenu.h"

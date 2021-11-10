@@ -3,9 +3,13 @@
 #include "levels/levels.h"
 #include "graphics/gfx.h"
 #include "util/rom.h"
+#include "util/memory.h"
 
 enum SceneState gSceneState;
+enum SceneState gNextSceneState;
 struct LevelScene gCurrentLevel;
+struct MainMenu gMainMenu;
+struct LevelMetadata* gNextLevel;
 
 struct LevelDefinition* gLevelsTmp[] = {
     &gLevelTest,
@@ -13,20 +17,15 @@ struct LevelDefinition* gLevelsTmp[] = {
 
 extern char _staticSegmentRomStart[], _staticSegmentRomEnd[];
 
-void loadLevelScene(struct LevelMetadata* metadata) {
+
+int sceneIsLoading() {
+    return gSceneState != gNextSceneState;
+}
+
+void sceneLoadLevel(struct LevelMetadata* metadata) {
     LOAD_SEGMENT(static, gStaticSegment);
-    LOAD_SEGMENT(menu, gMenuSegment);
+    LOAD_SEGMENT(gameplaymenu, gMenuSegment);
     LOAD_SEGMENT(characters, gCharacterSegment);
-
-    if (gLevelSegment) {
-        free(gLevelSegment);
-        gLevelSegment = 0;
-    }
-
-    if (gThemeSegment) {
-        free(gThemeSegment);
-        gThemeSegment = 0;
-    }
 
     gLevelSegment = malloc(metadata->romSegmentEnd - metadata->romSegmentStart);
     romCopy(metadata->romSegmentStart, gLevelSegment, metadata->romSegmentEnd - metadata->romSegmentStart);
@@ -40,12 +39,66 @@ void loadLevelScene(struct LevelMetadata* metadata) {
     gSceneState = SceneStateInLevel;
 }
 
+void sceneQueueLoadLevel(struct LevelMetadata* nextLevel) {
+    gNextLevel = nextLevel;
+    gNextSceneState = SceneStateInLevel;
+}
 
-void sceneUpdate() {
+void sceneQueueMainMenu() {
+    gNextSceneState = SceneStateInMainMenu;
+}
+
+void sceneLoadMainMenu() {
+    LOAD_SEGMENT(static, gStaticSegment);
+    LOAD_SEGMENT(mainmenu, gMenuSegment);
+    LOAD_SEGMENT(characters, gCharacterSegment);
+    mainMenuInit(&gMainMenu);
+    gSceneState = SceneStateInMainMenu;
+}
+
+void sceneCleanup() {
+    gLevelSegment = 0;
+    gThemeSegment = 0;
+    heapReset();
+    skResetDataPool();
+}
+
+void sceneUpdate(int hasActiveGraphics) {
+    if (sceneIsLoading()) {
+        if (!hasActiveGraphics && !skHasPendingMessages()) {
+            sceneCleanup();
+            switch (gNextSceneState) {
+                case SceneStateInLevel:
+                    sceneLoadLevel(gNextLevel);
+                    break;
+                case SceneStateInMainMenu:
+                    sceneLoadMainMenu();
+                    break;
+                default:
+                    break;
+            }
+        }
+    } else {
+        switch (gSceneState) {
+            case SceneStateInLevel:
+                levelSceneUpdate(&gCurrentLevel);
+                break;
+            case SceneStateInMainMenu:
+                mainMenuUpdate(&gMainMenu);
+                break;
+            default:
+                break;
+        }
+    }
+}
+
+void sceneRender(struct RenderState* renderState) {
     switch (gSceneState) {
         case SceneStateInLevel:
-            levelSceneUpdate(&gCurrentLevel);
+            levelSceneRender(&gCurrentLevel, renderState);
             break;
+        case SceneStateInMainMenu:
+            mainMenuRender(&gMainMenu, renderState);
         default:
             break;
     }

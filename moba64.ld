@@ -86,12 +86,19 @@ SECTIONS
    }
    END_SEG(static)
    
-   BEGIN_SEG(menu, 0x02000000)
+   BEGIN_SEG(gameplaymenu, 0x02000000)
    {
-      build/data/menu/menu.o(.data);
-      build/data/menu/menu.o(.bss);
+      build/data/gameplaymenu/menu.o(.data);
+      build/data/gameplaymenu/menu.o(.bss);
    }
-   END_SEG(menu)
+   END_SEG(gameplaymenu)
+   
+   BEGIN_SEG(mainmenu, 0x02000000)
+   {
+      build/data/mainmenu/menu.o(.data);
+      build/data/mainmenu/menu.o(.bss);
+   }
+   END_SEG(mainmenu)
 
    BEGIN_SEG(characters, 0x03000000)
    {
