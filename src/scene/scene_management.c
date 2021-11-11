@@ -9,7 +9,7 @@ enum SceneState gSceneState;
 enum SceneState gNextSceneState;
 struct LevelScene gCurrentLevel;
 struct MainMenu gMainMenu;
-struct LevelMetadata* gNextLevel;
+struct GameConfiguration gNextLevel;
 
 struct LevelDefinition* gLevelsTmp[] = {
     &gLevelTest,
@@ -22,10 +22,12 @@ int sceneIsLoading() {
     return gSceneState != gNextSceneState;
 }
 
-void sceneLoadLevel(struct LevelMetadata* metadata) {
+void sceneLoadLevel(struct GameConfiguration* gameConfig) {
     LOAD_SEGMENT(static, gStaticSegment);
     LOAD_SEGMENT(gameplaymenu, gMenuSegment);
     LOAD_SEGMENT(characters, gCharacterSegment);
+
+    struct LevelMetadata* metadata = gameConfig->level;
 
     gLevelSegment = malloc(metadata->romSegmentEnd - metadata->romSegmentStart);
     romCopy(metadata->romSegmentStart, gLevelSegment, metadata->romSegmentEnd - metadata->romSegmentStart);
@@ -35,12 +37,12 @@ void sceneLoadLevel(struct LevelMetadata* metadata) {
 
     struct LevelDefinition* definition = levelDefinitionUnpack(metadata->fullDefinition, gLevelSegment, gThemeSegment);
 
-    levelSceneInit(&gCurrentLevel, definition, 2, 1);
+    levelSceneInit(&gCurrentLevel, definition, gameConfig->playerCount, gameConfig->humanPlayerCount);
     gSceneState = SceneStateInLevel;
 }
 
-void sceneQueueLoadLevel(struct LevelMetadata* nextLevel) {
-    gNextLevel = nextLevel;
+void sceneQueueLoadLevel(struct GameConfiguration* nextLevel) {
+    gNextLevel = *nextLevel;
     gNextSceneState = SceneStateInLevel;
 }
 
@@ -69,7 +71,7 @@ void sceneUpdate(int hasActiveGraphics) {
             sceneCleanup();
             switch (gNextSceneState) {
                 case SceneStateInLevel:
-                    sceneLoadLevel(gNextLevel);
+                    sceneLoadLevel(&gNextLevel);
                     break;
                 case SceneStateInMainMenu:
                     sceneLoadMainMenu();

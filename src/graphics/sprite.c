@@ -105,16 +105,16 @@ void spriteDrawTile(struct RenderState* renderState, int layer, int x, int y, in
     spriteWriteRaw(renderState, layer, workingMem, curr - workingMem);
 }
 
-void spriteSetColor(struct RenderState* renderState, int layer, u8 r, u8 g, u8 b, u8 a)
+void spriteSetColor(struct RenderState* renderState, int layer, struct Coloru8 color)
 {
-    int key = (r << 24) | (g << 16) | (b << 8) | (a << 0);
+    int key = (color.r << 24) | (color.g << 16) | (color.b << 8) | (color.a << 0);
 
     if (key != renderState->spriteState.layerColor[layer])
     {
         Gfx workingMem[2];
         Gfx* curr = workingMem;
         gDPPipeSync(curr++);
-        gDPSetEnvColor(curr++, r, g, b, a);
+        gDPSetEnvColor(curr++, color.r, color.g, color.b, color.a);
         spriteWriteRaw(renderState, layer, workingMem, curr - workingMem);
         renderState->spriteState.layerColor[layer] = key;
     }

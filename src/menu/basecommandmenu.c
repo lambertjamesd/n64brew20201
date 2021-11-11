@@ -141,7 +141,7 @@ void baseCommandMenuUpdate(struct BaseCommandMenu* menu, unsigned team) {
 }
 
 void baseCommandMenuRenderCommandSelect(struct BaseCommandMenu* menu, struct RenderState* renderState, unsigned horizontalCenter, unsigned verticalCenter) {
-    spriteSetColor(renderState, LAYER_SOLID_COLOR, 0, 0, 0, 128);
+    spriteSetColor(renderState, LAYER_SOLID_COLOR, gHalfTransparentBlack);
     spriteSolid(
         renderState,
         LAYER_SOLID_COLOR,
@@ -201,7 +201,7 @@ void baseCommandMenuRenderCommandSelect(struct BaseCommandMenu* menu, struct Ren
 }
 
 void baseCommandMenuRenderUpgradeSelect(struct BaseCommandMenu* menu, struct RenderState* renderState, unsigned horizontalCenter, unsigned verticalCenter) {
-    spriteSetColor(renderState, LAYER_SOLID_COLOR, 0, 0, 0, 128);
+    spriteSetColor(renderState, LAYER_SOLID_COLOR, gHalfTransparentBlack);
     spriteSolid(
         renderState,
         LAYER_SOLID_COLOR,

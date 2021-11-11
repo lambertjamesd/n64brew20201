@@ -239,7 +239,8 @@ void levelBaseUpdate(struct LevelBase* base) {
                 gLastCaptureTime = gTimePassed;
             }
         }
-    } else if (base->state != LevelBaseStateNeutral) {
+    } else if (base->state != LevelBaseStateNeutral && controlCount == 0) {
+        // base slowly "heals" when no team is capturing it
         base->captureProgress += gTimeDelta * gSpawnTimeCaptureScalar[base->defenseUpgrade] * 0.5f;
 
         if (base->captureProgress >= CAPTURE_TIME) {

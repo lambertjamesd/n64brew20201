@@ -1,3 +1,3 @@
-DEFINE_LEVEL(The_Octogon, Mars)
-DEFINE_LEVEL(Level_Template, Mars)
-DEFINE_LEVEL(Course_01, Mars)
+DEFINE_LEVEL("Level Template", Level_Template, Mars, 4, 0)
+DEFINE_LEVEL("The Octogon", The_Octogon, Mars, 4, 0 | LevelMetadataFlagsMultiplayer)
+DEFINE_LEVEL("Course 01", Course_01, Mars, 4, 0 | LevelMetadataFlagsMultiplayer)

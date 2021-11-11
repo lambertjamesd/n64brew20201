@@ -20,7 +20,7 @@ OUTPUT_ARCH (mips)
     _##name##SegmentBssEnd = ADDR(.name.noload) + SIZEOF(.name.noload); \
     _##name##SegmentBssSize = SIZEOF(.name.noload);
 
-#define DEFINE_LEVEL(name, theme) \
+#define DEFINE_LEVEL(humanName, name, theme, maxPlayers, flags) \
    BEGIN_SEG(name, 0x04000000) \
    { \
       build/data/levels/name/level.o(.data); \

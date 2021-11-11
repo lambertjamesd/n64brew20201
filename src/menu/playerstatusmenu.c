@@ -31,7 +31,7 @@ void playerStatusMenuRender(struct Player* player, struct RenderState* renderSta
         unsigned horizontalCenter = (screenPos[0] + screenPos[2]) >> 1;
         unsigned verticalCenter = (screenPos[1] + screenPos[3]) >> 1;
 
-        spriteSetColor(renderState, LAYER_SOLID_COLOR, 0, 0, 0, 128);
+        spriteSetColor(renderState, LAYER_SOLID_COLOR, gHalfTransparentBlack);
         spriteSolid(
             renderState,
             LAYER_SOLID_COLOR,

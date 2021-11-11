@@ -428,25 +428,14 @@ Gfx mat_Mars_Decor_Mars[] = {
 	gsSPEndDisplayList(),
 };
 
-Gfx mat_revert_Mars_Decor_Mars[] = {
-	gsDPPipeSync(),
-	gsDPSetTextureLUT(G_TT_NONE),
-	gsSPEndDisplayList(),
-};
-
 Gfx Mars_Mars_mesh[] = {
 	gsSPClearGeometryMode(G_LIGHTING),
 	gsSPVertex(Mars_Mars_mesh_vtx_cull + 0, 8, 0),
-	gsSPSetGeometryMode(G_LIGHTING),
 	gsSPCullDisplayList(0, 7),
 	gsSPDisplayList(mat_Mars_Decor_Mars),
 	gsSPDisplayList(Mars_Mars_mesh_tri_0),
-	gsSPDisplayList(mat_revert_Mars_Decor_Mars),
+	gsDPSetTextureLUT(G_TT_NONE),
 	gsDPPipeSync(),
-	gsSPSetGeometryMode(G_LIGHTING),
-	gsSPClearGeometryMode(G_TEXTURE_GEN),
-	gsDPSetCombineLERP(0, 0, 0, SHADE, 0, 0, 0, ENVIRONMENT, 0, 0, 0, SHADE, 0, 0, 0, ENVIRONMENT),
-	gsSPTexture(65535, 65535, 0, 0, 0),
 	gsSPEndDisplayList(),
 };
 

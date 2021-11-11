@@ -8,11 +8,20 @@ struct ThemeMetadata {
     char* romSegmentEnd;
 };
 
+enum LevelMetadataFlags {
+    LevelMetadataFlagsCampaign = (1 << 0),
+    LevelMetadataFlagsMultiplayer = (1 << 1),
+    LevelMetadataFlagsUnlocked = (1 << 2),
+};
+
 struct LevelMetadata {
+    char* name;
     struct LevelDefinition* fullDefinition;
     char* romSegmentStart;
     char* romSegmentEnd;
     struct ThemeMetadata* theme;
+    unsigned char maxPlayers;
+    unsigned short flags;
 };
 
 extern struct LevelMetadata gLevels[];

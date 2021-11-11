@@ -37,7 +37,7 @@ void minimapRenderDot(struct RenderState* renderState, struct MinimapTransform* 
 }
 
 void minimapRender(struct LevelScene* scene, struct RenderState* renderState, unsigned short* minimapLocation) {
-    spriteSetColor(renderState, LAYER_SOLID_COLOR, 0, 0, 0, 128);
+    spriteSetColor(renderState, LAYER_SOLID_COLOR, gHalfTransparentBlack);
     spriteSolid(
         renderState, LAYER_SOLID_COLOR, 
         minimapLocation[0], minimapLocation[1], minimapLocation[2] - minimapLocation[0], minimapLocation[3] - minimapLocation[1]
@@ -64,14 +64,14 @@ void minimapRender(struct LevelScene* scene, struct RenderState* renderState, un
             color = gTeamDarkColors[levelBaseGetFactionID(base)];
         }
 
-        spriteSetColor(renderState, LAYER_SOLID_COLOR, color.r, color.g, color.b, color.a);
+        spriteSetColor(renderState, LAYER_SOLID_COLOR, color);
         minimapRenderDot(renderState, &transform, &base->position, 4);
     }
 
     for (unsigned i = 0; i < scene->minionCount; ++i) {
         if (scene->minions[i].minionFlags & MinionFlagsActive) {
             struct Coloru8 color = gTeamColors[scene->minions[i].team.teamNumber];
-            spriteSetColor(renderState, LAYER_SOLID_COLOR, color.r, color.g, color.b, color.a);
+            spriteSetColor(renderState, LAYER_SOLID_COLOR, color);
             minimapRenderDot(renderState, &transform, &scene->minions[i].transform.position, 2);
         }
     }
@@ -98,7 +98,7 @@ void minimapRender(struct LevelScene* scene, struct RenderState* renderState, un
 
     for (unsigned i = 0; i < scene->playerCount; ++i) {
         struct Coloru8 color = gTeamColors[scene->players[i].team.teamNumber];
-        spriteSetColor(renderState, LAYER_SOLID_COLOR, color.r, color.g, color.b, color.a);
+        spriteSetColor(renderState, LAYER_SOLID_COLOR, color);
 
         Mtx* matrix = renderStateRequestMatrices(renderState, 1);
 

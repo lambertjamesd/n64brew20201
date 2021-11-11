@@ -178,8 +178,7 @@ static void initGame(void)
     controllersInit();
     initAudio();
     soundPlayerInit();
-    sceneQueueLoadLevel(&gLevels[2]);
-    // sceneQueueMainMenu();
+    sceneQueueMainMenu();
 
 #ifdef WITH_DEBUGGER
     OSThread* debugThreads[2];

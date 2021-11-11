@@ -6,14 +6,19 @@ Themes:
       Output: ../../data/level_themes/Mars/theme.h
 
       Levels:
-        - Name: The Octogon
-          Filename: TheOctogon.fbx
-          Output: ../../data/levels/The_Octogon/level.h
-          
         - Name: Level Template
           Filename: LevelTemplate.fbx
           Output: ../../data/levels/Level_Template/level.h
+          MaxPlayers: 4
+
+        - Name: The Octogon
+          Filename: TheOctogon.fbx
+          Output: ../../data/levels/The_Octogon/level.h
+          MaxPlayers: 4
+          Multiplayer: True
           
         - Name: Course 01
           Filename: Course_01.fbx
           Output: ../../data/levels/Course_01/level.h
+          MaxPlayers: 4
+          Multiplayer: True

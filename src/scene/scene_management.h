@@ -12,6 +12,12 @@ enum SceneState {
     SceneStateInMainMenu,
 };
 
+struct GameConfiguration {
+    unsigned char playerCount;
+    unsigned char humanPlayerCount;
+    struct LevelMetadata* level;
+};
+
 extern enum SceneState gSceneState;
 extern struct LevelScene gCurrentLevel;
 extern struct MainMenu gMainMenu;
@@ -19,8 +25,8 @@ extern char     _heapStart[];
 
 int sceneIsLoading();
 
-void sceneLoadLevel(struct LevelMetadata* metadata);
-void sceneQueueLoadLevel(struct LevelMetadata* nextLevel);
+void sceneLoadLevel(struct GameConfiguration* gameConfig);
+void sceneQueueLoadLevel(struct GameConfiguration* gameConfig);
 void sceneQueueMainMenu();
 
 void sceneUpdate(int hasActiveGraphics);

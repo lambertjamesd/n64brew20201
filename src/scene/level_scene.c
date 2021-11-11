@@ -19,6 +19,7 @@
 #include "collision/collisionlayers.h"
 #include "levels/themedefinition.h"
 #include "sk64/skelatool_defs.h"
+#include "scene_management.h"
 
 #include "collision/polygon.h"
 #include "math/vector3.h"
@@ -39,6 +40,8 @@ struct DynamicMarker gIntensityMarkers[] = {
 };
 
 #define MINIMAP_SIZE    64
+
+#define GAME_END_DELAY  5.0f
 
 struct ViewportLayout gViewportPosition[] = {
     // Single player
@@ -121,8 +124,6 @@ void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* defin
             setTargetBase(&levelScene->bots[i - humanPlayerCount], startBase);
         }
     }
-    
-    quatAxisAngle(&gRight, -M_PI * 0.3333f, &levelScene->cameras[0].transform.rotation);
 
     levelScene->decorMatrices = malloc(sizeof(Mtx) * definition->decorCount);
 
@@ -261,7 +262,7 @@ void levelSceneRender(struct LevelScene* levelScene, struct RenderState* renderS
 
     gSPEndDisplayList(renderState->transparentDL++);
 
-    for (unsigned int i = 0; i < levelScene->playerCount; ++i) {
+    for (unsigned int i = 0; i < levelScene->humanPlayerCount; ++i) {
         Vp* viewport = &gSplitScreenViewports[i];
         cameraSetupMatrices(
             &levelScene->cameras[i], 
@@ -451,8 +452,17 @@ void levelSceneCollectPlayerInput(struct LevelScene* levelScene, unsigned player
 void levelSceneUpdate(struct LevelScene* levelScene) {
     levelScene->winningTeam = levelSceneFindWinningTeam(levelScene);
 
-    if (levelScene->winningTeam != TEAM_NONE) {
+    if (levelScene->winningTeam != TEAM_NONE && levelScene->state != LevelSceneStateDone) {
         levelScene->state = LevelSceneStateDone;
+        levelScene->stateTimer = GAME_END_DELAY;
+    }
+
+    if (levelScene->state == LevelSceneStateDone) {
+        levelScene->stateTimer -= gTimeDelta;
+
+        if (levelScene->stateTimer < 0.0f) {
+            sceneQueueMainMenu();
+        }
     }
 
     for (unsigned playerIndex = 0; playerIndex < levelScene->playerCount; ++playerIndex) {

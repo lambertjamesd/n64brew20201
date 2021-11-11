@@ -5,14 +5,14 @@
 #define MAX_TILE_X  64
 #define MAX_TILE_Y  32
 
-void graphicsCopyImage(struct RenderState* state, void* source, int iw, int ih, int sx, int sy, int dx, int dy, int width, int height, int alpha) {
+void graphicsCopyImage(struct RenderState* state, void* source, int iw, int ih, int sx, int sy, int dx, int dy, int width, int height, struct Coloru8 color) {
     gDPPipeSync(state->dl++);
     gDPSetCycleType(state->dl++, G_CYC_1CYCLE);
     gDPSetRenderMode(state->dl++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
-	gDPSetCombineLERP(state->dl++, 0, 0, 0, TEXEL0, 0, 0, 0, ENVIRONMENT, 0, 0, 0, TEXEL0, 0, 0, 0, ENVIRONMENT);
+	gDPSetCombineLERP(state->dl++, TEXEL0, 0, ENVIRONMENT, 0, 0, 0, 0, ENVIRONMENT, TEXEL0, 0, ENVIRONMENT, 0, 0, 0, 0, ENVIRONMENT);
     gDPSetTextureLUT(state->dl++, G_TT_NONE);
     gDPSetTexturePersp(state->dl++, G_TP_NONE);
-    gDPSetEnvColor(state->dl++, 255, 255, 255, alpha);
+    gDPSetEnvColor(state->dl++, color.r, color.g, color.b, color.a);
 
     int tileXCount = (width + MAX_TILE_X-1) / MAX_TILE_X;
     int tileYCount = (height + MAX_TILE_Y-1) / MAX_TILE_Y;
