@@ -10,6 +10,8 @@
 #include "scene/scene_management.h"
 #include "kickflipfont.h"
 #include "util/memory.h"
+#include "scene/faction.h"
+#include "util/rom.h"
 
 #include "../data/mainmenu/menu.h"
 #include "../data/models/characters.h"
@@ -17,7 +19,11 @@
 #define MARS_ROTATE_RATE    (2.0f * M_PI / 30.0f)
 #define MARS_TILT           (-10.0f * M_PI / 180.0f)
 
-#define CYCLE_TIME          2.0f
+#define CYCLE_TIME              2.0f
+
+#define SELECT_ANGLE            (M_PI * 1.2f)
+#define SELECT_SPIN_TIME        0.5f
+#define UNSELECTED_SPIN_FREQ    (0.2f * (M_PI * 2.0f))
 
 struct Coloru8 gDeselectedColor = {128, 128, 128, 255};
 struct Coloru8 gMenuBlue = {127, 174, 177, 255};
@@ -38,6 +44,97 @@ struct ButtonLayoutInfo gPlayerCountSelectButtons[] = {
     {177, 131, 64, 77, players_4_img},
 };
 
+void mainMenuFactionInit(struct MainMenuFactionSelector* faction, unsigned index) {
+    faction->selectedFaction = index % FACTION_COUNT;
+
+    skAnimatorInit(&faction->animator, ANY_FACTION_BONE_COUNT, 0, 0);
+    skArmatureInit(
+        &faction->armature, 
+        gFactions[faction->selectedFaction]->playerMesh, 
+        ANY_FACTION_BONE_COUNT, 
+        CALC_ROM_POINTER(character_animations, gFactions[faction->selectedFaction]->playerDefaultPose), 
+        gFactions[0]->playerBoneParent
+    );
+    faction->flags = 0;
+    transformInitIdentity(&faction->transform);
+    vector3Scale(&gOneVec, &faction->transform.scale, 0.5f);
+    faction->transform.position.y = -50.0f;
+
+    skAnimatorRunClip(
+        &faction->animator, 
+        gFactions[faction->selectedFaction]->playerAnimations[PlayerAnimationSelectIdle], 
+        SKAnimatorFlagsLoop
+    );
+
+    faction->rotateLerp = 0.0f;
+}
+
+void mainMenuFactionUpdate(struct MainMenuFactionSelector* faction, unsigned index) {
+    skAnimatorUpdate(&faction->animator, faction->armature.boneTransforms, 1.0f);
+
+    if ((faction->flags & MainMenuFactionFlagsSelected) == 0) {
+        enum ControllerDirection controllerDirection = controllerGetDirectionDown(index);
+
+        unsigned prevFaction = faction->selectedFaction;
+
+        if (controllerDirection & ControllerDirectionLeft) {
+            if (faction->selectedFaction == 0) {
+                faction->selectedFaction = FACTION_COUNT - 1;
+            } else {
+                --faction->selectedFaction;
+            }
+        }
+
+        if (controllerDirection & ControllerDirectionRight) {
+            ++faction->selectedFaction;
+
+            if (faction->selectedFaction >= FACTION_COUNT) {
+                faction->selectedFaction = 0;
+            }
+        }
+
+        faction->rotateLerp = mathfMoveTowards(faction->rotateLerp, 0.0f, gTimeDelta / SELECT_SPIN_TIME);
+        
+        if (controllerGetButtonDown(index, A_BUTTON)) {
+            faction->flags |= MainMenuFactionFlagsSelected;
+            skAnimatorRunClip(
+                &faction->animator, 
+                gFactions[faction->selectedFaction]->playerAnimations[PlayerAnimationSelected], 
+                0
+            );
+        } else if (prevFaction != faction->selectedFaction) {
+            faction->armature.displayList = gFactions[faction->selectedFaction]->playerMesh;
+            skAnimatorRunClip(
+                &faction->animator, 
+                gFactions[faction->selectedFaction]->playerAnimations[PlayerAnimationSelectIdle], 
+                SKAnimatorFlagsLoop
+            );
+        }
+    } else {
+        if (controllerGetButtonDown(index, B_BUTTON)) {
+            faction->flags &= ~MainMenuFactionFlagsSelected;
+
+            skAnimatorRunClip(
+                &faction->animator, 
+                gFactions[faction->selectedFaction]->playerAnimations[PlayerAnimationSelectIdle], 
+                SKAnimatorFlagsLoop
+            );
+        }
+
+        faction->rotateLerp = mathfMoveTowards(faction->rotateLerp, 1.0f, gTimeDelta / SELECT_SPIN_TIME);
+    }
+
+    float rotateAngle = mathfMod(gTimePassed * UNSELECTED_SPIN_FREQ + M_PI, M_PI * 2.0f);
+
+    if (faction->rotateLerp <= 0.0f) {
+        quatAxisAngle(&gUp, rotateAngle, &faction->transform.rotation);
+    } else if (faction->rotateLerp >= 1.0f) {
+        quatAxisAngle(&gUp, SELECT_ANGLE, &faction->transform.rotation);
+    } else {
+        quatAxisAngle(&gUp, mathfLerp(rotateAngle, SELECT_ANGLE, faction->rotateLerp), &faction->transform.rotation);
+    }
+}
+ 
 void mainMenuStartLevel(struct MainMenu* mainMenu) {
     struct GameConfiguration gameConfig;
     gameConfig.humanPlayerCount = mainMenu->selectedPlayerCount + 1;
@@ -50,7 +147,17 @@ void mainMenuStartLevel(struct MainMenu* mainMenu) {
 
     gameConfig.level = mainMenu->filteredLevels[mainMenu->selectedLevel];
 
+    for (unsigned i = 0; i <= mainMenu->selectedPlayerCount; ++i) {
+        gTeamFactions[i] = gFactions[mainMenu->factionSelection[i].selectedFaction];
+    }
+
     sceneQueueLoadLevel(&gameConfig);
+}
+
+void mainMenuEnterFactionSelection(struct MainMenu* mainMenu) {
+    mainMenu->menuState = MainMenuStateSelectingFaction;
+
+    gfxInitSplitscreenViewport(mainMenu->selectedPlayerCount + 1);
 }
 
 void mainMenuEnterLevelSelection(struct MainMenu* mainMenu) {
@@ -77,6 +184,10 @@ void mainMenuInit(struct MainMenu* mainMenu) {
     mainMenu->selectedLevel = 0;
     mainMenu->filteredLevels = malloc(sizeof(struct ThemeMetadata*) * gLevelCount);
     initKickflipFont();
+
+    for (unsigned i = 0; i < MAX_PLAYERS; ++i) {
+        mainMenuFactionInit(&mainMenu->factionSelection[i], i);
+    }
 }
 
 void mainMenuUpdatePlayerCount(struct MainMenu* mainMenu) {
@@ -96,12 +207,31 @@ void mainMenuUpdatePlayerCount(struct MainMenu* mainMenu) {
     }
 
     if (controllerGetButtonDown(0, A_BUTTON)) {
+        mainMenuEnterFactionSelection(mainMenu);
+    }
+}
+
+void mainMenuUpdateFaction(struct MainMenu* mainMenu) {
+    unsigned isReady = 1;
+
+    if ((mainMenu->factionSelection[0].flags & MainMenuFactionFlagsSelected) == 0 && controllerGetButtonDown(0, B_BUTTON)) {
+        mainMenu->menuState = MainMenuStateSelectingPlayerCount;
+    }
+
+    for (unsigned i = 0; i <= mainMenu->selectedPlayerCount; ++i) {
+        if (!(mainMenu->factionSelection[i].flags & MainMenuFactionFlagsSelected)) {
+            isReady = 0;
+        }
+
+        mainMenuFactionUpdate(&mainMenu->factionSelection[i], i);
+    }
+
+    if (isReady && controllerGetButtonDown(0, A_BUTTON)) {
         mainMenuEnterLevelSelection(mainMenu);
     }
 }
 
 void mainMenuUpdateLevelSelect(struct MainMenu* mainMenu) {
-
     enum ControllerDirection direction = controllerGetDirectionDown(0);
 
     if ((direction & ControllerDirectionLeft) != 0 && mainMenu->selectedLevel > 0) {
@@ -117,7 +247,7 @@ void mainMenuUpdateLevelSelect(struct MainMenu* mainMenu) {
     }
 
     if (controllerGetButtonDown(0, B_BUTTON)) {
-        mainMenu->menuState = MainMenuStateSelectingPlayerCount;
+        mainMenu->menuState = MainMenuStateSelectingFaction;
     }
 }
 
@@ -131,6 +261,9 @@ void mainMenuUpdate(struct MainMenu* mainMenu) {
     switch (mainMenu->menuState) {
         case MainMenuStateSelectingPlayerCount:
             mainMenuUpdatePlayerCount(mainMenu);
+            break;
+        case MainMenuStateSelectingFaction:
+            mainMenuUpdateFaction(mainMenu);
             break;
         case MainMenuStateSelectingLevel:
             mainMenuUpdateLevelSelect(mainMenu);
@@ -172,6 +305,61 @@ void mainMenuRenderPlayerCount(struct MainMenu* mainMenu, struct RenderState* re
     }
 }
 
+void mainMenuRenderFactions(struct MainMenu* mainMenu, struct RenderState* renderState) {
+    unsigned isReady = 1;
+
+    for (unsigned int i = 0; i < mainMenu->selectedPlayerCount+1; ++i) {
+        gDPPipeSync(renderState->dl++);
+        Vp* viewport = &gSplitScreenViewports[i];
+        cameraSetupMatrices(
+            &mainMenu->camera, 
+            renderState, 
+            (float)viewport->vp.vscale[0] / (float)viewport->vp.vscale[1],
+            0.0f
+        );
+        gSPViewport(renderState->dl++, osVirtualToPhysical(viewport));
+        gDPSetScissor(
+            renderState->dl++, 
+            G_SC_NON_INTERLACE, 
+            gClippingRegions[i * 4 + 0],
+            gClippingRegions[i * 4 + 1],
+            gClippingRegions[i * 4 + 2],
+            gClippingRegions[i * 4 + 3]
+        );
+        gDPPipeSync(renderState->dl++);
+        
+        Mtx* playerMatrix = renderStateRequestMatrices(renderState, 1);
+        transformToMatrixL(&mainMenu->factionSelection[i].transform, playerMatrix);
+        gSPMatrix(renderState->dl++, playerMatrix, G_MTX_MODELVIEW | G_MTX_PUSH | G_MTX_MUL);
+        gSPDisplayList(renderState->dl++, gTeamPalleteTexture[i]);
+        skRenderObject(&mainMenu->factionSelection[i].armature, renderState);
+        gSPPopMatrix(renderState->dl++, 1);
+
+        if (!(mainMenu->factionSelection[i].flags & MainMenuFactionFlagsSelected)) {
+            isReady = 0;
+        }
+    }
+
+    gSPViewport(renderState->dl++, osVirtualToPhysical(&gFullScreenVP));
+    gDPSetScissor(
+        renderState->dl++, 
+        G_SC_NON_INTERLACE, 
+        0,
+        0,
+        SCREEN_WD,
+        SCREEN_HT
+    );
+
+    if (isReady) {
+        spriteSetColor(renderState, LAYER_SOLID_COLOR, gHalfTransparentBlack);
+        spriteSolid(renderState, LAYER_SOLID_COLOR, 0, 88, SCREEN_WD, 64);
+
+        char* message = "Ready?";
+        unsigned messageX = (SCREEN_WD - fontMeasure(&gKickflipFont, message, 1)) >> 1;
+        fontRenderText(renderState, &gKickflipFont, message, messageX, 104, 1);
+    }
+}
+
 void mainMenuRenderLevels(struct MainMenu* mainMenu, struct RenderState* renderState) {
     spriteSetColor(renderState, LAYER_SOLID_COLOR, gMenuBlue);
     spriteSolid(renderState, LAYER_SOLID_COLOR, 59, 28, 200, 36);
@@ -201,18 +389,21 @@ void mainMenuRender(struct MainMenu* mainMenu, struct RenderState* renderState) 
     );
     gDPPipeSync(renderState->dl++);
     gDPSetCycleType(renderState->dl++, G_CYC_1CYCLE); 
-    gDPSetRenderMode(renderState->dl++, G_RM_ZB_OPA_SURF, G_RM_ZB_OPA_SURF2);
     Mtx* marsMatrix = renderStateRequestMatrices(renderState, 1);
     transformToMatrixL(&mainMenu->marsTransform, marsMatrix);
     gSPMatrix(renderState->dl++, marsMatrix, G_MTX_MODELVIEW | G_MTX_PUSH | G_MTX_MUL);
     gSPDisplayList(renderState->dl++, Mars_Mars_mesh);
     gSPPopMatrix(renderState->dl++, 1);
-
     gDPPipeSync(renderState->dl++);
+    gSPSetGeometryMode(renderState->dl++, G_ZBUFFER);
+    gDPSetRenderMode(renderState->dl++, G_RM_AA_ZB_OPA_SURF, G_RM_AA_ZB_OPA_SURF2);
 
     switch (mainMenu->menuState) {
         case MainMenuStateSelectingPlayerCount:
             mainMenuRenderPlayerCount(mainMenu, renderState);
+            break;
+        case MainMenuStateSelectingFaction:
+            mainMenuRenderFactions(mainMenu, renderState);
             break;
         case MainMenuStateSelectingLevel:
             mainMenuRenderLevels(mainMenu, renderState);

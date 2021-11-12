@@ -40,6 +40,8 @@ struct SKAnimationHeader* gDogAnimations[] = {
     [PlayerAnimationFall] = &doglow_animations[DOGLOW_DOGLOW_ARMATURE_001_FALL_INDEX],
     [PlayerAnimationJumpAttack] = &doglow_animations[DOGLOW_DOGLOW_ARMATURE_001_JUMP_ATTACK_INDEX],
     [PlayerAnimationJumpAttackLanding] = &doglow_animations[DOGLOW_DOGLOW_ARMATURE_001_JUMP_ATTACK_LANDING_INDEX],
+    [PlayerAnimationSelectIdle] = &doglow_animations[DOGLOW_DOGLOW_ARMATURE_001_WALK_INDEX],
+    [PlayerAnimationSelected] = &doglow_animations[DOGLOW_DOGLOW_ARMATURE_001_PUNCH_002_INDEX],
 };
 
 struct SKAnimationEvent gDogAttack001Events[] = {
@@ -54,6 +56,7 @@ struct SKAnimationEvent gDogAttack002Events[] = {
 };
 
 struct Faction gDogFaction = {
+    .name = "Dogs",
     .playerAttacks = gDogAttacks,
     .playerAnimations = gDogAnimations,
     .playerDefaultPose = doglow_default_bones,
@@ -102,6 +105,8 @@ struct SKAnimationHeader* gCatAnimations[] = {
     [PlayerAnimationFall] = &catlow_animations[CATLOW_CATLOW_ARMATURE_001_JUMP_PEAK_INDEX],
     [PlayerAnimationJumpAttack] = &catlow_animations[CATLOW_CATLOW_ARMATURE_001_JUMP_ATTACK_INDEX],
     [PlayerAnimationJumpAttackLanding] = &catlow_animations[CATLOW_CATLOW_ARMATURE_001_JUMP_ATTACK_LANDING_INDEX],
+    [PlayerAnimationSelectIdle] = &catlow_animations[CATLOW_CATLOW_ARMATURE_001_WALK_INDEX],
+    [PlayerAnimationSelected] = &catlow_animations[CATLOW_CATLOW_ARMATURE_001_PUNCH_003_INDEX],
 };
 
 struct SKAnimationEvent gCatAttack001Events[] = {
@@ -116,6 +121,7 @@ struct SKAnimationEvent gCatAttack002Events[] = {
 };
 
 struct Faction gCatFaction = {
+    .name = "Cats",
     .playerAttacks = gCatAttacks,
     .playerAnimations = gCatAnimations,
     .playerDefaultPose = catlow_default_bones,
@@ -134,6 +140,11 @@ struct Faction* gTeamFactions[MAX_PLAYERS] = {
     &gCatFaction,
     &gDogFaction,
     &gDogFaction,
+    &gDogFaction,
+};
+
+struct Faction* gFactions[FACTION_COUNT] = {
+    &gCatFaction,
     &gDogFaction,
 };
 

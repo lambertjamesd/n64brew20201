@@ -24,14 +24,6 @@
 #include "collision/polygon.h"
 #include "math/vector3.h"
 
-static Vp gSplitScreenViewports[4];
-static unsigned short gClippingRegions[4 * 4];
-
-struct ViewportLayout {
-    unsigned short viewportLocations[4][4];
-    unsigned short minimapLocation[4];
-};
-
 struct DynamicMarker gIntensityMarkers[] = {
     {0, {127, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
     {25, {127, 0, 127, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
@@ -39,52 +31,7 @@ struct DynamicMarker gIntensityMarkers[] = {
     {75, {127, 0, 127, 127, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
 };
 
-#define MINIMAP_SIZE    64
-
 #define GAME_END_DELAY  5.0f
-
-struct ViewportLayout gViewportPosition[] = {
-    // Single player
-    {
-        .viewportLocations = {
-            {0, 0, SCREEN_WD, SCREEN_HT},
-            {0, 0, 0, 0},
-            {0, 0, 0, 0},
-            {0, 0, 0, 0},
-        },
-        .minimapLocation = {SCREEN_WD - MINIMAP_SIZE - 32, SCREEN_HT - MINIMAP_SIZE - 32, SCREEN_WD - 32, SCREEN_HT - 32},
-    },
-    // Two player
-    {
-        .viewportLocations = {
-            {0, 0, SCREEN_WD/2-1, SCREEN_HT},
-            {SCREEN_WD/2+1, 0, SCREEN_WD, SCREEN_HT},
-            {0, 0, 0, 0},
-            {0, 0, 0, 0},
-        },
-        .minimapLocation = {(SCREEN_WD - MINIMAP_SIZE) / 2, SCREEN_HT - MINIMAP_SIZE - 32, (SCREEN_WD + MINIMAP_SIZE) / 2, SCREEN_HT - 32},
-    },
-    // Three player
-    {
-        .viewportLocations = {
-            {0, 0, SCREEN_WD/2-1, SCREEN_HT/2-1},
-            {SCREEN_WD/2+1, 0, SCREEN_WD, SCREEN_HT/2-1},
-            {0, SCREEN_HT/2+1, SCREEN_WD/2-1, SCREEN_HT},
-            {0, 0, 0, 0},
-        },
-        .minimapLocation = {SCREEN_WD * 3 / 4 - SCREEN_HT / 4 + 16, SCREEN_HT / 2 + 16, SCREEN_WD * 3 / 4 + SCREEN_HT / 4 - 16, SCREEN_HT - 16},
-    },
-    // Four player
-    {
-        .viewportLocations = {
-            {0, 0, SCREEN_WD/2-1, SCREEN_HT/2-1},
-            {SCREEN_WD/2+1, 0, SCREEN_WD, SCREEN_HT/2-1},
-            {0, SCREEN_HT/2+1, SCREEN_WD/2-1, SCREEN_HT},
-            {SCREEN_WD/2+1, SCREEN_HT/2+1, SCREEN_WD, SCREEN_HT},
-        },
-        .minimapLocation = {(SCREEN_WD - MINIMAP_SIZE) / 2, (SCREEN_HT - MINIMAP_SIZE) / 2, (SCREEN_WD + MINIMAP_SIZE) / 2, (SCREEN_HT + MINIMAP_SIZE) / 2},
-    },
-};
 
 void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* definition, unsigned int playercount, unsigned char humanPlayerCount) {
     levelScene->definition = definition;
@@ -109,6 +56,7 @@ void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* defin
         vector3AddScaled(&levelScene->players[i].transform.position, &gForward, SCENE_SCALE * 2.0f, &levelScene->cameras[i].transform.position);
         vector3AddScaled(&levelScene->cameras[i].transform.position, &gUp, SCENE_SCALE * 2.0f, &levelScene->cameras[i].transform.position);
         baseCommandMenuInit(&levelScene->baseCommandMenu[i]);
+        gPlayerAtBase[i] = 0;
         
     }
     //initializing AI controlled characters
@@ -160,30 +108,7 @@ void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* defin
 
     levelScene->humanPlayerCount = humanPlayerCount;
 
-    // 4 numbers per viewport, 4 viewports per slot
-    struct ViewportLayout* viewprtLayout = &gViewportPosition[levelScene->humanPlayerCount - 1];
-    
-    for (unsigned i = 0; i < levelScene->humanPlayerCount; ++i) {
-        unsigned l = viewprtLayout->viewportLocations[i][0];
-        unsigned t = viewprtLayout->viewportLocations[i][1];
-        unsigned r = viewprtLayout->viewportLocations[i][2];
-        unsigned b = viewprtLayout->viewportLocations[i][3];
-
-        gSplitScreenViewports[i].vp.vscale[0] = (r - l) * 4 / 2;
-        gSplitScreenViewports[i].vp.vscale[1] = (b - t) * 4 / 2;
-        gSplitScreenViewports[i].vp.vscale[2] = G_MAXZ/2;
-        gSplitScreenViewports[i].vp.vscale[3] = 0;
-
-        gSplitScreenViewports[i].vp.vtrans[0] = (r + l) * 4 / 2;
-        gSplitScreenViewports[i].vp.vtrans[1] = (b + t) * 4 / 2;
-        gSplitScreenViewports[i].vp.vtrans[2] = G_MAXZ/2;
-        gSplitScreenViewports[i].vp.vtrans[3] = 0;
-
-        gClippingRegions[i * 4 + 0] = l;
-        gClippingRegions[i * 4 + 1] = t;
-        gClippingRegions[i * 4 + 2] = r;
-        gClippingRegions[i * 4 + 3] = b;
-    }
+    gfxInitSplitscreenViewport(humanPlayerCount);
 
     levelScene->state = LevelSceneStatePlaying;
     levelScene->winningTeam = TEAM_NONE;
@@ -263,6 +188,7 @@ void levelSceneRender(struct LevelScene* levelScene, struct RenderState* renderS
     gSPEndDisplayList(renderState->transparentDL++);
 
     for (unsigned int i = 0; i < levelScene->humanPlayerCount; ++i) {
+        gDPPipeSync(renderState->dl++);
         Vp* viewport = &gSplitScreenViewports[i];
         cameraSetupMatrices(
             &levelScene->cameras[i], 

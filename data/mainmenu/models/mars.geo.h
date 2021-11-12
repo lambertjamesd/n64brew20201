@@ -429,7 +429,8 @@ Gfx mat_Mars_Decor_Mars[] = {
 };
 
 Gfx Mars_Mars_mesh[] = {
-	gsSPClearGeometryMode(G_LIGHTING),
+	gsSPClearGeometryMode(G_LIGHTING | G_ZBUFFER),
+	gsDPSetRenderMode(G_RM_AA_OPA_SURF, G_RM_AA_OPA_SURF),
 	gsSPVertex(Mars_Mars_mesh_vtx_cull + 0, 8, 0),
 	gsSPCullDisplayList(0, 7),
 	gsSPDisplayList(mat_Mars_Decor_Mars),

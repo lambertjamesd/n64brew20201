@@ -41,6 +41,16 @@ typedef struct {
     u16		*cfb;
 } GFXInfo;
 
+struct ViewportLayout {
+    unsigned short viewportLocations[4][4];
+    unsigned short minimapLocation[4];
+};
+
+#define MINIMAP_SIZE    64
+extern struct ViewportLayout gViewportPosition[];
+extern Vp gSplitScreenViewports[4];
+extern unsigned short gClippingRegions[4 * 4];
+
 /* some static display lists: */
 extern Gfx	rdpstateinit_dl[];
 extern Gfx	setup_rdpstate[];
@@ -80,6 +90,8 @@ extern u64	gfxYieldBuf2[];
 extern u64          dram_stack[];
 
 extern void* rdp_output;
+
+void gfxInitSplitscreenViewport(unsigned playercount);
 
 #endif	/* _LANGUAGE_C */
 #endif /* __simplegfx__ */

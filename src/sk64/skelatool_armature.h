@@ -14,7 +14,7 @@ struct SKArmature {
     unsigned short* boneParentIndex;
 };
 
-void skInitObject(struct SKArmature* object, Gfx* displayList, u32 numberOfBones, struct Transform* initialPose, unsigned short* boneParentIndex);
+void skArmatureInit(struct SKArmature* object, Gfx* displayList, u32 numberOfBones, struct Transform* initialPose, unsigned short* boneParentIndex);
 void skRenderObject(struct SKArmature* object, struct RenderState* intoState);
 void skCalculateTransforms(struct SKArmature* object, Mtx* into);
 void skCleanupObject(struct SKArmature* object);

@@ -35,6 +35,52 @@ Vp gFullScreenVP = {
   }
 };
 
+struct ViewportLayout gViewportPosition[] = {
+    // Single player
+    {
+        .viewportLocations = {
+            {0, 0, SCREEN_WD, SCREEN_HT},
+            {0, 0, 0, 0},
+            {0, 0, 0, 0},
+            {0, 0, 0, 0},
+        },
+        .minimapLocation = {SCREEN_WD - MINIMAP_SIZE - 32, SCREEN_HT - MINIMAP_SIZE - 32, SCREEN_WD - 32, SCREEN_HT - 32},
+    },
+    // Two player
+    {
+        .viewportLocations = {
+            {0, 0, SCREEN_WD/2-1, SCREEN_HT},
+            {SCREEN_WD/2+1, 0, SCREEN_WD, SCREEN_HT},
+            {0, 0, 0, 0},
+            {0, 0, 0, 0},
+        },
+        .minimapLocation = {(SCREEN_WD - MINIMAP_SIZE) / 2, SCREEN_HT - MINIMAP_SIZE - 32, (SCREEN_WD + MINIMAP_SIZE) / 2, SCREEN_HT - 32},
+    },
+    // Three player
+    {
+        .viewportLocations = {
+            {0, 0, SCREEN_WD/2-1, SCREEN_HT/2-1},
+            {SCREEN_WD/2+1, 0, SCREEN_WD, SCREEN_HT/2-1},
+            {0, SCREEN_HT/2+1, SCREEN_WD/2-1, SCREEN_HT},
+            {0, 0, 0, 0},
+        },
+        .minimapLocation = {SCREEN_WD * 3 / 4 - SCREEN_HT / 4 + 16, SCREEN_HT / 2 + 16, SCREEN_WD * 3 / 4 + SCREEN_HT / 4 - 16, SCREEN_HT - 16},
+    },
+    // Four player
+    {
+        .viewportLocations = {
+            {0, 0, SCREEN_WD/2-1, SCREEN_HT/2-1},
+            {SCREEN_WD/2+1, 0, SCREEN_WD, SCREEN_HT/2-1},
+            {0, SCREEN_HT/2+1, SCREEN_WD/2-1, SCREEN_HT},
+            {SCREEN_WD/2+1, SCREEN_HT/2+1, SCREEN_WD, SCREEN_HT},
+        },
+        .minimapLocation = {(SCREEN_WD - MINIMAP_SIZE) / 2, (SCREEN_HT - MINIMAP_SIZE) / 2, (SCREEN_WD + MINIMAP_SIZE) / 2, (SCREEN_HT + MINIMAP_SIZE) / 2},
+    },
+};
+
+Vp gSplitScreenViewports[4];
+unsigned short gClippingRegions[4 * 4];
+
 unsigned short	__attribute__((aligned(64))) zbuffer[SCREEN_WD*SCREEN_HT];
 u64 __attribute__((aligned(16))) dram_stack[SP_DRAM_STACK_SIZE64];
 u64 __attribute__((aligned(16))) gfxYieldBuf2[OS_YIELD_DATA_SIZE/sizeof(u64)];
@@ -148,4 +194,31 @@ void createGfxTask(GFXInfo *i)
     // }
 
     osSendMesg(sched_cmdQ, (OSMesg) t, OS_MESG_BLOCK); 
+}
+
+void gfxInitSplitscreenViewport(unsigned playercount) {
+    // 4 numbers per viewport, 4 viewports per slot
+    struct ViewportLayout* viewprtLayout = &gViewportPosition[playercount - 1];
+    
+    for (unsigned i = 0; i < playercount; ++i) {
+        unsigned l = viewprtLayout->viewportLocations[i][0];
+        unsigned t = viewprtLayout->viewportLocations[i][1];
+        unsigned r = viewprtLayout->viewportLocations[i][2];
+        unsigned b = viewprtLayout->viewportLocations[i][3];
+
+        gSplitScreenViewports[i].vp.vscale[0] = (r - l) * 4 / 2;
+        gSplitScreenViewports[i].vp.vscale[1] = (b - t) * 4 / 2;
+        gSplitScreenViewports[i].vp.vscale[2] = G_MAXZ/2;
+        gSplitScreenViewports[i].vp.vscale[3] = 0;
+
+        gSplitScreenViewports[i].vp.vtrans[0] = (r + l) * 4 / 2;
+        gSplitScreenViewports[i].vp.vtrans[1] = (b + t) * 4 / 2;
+        gSplitScreenViewports[i].vp.vtrans[2] = G_MAXZ/2;
+        gSplitScreenViewports[i].vp.vtrans[3] = 0;
+
+        gClippingRegions[i * 4 + 0] = l;
+        gClippingRegions[i * 4 + 1] = t;
+        gClippingRegions[i * 4 + 2] = r;
+        gClippingRegions[i * 4 + 3] = b;
+    }
 }

@@ -93,6 +93,7 @@ void skAnimatorInit(struct SKAnimator* animator, unsigned boneCount, SKAnimation
 void skAnimatorCleanup(struct SKAnimator* animator);
 void skAnimatorRunClip(struct SKAnimator* animator, struct SKAnimationHeader* animation, int flags);
 void skAnimatorUpdate(struct SKAnimator* animator, struct Transform* transforms, float timeScale);
+void skWaitForPendingRequest(struct SKAnimator* animator);
 
 void skAnimationApply(struct SKAnimator* animator, struct Transform* transforms, float tick);
 

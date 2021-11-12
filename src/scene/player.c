@@ -264,7 +264,7 @@ void playerInit(struct Player* player, unsigned playerIndex, unsigned team, stru
 
     recallCircleInit(&player->recallCircle);
     
-    skInitObject(
+    skArmatureInit(
         &player->armature, 
         gTeamFactions[player->team.teamNumber]->playerMesh, 
         gTeamFactions[player->team.teamNumber]->playerBoneCount, 

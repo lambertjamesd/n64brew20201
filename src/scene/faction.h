@@ -9,6 +9,7 @@
 #include "game_defs.h"
 #include "sk64/skelatool_clip.h"
 #include "math/vector2.h"
+#include "math/mathf.h"
 
 struct PlayerAttackInfo {
     unsigned char boneIndex;
@@ -29,6 +30,8 @@ enum PlayerAttack {
 #define PLAYER_ATTACK_END_ID                       0x1
 #define PLAYER_ATTACK_WINDOW_ID                    0x2
 
+#define FACTION_COUNT   2
+
 enum PlayerAnimation {
     PlayerAnimationIdle,
     PlayerAnimationWalk,
@@ -37,9 +40,12 @@ enum PlayerAnimation {
     PlayerAnimationFall,
     PlayerAnimationJumpAttack,
     PlayerAnimationJumpAttackLanding,
+    PlayerAnimationSelectIdle,
+    PlayerAnimationSelected,
 };
 
 struct Faction {
+    char* name;
     struct PlayerAttackInfo* playerAttacks;
     struct SKAnimationHeader** playerAnimations;
     struct Transform* playerDefaultPose;
@@ -54,10 +60,13 @@ struct Faction {
 };
 
 extern struct Faction* gTeamFactions[MAX_PLAYERS];
+extern struct Faction* gFactions[FACTION_COUNT];
 
 void factionGlobalInit();
 
 struct SKAnimationHeader* factionGetAnimation(unsigned team, enum PlayerAnimation anim);
 struct PlayerAttackInfo* factionGetAttack(unsigned team, enum PlayerAttack attack);
+
+#define ANY_FACTION_BONE_COUNT  MAX(DOGLOW_DEFAULT_BONES_COUNT, CATLOW_DEFAULT_BONES_COUNT)
 
 #endif

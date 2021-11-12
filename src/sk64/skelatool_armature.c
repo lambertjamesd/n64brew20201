@@ -4,7 +4,7 @@
 #include "util/memory.h"
 #include "util/rom.h"
 
-void skInitObject(struct SKArmature* object, Gfx* displayList, u32 numberOfBones, struct Transform* initialPose, unsigned short* boneParentIndex) {
+void skArmatureInit(struct SKArmature* object, Gfx* displayList, u32 numberOfBones, struct Transform* initialPose, unsigned short* boneParentIndex) {
     object->displayList = displayList;
     object->numberOfBones = numberOfBones;
     object->boneTransforms = malloc(sizeof(Mtx) * numberOfBones);
