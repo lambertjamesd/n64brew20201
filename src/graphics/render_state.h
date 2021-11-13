@@ -2,7 +2,7 @@
 #define _RENDER_STATE_H
 
 #include <ultra64.h>
-
+#include "math/color.h"
 
 #define MAX_ACTIVE_TRANSFORMS   320
 #define MAX_DL_LENGTH           1024
@@ -11,7 +11,7 @@
 
 struct SpriteState {
     Gfx* layerSetup[MAX_LAYER_COUNT];
-    u32 layerColor[MAX_LAYER_COUNT];
+    struct Coloru8 layerColor[MAX_LAYER_COUNT];
     Gfx* layerDL[MAX_LAYER_COUNT];
     Gfx* currentLayerDL[MAX_LAYER_COUNT];
     Gfx* layerChunk[MAX_LAYER_COUNT];
@@ -33,5 +33,7 @@ Mtx* renderStateRequestMatrices(struct RenderState* renderState, unsigned count)
 void renderStateFlushCache(struct RenderState* renderState);
 Gfx* renderStateAllocateDLChunk(struct RenderState* renderState, unsigned count);
 Gfx* renderStateReplaceDL(struct RenderState* renderState, Gfx* nextDL);
+Gfx* renderStateStartChunk(struct RenderState* renderState);
+Gfx* renderStateEndChunk(struct RenderState* renderState, Gfx* chunkStart);
 
 #endif

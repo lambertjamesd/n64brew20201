@@ -119,7 +119,7 @@ void minionRender(struct Minion* minion, struct RenderState* renderState) {
     gDPSetPrimColor(renderState->dl++, 0, 0, color.r, color.g, color.b, color.a);
     gSPMatrix(renderState->dl++, osVirtualToPhysical(matrix), G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
     gSPDisplayList(renderState->dl++, gTeamFactions[minion->team.teamNumber]->minionMesh);
-    gSPPopMatrix(renderState->dl++, 1);
+    gSPPopMatrix(renderState->dl++, G_MTX_MODELVIEW);
 }
 
 void minionIssueCommand(struct Minion* minion, enum MinionCommand command, unsigned fromPlayer) {

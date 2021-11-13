@@ -4,6 +4,7 @@
 #include "gfx.h"
 #include "game_defs.h"
 #include "util/time.h"
+#include "image.h"
 
 #define DL_CHUNK_SIZE       32
 
@@ -65,6 +66,16 @@ void spriteSolid(struct RenderState* renderState, int layer, int x, int y, int w
     
 }
 
+void spriteCopyImage(struct RenderState* renderState, int layer, void* image, int iw, int ih, int x, int y, int w, int h, int sx, int sy) {
+    Gfx* start = renderStateStartChunk(renderState);
+    graphicsCopyImage(renderState, image, iw, ih, sx, sy, x, y, w, h, renderState->spriteState.layerColor[layer]);
+    Gfx* chunk = renderStateEndChunk(renderState, start);
+    Gfx tmp[1];
+    Gfx* tmpPtr = tmp;
+    gSPDisplayList(tmpPtr++, chunk);
+    spriteWriteRaw(renderState, layer, tmp, tmpPtr - tmp);
+}
+
 void spriteDraw(struct RenderState* renderState, int layer, int x, int y, int w, int h, int sx, int sy, int sw, int sh)
 {
     Gfx workingMem[4];
@@ -107,16 +118,15 @@ void spriteDrawTile(struct RenderState* renderState, int layer, int x, int y, in
 
 void spriteSetColor(struct RenderState* renderState, int layer, struct Coloru8 color)
 {
-    int key = (color.r << 24) | (color.g << 16) | (color.b << 8) | (color.a << 0);
-
-    if (key != renderState->spriteState.layerColor[layer])
+    struct Coloru8 currColor = renderState->spriteState.layerColor[layer];
+    if (color.r != currColor.r || color.g != currColor.g || color.b != currColor.b || color.a != currColor.a)
     {
         Gfx workingMem[2];
         Gfx* curr = workingMem;
         gDPPipeSync(curr++);
         gDPSetEnvColor(curr++, color.r, color.g, color.b, color.a);
         spriteWriteRaw(renderState, layer, workingMem, curr - workingMem);
-        renderState->spriteState.layerColor[layer] = key;
+        renderState->spriteState.layerColor[layer] = color;
     }
 }
 
@@ -127,7 +137,7 @@ void spriteInit(struct RenderState* renderState)
         renderState->spriteState.layerDL[i] = 0;
         renderState->spriteState.currentLayerDL[i] = 0;
         renderState->spriteState.layerChunk[i] = 0;
-        renderState->spriteState.layerColor[i] = ~0;
+        renderState->spriteState.layerColor[i] = gColorWhite;
     }
 }
 
@@ -147,10 +157,12 @@ void spriteFinish(struct RenderState* renderState)
 
     for (int i = 0; i < MAX_LAYER_COUNT; ++i)
     {
-        if (renderState->spriteState.layerDL[i] && renderState->spriteState.layerSetup[i])
+        if (renderState->spriteState.layerDL[i] && (renderState->spriteState.layerSetup[i] || i == LAYER_IMAGE_COPIES))
         {
             gSPEndDisplayList(renderState->spriteState.currentLayerDL[i]++);
-            gSPDisplayList(renderState->dl++, renderState->spriteState.layerSetup[i]);
+            if (renderState->spriteState.layerSetup[i]) {
+                gSPDisplayList(renderState->dl++, renderState->spriteState.layerSetup[i]);
+            }
             gSPDisplayList(renderState->dl++, renderState->spriteState.layerDL[i]);
         }
     }

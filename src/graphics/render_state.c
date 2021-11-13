@@ -43,3 +43,25 @@ Gfx* renderStateReplaceDL(struct RenderState* renderState, Gfx* nextDL) {
     renderState->dl = nextDL;
     return result;
 }
+
+Gfx* renderStateStartChunk(struct RenderState* renderState) {
+    return renderState->dl;    
+}
+
+Gfx* renderStateEndChunk(struct RenderState* renderState, Gfx* chunkStart) {
+    Gfx* newChunk = renderStateAllocateDLChunk(renderState, (renderState->dl - chunkStart) + 1);
+    Gfx* copyDest = newChunk;
+    Gfx* copySrc = chunkStart;
+
+    while (copySrc < renderState->dl) {
+        *copyDest = *copySrc;
+        ++copyDest;
+        ++copySrc;
+    }
+
+    gSPEndDisplayList(copyDest++);
+
+    renderState->dl = chunkStart;
+
+    return newChunk;
+}

@@ -84,5 +84,5 @@ void recallCircleRender(struct RecallCircle* circle, struct RenderState* renderS
     struct Coloru8 color = gTeamColors[team];
     gDPSetPrimColor(renderState->transparentDL++, 255, 255, color.r, color.g, color.b, color.a);
     gSPDisplayList(renderState->transparentDL++, RecallCircle_Cylinder_mesh);
-    gSPPopMatrix(renderState->transparentDL++, 1);
+    gSPPopMatrix(renderState->transparentDL++, G_MTX_MODELVIEW);
 }

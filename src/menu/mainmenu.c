@@ -12,8 +12,10 @@
 #include "util/memory.h"
 #include "scene/faction.h"
 #include "util/rom.h"
+#include "textbox.h"
 
 #include "../data/mainmenu/menu.h"
+#include "../data/fonts/fonts.h"
 #include "../data/models/characters.h"
 
 #define MARS_ROTATE_RATE    (2.0f * M_PI / 30.0f)
@@ -26,8 +28,6 @@
 #define UNSELECTED_SPIN_FREQ    (0.2f * (M_PI * 2.0f))
 
 struct Coloru8 gDeselectedColor = {128, 128, 128, 255};
-struct Coloru8 gMenuBlue = {127, 174, 177, 255};
-struct Coloru8 gMenuBlack = {41, 41, 35, 255};
 
 struct ButtonLayoutInfo {
     unsigned short x;
@@ -156,22 +156,26 @@ void mainMenuStartLevel(struct MainMenu* mainMenu) {
 
 void mainMenuEnterFactionSelection(struct MainMenu* mainMenu) {
     mainMenu->menuState = MainMenuStateSelectingFaction;
+    mainMenu->targetMenuState = MainMenuStateSelectingFaction;
 
     gfxInitSplitscreenViewport(mainMenu->selectedPlayerCount + 1);
 }
 
 void mainMenuEnterLevelSelection(struct MainMenu* mainMenu) {
     mainMenu->menuState = MainMenuStateSelectingLevel;
+    mainMenu->targetMenuState = MainMenuStateSelectingLevel;
     
     mainMenu->selectedLevel = 0;
     mainMenu->levelCount = 0;
 
     for (unsigned i = 0; i < gLevelCount; ++i) {
-        if (gLevels[i].flags & LevelMetadataFlagsMultiplayer) {
+        if ((gLevels[i].flags & LevelMetadataFlagsMultiplayer) != 0 && gLevels[i].maxPlayers >= mainMenu->selectedPlayerCount + 1) {
             mainMenu->filteredLevels[mainMenu->levelCount] = &gLevels[i];
             ++mainMenu->levelCount;
         }
     }
+
+    textBoxInit(&gTextBox, mainMenu->filteredLevels[0]->name, 200, SCREEN_WD / 2, 46);
 }
 
 void mainMenuInit(struct MainMenu* mainMenu) {
@@ -180,6 +184,7 @@ void mainMenuInit(struct MainMenu* mainMenu) {
     transformInitIdentity(&mainMenu->marsTransform);
     mainMenu->marsTransform.position.x = 50.0f;
     mainMenu->menuState = MainMenuStateSelectingPlayerCount;
+    mainMenu->targetMenuState = MainMenuStateSelectingPlayerCount;
     mainMenu->selectedPlayerCount = 0;
     mainMenu->selectedLevel = 0;
     mainMenu->filteredLevels = malloc(sizeof(struct ThemeMetadata*) * gLevelCount);
@@ -232,6 +237,21 @@ void mainMenuUpdateFaction(struct MainMenu* mainMenu) {
 }
 
 void mainMenuUpdateLevelSelect(struct MainMenu* mainMenu) {
+    textBoxUpdate(&gTextBox);
+
+    if (mainMenu->targetMenuState == MainMenuStateStarting) {
+        if (!textBoxIsVisible(&gTextBox)) {
+            mainMenuStartLevel(mainMenu);
+        }
+        return;
+    } else if (mainMenu->targetMenuState == MainMenuStateSelectingFaction) {
+        if (!textBoxIsVisible(&gTextBox)) {
+            mainMenu->menuState = MainMenuStateSelectingFaction;
+            mainMenu->targetMenuState = MainMenuStateSelectingFaction;
+        }
+        return;
+    }
+
     enum ControllerDirection direction = controllerGetDirectionDown(0);
 
     if ((direction & ControllerDirectionLeft) != 0 && mainMenu->selectedLevel > 0) {
@@ -242,12 +262,16 @@ void mainMenuUpdateLevelSelect(struct MainMenu* mainMenu) {
         ++mainMenu->selectedLevel;
     }
 
+    textBoxChangeText(&gTextBox, mainMenu->filteredLevels[mainMenu->selectedLevel]->name);
+
     if (controllerGetButtonDown(0, A_BUTTON)) {
-        mainMenuStartLevel(mainMenu);
+        mainMenu->targetMenuState = MainMenuStateStarting;
+        textBoxHide(&gTextBox);
     }
 
     if (controllerGetButtonDown(0, B_BUTTON)) {
-        mainMenu->menuState = MainMenuStateSelectingFaction;
+        mainMenu->targetMenuState = MainMenuStateSelectingFaction;
+        textBoxHide(&gTextBox);
     }
 }
 
@@ -267,6 +291,8 @@ void mainMenuUpdate(struct MainMenu* mainMenu) {
             break;
         case MainMenuStateSelectingLevel:
             mainMenuUpdateLevelSelect(mainMenu);
+            break;
+        case MainMenuStateStarting:
             break;
     }
 }
@@ -333,7 +359,7 @@ void mainMenuRenderFactions(struct MainMenu* mainMenu, struct RenderState* rende
         gSPMatrix(renderState->dl++, playerMatrix, G_MTX_MODELVIEW | G_MTX_PUSH | G_MTX_MUL);
         gSPDisplayList(renderState->dl++, gTeamPalleteTexture[i]);
         skRenderObject(&mainMenu->factionSelection[i].armature, renderState);
-        gSPPopMatrix(renderState->dl++, 1);
+        gSPPopMatrix(renderState->dl++, G_MTX_MODELVIEW);
 
         if (!(mainMenu->factionSelection[i].flags & MainMenuFactionFlagsSelected)) {
             isReady = 0;
@@ -361,16 +387,7 @@ void mainMenuRenderFactions(struct MainMenu* mainMenu, struct RenderState* rende
 }
 
 void mainMenuRenderLevels(struct MainMenu* mainMenu, struct RenderState* renderState) {
-    spriteSetColor(renderState, LAYER_SOLID_COLOR, gMenuBlue);
-    spriteSolid(renderState, LAYER_SOLID_COLOR, 59, 28, 200, 36);
-    spriteSetColor(renderState, LAYER_SOLID_COLOR, gMenuBlack);
-    spriteSolid(renderState, LAYER_SOLID_COLOR, 66, 30, 186, 34);
-
-    char* name = mainMenu->filteredLevels[mainMenu->selectedLevel]->name;
-
-    unsigned x = (SCREEN_WD - fontMeasure(&gKickflipFont, name, 0)) >> 1;
-
-    fontRenderText(renderState, &gKickflipFont, name, x, 38, 0);
+    textBoxRender(&gTextBox, renderState);
 }
 
 void mainMenuRender(struct MainMenu* mainMenu, struct RenderState* renderState) {
@@ -393,7 +410,7 @@ void mainMenuRender(struct MainMenu* mainMenu, struct RenderState* renderState) 
     transformToMatrixL(&mainMenu->marsTransform, marsMatrix);
     gSPMatrix(renderState->dl++, marsMatrix, G_MTX_MODELVIEW | G_MTX_PUSH | G_MTX_MUL);
     gSPDisplayList(renderState->dl++, Mars_Mars_mesh);
-    gSPPopMatrix(renderState->dl++, 1);
+    gSPPopMatrix(renderState->dl++, G_MTX_MODELVIEW);
     gDPPipeSync(renderState->dl++);
     gSPSetGeometryMode(renderState->dl++, G_ZBUFFER);
     gDPSetRenderMode(renderState->dl++, G_RM_AA_ZB_OPA_SURF, G_RM_AA_ZB_OPA_SURF2);
@@ -407,6 +424,8 @@ void mainMenuRender(struct MainMenu* mainMenu, struct RenderState* renderState) 
             break;
         case MainMenuStateSelectingLevel:
             mainMenuRenderLevels(mainMenu, renderState);
+            break;
+        case MainMenuStateStarting:
             break;
     }
 

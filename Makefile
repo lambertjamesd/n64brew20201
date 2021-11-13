@@ -130,7 +130,7 @@ build/assets/soundbanks/banks.ctl build/assets/soundbanks.banks.tbl: assets/soun
 LEVELS = $(shell find assets/levels/ -type f -name '*.fbx')
 
 src/levels/level_list.h: assets/levels/level_definition.yaml assets/materials/levels.yaml $(LEVELS)
-	${SKELATOOL64} -s 100 -m assets/materials/levels.yaml -d assets/levels/level_definition.yaml
+	${SKELATOOL64} -s 100 -r -90,0,0 -m assets/materials/levels.yaml -d assets/levels/level_definition.yaml
 
 ####################
 ## Linking

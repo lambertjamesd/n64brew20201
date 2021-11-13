@@ -496,7 +496,7 @@ void playerRender(struct Player* player, struct RenderState* renderState) {
     gDPPipeSync(renderState->dl++);
     gSPDisplayList(renderState->dl++, gTeamPalleteTexture[isDamageFlash ? DAMAGE_PALLETE_INDEX : player->team.teamNumber]);
     skRenderObject(&player->armature, renderState);
-    gSPPopMatrix(renderState->dl++, 1);
+    gSPPopMatrix(renderState->dl++, G_MTX_MODELVIEW);
 
     recallCircleRender(&player->recallCircle, renderState, player->team.teamNumber);
     if (player->attackCollider) {

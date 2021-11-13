@@ -20,6 +20,7 @@
 #include "levels/themedefinition.h"
 #include "sk64/skelatool_defs.h"
 #include "scene_management.h"
+#include "tutorial/tutorial.h"
 
 #include "collision/polygon.h"
 #include "math/vector3.h"
@@ -33,12 +34,13 @@ struct DynamicMarker gIntensityMarkers[] = {
 
 #define GAME_END_DELAY  5.0f
 
-void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* definition, unsigned int playercount, unsigned char humanPlayerCount) {
+void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* definition, unsigned int playercount, unsigned char humanPlayerCount, enum LevelMetadataFlags flags) {
     levelScene->definition = definition;
     dynamicSceneInit(&gDynamicScene);
     initGBFont();
 
     levelScene->levelDL = definition->sceneRender;
+    levelScene->levelFlags = flags;
 
     levelScene->baseCount = definition->baseCount;
     levelScene->bases = malloc(sizeof(struct LevelBase) * definition->baseCount);
@@ -116,6 +118,10 @@ void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* defin
     // dynamicMusicUseMarkers(gIntensityMarkers, sizeof(gIntensityMarkers) / sizeof(*gIntensityMarkers));
 
     osWritebackDCache(&gSplitScreenViewports[0], sizeof(gSplitScreenViewports));
+
+    if (flags & LevelMetadataFlagsTutorial) {
+        tutorialInit(levelScene);
+    }
 }
 /*
 struct LevelBase* levelGetClosestBase(struct Vector3* closeTo, struct LevelScene* levelScene, unsigned team ){
@@ -184,6 +190,10 @@ void levelSceneRender(struct LevelScene* levelScene, struct RenderState* renderS
     assert(playerEnd <= playerGfx + PLAYER_GFX_PER_PLAYER * levelScene->playerCount + 1);
 
     Gfx* itemDropsGfx = itemDropsRender(&levelScene->itemDrops, renderState);
+
+    if (levelScene->levelFlags & LevelMetadataFlagsTutorial) {
+        tutorialRender(levelScene, renderState);
+    }
 
     gSPEndDisplayList(renderState->transparentDL++);
 
@@ -407,6 +417,10 @@ void levelSceneUpdate(struct LevelScene* levelScene) {
         baseCommandMenuUpdate(&levelScene->baseCommandMenu[playerIndex], playerIndex);
         playerUpdate(&levelScene->players[playerIndex], playerInput);
         leveSceneUpdateCamera(levelScene, playerIndex);
+
+        if (levelScene->levelFlags & LevelMetadataFlagsTutorial) {
+            tutorialUpdate(levelScene, playerInput);
+        }
     }
 
 

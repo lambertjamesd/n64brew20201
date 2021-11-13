@@ -12,6 +12,13 @@
 
 struct ThemeDefinition;
 
+enum LevelMetadataFlags {
+    LevelMetadataFlagsCampaign = (1 << 0),
+    LevelMetadataFlagsMultiplayer = (1 << 1),
+    LevelMetadataFlagsUnlocked = (1 << 2),
+    LevelMetadataFlagsTutorial = (1 << 3),
+};
+
 struct BaseDefinition {
     struct Vector2 position;
     unsigned char startingTeam;

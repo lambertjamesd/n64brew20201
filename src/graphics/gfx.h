@@ -14,7 +14,7 @@
 #define CHARACTER_SEGMENT   3
 #define LEVEL_SEGMENT       4
 #define THEME_SEGMENT       5
-#define THEME_SEGMENT       5
+#define FONT_SEGMENT        6
 
 #define RDP_OUTPUT_SIZE 0x4000
 
@@ -74,11 +74,15 @@ extern char _gameplaymenuSegmentRomEnd[];
 extern char _mainmenuSegmentRomStart[];
 extern char _mainmenuSegmentRomEnd[];
 
+extern char _fontsSegmentRomStart[];
+extern char _fontsSegmentRomEnd[];
+
 extern char* gStaticSegment;
 extern char* gCharacterSegment;
 extern char* gMenuSegment;
 extern char* gLevelSegment;
 extern char* gThemeSegment;
+extern char* gFontSegment;
 
 /* frame buffer, zbuffer: */
 extern unsigned short	zbuffer[];

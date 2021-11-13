@@ -26,6 +26,7 @@ void sceneLoadLevel(struct GameConfiguration* gameConfig) {
     LOAD_SEGMENT(static, gStaticSegment);
     LOAD_SEGMENT(gameplaymenu, gMenuSegment);
     LOAD_SEGMENT(characters, gCharacterSegment);
+    LOAD_SEGMENT(fonts, gFontSegment);
 
     struct LevelMetadata* metadata = gameConfig->level;
 
@@ -37,7 +38,7 @@ void sceneLoadLevel(struct GameConfiguration* gameConfig) {
 
     struct LevelDefinition* definition = levelDefinitionUnpack(metadata->fullDefinition, gLevelSegment, gThemeSegment);
 
-    levelSceneInit(&gCurrentLevel, definition, gameConfig->playerCount, gameConfig->humanPlayerCount);
+    levelSceneInit(&gCurrentLevel, definition, gameConfig->playerCount, gameConfig->humanPlayerCount, metadata->flags);
     gSceneState = SceneStateInLevel;
 }
 
@@ -54,6 +55,7 @@ void sceneLoadMainMenu() {
     LOAD_SEGMENT(static, gStaticSegment);
     LOAD_SEGMENT(mainmenu, gMenuSegment);
     LOAD_SEGMENT(characters, gCharacterSegment);
+    LOAD_SEGMENT(fonts, gFontSegment);
     mainMenuInit(&gMainMenu);
     gSceneState = SceneStateInMainMenu;
 }

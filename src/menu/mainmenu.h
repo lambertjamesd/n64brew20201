@@ -11,11 +11,12 @@ enum MainMenuState {
     MainMenuStateSelectingPlayerCount,
     MainMenuStateSelectingFaction,
     MainMenuStateSelectingLevel,
+    MainMenuStateStarting,
 };
 
 enum MainMenuFactionFlags {
     MainMenuFactionFlagsAI = (1 << 0),
-    MainMenuFactionFlagsSelected = (1 << 0),
+    MainMenuFactionFlagsSelected = (1 << 1),
 };
 
 struct MainMenuFactionSelector {
@@ -31,6 +32,7 @@ struct MainMenu {
     struct Camera camera;
     struct Transform marsTransform;
     enum MainMenuState menuState;
+    enum MainMenuState targetMenuState;
     unsigned short selectedPlayerCount;
     unsigned short selectedLevel;
     struct LevelMetadata** filteredLevels;

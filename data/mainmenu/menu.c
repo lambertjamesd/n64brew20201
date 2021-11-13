@@ -1,7 +1,6 @@
 
 #include "menu.h"
 #include "models/mars.geo.h"
-#include "images/kickflip.h"
 #include "images/players_1.h"
 #include "images/players_2.h"
 #include "images/players_3.h"

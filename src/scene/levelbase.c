@@ -323,7 +323,7 @@ void levelBaseRender(struct LevelBase* base, struct RenderState* renderState) {
     gDPPipeSync(renderState->dl++);
     gDPSetPrimColor(renderState->dl++, 255, 255, color.r, color.g, color.b, color.a);
     gSPDisplayList(renderState->dl++, base_BasePad_mesh);
-    gSPPopMatrix(renderState->dl++, 1);
+    gSPPopMatrix(renderState->dl++, G_MTX_MODELVIEW);
 
     vector3Add(&poleTransform.position, &gFlagOffset, &poleTransform.position);
     poleTransform.scale = gOneVec;
@@ -331,7 +331,7 @@ void levelBaseRender(struct LevelBase* base, struct RenderState* renderState) {
     transformToMatrixL(&poleTransform, &matrix[1]);
     gSPMatrix(renderState->dl++, osVirtualToPhysical(&matrix[1]), G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
     gSPDisplayList(renderState->dl++, base_flag_pole_Pole_mesh);
-    gSPPopMatrix(renderState->dl++, 1);
+    gSPPopMatrix(renderState->dl++, G_MTX_MODELVIEW);
 
     if (base->team.teamNumber != TEAM_NONE && base->captureProgress > 0.1f) {
         poleTransform.position.y += SCENE_SCALE * poleTransform.scale.y * mathfLerp(MIN_FLAG_HEIGHT, MAX_FLAG_HEIGHT, base->captureProgress / CAPTURE_TIME);
@@ -342,7 +342,7 @@ void levelBaseRender(struct LevelBase* base, struct RenderState* renderState) {
         color = gTeamColors[base->team.teamNumber];
         gDPSetPrimColor(renderState->dl++, 255, 255, color.r, color.g, color.b, color.a);
         gSPDisplayList(renderState->dl++, base_flag_Flag_mesh);
-        gSPPopMatrix(renderState->dl++, 1);
+        gSPPopMatrix(renderState->dl++, G_MTX_MODELVIEW);
     }
 }
 

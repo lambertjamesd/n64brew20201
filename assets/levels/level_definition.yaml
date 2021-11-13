@@ -11,6 +11,14 @@ Themes:
           Output: ../../data/levels/Level_Template/level.h
           MaxPlayers: 4
 
+        - Name: Boot Camp
+          Filename: BootCamp.fbx
+          Output: ../../data/levels/Boot_Camp/level.h
+          MaxPlayers: 2
+          Campaign: True
+          Multiplayer: True
+          Tutorial: True
+
         - Name: The Octogon
           Filename: TheOctogon.fbx
           Output: ../../data/levels/The_Octogon/level.h

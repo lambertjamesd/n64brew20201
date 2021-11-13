@@ -99,6 +99,13 @@ SECTIONS
       build/data/mainmenu/menu.o(.bss);
    }
    END_SEG(mainmenu)
+   
+   BEGIN_SEG(fonts, 0x06000000)
+   {
+      build/data/fonts/fonts.o(.data);
+      build/data/fonts/fonts.o(.bss);
+   }
+   END_SEG(fonts)
 
    BEGIN_SEG(characters, 0x03000000)
    {
