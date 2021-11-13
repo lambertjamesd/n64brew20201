@@ -134,7 +134,7 @@ struct LevelBase* levelGetClosestBase(struct Vector3* closeTo, struct LevelScene
     float minDist = vector3DistSqrd(&basePos, closeTo);
     unsigned int minIndex = 0;
     for(unsigned int i = 1; i < levelScene->baseCount; i++){
-        if(levelBaseGetFactionID(&bases[i]) == team) continue;
+        if(levelBaseGetTeam(&bases[i]) == team) continue;
         basePos.x = bases[i].position.x;
         basePos.y = bases[i].position.y;
         basePos.z = bases[i].position.z;
@@ -295,7 +295,7 @@ void levelSceneCollectBotPlayerInput(struct LevelScene* levelScene, unsigned pla
     unsigned botIndex = playerIndex - levelScene->humanPlayerCount;
 
     //if current target base has been captured by our team, tell the team leadr to switch to another base
-    if(levelScene->bots[botIndex].targetBase != NULL && levelBaseGetFactionID(levelScene->bots[botIndex].targetBase) == levelScene->players[playerIndex].team.teamNumber) {
+    if(levelScene->bots[botIndex].targetBase != NULL && levelBaseGetTeam(levelScene->bots[botIndex].targetBase) == levelScene->players[playerIndex].team.teamNumber) {
         struct LevelBase* newBase = getClosestUncapturedBase(
             levelScene->bases, 
             levelScene->baseCount, 

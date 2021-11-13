@@ -72,7 +72,7 @@ struct LevelBase* getClosestUncapturedBase(struct LevelBase* bases, unsigned bas
     float minDist = vector3DistSqrd(&basePos, closeTo);
     unsigned int minIndex = 0;
     for(unsigned int i = 1; i < baseCount; i++){
-        if(levelBaseGetFactionID(&bases[i]) == team) continue;
+        if(levelBaseGetTeam(&bases[i]) == team) continue;
         basePos.x = bases[i].position.x;
         basePos.y = bases[i].position.y;
         basePos.z = bases[i].position.z;

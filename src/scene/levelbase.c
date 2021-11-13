@@ -355,7 +355,7 @@ void levelBaseSetDefaultCommand(struct LevelBase* base, unsigned command) {
     base->issueCommandTimer = 2;
 }
 
-int levelBaseGetFactionID(struct LevelBase* base) {
+int levelBaseGetTeam(struct LevelBase* base) {
     if (base->state == LevelBaseStateNeutral) {
         return TEAM_NONE;
     } else {

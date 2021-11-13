@@ -271,7 +271,7 @@ void baseCommandMenuRender(struct BaseCommandMenu* menu, struct RenderState* ren
         }
 
         // LAYER_UPGRADE_ICONS
-    } else if (menu->flags & BaseCommandMenuFlagsShowingOpenCommand && menu->forBase) {
+    } else if ((menu->flags & BaseCommandMenuFlagsShowingOpenCommand) && !(menu->flags & BaseCommandMenuFlagsForceHideOpenCommand) && menu->forBase) {
         unsigned screenCenter = (screenPos[2] + screenPos[0]) >> 1;
 
         struct SpriteTile spriteTile;

@@ -13,18 +13,22 @@ enum TutorialState {
     TutorialStateAttack,
     TutorialStateCapture,
     TutorialStateBaseMenu,
-    TutorialStateMinions,
+    TutorialStateCollectMinions,
+    TutorialStateOrderMinions,
     TutorialStateWin,
+    TutorialStateDone,
 };
 
 enum TutorailStepFlags {
-    TutorailStepFlagsNeutralBase = (1 << 0),
+    TutorailStepFlagsMoveToBase = (1 << 0),
+    TutorailStepFlagsMoveToMinion = (1 << 1),
 };
 
 struct TutorialStep {
     char* message;
     struct SpriteTile icon;
-    enum TutorailStepFlags flags;
+    unsigned short flags;
+    unsigned short team;
 };
 
 

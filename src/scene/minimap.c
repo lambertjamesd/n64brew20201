@@ -59,9 +59,9 @@ void minimapRender(struct LevelScene* scene, struct RenderState* renderState, un
         if (levelBaseIsBeingCaptured(base) && mathfMod(gTimePassed, CAPTURE_FLASH_FREQ) > CAPTURE_FLASH_FREQ * 0.5f) {
             color = gColorBlack;
         } else if (base->state == LevelBaseStateNeutral || base->state == LevelBaseStateSpawning)  {
-            color = gTeamColors[levelBaseGetFactionID(base)];
+            color = gTeamColors[levelBaseGetTeam(base)];
         } else {
-            color = gTeamDarkColors[levelBaseGetFactionID(base)];
+            color = gTeamDarkColors[levelBaseGetTeam(base)];
         }
 
         spriteSetColor(renderState, LAYER_SOLID_COLOR, color);

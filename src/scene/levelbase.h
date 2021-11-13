@@ -47,7 +47,7 @@ void levelBaseRender(struct LevelBase* base, struct RenderState* renderState);
 void levelBaseReleaseMinion(struct LevelBase* base);
 void levelBaseStartUpgrade(struct LevelBase* base, enum LevelBaseState nextState);
 void levelBaseSetDefaultCommand(struct LevelBase* base, unsigned command);
-int levelBaseGetFactionID(struct LevelBase* base);
+int levelBaseGetTeam(struct LevelBase* base);
 int levelBaseIsBeingCaptured(struct LevelBase* base);
 
 #endif
