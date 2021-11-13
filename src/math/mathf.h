@@ -15,6 +15,7 @@ float mathfMod(float input, float divisor);
 float clampf(float input, float min, float max);
 
 float sqrtf(float in);
+float powf(float base, float exp);
 
 float cosf(float in);
 float sinf(float in);

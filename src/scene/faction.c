@@ -55,6 +55,20 @@ struct SKAnimationEvent gDogAttack002Events[] = {
     {8, PLAYER_ATTACK_END_ID},
 };
 
+unsigned short gDogDamageSounds[] = {SOUNDS_DOG_INJURED_GRUNT_1, SOUNDS_DOG_INJURED_GRUNT_2};
+unsigned short gDogAttackSounds[] = {SOUNDS_DOG_ATTACK1, SOUNDS_DOG_ATTACK2, SOUNDS_DOG_ATTACK3};
+unsigned short gDogDeathSounds[] = {SOUNDS_DOG_INJURED_GRUNT_2};
+unsigned short gDogJumpSounds[] = {
+    SOUNDS_DOG_JUMP_GRUNT_1, 
+    SOUNDS_DOG_JUMP_GRUNT_2, 
+    SOUNDS_DOG_JUMP_GRUNT_3, 
+    SOUNDS_DOG_JUMP_GRUNT_4, 
+    SOUNDS_DOG_JUMP_GRUNT_5, 
+    SOUNDS_DOG_JUMP_GRUNT_6, 
+    SOUNDS_DOG_JUMP_GRUNT_7
+};
+unsigned short gDogIdleSounds[] = {SOUNDS_DOG_PANT_IDLE_1, SOUNDS_DOG_PANT_IDLE_2};
+
 struct Faction gDogFaction = {
     .name = "Dogs",
     .playerAttacks = gDogAttacks,
@@ -64,6 +78,14 @@ struct Faction gDogFaction = {
     .playerBoneCount = DOGLOW_DEFAULT_BONES_COUNT,
     .playerMesh = doglow_DogLow_mesh,
     .playerRotationCorrection = {1.0f, 0.0f},
+    .playerSounds = {
+        .damageSounds = {.options = gDogDamageSounds, .count = sizeof(gDogDamageSounds)/sizeof(gDogDamageSounds[0])},
+        .attackSounds = {.options = gDogAttackSounds, .count = sizeof(gDogAttackSounds)/sizeof(gDogAttackSounds[0])},
+        .deathSounds = {.options = gDogDeathSounds, .count = sizeof(gDogDeathSounds)/sizeof(gDogDeathSounds[0])},
+        .jumpSounds = {.options = gDogJumpSounds, .count = sizeof(gDogJumpSounds)/sizeof(gDogJumpSounds[0])},
+        .idleSounds = {.options = gDogIdleSounds, .count = sizeof(gDogIdleSounds)/sizeof(gDogIdleSounds[0])},
+        .walkSound = SOUNDS_DOG_WALKING_LOOP_1,
+    },
     .moveSpeed = 16.0f,
     .accel = 40.0f,
 
@@ -120,6 +142,12 @@ struct SKAnimationEvent gCatAttack002Events[] = {
     {12, PLAYER_ATTACK_END_ID},
 };
 
+unsigned short gCatDamageSounds[] = {SOUNDS_CATMEOW1};
+unsigned short gCatAttackSounds[] = {SOUNDS_CATMEOW1};
+unsigned short gCatDeathSounds[] = {SOUNDS_CATMEOW1};
+unsigned short gCatJumpSounds[] = {SOUNDS_CATMEOW1};
+unsigned short gCatIdlesSounds[] = {SOUNDS_CATMEOW1};
+
 struct Faction gCatFaction = {
     .name = "Cats",
     .playerAttacks = gCatAttacks,
@@ -129,6 +157,14 @@ struct Faction gCatFaction = {
     .playerBoneCount = CATLOW_DEFAULT_BONES_COUNT,
     .playerMesh = catlow_CatLow_mesh,
     .playerRotationCorrection = {1.0f, 0.0f},
+    .playerSounds = {
+        .damageSounds = {.options = gCatDamageSounds, .count = sizeof(gCatDamageSounds)/sizeof(gCatDamageSounds[0])},
+        .attackSounds = {.options = gCatAttackSounds, .count = sizeof(gCatAttackSounds)/sizeof(gCatAttackSounds[0])},
+        .deathSounds = {.options = gCatDeathSounds, .count = sizeof(gCatDeathSounds)/sizeof(gCatDeathSounds[0])},
+        .jumpSounds = {.options = gCatJumpSounds, .count = sizeof(gCatJumpSounds)/sizeof(gCatJumpSounds[0])},
+        .idleSounds = {.options = gCatIdlesSounds, .count = sizeof(gCatIdlesSounds)/sizeof(gCatIdlesSounds[0])},
+        .walkSound = SOUNDS_DOG_WALKING_LOOP_1,
+    },
     .moveSpeed = 16.0f,
     .accel = 40.0f,
 

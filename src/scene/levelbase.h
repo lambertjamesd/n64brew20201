@@ -8,6 +8,7 @@
 #include "teamentity.h"
 #include "leveldefinition.h"
 #include "game_defs.h"
+#include "audio/soundplayer.h"
 
 #define BASE_GFX_PER_BASE   12
 
@@ -26,6 +27,7 @@ struct LevelBase {
     float stateTimeLeft;
     float captureProgress;
     float lastCaptureProgress;
+    SoundID captureSound;
     unsigned char state;
     unsigned char minionCount;
     unsigned char baseId;

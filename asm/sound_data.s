@@ -3,17 +3,17 @@
 .section .data
 
 glabel _tableSegmentRomStart
-.incbin "build/assets/soundbanks/banks.tbl"
+.incbin "/usr/lib/n64/soundbanks/GenMidiBank.tbl"
 .balign 16
 glabel _tableSegmentRomEnd
 
 glabel _bankSegmentRomStart
-.incbin "build/assets/soundbanks/banks.ctl"
+.incbin "/usr/lib/n64/soundbanks/GenMidiBank.ctl"
 .balign 16
 glabel _bankSegmentRomEnd
 
 glabel _seqSegmentRomStart
-.incbin "build/assets/music/multilayer_midi_demo.mid"
+.incbin "build/assets/music/n64_2021_march.mid"
 .balign 16
 glabel _seqSegmentRomEnd
 

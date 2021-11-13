@@ -155,7 +155,7 @@ void tutorialUpdate(struct LevelScene* level, struct PlayerInput* input) {
 
         if (gTutorial.waitForActionTimer <= 0.0f) {
             char* message = gTutorialStep[gTutorial.currentState].message;
-            textBoxInit(&gTutorial.textBox, message, 200, SCREEN_WD >> 1, TUTORIAL_Y);
+            textBoxInit(&gTutorial.textBox, message, 230, SCREEN_WD >> 1, TUTORIAL_Y);
             textBoxSetIcon(&gTutorial.textBox, tutorialIconRenderer, &level);
         }
     }

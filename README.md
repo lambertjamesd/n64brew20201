@@ -9,4 +9,5 @@ TODO
     polish up attacks
     implement ai
     make lots of levels
-    make a tutorial
+    ultrarare intro
+    credits

@@ -10,6 +10,7 @@
 #include "sk64/skelatool_clip.h"
 #include "math/vector2.h"
 #include "math/mathf.h"
+#include "audio/soundplayer.h"
 
 struct PlayerAttackInfo {
     unsigned char boneIndex;
@@ -44,6 +45,15 @@ enum PlayerAnimation {
     PlayerAnimationSelected,
 };
 
+struct PlayerFactionSounds {
+    struct SoundList damageSounds;
+    struct SoundList attackSounds;
+    struct SoundList deathSounds;
+    struct SoundList jumpSounds;
+    struct SoundList idleSounds;
+    unsigned short walkSound;
+};
+
 struct Faction {
     char* name;
     struct PlayerAttackInfo* playerAttacks;
@@ -53,6 +63,7 @@ struct Faction {
     unsigned short playerBoneCount;
     Gfx* playerMesh;
     struct Vector2 playerRotationCorrection;
+    struct PlayerFactionSounds playerSounds;
     float moveSpeed;
     float accel;
 

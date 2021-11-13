@@ -2,6 +2,7 @@
 #include "soundplayer.h"
 #include "soundarray.h"
 #include "util/rom.h"
+#include "math/mathf.h"
 
 struct SoundArray* gSoundClipArray;
 ALSndPlayer gSoundPlayer;
@@ -96,6 +97,7 @@ SoundID soundPlayerPlay(unsigned clipId, enum SoundPlayerFlags flags) {
     soundInfo->flags = flags;
     alSndpSetSound(&gSoundPlayer, soundInfo->soundId);
     alSndpPlay(&gSoundPlayer);
+    alSndpSetPitch(&gSoundPlayer, (float)SOUND_SAMPLE_RATE / (float)SOUND_SAMPLE_RATE);
 
     return soundInfo - gActiveSounds;
 }
@@ -133,4 +135,45 @@ void soundPlayerStop(SoundID* soundId) {
         alSndpStop(&gSoundPlayer);
     }
     *soundId = SOUND_ID_NONE;
+}
+
+void soundPlayerSetPitch(SoundID soundId, float speed) {
+    if (soundId < 0 || soundId >= MAX_SOUNDS) {
+        return;
+    }
+
+    alSndpSetSound(&gSoundPlayer, gActiveSounds[soundId].soundId);
+    alSndpSetPitch(&gSoundPlayer, speed * ((float)SOUND_SAMPLE_RATE / (float)SOUND_SAMPLE_RATE));
+}
+
+void soundPlayerSetVolume(SoundID soundId, float volume) {
+    if (soundId < 0 || soundId >= MAX_SOUNDS) {
+        return;
+    }
+
+    int volumeAsInt = volume * 32767;
+
+    if (volumeAsInt > 32767) {
+        volumeAsInt = 32767;
+    }
+
+    if (volumeAsInt < 0) {
+        volumeAsInt = 0;
+    }
+
+    alSndpSetSound(&gSoundPlayer, gActiveSounds[soundId].soundId);
+    alSndpSetVol(&gSoundPlayer, volumeAsInt);
+}
+
+int soundPlayerIsPlaying(SoundID soundId) {
+    if (soundId < 0 || soundId >= MAX_SOUNDS) {
+        return 0;
+    }
+
+    alSndpSetSound(&gSoundPlayer, gActiveSounds[soundId].soundId);
+    return alSndpGetState(&gSoundPlayer) == AL_PLAYING;
+}
+
+unsigned soundListRandom(struct SoundList* list) {
+    return list->options[randomInRange(0, list->count)];
 }

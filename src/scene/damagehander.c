@@ -10,12 +10,14 @@ void damageHandlerInit(struct DamageHandler* handler, float hp) {
     handler->hp = hp;
 }
 
-void damageHandlerApplyDamage(struct DamageHandler* handler, float amount, float invincibleTime) {
+int damageHandlerApplyDamage(struct DamageHandler* handler, float amount, float invincibleTime) {
     if ((handler->damageTimer <= 0.0f || amount > handler->damageTimerAmount)) {
         handler->damageTimer = invincibleTime;
         handler->hp -= (amount - handler->damageTimerAmount);
         handler->damageTimerAmount = amount;
+        return 1;
     }
+    return 0;
 }
 
 void damageHandlerUpdate(struct DamageHandler* handler) {

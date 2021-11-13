@@ -45,6 +45,7 @@ struct Player {
     unsigned short playerIndex;
     unsigned short flags;
     SoundID walkSoundEffect;
+    SoundID idleSoundEffect;
     struct DamageHandler damageHandler;
     float stateTimer;
     float animationSpeed;

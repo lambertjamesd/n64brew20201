@@ -13,6 +13,8 @@
 #include "player.h"
 #include "game_defs.h"
 #include "events.h"
+#include "audio/clips.h"
+#include "math/mathf.h"
 
 #include "game_defs.h"
 
@@ -160,6 +162,7 @@ void levelBaseInit(struct LevelBase* base, struct BaseDefinition* definition, un
     base->issueCommandTimer = 0;
     base->followPlayer = TEAM_NONE;
     base->stateTimeLeft = SPAWN_TIME;
+    base->captureSound = SOUND_ID_NONE;
 
     for (unsigned i = 0; i < MAX_PLAYERS; ++i) {
         base->baseControlCount[i] = 0;
@@ -190,6 +193,10 @@ void levelBaseInit(struct LevelBase* base, struct BaseDefinition* definition, un
     // base->defaultComand = MinionCommandAttack;
 }
 
+float levelBaseCaptureAudioFreq(struct LevelBase* base) {
+    return powf(2.0f, base->captureProgress / CAPTURE_TIME);
+}
+
 void levelBaseUpdate(struct LevelBase* base) {
     base->lastCaptureProgress = base->captureProgress;
     
@@ -210,12 +217,17 @@ void levelBaseUpdate(struct LevelBase* base) {
         base->baseControlCount[i] = 0;
     }
 
+    int isCapturing = 0;
+
     if (controllingTeam != TEAM_NONE) {
+        isCapturing = 1;
+
         if (controllingTeam != base->team.teamNumber) {
             base->captureProgress -= gTimeDelta * gSpawnTimeCaptureScalar[base->defenseUpgrade];
             gLastCaptureTime = gTimePassed;
 
             if (base->captureProgress <= 0.0f) {
+                isCapturing = 0;
                 base->captureProgress = 0.0f;
                 base->team.teamNumber = TEAM_NONE;
                 base->state = LevelBaseStateNeutral;
@@ -227,6 +239,7 @@ void levelBaseUpdate(struct LevelBase* base) {
 
             if (base->captureProgress >= CAPTURE_TIME) {
                 base->captureProgress = CAPTURE_TIME;
+                isCapturing = 0;
 
                 if (base->state == LevelBaseStateNeutral) {
                     base->state = LevelBaseStateSpawning;
@@ -246,6 +259,14 @@ void levelBaseUpdate(struct LevelBase* base) {
         if (base->captureProgress >= CAPTURE_TIME) {
             base->captureProgress = CAPTURE_TIME;
         }
+    }
+
+    if (!soundPlayerIsPlaying(base->captureSound) && isCapturing) {
+        base->captureSound = soundPlayerPlay(SOUNDS_FLAGCAP, 0);
+    }
+
+    if (isCapturing) {
+        soundPlayerSetPitch(base->captureSound, levelBaseCaptureAudioFreq(base));
     }
 
     switch (base->state) {

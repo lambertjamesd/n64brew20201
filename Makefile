@@ -104,7 +104,12 @@ build/assets/music/%.mid: assets/music/%.mid
 	$(MIDICVT) $< $@
 	truncate $@ --size 32KB
 
-SOUND_CLIPS = $(shell find assets/sounds/ -type f -name '*.aiff')
+RAW_SOUND_CLIPS = $(shell find assets/sounds/ -type f -name '*.aiff') $(shell find assets/sounds/ -type f -name '*.wav')
+
+# INS_CLIPS = $(shell find assets/sounds/ -type f -name '*.ins')
+INS_CLIPS =
+
+SOUND_CLIPS = $(filter-out $(patsubst %.ins, %.wav, $(INS_CLIPS)) $(patsubst %.ins, %.aiff, $(INS_CLIPS)), $(RAW_SOUND_CLIPS)) $(INS_CLIPS)
 
 src/audio/clips.h: build_scripts/generate_sound_ids.js $(SOUND_CLIPS)
 	node build_scripts/generate_sound_ids.js -o $@ -p SOUNDS_ $(SOUND_CLIPS)
@@ -116,6 +121,7 @@ build/assets/sounds/sounds.sounds build/assets/sounds/sounds.sounds.tbl: $(SOUND
 	truncate build/assets/sounds/sounds.sounds.tbl --size 1MB
 
 asm/sound_data.s: build/assets/music/multilayer_midi_demo.mid \
+	build/assets/music/n64_2021_march.mid \
 	build/assets/sounds/sounds.sounds \
 	build/assets/sounds/sounds.sounds.tbl \
 	build/assets/soundbanks/banks.ctl \
