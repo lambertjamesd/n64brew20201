@@ -1,16 +1,19 @@
 #include "ai_controller.h"
+#include "ai_pathfinder.h"
 
-void InitAI(struct AIController* inController, unsigned playerIndex, unsigned teamIndex, unsigned baseCount){
+void ai_Init(struct AIController* inController, struct PathfindingDefinition* pathfinder, unsigned playerIndex, unsigned teamIndex, unsigned baseCount) {
+    inController->pathfindingInfo = pathfinder;
     inController->playerIndex = playerIndex;
     inController->teamIndex = teamIndex;
     inController->botAction = 0;
     inController->currTarget = gZeroVec;
     inController->targetBase = 0;
     inController->attackTarget = 0;
+    inController->isUsingPathfinding = 0;
     aiPlannerInit(&inController->planner, teamIndex, baseCount);
 }
 
-void moveAItowardsTarget(struct AIController* inController, struct Vector3* currLocation, struct PlayerInput* inputRef){
+void ai_moveTowardsTarget(struct AIController* inController, struct Vector3* currLocation, struct PlayerInput* inputRef){
     inputRef->actionFlags = 0;
     inController->botAction = (inController->attackTarget != 0 && 
     teamEntityIsAlive(inController->attackTarget)) ? 1 : 0;
@@ -36,12 +39,23 @@ void moveAItowardsTarget(struct AIController* inController, struct Vector3* curr
         }
     }
     else if(inController->targetBase != NULL) {
-        inController->currTarget = inController->targetBase->position;
-        unsigned baseDistance = vector3DistSqrd(currLocation, &inController->currTarget);
+        if(inController->isUsingPathfinding == 1){
+            unsigned navTargetDistance = vector3DistSqrd(currLocation, &inController->currTarget);
+            if(navTargetDistance <= 200){
+                unsigned indFrom = inController->lastPathfidningIndex;
+                unsigned indTo = nav_getClosestPoint(&inController->targetBase->position, inController->pathfindingInfo->nodePositions, inController->pathfindingInfo->nodeCount);
+               inController->lastPathfidningIndex = nav_getNextNavPoint(indFrom, indTo, inController->pathfindingInfo->nextNode, inController->pathfindingInfo->nodeCount);
+               inController->currTarget = inController->pathfindingInfo->nodePositions[inController->lastPathfidningIndex];
+            }
+        }
+        else inController->currTarget = inController->targetBase->position;
+        
+        unsigned baseDistance = vector3DistSqrd(currLocation, &inController->targetBase->position);
         if (baseDistance > 625)
             inController->botAction = 2;
         else {
             inController->botAction = 0;
+            inController->isUsingPathfinding = 0;
         }
     }
 
@@ -60,15 +74,23 @@ void moveAItowardsTarget(struct AIController* inController, struct Vector3* curr
     }
 }
 
-void setTargetBase(struct AIController* inController, struct LevelBase* inBase){
+void ai_setTargetBase(struct AIController* inController, struct LevelBase* inBase, unsigned short bBuildPath, struct Vector3* currPlayerPosition){
     inController->targetBase = inBase;
+    if(bBuildPath == 1){
+        unsigned indFrom = nav_getClosestPoint(currPlayerPosition, inController->pathfindingInfo->nodePositions, inController->pathfindingInfo->nodeCount);
+        unsigned indTo = nav_getClosestPoint(&inBase->position, inController->pathfindingInfo->nodePositions, inController->pathfindingInfo->nodeCount);
+        inController->lastPathfidningIndex = nav_getNextNavPoint(indFrom, indTo, inController->pathfindingInfo->nextNode, inController->pathfindingInfo->nodeCount);
+        inController->currTarget = inController->pathfindingInfo->nodePositions[inController->lastPathfidningIndex];
+
+        inController->isUsingPathfinding = 1;
+    }
 }
 
-void aiUpdate(struct LevelScene* level, struct AIController* ai) {
+void ai_update(struct LevelScene* level, struct AIController* ai) {
     aiPlannerUpdate(level, &ai->planner);
 }
 
-struct LevelBase* getClosestUncapturedBase(struct LevelBase* bases, unsigned baseCount, struct Vector3* closeTo, unsigned team){
+struct LevelBase* ai_getClosestUncapturedBase(struct LevelBase* bases, unsigned baseCount, struct Vector3* closeTo, unsigned team){
     struct Vector3 basePos;
     basePos.x = bases[0].position.x;
     basePos.y = bases[0].position.y;
