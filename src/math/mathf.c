@@ -55,20 +55,20 @@ float mathfMod(float input, float divisor) {
 }
 
 float floorf(float input) {
-    if (input >= 0 || input == (int)input) {
-        return (int)input;
+    int asint = (int)input;
+    if (input >= 0 || input == asint) {
+        return asint;
     } else {
-        int result = (int)(input);
-        return result - 1;
+        return asint - 1;
     }
 }
 
 float ceilf(float input) {
-    if (input <= 0 || input == (int)input) {
-        return (int)input;
+    int asint = (int)input;
+    if (input <= 0 || input == asint) {
+        return asint;
     } else {
-        int result = (int)(input);
-        return result + 1;
+        return asint + 1;
     }
 }
 

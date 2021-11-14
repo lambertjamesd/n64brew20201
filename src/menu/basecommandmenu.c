@@ -85,19 +85,19 @@ void baseCommandMenuUpdate(struct BaseCommandMenu* menu, unsigned team) {
         }
 
         if (playerInput & PlayerInputActionsCommandRecall) {
-            levelBaseSetDefaultCommand(menu->forBase, MinionCommandFollow);
+            levelBaseSetDefaultCommand(menu->forBase, MinionCommandFollow, team);
             baseCommandMenuHide(menu);
             return;
         }
 
         if (playerInput & PlayerInputActionsCommandAttack) {
-            levelBaseSetDefaultCommand(menu->forBase, MinionCommandAttack);
+            levelBaseSetDefaultCommand(menu->forBase, MinionCommandAttack, team);
             baseCommandMenuHide(menu);
             return;
         }
 
         if (playerInput & PlayerInputActionsCommandDefend) {
-            levelBaseSetDefaultCommand(menu->forBase, MinionCommandDefend);
+            levelBaseSetDefaultCommand(menu->forBase, MinionCommandDefend, team);
             baseCommandMenuHide(menu);
             return;
         }
@@ -128,7 +128,7 @@ void baseCommandMenuUpdate(struct BaseCommandMenu* menu, unsigned team) {
             }
 
             if (controllerGetButtonUp(team, A_BUTTON) != 0) {
-                levelBaseSetDefaultCommand(menu->forBase, menu->selectedCommand);
+                levelBaseSetDefaultCommand(menu->forBase, menu->selectedCommand, team);
                 baseCommandMenuHide(menu);
                 return;
             }

@@ -55,6 +55,7 @@ struct LevelScene {
 
     enum LevelSceneState state;
     float stateTimer;
+    float knockoutTimer;
 };
 
 struct Player* levelGetClosestEnemyPlayer(struct LevelScene* forScene, struct Vector3* closeTo, unsigned team, float* outDist);

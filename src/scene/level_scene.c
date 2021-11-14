@@ -21,6 +21,7 @@
 #include "sk64/skelatool_defs.h"
 #include "scene_management.h"
 #include "tutorial/tutorial.h"
+#include "menu/endgamemenu.h"
 
 #include "collision/polygon.h"
 #include "math/vector3.h"
@@ -33,14 +34,17 @@ struct DynamicMarker gIntensityMarkers[] = {
 };
 
 #define GAME_END_DELAY  5.0f
+#define LOSE_BY_KNOCKOUT_TIME   15.0f
 
 void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* definition, unsigned int playercount, unsigned char humanPlayerCount, enum LevelMetadataFlags flags) {
     levelScene->definition = definition;
     dynamicSceneInit(&gDynamicScene);
+    endGameMenuResetStats();
     initGBFont();
 
     levelScene->levelDL = definition->sceneRender;
     levelScene->levelFlags = flags;
+    levelScene->knockoutTimer = LOSE_BY_KNOCKOUT_TIME;
 
     levelScene->baseCount = definition->baseCount;
     levelScene->bases = malloc(sizeof(struct LevelBase) * definition->baseCount);
@@ -385,7 +389,41 @@ void levelSceneCollectPlayerInput(struct LevelScene* levelScene, unsigned player
     }
 }
 
+float gNextSampletime = 0.0f;
+
+void levelSceneCollectStats(struct LevelScene* levelScene) {
+    unsigned baseCount[MAX_PLAYERS];
+
+    for (unsigned i = 0; i < levelScene->playerCount; ++i) {
+        baseCount[i] = 0;
+    }
+
+    for (unsigned i = 0; i < levelScene->baseCount; ++i) {
+        unsigned baseFaction = levelBaseGetTeam(&levelScene->bases[i]);
+        ++baseCount[baseFaction];
+    }
+
+    unsigned baseHaverCount = 0;
+
+    for (unsigned i = 0; i < levelScene->playerCount; ++i) {
+        levelScene->players[i].controlledBases = baseCount[i];
+
+        statTrackerLogDatapoint(&gPlayerBaseStats[i], (float)baseCount[i]);
+
+        if (baseCount[i]) {
+            ++baseHaverCount;
+        }
+    }
+
+    if (baseHaverCount > 1 || (levelScene->levelFlags & LevelMetadataFlagsTutorial)) {
+        levelScene->knockoutTimer = LOSE_BY_KNOCKOUT_TIME;
+    } else {
+        levelScene->knockoutTimer -= gTimeDelta;
+    }
+}
+
 void levelSceneUpdate(struct LevelScene* levelScene) {
+    levelSceneCollectStats(levelScene);
     levelScene->winningTeam = levelSceneFindWinningTeam(levelScene);
 
     if (levelScene->winningTeam != TEAM_NONE && levelScene->state != LevelSceneStateDone) {
@@ -460,7 +498,7 @@ void levelSceneSpawnMinion(struct LevelScene* levelScene, enum MinionType type, 
 void levelBaseDespawnMinions(struct LevelScene* levelScene, unsigned char baseId) {
     for (unsigned i = 0; i < levelScene->minionCount; ++i) {
         if (levelScene->minions[i].sourceBaseId == baseId) {
-            minionCleanup(&levelScene->minions[i]);
+            minionApplyDamage(&levelScene->minions[i], 100.0f);
         }
     }
 }
@@ -506,6 +544,11 @@ int levelSceneFindWinningTeam(struct LevelScene* levelScene) {
                 return TEAM_NONE;
             }
         }
+    }
+
+    // winning by denying oponents control of bases for too long
+    if (levelScene->knockoutTimer <= 0.0f && result != -1) {
+        return result;
     }
 
     for (unsigned i = 0; i < levelScene->playerCount; ++i) {

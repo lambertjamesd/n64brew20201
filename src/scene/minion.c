@@ -164,13 +164,17 @@ void minionUpdate(struct Minion* minion) {
         case MinionCommandDefend:
             target = teamEntityGetPosition(minion->currentTarget);
         
-            if (target != 0 && vector3DistSqrd(target, &minion->defensePoint) > MINION_DEFENSE_RADIUS * MINION_DEFENSE_RADIUS) {
-                minion->currentTarget = 0;
-                target = 0;
+            if (target != 0) {
+                float distSqrd = vector3DistSqrd(target, &minion->defensePoint);
+                if (distSqrd > MINION_DEFENSE_RADIUS * MINION_DEFENSE_RADIUS) {
+                    minion->currentTarget = 0;
+                    target = 0;
+                }
             }
 
             if (target == 0) {
                 target = &minion->defensePoint;
+                minDistance = SCENE_SCALE;
             }
 
             break;

@@ -9,7 +9,7 @@
 #include "collision/dynamicscene.h"
 #include "damagehandler.h"
 
-#define MINION_DEFENSE_RADIUS  10.0f
+#define MINION_DEFENSE_RADIUS  (10.0f * SCENE_SCALE)
 #define MINION_GFX_PER_MINION  4
 
 enum MinionFlags {

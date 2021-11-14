@@ -373,8 +373,9 @@ void levelBaseReleaseMinion(struct LevelBase* base) {
     --base->minionCount;
 }
 
-void levelBaseSetDefaultCommand(struct LevelBase* base, unsigned command) {
+void levelBaseSetDefaultCommand(struct LevelBase* base, unsigned command, unsigned fromPlayer) {
     base->defaultComand = command;
+    base->followPlayer = fromPlayer;
     base->issueCommandTimer = 2;
 }
 

@@ -21,7 +21,8 @@
 #include <stdbool.h>
 
 #define PLAYER_MAX_HP                              8.0f
-#define PLAYER_RESPAWN_TIME                        5.0f
+#define PLAYER_MIN_RESPAWN_TIME                    2.0f
+#define PLAYER_RESPAWN_PER_BASE                    5.0f
 #define PLAYER_INVINCIBILITY_TIME                  0.5f
 #define INVINCIBLE_JUMP_HEIGHT                     1.0f
 
@@ -115,7 +116,7 @@ void playerEnterDeadState(struct Player* player) {
     soundPlayerPlay(soundListRandom(&gTeamFactions[player->playerIndex]->playerSounds.deathSounds), 0);
     skAnimatorRunClip(&player->animator, factionGetAnimation(player->team.teamNumber, PlayerAnimationDie), 0);
     player->state = playerStateDead;
-    player->stateTimer = PLAYER_RESPAWN_TIME;
+    player->stateTimer = PLAYER_MIN_RESPAWN_TIME + (player->controlledBases - 1) * PLAYER_RESPAWN_PER_BASE;
     player->collider->collisionLayers = 0;
 }
 
@@ -239,6 +240,7 @@ void playerInit(struct Player* player, unsigned playerIndex, unsigned team, stru
     player->walkSoundEffect = SOUND_ID_NONE;
     player->idleSoundEffect = SOUND_ID_NONE;
     player->animationSpeed = 1.0f;
+    player->controlledBases = 0;
 
     player->velocity = gZeroVec;
     player->rightDir = gRight2;

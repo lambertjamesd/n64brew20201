@@ -20,7 +20,7 @@ void staticSceneConstrainToBoundaries(struct StaticScene* staticScene, struct Ve
 }
 
 int staticSceneInInsideBoundary(struct StaticScene* staticScene, struct Vector2* pos, float radius) {
-    struct Vector2 velocity;
+    struct Vector2 velocity = gZeroVec2;
     struct Vector2 posCheck = *pos;
     staticSceneConstrainToBoundaries(staticScene, pos, &velocity, radius);
     return posCheck.x == pos->x && posCheck.y == pos->y;

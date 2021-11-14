@@ -6,7 +6,7 @@
 
 struct CollisionCircle gFinderCircle = {
     {CollisionShapeTypeCircle},
-    2.0f * SCENE_SCALE,
+    MINION_DEFENSE_RADIUS,
 };
 
 struct TeamEntity* findCloserEntity(struct TeamEntity* current, struct TeamEntity* check, struct Vector3* from, float* currentBest) {

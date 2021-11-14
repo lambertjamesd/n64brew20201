@@ -21,6 +21,7 @@ float cosf(float in);
 float sinf(float in);
 float fabsf(float in);
 float floorf(float in);
+float ceilf(float in);
 
 float minf(float a, float b);
 float maxf(float a, float b);

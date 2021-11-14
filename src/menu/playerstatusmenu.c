@@ -22,9 +22,13 @@ void playerStatusMenuRender(struct Player* player, struct RenderState* renderSta
 
         scaleShift = 1;
     } else if (!playerIsAlive(player)) {
-        int respawnIn = (int)(player->stateTimer + 1.0f);
-        sprintf(message, "Respawn in %d", respawnIn);
-        barHeight = screenPos[3] - screenPos[1];
+        if (player->controlledBases == 0) {
+            strcpy(message, "Defeat");
+        } else {
+            int respawnIn = (int)(player->stateTimer + 1.0f);
+            sprintf(message, "Respawn in %d", respawnIn);
+            barHeight = screenPos[3] - screenPos[1];
+        }
     }
 
     if (*message) {
