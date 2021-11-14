@@ -33,7 +33,7 @@ void targetFinderTrigger(struct DynamicSceneOverlap* overlap) {
 
         struct Minion* minion = &gCurrentLevel.minions[finder->minionIndex];
 
-        if (minion->minionFlags & MinionFlagsActive) {
+        if (minionIsAlive(minion)) {
             float currentTargetDistnace = 0;
 
             if (minion->currentTarget) {
@@ -91,7 +91,7 @@ void targetFinderUpdate(struct TargetFinder* finder) {
     finder->trigger->center.x = (finder->minionIndex + 1000.0f) * 100.0f;
     finder->trigger->collisionLayers |= DynamicSceneEntryDirtyBox;
 
-    if ((minion->minionFlags & MinionFlagsActive) != 0) {
+    if (minionIsAlive(minion)) {
         if (minion->currentCommand == MinionCommandDefend) {
             finder->trigger->collisionLayers = CollisionLayersAllTeams ^ COLLISION_LAYER_FOR_TEAM(minion->team.teamNumber);
             dynamicEntrySetPos3D(finder->trigger, &minion->defensePoint);

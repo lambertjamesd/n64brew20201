@@ -5,6 +5,7 @@
 #include "images/players_2.h"
 #include "images/players_3.h"
 #include "images/players_4.h"
+#include "images/background.h"
 
 Gfx gMainMenuSolidColor[] = {
     gsDPPipeSync(),

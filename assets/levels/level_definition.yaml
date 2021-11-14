@@ -19,6 +19,12 @@ Themes:
           Multiplayer: True
           Tutorial: True
 
+        - Name: Sojourner
+          Filename: Campaign_Sojourner.fbx
+          Output: ../../data/levels/Sojourner/level.h
+          MaxPlayers: 4
+          Campaign: True
+
         - Name: The Octogon
           Filename: TheOctogon.fbx
           Output: ../../data/levels/The_Octogon/level.h
@@ -29,4 +35,11 @@ Themes:
           Filename: Course_01.fbx
           Output: ../../data/levels/Course_01/level.h
           MaxPlayers: 4
+          Multiplayer: True
+
+        - Name: Sojourner 2
+          Filename: Multiplayer_Sojourner.fbx
+          Output: ../../data/levels/Sojourner_2/level.h
+          MaxPlayers: 4
+          Campaign: True
           Multiplayer: True

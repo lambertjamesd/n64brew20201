@@ -142,10 +142,10 @@ struct SKAnimationEvent gCatAttack002Events[] = {
     {12, PLAYER_ATTACK_END_ID},
 };
 
-unsigned short gCatDamageSounds[] = {SOUNDS_CATMEOW1};
-unsigned short gCatAttackSounds[] = {SOUNDS_CATMEOW1};
+unsigned short gCatDamageSounds[] = {SOUNDS_DOG_INJURED_GRUNT_1};
+unsigned short gCatAttackSounds[] = {SOUNDS_DOG_ATTACK1};
 unsigned short gCatDeathSounds[] = {SOUNDS_CATMEOW1};
-unsigned short gCatJumpSounds[] = {SOUNDS_CATMEOW1};
+unsigned short gCatJumpSounds[] = {SOUNDS_DOG_JUMP_GRUNT_1};
 unsigned short gCatIdlesSounds[] = {SOUNDS_CATMEOW1};
 
 struct Faction gCatFaction = {
@@ -173,7 +173,7 @@ struct Faction gCatFaction = {
 
 // can't have a null pointer exception if gTeamFactions never point to null
 struct Faction* gTeamFactions[MAX_PLAYERS] = {
-    &gCatFaction,
+    &gDogFaction,
     &gDogFaction,
     &gDogFaction,
     &gDogFaction,

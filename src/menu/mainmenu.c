@@ -401,6 +401,9 @@ void mainMenuRender(struct MainMenu* mainMenu, struct RenderState* renderState) 
     spriteSetLayer(renderState, LAYER_SOLID_COLOR, gMainMenuSolidColor);
     spriteSetLayer(renderState, LAYER_KICKFLIP_FONT, gUseKickflipFont);
 
+    graphicsCopyImage(renderState, gMenuBackground, SCREEN_WD, SCREEN_HT, 0, 0, 0, 0, SCREEN_WD, SCREEN_HT, gColorWhite);
+    gDPSetTexturePersp(renderState->dl++, G_TP_PERSP);
+
     cameraSetupMatrices(&mainMenu->camera, renderState, (float)SCREEN_WD/(float)SCREEN_HT, 0.0f);
     gSPViewport(renderState->dl++, osVirtualToPhysical(&gFullScreenVP));
     gDPSetScissor(

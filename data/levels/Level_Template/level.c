@@ -107,6 +107,9 @@ Gfx Level_Template_model_gfx[] = {
     gsSPMatrix((Mtx*)MATRIX_TRANSFORM_SEGMENT_ADDRESS + 4, G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH),
     gsSPDisplayList(Mars_ConsoleBDisplayList),
     gsSPPopMatrix(G_MTX_MODELVIEW),
+    gsSPMatrix((Mtx*)MATRIX_TRANSFORM_SEGMENT_ADDRESS + 10, G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH),
+    gsSPDisplayList(Mars_ConsolesDisplayList),
+    gsSPPopMatrix(G_MTX_MODELVIEW),
     gsSPMatrix((Mtx*)MATRIX_TRANSFORM_SEGMENT_ADDRESS + 8, G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH),
     gsSPDisplayList(Mars_DishDisplayList),
     gsSPPopMatrix(G_MTX_MODELVIEW),
@@ -164,6 +167,7 @@ struct DecorDefinition Level_Template_Decor[] = {
     {{-1851.11, 0, -1730.78}, {0, 0.996393, 0, 0.0848587}, DISHBASE_DECOR_ID},
     {{-146.485, 136.501, -1530.49}, {0.223327, 0.839707, -0.407277, 0.281324}, DISH_DECOR_ID},
     {{-48.5003, 0, -3712.41}, {0, 0, 0, 1}, BROKEN_BASE_DECOR_ID},
+    {{-1924.5, 0, -2575.11}, {0, 0, 0, 1}, CONSOLES_DECOR_ID},
 };
 struct Vector3 Level_Template_PathingNodes[] = {
 };
@@ -173,7 +177,7 @@ struct LevelDefinition Level_Template_Definition = {
     .maxPlayerCount = 4,
     .playerStartLocations = Level_Template_StartingPositions,
     .baseCount = 5,
-    .decorCount = 10,
+    .decorCount = 11,
     .bases = Level_Template_Bases,
     .decor = Level_Template_Decor,
     .levelBoundaries = {{-4046.9, -4046.9}, {4046.9, 4046.9}},

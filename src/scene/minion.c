@@ -246,6 +246,11 @@ void minionCleanup(struct Minion* minion) {
     if (minion->minionFlags & MinionFlagsActive) {
         minion->minionFlags = 0;
         levelBaseReleaseMinion(&gCurrentLevel.bases[minion->sourceBaseId]);
+
+        if (minion->collider) {
+            dynamicSceneDeleteEntry(minion->collider);
+            minion->collider = 0;
+        }
     }
 }
 

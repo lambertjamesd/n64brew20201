@@ -213,7 +213,9 @@ void levelBaseUpdate(struct LevelBase* base) {
                 break;
             }
         }
+    }
 
+    for (unsigned i = 0; i < MAX_PLAYERS; ++i) {
         base->baseControlCount[i] = 0;
     }
 

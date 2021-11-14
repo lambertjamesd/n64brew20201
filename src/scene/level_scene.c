@@ -468,7 +468,7 @@ void levelBaseDespawnMinions(struct LevelScene* levelScene, unsigned char baseId
 void levelSceneIssueMinionCommand(struct LevelScene* levelScene, unsigned followingPlayer, enum MinionCommand command) {
     for (unsigned i = 0; i < levelScene->minionCount; ++i) {
         struct Minion* minion = &levelScene->minions[i];
-        if (minion->followingPlayer == followingPlayer && (minion->minionFlags & MinionFlagsActive) != 0 && minion->currentCommand == MinionCommandFollow) {
+        if (minion->followingPlayer == followingPlayer && minionIsAlive(minion) && minion->currentCommand == MinionCommandFollow) {
             minionIssueCommand(minion, command, followingPlayer);
         }
     }

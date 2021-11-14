@@ -2,6 +2,7 @@
 #include "dynamicscene.h"
 
 #include "util/memory.h"
+#include <assert.h>
 
 struct DynamicScene gDynamicScene;
 
@@ -55,6 +56,8 @@ void dynamicSceneDeleteEntry(struct DynamicSceneEntry* entry) {
             gDynamicScene.entryOrder[i] = gDynamicScene.entryOrder[i + 1];
         }
     }
+
+    assert(found);
 
     if (found) {
         --gDynamicScene.actorCount;
