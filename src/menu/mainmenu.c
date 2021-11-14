@@ -44,6 +44,8 @@ struct ButtonLayoutInfo gPlayerCountSelectButtons[] = {
     {177, 131, 64, 77, players_4_img},
 };
 
+enum MainMenuState gMainMenuTargetState;
+
 void mainMenuFactionInit(struct MainMenuFactionSelector* faction, unsigned index) {
     faction->selectedFaction = index % FACTION_COUNT;
 
@@ -185,8 +187,8 @@ void mainMenuInit(struct MainMenu* mainMenu) {
     mainMenu->camera.transform.position.z = 600.0f;
     transformInitIdentity(&mainMenu->marsTransform);
     mainMenu->marsTransform.position.x = 50.0f;
-    mainMenu->menuState = MainMenuStateSelectingPlayerCount;
-    mainMenu->targetMenuState = MainMenuStateSelectingPlayerCount;
+    mainMenu->menuState = gMainMenuTargetState;
+    mainMenu->targetMenuState = gMainMenuTargetState;
     mainMenu->selectedPlayerCount = 0;
     mainMenu->selectedLevel = 0;
     mainMenu->filteredLevels = malloc(sizeof(struct ThemeMetadata*) * gLevelCount);
@@ -300,6 +302,11 @@ void mainMenuUpdate(struct MainMenu* mainMenu) {
             mainMenuUpdateLevelSelect(mainMenu);
             break;
         case MainMenuStateStarting:
+            break;
+        case MainMenuStatePostGame:
+            if (endGameMenuUpdate(&mainMenu->endGameMenu)) {
+                mainMenu->menuState = MainMenuStateSelectingPlayerCount;
+            }
             break;
     }
 }
@@ -436,6 +443,9 @@ void mainMenuRender(struct MainMenu* mainMenu, struct RenderState* renderState) 
             mainMenuRenderLevels(mainMenu, renderState);
             break;
         case MainMenuStateStarting:
+            break;
+        case MainMenuStatePostGame:
+            endGameMenuRender(&mainMenu->endGameMenu, renderState);
             break;
     }
 

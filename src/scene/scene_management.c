@@ -4,6 +4,7 @@
 #include "graphics/gfx.h"
 #include "util/rom.h"
 #include "util/memory.h"
+#include "menu/endgamemenu.h"
 
 enum SceneState gSceneState;
 enum SceneState gNextSceneState;
@@ -49,6 +50,13 @@ void sceneQueueLoadLevel(struct GameConfiguration* nextLevel) {
 
 void sceneQueueMainMenu() {
     gNextSceneState = SceneStateInMainMenu;
+    gMainMenuTargetState = MainMenuStateSelectingPlayerCount;
+}
+
+void sceneQueuePostGameScreen(unsigned winningTeam, unsigned teamCount) {
+    gNextSceneState = SceneStateInMainMenu;
+    endGameMenuInit(&gMainMenu.endGameMenu, winningTeam, teamCount);
+    gMainMenuTargetState = MainMenuStatePostGame;
 }
 
 void sceneLoadMainMenu() {

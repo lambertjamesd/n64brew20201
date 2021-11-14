@@ -55,6 +55,6 @@ float statTrackerReadSample(struct StatTracker* tracker, float index) {
 
 void statTrackerWriteResults(struct StatTracker* tracker, float* to, unsigned outputSize) {
     for (unsigned i = 0; i < outputSize; ++i) {
-        to[i] = statTrackerReadSample(tracker, i * tracker->nextOut / (float)outputSize);
+        to[i] = floorf(statTrackerReadSample(tracker, i * tracker->nextOut / (float)outputSize) + 0.5f);
     }
 }

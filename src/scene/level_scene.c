@@ -36,6 +36,8 @@ struct DynamicMarker gIntensityMarkers[] = {
 #define GAME_END_DELAY  5.0f
 #define LOSE_BY_KNOCKOUT_TIME   15.0f
 
+#define WIN_BY_PRESSING_START   0
+
 void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* definition, unsigned int playercount, unsigned char humanPlayerCount, enum LevelMetadataFlags flags) {
     levelScene->definition = definition;
     dynamicSceneInit(&gDynamicScene);
@@ -234,7 +236,7 @@ void levelSceneRender(struct LevelScene* levelScene, struct RenderState* renderS
             renderState, 
             &gClippingRegions[i * 4]
         );
-        playerStatusMenuRender(&levelScene->players[i], renderState, levelScene->winningTeam, &gClippingRegions[i * 4]);
+        playerStatusMenuRender(&levelScene->players[i], renderState, levelScene->winningTeam, levelScene->knockoutTimer < LOSE_BY_KNOCKOUT_TIME ? levelScene->knockoutTimer : -1.0f, &gClippingRegions[i * 4]);
     }
 
     gSPViewport(renderState->dl++, osVirtualToPhysical(&gFullScreenVP));
@@ -435,7 +437,7 @@ void levelSceneUpdate(struct LevelScene* levelScene) {
         levelScene->stateTimer -= gTimeDelta;
 
         if (levelScene->stateTimer < 0.0f) {
-            sceneQueueMainMenu();
+            sceneQueuePostGameScreen(levelScene->winningTeam, levelScene->playerCount);
         }
     }
 
@@ -533,6 +535,18 @@ struct Vector3* levelSceneFindRespawnPoint(struct LevelScene* levelScene, struct
 }
 
 int levelSceneFindWinningTeam(struct LevelScene* levelScene) {
+    if (levelScene->state == LevelSceneStateDone) {
+        return levelScene->winningTeam;
+    }
+
+#if WIN_BY_PRESSING_START
+    for (unsigned i = 0; i < levelScene->playerCount; ++i) {
+        if (controllerGetButtonDown(i, START_BUTTON)) {
+            return i;
+        }
+    }
+#endif
+
     int result = -1;
 
     for (unsigned i = 0; i < levelScene->baseCount; ++i) {

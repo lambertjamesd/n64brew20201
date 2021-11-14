@@ -6,12 +6,14 @@
 #include "sk64/skelatool_animator.h"
 #include "sk64/skelatool_armature.h"
 #include "game_defs.h"
+#include "endgamemenu.h"
 
 enum MainMenuState {
     MainMenuStateSelectingPlayerCount,
     MainMenuStateSelectingFaction,
     MainMenuStateSelectingLevel,
     MainMenuStateStarting,
+    MainMenuStatePostGame,
 };
 
 enum MainMenuFactionFlags {
@@ -38,7 +40,10 @@ struct MainMenu {
     struct LevelMetadata** filteredLevels;
     unsigned short levelCount;
     struct MainMenuFactionSelector factionSelection[MAX_PLAYERS];
+    struct EndGameMenu endGameMenu;
 };
+
+extern enum MainMenuState gMainMenuTargetState;
 
 void mainMenuInit(struct MainMenu* mainMenu);
 void mainMenuUpdate(struct MainMenu* mainMenu);

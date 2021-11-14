@@ -194,7 +194,7 @@ void levelBaseInit(struct LevelBase* base, struct BaseDefinition* definition, un
 }
 
 float levelBaseCaptureAudioFreq(struct LevelBase* base) {
-    return powf(2.0f, base->captureProgress / CAPTURE_TIME);
+    return powf(2.0f, base->captureProgress / CAPTURE_TIME) * 0.5f;
 }
 
 void levelBaseUpdate(struct LevelBase* base) {

@@ -28,6 +28,7 @@ int sceneIsLoading();
 void sceneLoadLevel(struct GameConfiguration* gameConfig);
 void sceneQueueLoadLevel(struct GameConfiguration* gameConfig);
 void sceneQueueMainMenu();
+void sceneQueuePostGameScreen(unsigned winningTeam, unsigned teamCount);
 
 void sceneUpdate(int hasActiveGraphics);
 void sceneRender(struct RenderState* renderState);
