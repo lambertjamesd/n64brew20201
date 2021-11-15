@@ -22,6 +22,8 @@ struct DynamicSceneEntry* dynamicSceneNewEntry(
     unsigned flags,
     unsigned collisionLayers
 ) {
+    assert(!gDynamicScene.locked);
+    
     if (!forShape) {
         return 0;
     }
@@ -44,6 +46,8 @@ struct DynamicSceneEntry* dynamicSceneNewEntry(
 }
 
 void dynamicSceneDeleteEntry(struct DynamicSceneEntry* entry) {
+    assert(!gDynamicScene.locked);
+
     int found = 0;
 
     for (unsigned i = 0; i < gDynamicScene.actorCount; ++i) {
@@ -168,6 +172,8 @@ void dynamicSceneCollide() {
 
     unsigned activeEntries = 0;
 
+    gDynamicScene.locked = 1;
+
     // collide overlapping entries
     for (unsigned i = 0; i < gDynamicScene.actorCount; ++i) {
         struct DynamicSceneEntry* currentEntry = gDynamicScene.entryOrder[i];
@@ -202,6 +208,8 @@ void dynamicSceneCollide() {
         gDynamicScene.workingMemory[writeIndex] = currentEntry;
         activeEntries = writeIndex + 1;
     }
+
+    gDynamicScene.locked = 0;
 }
 
 void dynamicEntrySetPos(struct DynamicSceneEntry* entry, struct Vector2* pos) {

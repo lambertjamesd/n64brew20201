@@ -39,6 +39,7 @@ struct LevelBase {
     unsigned char issueCommandTimer;
     unsigned char followPlayer;
     unsigned char baseControlCount[MAX_PLAYERS];
+    unsigned char prevControlCount[MAX_PLAYERS];
 };
 
 extern struct LevelBase* gPlayerAtBase[MAX_PLAYERS];

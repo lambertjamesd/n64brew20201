@@ -166,6 +166,7 @@ void levelBaseInit(struct LevelBase* base, struct BaseDefinition* definition, un
 
     for (unsigned i = 0; i < MAX_PLAYERS; ++i) {
         base->baseControlCount[i] = 0;
+        base->prevControlCount[i] = 0;
     }
 
     if (base->team.teamNumber != TEAM_NONE) {
@@ -216,6 +217,7 @@ void levelBaseUpdate(struct LevelBase* base) {
     }
 
     for (unsigned i = 0; i < MAX_PLAYERS; ++i) {
+        base->prevControlCount[i] = base->baseControlCount[i];
         base->baseControlCount[i] = 0;
     }
 

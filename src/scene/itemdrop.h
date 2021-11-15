@@ -13,6 +13,7 @@ enum ItemDropState {
     ItemDropStateFalling,
     ItemDropDamaging,
     ItemDropStateWaiting,
+    ItemDropStateCollected,
 };
 
 struct ItemDrop {

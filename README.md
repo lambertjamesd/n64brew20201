@@ -5,6 +5,7 @@ TODO
     add sounds
     add music
     polish up animations
+    polish up 
     polish up attacks
     implement ai
     make lots of levels

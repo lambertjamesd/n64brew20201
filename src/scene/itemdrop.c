@@ -28,6 +28,7 @@ struct CollisionCircle gItemDropCollider = {
 
 void itemDropInit(struct ItemDrop* itemDrop) {
     itemDrop->state = ItemDropDisabled;
+    itemDrop->stateTimer = 0.0f;
     itemDrop->collision = 0;
 }
 
@@ -40,8 +41,6 @@ void itemDropRandomLocation(struct Vector2* output) {
         gCurrentLevel.definition->levelBoundaries.min.y,
         gCurrentLevel.definition->levelBoundaries.max.y
     );
-
-    // 0xc52113dd, 0xc5a122f6
 }
 
 void itemDropCleanup(struct ItemDrop* itemDrop) {
@@ -73,6 +72,7 @@ void itemDropCollide(struct DynamicSceneOverlap* overlap) {
             struct TeamEntity* entity = teamEntityGetFromCollision(overlap->otherEntry);
 
             if (entity->entityType == TeamEntityTypePlayer) {
+                drop->state = ItemDropStateCollected;
                 itemDropCleanup(drop);
                 levelSceneApplyScrambler(&gCurrentLevel, entity->teamNumber, randomInRange(0, ControlsScramblerTypeCount));
             }
@@ -128,11 +128,16 @@ void itemDropUpdate(struct ItemDrop* itemDrop) {
             break;
         case ItemDropDamaging:
             itemDrop->state = ItemDropStateWaiting;
+            break;
         case ItemDropStateWaiting:
             itemDrop->stateTimer -= gTimeDelta;
             if (itemDrop->stateTimer < 0.0f) {
                 itemDropCleanup(itemDrop);
             }
+            break;
+        case ItemDropStateCollected:
+            itemDropCleanup(itemDrop);
+            break;
         default:
             break;
     }

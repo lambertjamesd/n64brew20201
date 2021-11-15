@@ -12,8 +12,8 @@ static OSScMsg       gControllerMessage;
 static u16           gControllerLastButton[MAX_PLAYERS];
 static enum ControllerDirection gControllerLastDirection[MAX_PLAYERS];
 
-#define REMAP_PLAYER_INDEX(index)   (index)
-// #define REMAP_PLAYER_INDEX(index)   0
+// #define REMAP_PLAYER_INDEX(index)   (index)
+#define REMAP_PLAYER_INDEX(index)   0
 
 void controllersInit(void)
 {

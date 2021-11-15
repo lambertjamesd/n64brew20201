@@ -40,7 +40,8 @@ struct DynamicScene {
     struct DynamicSceneEntry* entryOrder[DYNAMIC_SCENE_ENTRY_COUNT];
     // TODO move this to the stack
     struct DynamicSceneEntry* workingMemory[DYNAMIC_SCENE_ENTRY_COUNT];
-    unsigned actorCount;
+    unsigned short actorCount;
+    unsigned short locked;
 };
 
 extern struct DynamicScene gDynamicScene;
