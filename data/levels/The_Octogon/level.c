@@ -708,10 +708,6 @@ Gfx The_Octogon_model_gfx[] = {
     gsSP2Triangles(4, 10, 11, 0, 4, 11, 5, 0),
     gsSP2Triangles(18, 14, 15, 0, 18, 15, 19, 0),
     // Begin decor
-    gsSPDisplayList(Mars_Rock),
-    gsSPMatrix((Mtx*)MATRIX_TRANSFORM_SEGMENT_ADDRESS + 0, G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH),
-    gsSPDisplayList(Mars_Rock004DisplayList),
-    gsSPPopMatrix(G_MTX_MODELVIEW),
     gsSPEndDisplayList(),
 };
 struct BaseDefinition The_Octogon_Bases[] = {
@@ -745,7 +741,6 @@ struct SceneBoundary The_Octogon_Boundary[] = {
 };
 
 struct DecorDefinition The_Octogon_Decor[] = {
-    {{0, 0, 2293.43}, {0, 0, 0, 1}, ROCK004_DECOR_ID},
 };
 struct Vector3 The_Octogon_PathingNodes[] = {
 };
@@ -755,7 +750,7 @@ struct LevelDefinition The_Octogon_Definition = {
     .maxPlayerCount = 4,
     .playerStartLocations = The_Octogon_StartingPositions,
     .baseCount = 9,
-    .decorCount = 1,
+    .decorCount = 0,
     .bases = The_Octogon_Bases,
     .decor = The_Octogon_Decor,
     .levelBoundaries = {{-6382.02, -6382.02}, {6382.02, 6382.02}},

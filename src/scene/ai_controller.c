@@ -1,12 +1,13 @@
 #include "ai_controller.h"
 
-void InitAI(struct AIController* inController, unsigned playerIndex, unsigned teamIndex){
+void InitAI(struct AIController* inController, unsigned playerIndex, unsigned teamIndex, unsigned baseCount){
     inController->playerIndex = playerIndex;
     inController->teamIndex = teamIndex;
     inController->botAction = 0;
     inController->currTarget = gZeroVec;
     inController->targetBase = 0;
     inController->attackTarget = 0;
+    aiPlannerInit(&inController->planner, teamIndex, baseCount);
 }
 
 void moveAItowardsTarget(struct AIController* inController, struct Vector3* currLocation, struct PlayerInput* inputRef){
@@ -61,6 +62,10 @@ void moveAItowardsTarget(struct AIController* inController, struct Vector3* curr
 
 void setTargetBase(struct AIController* inController, struct LevelBase* inBase){
     inController->targetBase = inBase;
+}
+
+void aiUpdate(struct LevelScene* level, struct AIController* ai) {
+    aiPlannerUpdate(level, &ai->planner);
 }
 
 struct LevelBase* getClosestUncapturedBase(struct LevelBase* bases, unsigned baseCount, struct Vector3* closeTo, unsigned team){

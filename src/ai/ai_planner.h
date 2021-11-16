@@ -3,6 +3,8 @@
 
 struct LevelScene;
 
+#define MINIMUM_THIKING_FRAMES  30
+
 enum AIPlanType {
     AIPlanTypeNone,
     AIPlanTypeAttackBase,
@@ -28,7 +30,11 @@ struct AIPlanner {
     struct AIPlan nextPlan;
     unsigned short teamNumber;
     unsigned short baseCount;
+    unsigned short thinkingTimer;
     struct AIPlan** basesCoveredByPlan;
 };
+
+void aiPlannerInit(struct AIPlanner* planner, unsigned teamNumber, unsigned baseCount);
+void aiPlannerUpdate(struct LevelScene* levelScene, struct AIPlanner* planner);
 
 #endif

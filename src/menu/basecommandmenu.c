@@ -12,7 +12,7 @@
 #define OPEN_MENU_BOTTOM_OFFSET 32
 #define MENU_WIDTH  110
 #define MENU_HEIGHT 70
-#define OPEN_ANIMATION_TIME 0.25f
+#define OPEN_ANIMATION_TIME 0.2f
 
 struct SpriteTile gBaseCommandTiles[] = {
     {16, 16, 16, 16},// MinionCommandFollow,

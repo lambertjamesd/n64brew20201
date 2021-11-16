@@ -77,7 +77,7 @@ void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* defin
             //struct LevelBase* startBase = levelGetClosestBase(&levelScene->players[i].transform.position, levelScene, i);
             struct LevelBase* startBase = getClosestUncapturedBase(levelScene->bases, levelScene->baseCount, &levelScene->players[i].transform.position, i);
 
-            InitAI(&levelScene->bots[i - humanPlayerCount], i, i);
+            InitAI(&levelScene->bots[i - humanPlayerCount], i, i, levelScene->baseCount);
             setTargetBase(&levelScene->bots[i - humanPlayerCount], startBase);
         }
     }
@@ -387,7 +387,8 @@ void levelSceneCollectPlayerInput(struct LevelScene* levelScene, unsigned player
         if (playerIndex < levelScene->humanPlayerCount) {
             levelSceneCollectHumanPlayerInput(levelScene, playerIndex, playerInput);
         } else {
-            levelSceneCollectBotPlayerInput(levelScene, playerIndex, playerInput);
+            playerInputNoInput(playerInput);
+            // levelSceneCollectBotPlayerInput(levelScene, playerIndex, playerInput);
         }
     } else {
         playerInputNoInput(playerInput);
@@ -443,6 +444,10 @@ void levelSceneUpdate(struct LevelScene* levelScene) {
         if (levelScene->stateTimer < 0.0f) {
             sceneQueuePostGameScreen(levelScene->winningTeam, levelScene->playerCount);
         }
+    }
+
+    for (unsigned i = 0; i < levelScene->botsCount; ++i) {
+        aiUpdate(levelScene, &levelScene->bots[i]);
     }
 
     for (unsigned playerIndex = 0; playerIndex < levelScene->playerCount; ++playerIndex) {
