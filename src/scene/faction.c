@@ -86,7 +86,7 @@ struct Faction gDogFaction = {
         .idleSounds = {.options = gDogIdleSounds, .count = sizeof(gDogIdleSounds)/sizeof(gDogIdleSounds[0])},
         .walkSound = SOUNDS_DOG_WALKING_LOOP_1,
     },
-    .moveSpeed = 16.0f,
+    .moveSpeed = PLAYER_BASE_MOVE_SPEED,
     .accel = 40.0f,
 
     .minionMesh = Minion_DogMinion_mesh,
@@ -165,7 +165,7 @@ struct Faction gCatFaction = {
         .idleSounds = {.options = gCatIdlesSounds, .count = sizeof(gCatIdlesSounds)/sizeof(gCatIdlesSounds[0])},
         .walkSound = SOUNDS_DOG_WALKING_LOOP_1,
     },
-    .moveSpeed = 16.0f,
+    .moveSpeed = PLAYER_BASE_MOVE_SPEED,
     .accel = 40.0f,
 
     .minionMesh = Minion_CatMinion_mesh,

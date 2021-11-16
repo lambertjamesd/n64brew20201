@@ -2,6 +2,11 @@
 #include "scene/level_scene.h"
 #include "math/mathf.h"
 
+float aiPlannerFindDistance(struct LevelScene* levelScene, struct Vector3* from, int toBase) {
+    // TODO
+    return 0.0f;
+}
+
 void aiPlannerScorePlan(struct LevelScene* levelScene, struct AIPlanner* planner, struct AIPlan* plan) {
     // TODO
     plan->estimatedCost = 0.0f;
@@ -37,11 +42,6 @@ int aiPlannerFindRandomBaseForTeam(struct LevelScene* levelScene, unsigned team,
 int aiPlannerFindNearestBase(struct LevelScene* levelScene, unsigned fromBaseIndex, unsigned team, unsigned invertTeam) {
     // TODO
     return -1;
-}
-
-float aiPlannerFindDistance(struct LevelScene* levelScene, struct Vector3* from, int toBase) {
-    // TODO
-    return 0.0f;
 }
 
 int aiPlannerMinionsNeededForCapture(struct LevelBase* base) {

@@ -22,6 +22,7 @@
 #include "scene_management.h"
 #include "tutorial/tutorial.h"
 #include "menu/endgamemenu.h"
+#include "../data/fonts/fonts.h"
 
 #include "collision/polygon.h"
 #include "math/vector3.h"
@@ -156,8 +157,11 @@ struct LevelBase* levelGetClosestBase(struct Vector3* closeTo, struct LevelScene
 */
 void levelSceneRender(struct LevelScene* levelScene, struct RenderState* renderState) {
     spriteSetLayer(renderState, LAYER_SOLID_COLOR, gUseSolidColor);
-    spriteSetLayer(renderState, LAYER_COMMAND_BUTTONS, gUseCommandIcons);
+    spriteSetLayer(renderState, LAYER_MENU_BORDER, gUseMenuBorder);
+    spriteSetLayer(renderState, LAYER_BUTTONS, gUseButtonsIcon);
+    spriteSetLayer(renderState, LAYER_COMMAND_BUTTONS, gUseCommandsTexture);
     spriteSetLayer(renderState, LAYER_GB_FONT, gUseFontTexture);
+    spriteSetLayer(renderState, LAYER_KICKFLIP_FONT, gUseKickflipFont);
     spriteSetLayer(renderState, LAYER_UPGRADE_ICONS, gUseUpgradeIcons);
 
     // render minions

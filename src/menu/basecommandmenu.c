@@ -4,14 +4,28 @@
 #include "scene/minion.h"
 #include "controls/controller.h"
 #include "scene/playerinput.h"
-#include "gbfont.h"
+#include "menuborder.h"
+#include "kickflipfont.h"
+#include "math/mathf.h"
+#include "util/time.h"
 
 #define OPEN_MENU_BOTTOM_OFFSET 32
+#define MENU_WIDTH  110
+#define MENU_HEIGHT 70
+#define OPEN_ANIMATION_TIME 0.25f
 
-struct SpriteTile gBaseCommandTiles[MinionCommandCount] = {
-    {48, 0, 16, 16},// MinionCommandFollow,
-    {32, 0, 16, 16},// MinionCommandAttack,
-    {32, 16, 16, 16},// MinionCommandDefend,
+struct SpriteTile gBaseCommandTiles[] = {
+    {16, 16, 16, 16},// MinionCommandFollow,
+    {0, 0, 16, 16},// MinionCommandAttack,
+    {0, 16, 16, 16},// MinionCommandDefend,
+    {16, 0, 16, 16},
+};
+
+char* gMenuPrompts[] = {
+    "Follow",
+    "Attack",
+    "Defend",
+    "Build",
 };
 
 enum LevelBaseState gBaseUpgardeIndex[] = {
@@ -24,6 +38,12 @@ struct SpriteTile gBaseUpgradeTiles[MinionCommandCount] = {
     {0, 16, 16, 16},// LevelBaseStateUpgradingSpawnRate,
     {0, 0, 16, 16},// LevelBaseStateUpgradingCapacity,
     {16, 0, 16, 16},// LevelBaseStateUpgradingDefence,
+};
+
+char* gUpgradePrompts[] = {
+    "Wait",
+    "Minion",
+    "Defense",
 };
 
 unsigned baseCommandStateToIndex(enum LevelBaseState state) {
@@ -55,15 +75,19 @@ void baseCommandMenuHideOpenCommand(struct BaseCommandMenu* menu) {
 }
 
 void baseCommandMenuShow(struct BaseCommandMenu* menu, struct LevelBase* forBase) {
-    menu->flags |= BaseCommandMenuFlagsShowingMenu;
+    menu->flags |= BaseCommandMenuFlagsShowingMenu | BaseCommandMenuFlagsAnimating;
     menu->flags &= ~BaseCommandMenuFlagsShowingUpgrades;
     menu->forBase = forBase;
     menu->selectedCommand = forBase->defaultComand;
     menu->selectedUpgrade = 0;
+    menu->openAnimation = OPEN_ANIMATION_TIME;
 }
 
 void baseCommandMenuHide(struct BaseCommandMenu* menu) {
-    menu->flags &= ~BaseCommandMenuFlagsShowingMenu;
+    if (menu->flags & BaseCommandMenuFlagsShowingMenu) {
+        menu->flags &= ~BaseCommandMenuFlagsShowingMenu;
+        menu->flags |= BaseCommandMenuFlagsAnimating;
+    }
 }
 
 int baseCommandMenuIsShowing(struct BaseCommandMenu* menu) {
@@ -71,6 +95,24 @@ int baseCommandMenuIsShowing(struct BaseCommandMenu* menu) {
 }
 
 void baseCommandMenuUpdate(struct BaseCommandMenu* menu, unsigned team) {
+    if (menu->flags & BaseCommandMenuFlagsAnimating) {
+        if (menu->flags & BaseCommandMenuFlagsShowingMenu) {
+            menu->openAnimation -= gTimeDelta;
+
+            if (menu->openAnimation <= 0.0f) {
+                menu->openAnimation = 0.0f;
+                menu->flags &= ~BaseCommandMenuFlagsAnimating;
+            }
+        } else {
+            menu->openAnimation += gTimeDelta;
+
+            if (menu->openAnimation > OPEN_ANIMATION_TIME) {
+                menu->openAnimation = 0.0f;
+                menu->flags &= ~BaseCommandMenuFlagsAnimating;
+            }
+        }
+    }
+
     if (menu->flags & BaseCommandMenuFlagsShowingMenu) {
         if (!menu->forBase) {
             baseCommandMenuHide(menu);
@@ -79,9 +121,13 @@ void baseCommandMenuUpdate(struct BaseCommandMenu* menu, unsigned team) {
 
         unsigned short playerInput = playerInputMapActionFlags(controllerGetButtonDown(team, ~0));
 
-        if (controllerGetButtonUp(team, B_BUTTON) != 0 || (playerInput & PlayerInputActionsCommandOpenBaseMenu) != 0) {
-            baseCommandMenuHide(menu);
-            return;
+        if (controllerGetButtonUp(team, B_BUTTON) != 0) {
+            if (menu->flags & BaseCommandMenuFlagsShowingUpgrades) {
+                menu->flags ^= BaseCommandMenuFlagsShowingUpgrades;
+            } else {
+                baseCommandMenuHide(menu);
+                return;
+            }
         }
 
         if (playerInput & PlayerInputActionsCommandRecall) {
@@ -123,13 +169,17 @@ void baseCommandMenuUpdate(struct BaseCommandMenu* menu, unsigned team) {
                 --menu->selectedCommand;
             }
 
-            if ((direction & ControllerDirectionDown) != 0 && menu->selectedCommand < MinionCommandDefend) {
+            if ((direction & ControllerDirectionDown) != 0 && menu->selectedCommand <= MinionCommandDefend) {
                 ++menu->selectedCommand;
             }
 
             if (controllerGetButtonUp(team, A_BUTTON) != 0) {
-                levelBaseSetDefaultCommand(menu->forBase, menu->selectedCommand, team);
-                baseCommandMenuHide(menu);
+                if (menu->selectedCommand >= MinionCommandCount) {
+                    menu->flags ^= BaseCommandMenuFlagsShowingUpgrades;
+                } else {
+                    levelBaseSetDefaultCommand(menu->forBase, menu->selectedCommand, team);
+                    baseCommandMenuHide(menu);
+                }
                 return;
             }
         }
@@ -141,149 +191,79 @@ void baseCommandMenuUpdate(struct BaseCommandMenu* menu, unsigned team) {
 }
 
 void baseCommandMenuRenderCommandSelect(struct BaseCommandMenu* menu, struct RenderState* renderState, unsigned horizontalCenter, unsigned verticalCenter) {
-    spriteSetColor(renderState, LAYER_SOLID_COLOR, gHalfTransparentBlack);
-    spriteSolid(
-        renderState,
-        LAYER_SOLID_COLOR,
-        horizontalCenter - 56,
-        verticalCenter - 32,
-        112,
-        64
-    );
-
-    spriteDrawTile(
-        renderState, 
-        LAYER_COMMAND_BUTTONS, 
-        horizontalCenter - 32, 
-        verticalCenter - 24, 
-        16, 
-        16, 
-        gBaseCommandTiles[MinionCommandFollow]
-    );
-    fontRenderText(renderState, &gGBFont, "Follow", horizontalCenter - 8, verticalCenter - 20, 0);
-
-    spriteDrawTile(
-        renderState, 
-        LAYER_COMMAND_BUTTONS, 
-        horizontalCenter - 32, 
-        verticalCenter - 8, 
-        16, 
-        16, 
-        gBaseCommandTiles[MinionCommandAttack]
-    );
-    fontRenderText(renderState, &gGBFont, "Attack", horizontalCenter - 8, verticalCenter - 4, 0);
-
-    spriteDrawTile(
-        renderState, 
-        LAYER_COMMAND_BUTTONS, 
-        horizontalCenter - 32, 
-        verticalCenter + 8, 
-        16, 
-        16, 
-        gBaseCommandTiles[MinionCommandDefend]
-    );
-    fontRenderText(renderState, &gGBFont, "Defend", horizontalCenter - 8, verticalCenter + 12, 0);
-
-    struct SpriteTile spriteTile;
-    spriteTile.x = 48;
-    spriteTile.y = 16;
-    spriteTile.w = 16;
-    spriteTile.h = 16;
-    spriteDrawTile(
-        renderState, 
-        LAYER_COMMAND_BUTTONS, 
-        horizontalCenter - 48, 
-        verticalCenter - 24 + menu->selectedCommand * 16, 
-        16, 
-        16, 
-        spriteTile
-    );
+    unsigned x = horizontalCenter - MENU_WIDTH / 2 + MENU_BORDER_WIDTH + 4;
+    unsigned y = verticalCenter - MENU_HEIGHT / 2 + MENU_BORDER_WIDTH;
+    for (unsigned i = 0; i < sizeof(gMenuPrompts)/sizeof(gMenuPrompts[0]); ++i) {
+        unsigned textX = x;
+        if (menu->selectedCommand == i) {
+            spriteDrawTile(renderState, LAYER_COMMAND_BUTTONS, x, y, 16, 16, gBaseCommandTiles[i]);
+            textX += 16;
+        }
+        fontRenderText(renderState, &gKickflipFont, gMenuPrompts[i], textX + 4, y + 4, -1);
+        y += 16;
+    }
 }
 
 void baseCommandMenuRenderUpgradeSelect(struct BaseCommandMenu* menu, struct RenderState* renderState, unsigned horizontalCenter, unsigned verticalCenter) {
-    spriteSetColor(renderState, LAYER_SOLID_COLOR, gHalfTransparentBlack);
-    spriteSolid(
-        renderState,
-        LAYER_SOLID_COLOR,
-        horizontalCenter - 56,
-        verticalCenter - 32,
-        112,
-        64
-    );
-
-    spriteDrawTile(
-        renderState, 
-        LAYER_UPGRADE_ICONS, 
-        horizontalCenter - 32, 
-        verticalCenter - 24, 
-        16, 
-        16, 
-        gBaseUpgradeTiles[0]
-    );
-    fontRenderText(renderState, &gGBFont, "Wait", horizontalCenter - 8, verticalCenter - 20, 0);
-
-    spriteDrawTile(
-        renderState, 
-        LAYER_UPGRADE_ICONS, 
-        horizontalCenter - 32, 
-        verticalCenter - 8, 
-        16, 
-        16, 
-        gBaseUpgradeTiles[1]
-    );
-    fontRenderText(renderState, &gGBFont, "Minion", horizontalCenter - 8, verticalCenter - 4, 0);
-
-    spriteDrawTile(
-        renderState, 
-        LAYER_UPGRADE_ICONS, 
-        horizontalCenter - 32, 
-        verticalCenter + 8, 
-        16, 
-        16, 
-        gBaseUpgradeTiles[2]
-    );
-    fontRenderText(renderState, &gGBFont, "Defense", horizontalCenter - 8, verticalCenter + 12, 0);
-
-    struct SpriteTile spriteTile;
-    spriteTile.x = 48;
-    spriteTile.y = 16;
-    spriteTile.w = 16;
-    spriteTile.h = 16;
-    spriteDrawTile(
-        renderState, 
-        LAYER_COMMAND_BUTTONS, 
-        horizontalCenter - 48, 
-        verticalCenter - 24 + menu->selectedUpgrade * 16, 
-        16, 
-        16, 
-        spriteTile
-    );
+    unsigned x = horizontalCenter - MENU_WIDTH / 2 + MENU_BORDER_WIDTH + 4;
+    unsigned y = verticalCenter - MENU_HEIGHT / 2 + MENU_BORDER_WIDTH;
+    for (unsigned i = 0; i < sizeof(gUpgradePrompts)/sizeof(gUpgradePrompts[0]); ++i) {
+        unsigned textX = x;
+        if (menu->selectedUpgrade == i) {
+            spriteDrawTile(renderState, LAYER_UPGRADE_ICONS, x, y, 16, 16, gBaseUpgradeTiles[i]);
+            textX += 16;
+        }
+        fontRenderText(renderState, &gKickflipFont, gUpgradePrompts[i], textX + 4, y + 4, -1);
+        y += 16;
+    }
 }
 
 void baseCommandMenuRender(struct BaseCommandMenu* menu, struct RenderState* renderState, unsigned short* screenPos) {
-    if (menu->flags & BaseCommandMenuFlagsShowingMenu && menu->forBase) {
-        unsigned horizontalCenter = (screenPos[0] + screenPos[2]) >> 1;
-        unsigned verticalCenter = (screenPos[1] + screenPos[3]) >> 1;
+    unsigned horizontalCenter = (screenPos[0] + screenPos[2]) >> 1;
+    unsigned promptScreenY = screenPos[3] - OPEN_MENU_BOTTOM_OFFSET -  16;
+    unsigned verticalCenter = (screenPos[1] + screenPos[3]) >> 1;
+
+    if (menu->flags & BaseCommandMenuFlagsAnimating) {
+        float lerp = menu->openAnimation / OPEN_ANIMATION_TIME;
+        menuBorderRender(
+            renderState, 
+            (int)mathfLerp(horizontalCenter - MENU_WIDTH / 2, horizontalCenter - 30, lerp), 
+            (int)mathfLerp(verticalCenter - MENU_HEIGHT / 2, promptScreenY - MENU_BORDER_WIDTH - 4, lerp), 
+            (int)mathfLerp(MENU_WIDTH, 60, lerp), 
+            (int)mathfLerp(MENU_HEIGHT, 16 + MENU_BORDER_WIDTH + 8, lerp)
+        );
+
+        spriteDrawTile(
+            renderState, 
+            LAYER_COMMAND_BUTTONS, 
+            (int)mathfLerp(horizontalCenter - MENU_WIDTH / 2 + MENU_BORDER_WIDTH + 4, horizontalCenter + 4, lerp), 
+            (int)mathfLerp(verticalCenter - MENU_HEIGHT / 2 + MENU_BORDER_WIDTH + menu->selectedCommand * 16, promptScreenY, lerp),
+            16, 
+            16, 
+            gBaseCommandTiles[menu->forBase->defaultComand]
+        );
+    } else if (menu->flags & BaseCommandMenuFlagsShowingMenu && menu->forBase) {
+        menuBorderRender(renderState, horizontalCenter - MENU_WIDTH / 2, verticalCenter - MENU_HEIGHT / 2, MENU_WIDTH, MENU_HEIGHT);
+
         if (menu->flags & BaseCommandMenuFlagsShowingUpgrades) {
             baseCommandMenuRenderUpgradeSelect(menu, renderState, horizontalCenter, verticalCenter);
         } else {
             baseCommandMenuRenderCommandSelect(menu, renderState, horizontalCenter, verticalCenter);
         }
-
-        // LAYER_UPGRADE_ICONS
     } else if ((menu->flags & BaseCommandMenuFlagsShowingOpenCommand) && !(menu->flags & BaseCommandMenuFlagsForceHideOpenCommand) && menu->forBase) {
-        unsigned screenCenter = (screenPos[2] + screenPos[0]) >> 1;
+
+        menuBorderRender(renderState, horizontalCenter - 30, promptScreenY - MENU_BORDER_WIDTH - 4, 60, 16 + MENU_BORDER_WIDTH + 8);
 
         struct SpriteTile spriteTile;
         spriteTile.x = 0;
-        spriteTile.y = 0;
+        spriteTile.y = 16;
         spriteTile.w = 16;
         spriteTile.h = 16;
         spriteDrawTile(
             renderState, 
-            LAYER_COMMAND_BUTTONS, 
-            screenCenter - 24, 
-            screenPos[3] - OPEN_MENU_BOTTOM_OFFSET -  16, 
+            LAYER_BUTTONS, 
+            horizontalCenter - 20, 
+            promptScreenY, 
             16, 
             16, 
             spriteTile
@@ -292,8 +272,8 @@ void baseCommandMenuRender(struct BaseCommandMenu* menu, struct RenderState* ren
         spriteDrawTile(
             renderState, 
             LAYER_COMMAND_BUTTONS, 
-            screenCenter - 8, 
-            screenPos[3] - OPEN_MENU_BOTTOM_OFFSET -  16, 
+            horizontalCenter + 4, 
+            promptScreenY, 
             16, 
             16, 
             gBaseCommandTiles[menu->forBase->defaultComand]

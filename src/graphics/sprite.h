@@ -7,22 +7,25 @@
 #include "math/color.h"
 
 #define LAYER_SOLID_COLOR       0
-#define LAYER_IMAGE_COPIES      1
-#define LAYER_COMMAND_BUTTONS   3
-#define LAYER_UPGRADE_ICONS     4
-#define LAYER_GB_FONT           5
-#define LAYER_KICKFLIP_FONT     6
+#define LAYER_MENU_BORDER       1
+#define LAYER_IMAGE_COPIES      2
+#define LAYER_BUTTONS           3
+#define LAYER_COMMAND_BUTTONS   4
+#define LAYER_UPGRADE_ICONS     5
+#define LAYER_GB_FONT           6
+#define LAYER_KICKFLIP_FONT     7
 
 struct SpriteTile
 {
     char x;
-    char y;
+char y;
     char w;
     char h;
 };
 
 void spriteWriteRaw(struct RenderState* renderState, int layer, Gfx* src, int count);
 void spriteSetLayer(struct RenderState* renderState, int layer, Gfx* graphics);
+void spriteTextureRectangle(struct RenderState* renderState, int layer, int x, int y, int w, int h, int sx, int sy, int dsdx, int dsdy);
 void spriteSolid(struct RenderState* renderState, int layer, int x, int y, int w, int h);
 void spriteCopyImage(struct RenderState* renderState, int layer, void* image, int iw, int ih, int x, int y, int w, int h, int sx, int sy);
 void spriteDraw(struct RenderState* renderState, int layer, int x, int y, int w, int h, int sx, int sy, int scaleShiftX, int scaleShiftY);

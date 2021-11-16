@@ -76,21 +76,61 @@ void spriteCopyImage(struct RenderState* renderState, int layer, void* image, in
     spriteWriteRaw(renderState, layer, tmp, tmpPtr - tmp);
 }
 
-void spriteDraw(struct RenderState* renderState, int layer, int x, int y, int w, int h, int sx, int sy, int sw, int sh)
-{
+
+void spriteTextureRectangle(struct RenderState* renderState, int layer, int x, int y, int w, int h, int sx, int sy, int dsdx, int dsdy) {
     Gfx workingMem[4];
     Gfx* curr = workingMem;
 
     gSPTextureRectangle(
         curr++,
+        x,
+        y,
+        x + w,
+        y + h,
+        G_TX_RENDERTILE,
+        sx,
+        sy,
+        dsdx,
+        dsdy
+    );
+
+    spriteWriteRaw(renderState, layer, workingMem, curr - workingMem);
+}
+
+void spriteDraw(struct RenderState* renderState, int layer, int x, int y, int w, int h, int sx, int sy, int sw, int sh)
+{
+    Gfx workingMem[4];
+    Gfx* curr = workingMem;
+
+    unsigned dsdx = 0x400;
+    unsigned dtdy = 0x400;
+
+    if (sw >= 0) {
+        w <<= sw;
+        dsdx >>= sw;
+    } else {
+        w >>= -sw;
+        dsdx <<= -sw;
+    }
+
+    if (sh >= 0) {
+        h <<= sh;
+        dtdy >>= sh;
+    } else {
+        h >>= -sh;
+        dtdy <<= -sh;
+    }
+
+    gSPTextureRectangle(
+        curr++,
         x << 2, 
         y << 2,
-        (x + (w << sw)) << 2,
-        (y + (h << sh)) << 2,
+        (x + w) << 2,
+        (y + h) << 2,
         G_TX_RENDERTILE,
         sx << 5, sy << 5,
-        0x400 >> sw,
-        0x400 >> sh
+        dsdx,
+        dtdy
     );
 
     spriteWriteRaw(renderState, layer, workingMem, curr - workingMem);

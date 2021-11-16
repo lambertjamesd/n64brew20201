@@ -81,19 +81,7 @@ int tutorialIconRenderer(struct RenderState* renderState, void* data, int x, int
     }
 
     if (renderState) {
-        spriteCopyImage(
-            renderState, 
-            LAYER_IMAGE_COPIES, 
-            gButtonsImage, 
-            32, 
-            64, 
-            x, 
-            y, 
-            tile->w, 
-            tile->h, 
-            tile->x, 
-            tile->y
-        );
+        spriteDrawTile(renderState, LAYER_BUTTONS, x, y, tile->w, tile->h, *tile);
     }
 
     return tile->w + 8;
@@ -187,6 +175,7 @@ void tutorialUpdate(struct LevelScene* level, struct PlayerInput* input) {
             {
                 struct LevelBase* base = tutorialGetBaseForTeam(level, playerPos, TEAM(0));
                 if (base) {
+                    level->baseCommandMenu[0].flags |= BaseCommandMenuFlagsForceHideOpenCommand;
                     nextState = TutorialStateBaseMenu;
                     nextStateTime = 0.0f;
                     break;
@@ -195,7 +184,6 @@ void tutorialUpdate(struct LevelScene* level, struct PlayerInput* input) {
             break;
         case TutorialStateBaseMenu:
             {
-                level->baseCommandMenu[0].flags |= BaseCommandMenuFlagsForceHideOpenCommand;
                 if (level->baseCommandMenu[0].flags & BaseCommandMenuFlagsShowingMenu) {
                     textBoxHide(&gTutorial.textBox);
                 } else {

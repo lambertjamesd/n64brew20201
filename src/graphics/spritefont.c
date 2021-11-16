@@ -18,11 +18,6 @@ void fontInit(struct Font* font, int layer, int spaceWidth, struct CharacterDefi
     }
 }
 
-void setFontColor(struct Font* font, char r, char g, char b)
-{
-
-}
-
 void fontRenderText(struct RenderState* renderState, struct Font* font, const char* str, int x, int y, int scaleShift)
 {
     int startX = x;
@@ -33,11 +28,19 @@ void fontRenderText(struct RenderState* renderState, struct Font* font, const ch
         if (curr.w)
         {
             spriteDraw(renderState, font->spriteLayer, x, y, curr.w, curr.h, curr.x, curr.y, scaleShift, scaleShift);
-            x += curr.w << scaleShift;
+            if (scaleShift >= 0) {
+                x += curr.w << scaleShift;
+            } else {
+                x += curr.w >> -scaleShift;
+            }
         }
         else if (*str == ' ')
         {
-            x += font->spaceWidth << scaleShift;
+            if (scaleShift >= 0) {
+                x += font->spaceWidth << scaleShift;
+            } else {
+                x += font->spaceWidth >> -scaleShift;
+            }
         }
         else if (*str == '\n')
         {
@@ -57,9 +60,17 @@ int fontMeasure(struct Font* font, const char* str, int scaleShift) {
         struct SpriteTile curr = font->characters[(unsigned)*str];
 
         if (*str == ' ') {
-            result += font->spaceWidth << scaleShift;
+            if (scaleShift >= 0) {
+                result += font->spaceWidth << scaleShift;
+            } else {
+                result += font->spaceWidth >> -scaleShift;
+            }
         } else {
-            result += curr.w << scaleShift;
+            if (scaleShift >= 0) {
+                result += curr.w << scaleShift;
+            } else {
+                result += curr.w >> -scaleShift;
+            }
         }
 
         ++str;

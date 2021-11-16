@@ -68,3 +68,24 @@ unsigned short __attribute__((aligned(8))) gButtonsImage[] = {
 	0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x2111, 0x2111, 0x2111, 0x2111, 0x2111, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 
 	0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000
 };
+
+Gfx gUseButtonsIcon[] = {
+	gsDPPipeSync(),
+    gsDPSetCycleType(G_CYC_1CYCLE),
+	gsSPClearGeometryMode(G_LIGHTING | G_SHADE | G_ZBUFFER),
+    gsDPSetTexturePersp(G_TP_NONE),
+    gsDPSetRenderMode(G_RM_XLU_SURF, G_RM_XLU_SURF2),
+    gsDPSetEnvColor(255, 255, 255, 255),
+	gsDPSetCombineLERP(TEXEL0, 0, ENVIRONMENT, 0, TEXEL0, 0, ENVIRONMENT, 0, TEXEL0, 0, ENVIRONMENT, 0, TEXEL0, 0, ENVIRONMENT, 0),
+    gsDPSetTextureFilter(G_TF_POINT),
+    gsSPTexture(65535, 65535, 0, 0, 1),
+    gsDPTileSync(),
+    gsDPSetTextureImage(G_IM_FMT_RGBA, G_IM_SIZ_16b_LOAD_BLOCK, 1, gButtonsImage),
+    gsDPSetTile(G_IM_FMT_RGBA, G_IM_SIZ_16b_LOAD_BLOCK, 0, 0, 7, 0, G_TX_WRAP | G_TX_NOMIRROR, 6, 0, G_TX_WRAP | G_TX_NOMIRROR, 5, 0),
+    gsDPLoadSync(),
+    gsDPLoadBlock(7, 0, 0, 2047, 256),
+    gsDPPipeSync(),
+    gsDPSetTile(G_IM_FMT_RGBA, G_IM_SIZ_16b, 8, 0, 0, 0, G_TX_WRAP | G_TX_NOMIRROR, 6, 0, G_TX_WRAP | G_TX_NOMIRROR, 5, 0),
+    gsDPSetTileSize(0, 0, 0, 124, 252),
+	gsSPEndDisplayList(),
+};
