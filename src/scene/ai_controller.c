@@ -1,7 +1,13 @@
 #include "ai_controller.h"
 #include "ai_pathfinder.h"
 
-void ai_Init(struct AIController* inController, struct PathfindingDefinition* pathfinder, unsigned playerIndex, unsigned teamIndex, unsigned baseCount) {
+unsigned getNumNeutralBases(struct LevelBase* bases, unsigned numBases){
+    unsigned count = 0;
+    for(unsigned i = 0; i < numBases; ++i) if(bases[i].team.teamNumber == TEAM_NONE) count++;
+    return count;
+}
+
+void ai_Init(struct AIController* inController, struct PathfindingDefinition* pathfinder, unsigned playerIndex, unsigned teamIndex, unsigned baseCount){
     inController->pathfindingInfo = pathfinder;
     inController->playerIndex = playerIndex;
     inController->teamIndex = teamIndex;
@@ -10,6 +16,7 @@ void ai_Init(struct AIController* inController, struct PathfindingDefinition* pa
     inController->targetBase = 0;
     inController->attackTarget = 0;
     inController->isUsingPathfinding = 0;
+    inController->numMinions = 0;
     aiPlannerInit(&inController->planner, teamIndex, baseCount);
 }
 
@@ -90,23 +97,28 @@ void ai_update(struct LevelScene* level, struct AIController* ai) {
     aiPlannerUpdate(level, &ai->planner);
 }
 
-struct LevelBase* ai_getClosestUncapturedBase(struct LevelBase* bases, unsigned baseCount, struct Vector3* closeTo, unsigned team){
-    struct Vector3 basePos;
-    basePos.x = bases[0].position.x;
-    basePos.y = bases[0].position.y;
-    basePos.z = bases[0].position.z;
-    
-    float minDist = vector3DistSqrd(&basePos, closeTo);
+struct LevelBase* ai_getClosestUncapturedBase(struct AIController* inController, struct LevelBase* bases, unsigned baseCount, struct Vector3* closeTo, unsigned team, unsigned short usePathfinding){
     unsigned int minIndex = 0;
-    for(unsigned int i = 1; i < baseCount; i++){
-        if(levelBaseGetTeam(&bases[i]) == team) continue;
-        basePos.x = bases[i].position.x;
-        basePos.y = bases[i].position.y;
-        basePos.z = bases[i].position.z;
-        float currDist = vector3DistSqrd(&basePos, closeTo);
-        if(currDist < minDist){
-            minIndex = i;
-            minDist = currDist;
+    if(usePathfinding == 1){
+        minIndex = getClosestNeutralBase(inController->pathfindingInfo, bases, baseCount, inController->targetBase->baseId);
+        if(minIndex == -1) minIndex = getClosestEnemyBase(inController->pathfindingInfo, bases, baseCount, inController->targetBase->baseId, team);
+    }
+    else{ //in the beginning of the game we still might want to compare the base position to player's location since there will be no targetBase reference
+        struct Vector3 basePos;
+        basePos.x = bases[0].position.x;
+        basePos.y = bases[0].position.y;
+        basePos.z = bases[0].position.z;
+        float minDist = vector3DistSqrd(&basePos, closeTo);
+        for(unsigned int i = 1; i < baseCount; i++){
+            if(levelBaseGetTeam(&bases[i]) == team) continue;
+            basePos.x = bases[i].position.x;
+            basePos.y = bases[i].position.y;
+            basePos.z = bases[i].position.z;
+            float currDist = vector3DistSqrd(&basePos, closeTo);
+            if(currDist < minDist){
+                minIndex = i;
+                minDist = currDist;
+            }
         }
     }
     struct LevelBase* outBase = &bases[minIndex];

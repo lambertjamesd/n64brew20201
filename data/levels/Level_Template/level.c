@@ -171,7 +171,44 @@ struct DecorDefinition Level_Template_Decor[] = {
 };
 struct Vector3 Level_Template_PathingNodes[] = {
 };
+char Level_Template_BasesPathNodes[] = {
+    4,
+    4,
+    2,
+    3,
+    15,
+};
+struct basesDistance Level_Template_basePathNodeDistnaces[] = {
+    {2, 3, 1372.8}, 
+    {2, 4, 15200.9}, 
+    {2, 15, 15200.9}, 
+    {3, 2, 13828.1}, 
+    {3, 4, 13828.1}, 
+    {3, 15, 13828.1}, 
+    {4, 2, 2280.75}, 
+    {4, 3, 3497.88}, 
+    {4, 15, 13827.5}, 
+    {15, 2, 4035.44}, 
+    {15, 3, 5408.24}, 
+    {15, 4, 1754.69}, 
+};
 char Level_Template_NextNode[] = {
+    0, 1, 7, 7, 1, 1, 1, 7, 7, 7, 1, 1, 1, 1, 1, 1, 
+    10, 1, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 
+    3, 3, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 
+    8, 8, 8, 3, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 
+    3, 5, 2, 3, 4, 5, 5, 5, 3, 3, 5, 5, 5, 5, 5, 5, 
+    6, 6, 6, 6, 6, 5, 6, 6, 6, 6, 6, 6, 14, 14, 14, 14, 
+    1, 1, 7, 7, 1, 11, 6, 7, 7, 7, 1, 11, 11, 1, 11, 1, 
+    2, 2, 2, 2, 4, 2, 2, 7, 2, 2, 2, 2, 2, 2, 2, 2, 
+    9, 9, 9, 9, 9, 9, 9, 9, 8, 9, 9, 9, 9, 9, 9, 9, 
+    0, 0, 2, 2, 0, 0, 0, 0, 2, 9, 0, 0, 0, 0, 0, 0, 
+    11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 10, 11, 11, 11, 11, 11, 
+    12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 11, 12, 12, 12, 12, 
+    5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 12, 5, 5, 5, 
+    12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 13, 12, 12, 
+    15, 13, 15, 15, 15, 13, 13, 13, 15, 15, 13, 13, 13, 13, 14, 15, 
+    4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 15, 
 };
 struct LevelDefinition Level_Template_Definition = {
     .maxPlayerCount = 4,
@@ -184,6 +221,6 @@ struct LevelDefinition Level_Template_Definition = {
     .sceneRender = Level_Template_model_gfx,
     .theme = &MarsTheme,
     .staticScene = {Level_Template_Boundary, 4},
-    .pathfinding = {.nodeCount = 0, .nodePositions = Level_Template_PathingNodes, .nextNode = Level_Template_NextNode},
+    .pathfinding = {.nodeCount = 16, .baseNodes = Level_Template_BasesPathNodes, .baseDistances = Level_Template_basePathNodeDistnaces, .nodePositions = Level_Template_PathingNodes, .nextNode = Level_Template_NextNode},
 };
 

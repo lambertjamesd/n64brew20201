@@ -9,5 +9,9 @@ struct LevelDefinition* levelDefinitionUnpack(struct LevelDefinition* addressPtr
     result->decor = CALC_RAM_POINTER(result->decor, segmentRamStart);
     result->staticScene.boundary = CALC_RAM_POINTER(result->staticScene.boundary, segmentRamStart);
     result->theme = levelThemeUnpack(result->theme, themeSegmentStart);
+    result->pathfinding.nodePositions = CALC_RAM_POINTER(result->pathfinding.nodePositions, segmentRamStart);
+    result->pathfinding.nextNode = CALC_RAM_POINTER(result->pathfinding.nextNode, segmentRamStart);
+    result->pathfinding.baseNodes = CALC_RAM_POINTER(result->pathfinding.baseNodes, segmentRamStart);
+    result->pathfinding.baseDistances = CALC_RAM_POINTER(result->pathfinding.baseDistances, segmentRamStart);
     return result;
 }

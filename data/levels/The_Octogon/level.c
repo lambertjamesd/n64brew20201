@@ -744,6 +744,10 @@ struct DecorDefinition The_Octogon_Decor[] = {
 };
 struct Vector3 The_Octogon_PathingNodes[] = {
 };
+char The_Octogon_BasesPathNodes[] = {
+};
+struct basesDistance The_Octogon_basePathNodeDistnaces[] = {
+};
 char The_Octogon_NextNode[] = {
 };
 struct LevelDefinition The_Octogon_Definition = {
@@ -757,6 +761,6 @@ struct LevelDefinition The_Octogon_Definition = {
     .sceneRender = The_Octogon_model_gfx,
     .theme = &MarsTheme,
     .staticScene = {The_Octogon_Boundary, 8},
-    .pathfinding = {.nodeCount = 0, .nodePositions = The_Octogon_PathingNodes, .nextNode = The_Octogon_NextNode},
+    .pathfinding = {.nodeCount = 0, .baseNodes = The_Octogon_BasesPathNodes, .baseDistances = The_Octogon_basePathNodeDistnaces, .nodePositions = The_Octogon_PathingNodes, .nextNode = The_Octogon_NextNode},
 };
 
