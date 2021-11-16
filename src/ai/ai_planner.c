@@ -101,6 +101,11 @@ int aiPlannerIsPlanStillValid(struct LevelScene* levelScene, struct AIPlanner* p
 }
 
 void aiPlannerImplementNextPlan(struct LevelScene* levelScene, struct AIPlanner* planner) {
+    // exit early if there is no plan
+    if (planner->nextPlan.planType == AIPlanTypeNone) {
+        return;
+    }
+
     struct AIPlan* nextPlan = 0;
 
     for (unsigned i = 0; i < MAX_ACTIVE_PLANS; ++i) {
@@ -110,6 +115,7 @@ void aiPlannerImplementNextPlan(struct LevelScene* levelScene, struct AIPlanner*
         }
     }
 
+    // exit if no activePlan slot is avaialable
     if (!nextPlan) {
         return;
     }
@@ -150,9 +156,17 @@ void aiPlannerUpdate(struct LevelScene* levelScene, struct AIPlanner* planner) {
         planner->nextPlan = newPlan;
     }
 
+    // prune plans that are no longer valid
     for (unsigned i = 0; i < MAX_ACTIVE_PLANS; ++i) {
         if (planner->activePlans[i].planType != AIPlanTypeNone && !aiPlannerIsPlanStillValid(levelScene, planner, &planner->activePlans[i])) {
             aiPlannerEndPlan(levelScene, planner, &planner->activePlans[i]);
         }
+    }
+
+    if (aiPlannerIsPlanExecuted(levelScene, planner, planner->currentPlan)) {
+        // if the current plan surivived pruning in the last step but is finished then
+        // set it to null so another plan can be started
+        planner->currentPlan = 0;
+        aiPlannerImplementNextPlan(levelScene, planner);
     }
 }
