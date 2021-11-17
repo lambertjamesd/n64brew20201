@@ -17,6 +17,8 @@
 #include "math/mathf.h"
 #include "events.h"
 #include "faction.h"
+#include "levelbase.h"
+
 
 #define MINION_FOLLOW_DIST  3.0f
 #define MINION_MOVE_SPEED   (PLAYER_MOVE_SPEED * 10.0f)
@@ -66,9 +68,11 @@ void minionAnimationEvent(struct SKAnimator* animator, void* data, struct SKAnim
     }
 }
 
-void minionInit(struct Minion* minion, enum MinionType type, struct Transform* at, unsigned char sourceBaseId, unsigned team, enum MinionCommand defualtCommand, unsigned followPlayer) {
+void minionInit(struct Minion* minion, enum MinionType type, struct Transform* at, unsigned char sourceBaseId, unsigned team, enum MinionCommand defualtCommand, unsigned followPlayer, struct PathfindingDefinition* inPathfinder) {
     minion->team.teamNumber = team;
     minion->team.entityType = TeamEntityTypeMinion;
+    minion->pathfinder = inPathfinder;
+    minion->usesPathfinding = 0;
 
     minion->transform = *at;
     minion->minionType = type;
@@ -179,11 +183,21 @@ void minionUpdate(struct Minion* minion) {
 
             break;
         case MinionCommandAttack:
-            target = teamEntityGetPosition(minion->currentTarget);
 
             if (minion->currentTarget && minion->currentTarget->entityType == TeamEntityTypeBase) {
                 minDistance = SCENE_SCALE;
+
+                if(minion->usesPathfinding == 0){
+                    unsigned startNode = nav_getClosestPoint(&minion->transform.position, minion->pathfinder->nodePositions, minion->pathfinder->nodeCount);
+                    minion->currPathfindingId = startNode;
+                    minion->usesPathfinding = 1;
+
+                }
+
+                target = &minion->pathfinder->nodePositions[minion->currPathfindingId];
             }
+
+            else target = teamEntityGetPosition(minion->currentTarget);
 
             break;
     }
@@ -213,6 +227,20 @@ void minionUpdate(struct Minion* minion) {
         if (distSqr > minDistance * minDistance) {
             vector3Scale(&offset, &targetVelocity, MINION_MOVE_SPEED / sqrtf(distSqr));
             useWalkAnimation = 1;
+        }
+        else{
+            if(minion->usesPathfinding == 1){
+                struct LevelBase* asBase = (struct LevelBase*)minion->currentTarget;
+                unsigned newPoint = nav_getNextNavPoint(minion->currPathfindingId, asBase->baseId, minion->pathfinder->nextNode, minion->pathfinder->nodeCount);
+                if(newPoint == minion->currPathfindingId){
+                    minion->usesPathfinding = 0;
+                    minionIssueCommand(minion, MinionCommandDefend, minion->followingPlayer);
+                    //minion->currentTarget = NULL;
+                }
+                else{
+                    minion->currPathfindingId = newPoint;
+                }
+            }
         }
     }
 

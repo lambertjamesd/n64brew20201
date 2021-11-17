@@ -2,6 +2,10 @@
 #include "scene/leveldefinition.h"
 #include "scene/levelbase.h"
 
+void pathfinder_update(struct PathfindingDefinition* inPathfinding, struct TeamEntity* minionsAndPlayers);
+
+unsigned pathfinder_getClosestBase(struct PathfindingDefinition* inPathfinding, struct Vector3* closestTo);
+
 unsigned nav_getClosestPoint(struct Vector3* closestTo, struct Vector3* allPoints, unsigned numPoints);
 unsigned nav_getNextNavPoint(unsigned movingFrom, unsigned movingTo, char* nextNodeArr, unsigned numPoints);
 unsigned getBasePathNodeID(struct PathfindingDefinition* inPathfinding, unsigned baseID);

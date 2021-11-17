@@ -70,7 +70,7 @@ void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* defin
         gPlayerAtBase[i] = 0;
         
     }
-    //initializing AI controlled characters
+    //initializing AI controlled characters 
     unsigned numBots = playercount - humanPlayerCount;
     levelScene->botsCount = numBots;
     if(numBots > 0){
@@ -79,7 +79,7 @@ void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* defin
             ai_Init(&levelScene->bots[i - humanPlayerCount], &definition->pathfinding, i, i, levelScene->baseCount);
         }
     }
-
+    
     levelScene->decorMatrices = malloc(sizeof(Mtx) * definition->decorCount);
 
     for (unsigned i = 0; i < definition->decorCount; ++i) {
@@ -423,7 +423,7 @@ void levelSceneSpawnMinion(struct LevelScene* levelScene, enum MinionType type, 
 
     do {
         if (!(levelScene->minions[levelScene->lastMinion].minionFlags & MinionFlagsActive)) {
-            minionInit(&levelScene->minions[levelScene->lastMinion], type, at, baseId, team, defualtCommand, followPlayer);
+            minionInit(&levelScene->minions[levelScene->lastMinion], type, at, baseId, team, MinionCommandAttack, followPlayer, &levelScene->definition->pathfinding);
             break;
         }
         levelScene->lastMinion = (levelScene->lastMinion + 1) % levelScene->minionCount;
