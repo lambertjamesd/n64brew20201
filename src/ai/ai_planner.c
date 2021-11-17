@@ -137,11 +137,11 @@ void aiPlannerComeUpWithPlan(struct LevelScene* levelScene, struct AIPlanner* pl
 int aiPlannerIsPlanExecuted(struct LevelScene* levelScene, struct AIPlanner* planner, struct AIPlan* plan) {
     switch (plan->planType) {
         case AIPlanTypeAttackBase:
-            return levelBaseGetTeam(&levelScene->bases[plan->targetBase]) != planner->teamNumber; 
+            return levelBaseGetTeam(&levelScene->bases[plan->targetBase]) == planner->teamNumber; 
         case AIPlanTypeAttackBaseWithBase:
-            return levelBaseGetTeam(&levelScene->bases[plan->targetBase]) != planner->teamNumber ||
-                (levelBaseGetTeam(&levelScene->bases[plan->param0]) == planner->teamNumber && 
-                levelScene->bases[plan->param0].defaultComand == MinionCommandAttack);
+            return levelBaseGetTeam(&levelScene->bases[plan->targetBase]) == planner->teamNumber ||
+                levelBaseGetTeam(&levelScene->bases[plan->param0]) != planner->teamNumber || 
+                levelScene->bases[plan->param0].defaultComand == MinionCommandAttack;
         default:
             return 0;
     }
@@ -193,6 +193,8 @@ void aiPlannerImplementNextPlan(struct LevelScene* levelScene, struct AIPlanner*
         default:
             break;
     }
+
+    planner->nextPlan.planType = AIPlanTypeNone;
 }
 
 void aiPlannerEndPlan(struct LevelScene* levelScene, struct AIPlanner* planner, struct AIPlan* plan) {
@@ -207,9 +209,16 @@ void aiPlannerEndPlan(struct LevelScene* levelScene, struct AIPlanner* planner, 
     if (planner->currentPlan == plan) {
         planner->currentPlan = 0;
     }
+}
 
-    if (!planner->currentPlan) {
-        aiPlannerImplementNextPlan(levelScene, planner);
+int aiPlannerDoesPlanConflict(struct LevelScene* levelScene, struct AIPlanner* planner, struct AIPlan* plan) {
+    switch (plan->planType) {
+        case AIPlanTypeAttackBase:
+            return planner->basesCoveredByPlan[plan->targetBase] != 0;
+        case AIPlanTypeAttackBaseWithBase:
+            return planner->basesCoveredByPlan[plan->targetBase] != 0 && planner->basesCoveredByPlan[plan->param0] != 0;
+        default:
+            return 0;
     }
 }
 
@@ -225,12 +234,14 @@ void aiPlannerInit(struct AIPlanner* planner, unsigned teamNumber, unsigned base
 void aiPlannerUpdate(struct LevelScene* levelScene, struct AIPlanner* planner) {
     struct AIPlan newPlan;
     aiPlannerComeUpWithPlan(levelScene, planner, &newPlan);
-    // make sure next plan is up to date
-    aiPlannerScorePlan(levelScene, planner, &planner->nextPlan);
-    aiPlannerScorePlan(levelScene, planner, &newPlan);
-    
-    if (planner->nextPlan.planType == AIPlanTypeNone || (newPlan.planType != AIPlanTypeNone && planner->nextPlan.estimatedCost > newPlan.estimatedCost)) {
-        planner->nextPlan = newPlan;
+    if (!aiPlannerDoesPlanConflict(levelScene, planner, &newPlan)) {
+        // make sure next plan is up to date
+        aiPlannerScorePlan(levelScene, planner, &planner->nextPlan);
+        aiPlannerScorePlan(levelScene, planner, &newPlan);
+        
+        if (planner->nextPlan.planType == AIPlanTypeNone || (newPlan.planType != AIPlanTypeNone && planner->nextPlan.estimatedCost > newPlan.estimatedCost)) {
+            planner->nextPlan = newPlan;
+        }
     }
 
     // prune plans that are no longer valid
@@ -240,14 +251,39 @@ void aiPlannerUpdate(struct LevelScene* levelScene, struct AIPlanner* planner) {
         }
     }
 
-    if ((!planner->currentPlan || aiPlannerIsPlanExecuted(levelScene, planner, planner->currentPlan)) && planner->thinkingTimer == 0) {
-        // if the current plan surivived pruning in the last step but is finished then
-        // set it to null so another plan can be started
+    if (planner->currentPlan && aiPlannerIsPlanExecuted(levelScene, planner, planner->currentPlan)) {
         planner->currentPlan = 0;
+        planner->thinkingTimer = MINIMUM_THIKING_FRAMES;
+    } else if (!planner->currentPlan && planner->thinkingTimer == 0) {
         aiPlannerImplementNextPlan(levelScene, planner);
     } else if (planner->thinkingTimer > 0) {
         // thinking timer is used to ensure the AI comes up with a few 
         // plans before trying to execute the best option
         --planner->thinkingTimer;
+    }
+}
+
+struct LevelBase* aiPlannerGetTargetBase(struct LevelScene* levelScene, struct AIPlanner* planner) {
+    if (!planner->currentPlan) {
+        return 0;
+    }
+
+    switch (planner->currentPlan->planType) {
+        case AIPlanTypeAttackBase:
+            return &levelScene->bases[planner->currentPlan->targetBase];
+        case AIPlanTypeAttackBaseWithBase:
+            return &levelScene->bases[planner->currentPlan->param0];
+        default:
+            return 0;
+    }
+}
+
+struct Vector3* aiPlannerGetTarget(struct LevelScene* levelScene, struct AIPlanner* planner) {
+    struct LevelBase* base = aiPlannerGetTargetBase(levelScene, planner);
+
+    if (base) {
+        return &base->position;
+    } else {
+        return 0;
     }
 }

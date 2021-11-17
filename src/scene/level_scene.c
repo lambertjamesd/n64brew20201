@@ -74,10 +74,7 @@ void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* defin
     if(numBots > 0){
         levelScene->bots = malloc(sizeof(struct AIController) * numBots);
         for (unsigned i = humanPlayerCount; i < playercount; ++i) {
-            struct LevelBase* startBase = ai_getClosestUncapturedBase(NULL, levelScene->bases, levelScene->baseCount, &levelScene->players[i].transform.position, i, 0);
-
             ai_Init(&levelScene->bots[i - humanPlayerCount], &definition->pathfinding, i, i, levelScene->baseCount);
-            ai_setTargetBase(&levelScene->bots[i - humanPlayerCount], startBase, 0, 0);
         }
     }
 
@@ -276,65 +273,6 @@ void levelSceneUpdateMusic(struct LevelScene* levelScene) {
     }
 }
 
-void levelSceneCollectBotPlayerInput(struct LevelScene* levelScene, unsigned playerIndex, struct PlayerInput* playerInput) {
-    unsigned botIndex = playerIndex - levelScene->humanPlayerCount;
-
-    //if current target base has been captured by our team, tell the team leader to switch to another base
-    if(levelScene->bots[botIndex].targetBase != NULL && levelBaseGetTeam(levelScene->bots[botIndex].targetBase) == levelScene->players[playerIndex].team.teamNumber) {
-        struct LevelBase* newBase = ai_getClosestUncapturedBase(
-            &levelScene->bots[botIndex],
-            levelScene->bases, 
-            levelScene->baseCount, 
-            &levelScene->players[playerIndex].transform.position, 
-            playerIndex,
-            1
-        );
-        if(newBase != NULL) {
-            ai_setTargetBase(&levelScene->bots[botIndex], newBase, 1, &levelScene->players[playerIndex].transform.position);
-        }
-    }
-
-    //if the player just got hit 
-    if(levelScene->bots[botIndex].attackTarget == NULL && levelScene->players[playerIndex].damageHandler.damageTimer > 0.0f){
-        float minionDist;
-        float playerDist;
-
-        struct Player* playerEnt = levelGetClosestEnemyPlayer(
-            levelScene,
-            &levelScene->players[playerIndex].transform.position,
-            playerIndex,
-            &playerDist
-        );
-
-        struct Minion* minionEnt = levelGetClosestEnemyMinion(
-            levelScene,
-            &levelScene->players[playerIndex].transform.position,
-            playerIndex,
-            &minionDist
-        );
-
-        if(minionEnt && minionDist < playerDist) {
-            if(minionEnt->team.teamNumber != levelScene->players[playerIndex].team.teamNumber) {
-                levelScene->bots[botIndex].attackTarget = (struct TeamEntity*)minionEnt;
-            }
-        } else {
-            if(playerEnt->team.teamNumber != levelScene->players[playerIndex].team.teamNumber) {
-                levelScene->bots[botIndex].attackTarget = (struct TeamEntity*)playerEnt;
-            }
-        }
-    }
-
-    ai_moveTowardsTarget(&levelScene->bots[botIndex], 
-    &levelScene->players[playerIndex].transform.position, playerInput);
-
-    if(playerInput->targetWorldDirection.x == 0 && playerInput->targetWorldDirection.y == 0 && playerInput->targetWorldDirection.z == 0){
-        playerInputNoInput(playerInput);
-        levelScene->players[playerIndex].velocity.x = 0;
-        levelScene->players[playerIndex].velocity.y = 0;
-        levelScene->players[playerIndex].velocity.z = 0;
-    } 
-}
-
 void levelSceneCollectHumanPlayerInput(struct LevelScene* levelScene, unsigned playerIndex, struct PlayerInput* playerInput) {
     if (baseCommandMenuIsShowing(&levelScene->baseCommandMenu[playerIndex])) {
         playerInputNoInput(playerInput);
@@ -364,7 +302,7 @@ void levelSceneCollectPlayerInput(struct LevelScene* levelScene, unsigned player
         if (playerIndex < levelScene->humanPlayerCount) {
             levelSceneCollectHumanPlayerInput(levelScene, playerIndex, playerInput);
         } else {
-            levelSceneCollectBotPlayerInput(levelScene, playerIndex, playerInput);
+            ai_collectPlayerInput(levelScene, &levelScene->bots[playerIndex - levelScene->humanPlayerCount], playerInput);
         }
     } else {
         playerInputNoInput(playerInput);

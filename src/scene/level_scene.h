@@ -14,7 +14,7 @@
 #include "menu/basecommandmenu.h"
 #include "itemdrop.h"
 #include "controlscrambler.h"
-#include "ai_controller.h"
+#include "ai/ai_controller.h"
 
 #define MAX_MINIONS_PER_BASE       3
 #define TARGET_FINDER_COUNT        2

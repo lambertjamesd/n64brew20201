@@ -258,8 +258,25 @@ struct DecorDefinition Boot_Camp_Decor[] = {
     {{604.66, 0, -1041.64}, {0, 0, 0, 1}, CRATE_DECOR_ID},
 };
 struct Vector3 Boot_Camp_PathingNodes[] = {
+    {-1281.44, 0.0f, 2559.5},
+    {78.5527, 0.0f, -11.5671},
+    {2715.16, 0.0f, 4.81832},
+};
+char Boot_Camp_BasesPathNodes[] = {
+    2,
+    1,
+    0,
+};
+struct basesDistance Boot_Camp_basePathNodeDistnaces[] = {
+    {1, 0, 2908.6}, 
+    {1, 2, 2908.6}, 
+    {2, 0, 5545.26}, 
+    {2, 1, 2636.66}, 
 };
 char Boot_Camp_NextNode[] = {
+    0, 0, 0, 
+    0, 1, 0, 
+    1, 1, 2, 
 };
 struct LevelDefinition Boot_Camp_Definition = {
     .maxPlayerCount = 2,
@@ -272,6 +289,6 @@ struct LevelDefinition Boot_Camp_Definition = {
     .sceneRender = Boot_Camp_model_gfx,
     .theme = &MarsTheme,
     .staticScene = {Boot_Camp_Boundary, 7},
-    .pathfinding = {.nodeCount = 0, .nodePositions = Boot_Camp_PathingNodes, .nextNode = Boot_Camp_NextNode},
+    .pathfinding = {.nodeCount = 3, .baseNodes = Boot_Camp_BasesPathNodes, .baseDistances = Boot_Camp_basePathNodeDistnaces, .nodePositions = Boot_Camp_PathingNodes, .nextNode = Boot_Camp_NextNode},
 };
 

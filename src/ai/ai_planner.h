@@ -36,5 +36,7 @@ struct AIPlanner {
 
 void aiPlannerInit(struct AIPlanner* planner, unsigned teamNumber, unsigned baseCount);
 void aiPlannerUpdate(struct LevelScene* levelScene, struct AIPlanner* planner);
+struct LevelBase* aiPlannerGetTargetBase(struct LevelScene* levelScene, struct AIPlanner* planner);
+struct Vector3* aiPlannerGetTarget(struct LevelScene* levelScene, struct AIPlanner* planner);
 
 #endif
