@@ -60,7 +60,7 @@ void targetFinderInit(struct TargetFinder* finder, unsigned startIndex) {
 struct TeamEntity* targetFinderFindNearestTarget(struct LevelScene* forScene, struct Vector3* from, unsigned againstTeam) {
     struct TeamEntity* result = 0;
     float bestDistance = 0;
-/*
+
     for (unsigned i = 0; i < forScene->playerCount; ++i) {
         if (playerIsAlive(&forScene->players[i]) && forScene->players[i].team.teamNumber != againstTeam) {
             result = findCloserEntity(result, &forScene->players[i].team, from, &bestDistance);
@@ -72,7 +72,7 @@ struct TeamEntity* targetFinderFindNearestTarget(struct LevelScene* forScene, st
             result = findCloserEntity(result, &forScene->minions[i].team, from, &bestDistance);
         }
     }
-*/
+
     for (unsigned i = 0; i < forScene->baseCount; ++i) {
         if (forScene->bases[i].team.teamNumber != againstTeam || forScene->bases[i].state == LevelBaseStateNeutral) {
             result = findCloserEntity(result, &forScene->bases[i].team, from, &bestDistance);

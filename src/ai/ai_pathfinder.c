@@ -81,3 +81,7 @@ unsigned getClosestNeutralBase(struct PathfindingDefinition* inPathfinding, stru
 
     return outInd;
 }
+
+void pathfinderInit(struct Pathfinder* pathfinder, struct Vector3* startingPos){
+    
+}
