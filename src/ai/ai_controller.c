@@ -1,5 +1,4 @@
 #include "ai_controller.h"
-#include "ai_pathfinder.h"
 #include "scene/scene_management.h"
 
 unsigned getNumNeutralBases(struct LevelBase* bases, unsigned numBases){
@@ -158,11 +157,11 @@ void ai_collectPlayerInput(struct LevelScene* levelScene, struct AIController* a
 
 struct LevelBase* ai_getClosestUncapturedBase(struct AIController* inController, struct LevelBase* bases, unsigned baseCount, struct Vector3* closeTo, unsigned team, unsigned short usePathfinding){
     unsigned int minIndex = 0;
-    if(usePathfinding == 1){
-        // minIndex = getClosestNeutralBase(inController->pathfindingInfo, bases, baseCount, inController->targetBase->baseId);
-        // if(minIndex == -1) minIndex = getClosestEnemyBase(inController->pathfindingInfo, bases, baseCount, inController->targetBase->baseId, team);
-    }
-    else{ //in the beginning of the game we still might want to compare the base position to player's location since there will be no targetBase reference
+    //if(usePathfinding == 1){
+    //    minIndex = getClosestNeutralBase(inController->pathfindingInfo, bases, baseCount, inController->targetBase->baseId);
+    //    if(minIndex == -1) minIndex = getClosestEnemyBase(inController->pathfindingInfo, bases, baseCount, inController->targetBase->baseId, team);
+    //}
+    //else{ //in the beginning of the game we still might want to compare the base position to player's location since there will be no targetBase reference
         struct Vector3 basePos;
         basePos.x = bases[0].position.x;
         basePos.y = bases[0].position.y;
@@ -179,7 +178,7 @@ struct LevelBase* ai_getClosestUncapturedBase(struct AIController* inController,
                 minDist = currDist;
             }
         }
-    }
+    //}
     struct LevelBase* outBase = &bases[minIndex];
     return outBase;
 }

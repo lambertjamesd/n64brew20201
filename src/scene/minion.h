@@ -6,7 +6,7 @@
 #include "sk64/skelatool_animator.h"
 #include "graphics/render_state.h"
 #include "teamentity.h"
-#include "ai_pathfinder.h"
+#include "ai/ai_pathfinder.h"
 #include "collision/dynamicscene.h"
 #include "damagehandler.h"
 
@@ -44,9 +44,7 @@ struct Minion {
     unsigned char currentCommand;
     unsigned char followingPlayer;
     struct DamageHandler damageHandler;
-    struct PathfindingDefinition* pathfinder;
-    unsigned short usesPathfinding;
-    unsigned currPathfindingId;
+    struct Pathfinder* pathfinder;
 
     struct DynamicSceneEntry* collider;
 
@@ -54,7 +52,7 @@ struct Minion {
     struct Transform animationTransform;
 };
 
-void minionInit(struct Minion* minion, enum MinionType type, struct Transform* at, unsigned char baseId, unsigned team, enum MinionCommand defualtCommand, unsigned followPlayer, struct PathfindingDefinition* inPathfinder);
+void minionInit(struct Minion* minion, enum MinionType type, struct Transform* at, unsigned char baseId, unsigned team, enum MinionCommand defualtCommand, unsigned followPlayer);
 void minionRender(struct Minion* minion, struct RenderState* renderState);
 void minionUpdate(struct Minion* minion);
 void minionCleanup(struct Minion* minion);

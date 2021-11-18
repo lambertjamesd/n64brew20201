@@ -397,19 +397,18 @@ void levelSceneUpdate(struct LevelScene* levelScene) {
         }
     }
 
-
-    for (unsigned int minionIndex = 0; minionIndex < levelScene->minionCount; ++minionIndex) {
-        if (levelScene->minions[minionIndex].minionFlags & MinionFlagsActive) {
-            minionUpdate(&levelScene->minions[minionIndex]);
-        }
-    }
-
     for (unsigned int baseIndex = 0; baseIndex < levelScene->baseCount; ++baseIndex) {
         levelBaseUpdate(&levelScene->bases[baseIndex]);
     }
 
     for (unsigned finderIndex = 0; finderIndex < TARGET_FINDER_COUNT; ++finderIndex) {
         targetFinderUpdate(&levelScene->targetFinders[finderIndex]);
+    }
+
+    for (unsigned int minionIndex = 0; minionIndex < levelScene->minionCount; ++minionIndex) {
+        if (levelScene->minions[minionIndex].minionFlags & MinionFlagsActive) {
+            minionUpdate(&levelScene->minions[minionIndex]);
+        }
     }
 
     itemDropsUpdate(&levelScene->itemDrops);
@@ -423,7 +422,7 @@ void levelSceneSpawnMinion(struct LevelScene* levelScene, enum MinionType type, 
 
     do {
         if (!(levelScene->minions[levelScene->lastMinion].minionFlags & MinionFlagsActive)) {
-            minionInit(&levelScene->minions[levelScene->lastMinion], type, at, baseId, team, MinionCommandAttack, followPlayer, &levelScene->definition->pathfinding);
+            minionInit(&levelScene->minions[levelScene->lastMinion], type, at, baseId, team, MinionCommandAttack, followPlayer);
             break;
         }
         levelScene->lastMinion = (levelScene->lastMinion + 1) % levelScene->minionCount;

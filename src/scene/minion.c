@@ -68,11 +68,9 @@ void minionAnimationEvent(struct SKAnimator* animator, void* data, struct SKAnim
     }
 }
 
-void minionInit(struct Minion* minion, enum MinionType type, struct Transform* at, unsigned char sourceBaseId, unsigned team, enum MinionCommand defualtCommand, unsigned followPlayer, struct PathfindingDefinition* inPathfinder) {
+void minionInit(struct Minion* minion, enum MinionType type, struct Transform* at, unsigned char sourceBaseId, unsigned team, enum MinionCommand defualtCommand, unsigned followPlayer) {
     minion->team.teamNumber = team;
     minion->team.entityType = TeamEntityTypeMinion;
-    minion->pathfinder = inPathfinder;
-    minion->usesPathfinding = 0;
 
     minion->transform = *at;
     minion->minionType = type;
@@ -80,6 +78,10 @@ void minionInit(struct Minion* minion, enum MinionType type, struct Transform* a
     minion->sourceBaseId = sourceBaseId;
     minion->velocity = gZeroVec;
     damageHandlerInit(&minion->damageHandler, MINION_HP);
+
+    struct Pathfinder newPathf;
+    minion->pathfinder = &newPathf;
+    pathfinderInit(minion->pathfinder, &minion->transform.position);
 
     struct Vector2 position;
 
@@ -183,25 +185,15 @@ void minionUpdate(struct Minion* minion) {
 
             break;
         case MinionCommandAttack:
+            minDistance = SCENE_SCALE;
 
-            if (minion->currentTarget && minion->currentTarget->entityType == TeamEntityTypeBase) {
-                minDistance = SCENE_SCALE;
-
-                if(minion->usesPathfinding == 0){
-                    unsigned startNode = nav_getClosestPoint(&minion->transform.position, minion->pathfinder->nodePositions, minion->pathfinder->nodeCount);
-                    minion->currPathfindingId = startNode;
-                    minion->usesPathfinding = 1;
-
-                }
-
-                target = &minion->pathfinder->nodePositions[minion->currPathfindingId];
-            }
-
-            else target = teamEntityGetPosition(minion->currentTarget);
+            if(minion->pathfinder->currentNode < gCurrentLevel.definition->pathfinding.nodeCount)
+                target = &gCurrentLevel.definition->pathfinding.nodePositions[minion->pathfinder->currentNode]; 
 
             break;
     }
-
+    pathfinderUpdate(minion->pathfinder, &gCurrentLevel.definition->pathfinding, &minion->transform.position, &minion->transform.position);
+/*
     if (minion->attackTarget) {
         if (!teamEntityIsAlive(minion->attackTarget)) {
             minion->attackTarget = 0;
@@ -212,7 +204,7 @@ void minionUpdate(struct Minion* minion) {
             minDistance = ATTACK_RADIUS;
         }
     }
-
+*/
     struct Vector3 targetVelocity = gZeroVec;
 
     int useWalkAnimation = 0;
@@ -227,20 +219,6 @@ void minionUpdate(struct Minion* minion) {
         if (distSqr > minDistance * minDistance) {
             vector3Scale(&offset, &targetVelocity, MINION_MOVE_SPEED / sqrtf(distSqr));
             useWalkAnimation = 1;
-        }
-        else{
-            if(minion->usesPathfinding == 1){
-                struct LevelBase* asBase = (struct LevelBase*)minion->currentTarget;
-                unsigned newPoint = nav_getNextNavPoint(minion->currPathfindingId, asBase->baseId, minion->pathfinder->nextNode, minion->pathfinder->nodeCount);
-                if(newPoint == minion->currPathfindingId){
-                    minion->usesPathfinding = 0;
-                    minionIssueCommand(minion, MinionCommandDefend, minion->followingPlayer);
-                    //minion->currentTarget = NULL;
-                }
-                else{
-                    minion->currPathfindingId = newPoint;
-                }
-            }
         }
     }
 

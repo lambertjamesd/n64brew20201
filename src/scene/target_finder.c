@@ -95,8 +95,15 @@ void targetFinderUpdate(struct TargetFinder* finder) {
         if (minion->currentCommand == MinionCommandDefend) {
             finder->trigger->collisionLayers = CollisionLayersAllTeams ^ COLLISION_LAYER_FOR_TEAM(minion->team.teamNumber);
             dynamicEntrySetPos3D(finder->trigger, &minion->defensePoint);
-        } else if (minion->currentCommand == MinionCommandAttack) {
+        } 
+        else if (minion->currentCommand == MinionCommandAttack) {
+            
             minion->currentTarget = targetFinderFindNearestTarget(&gCurrentLevel, &minion->transform.position, minion->team.teamNumber);
+
+            if(minion->currentTarget->entityType == TeamEntityTypeBase){
+                if(minion->pathfinder->currentNode == NODE_NONE || minion->currentTarget->teamNumber == minion->team.teamNumber)
+                    pathfinderSetTarget(minion->pathfinder, &gCurrentLevel.definition->pathfinding, &minion->transform.position, teamEntityGetPosition(minion->currentTarget));
+            }
         }
     }
 }
