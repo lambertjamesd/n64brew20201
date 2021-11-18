@@ -33,3 +33,4 @@ void pathfinderSetTarget(struct Pathfinder* pathfinder, struct PathfindingDefini
 // sets nextTarget to be the position of current node or targetPosition if
 // there is no current node
 void pathfinderUpdate(struct Pathfinder* pathfinder, struct PathfindingDefinition* pathfinding, struct Vector3* currentPosition, struct Vector3* nextTarget);
+void pathfinderReset(struct Pathfinder* pathfinder);

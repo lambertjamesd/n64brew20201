@@ -44,7 +44,7 @@ struct Minion {
     unsigned char currentCommand;
     unsigned char followingPlayer;
     struct DamageHandler damageHandler;
-    struct Pathfinder* pathfinder;
+    struct Pathfinder pathfinder;
 
     struct DynamicSceneEntry* collider;
 

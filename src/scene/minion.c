@@ -16,6 +16,7 @@
 #include "minion_animations.h"
 #include "math/mathf.h"
 #include "events.h"
+#include "target_finder.h"
 #include "faction.h"
 #include "levelbase.h"
 
@@ -78,10 +79,7 @@ void minionInit(struct Minion* minion, enum MinionType type, struct Transform* a
     minion->sourceBaseId = sourceBaseId;
     minion->velocity = gZeroVec;
     damageHandlerInit(&minion->damageHandler, MINION_HP);
-
-    struct Pathfinder newPathf;
-    minion->pathfinder = &newPathf;
-    pathfinderInit(minion->pathfinder, &minion->transform.position);
+    pathfinderInit(&minion->pathfinder, &minion->transform.position);
 
     struct Vector2 position;
 
@@ -187,13 +185,13 @@ void minionUpdate(struct Minion* minion) {
         case MinionCommandAttack:
             minDistance = SCENE_SCALE;
 
-            if(minion->pathfinder->currentNode < gCurrentLevel.definition->pathfinding.nodeCount)
-                target = &gCurrentLevel.definition->pathfinding.nodePositions[minion->pathfinder->currentNode]; 
+            if(minion->pathfinder.currentNode < gCurrentLevel.definition->pathfinding.nodeCount)
+                target = &gCurrentLevel.definition->pathfinding.nodePositions[minion->pathfinder.currentNode]; 
 
             break;
     }
-    pathfinderUpdate(minion->pathfinder, &gCurrentLevel.definition->pathfinding, &minion->transform.position, &minion->transform.position);
-/*
+    pathfinderUpdate(&minion->pathfinder, &gCurrentLevel.definition->pathfinding, &minion->transform.position, &minion->transform.position);
+
     if (minion->attackTarget) {
         if (!teamEntityIsAlive(minion->attackTarget)) {
             minion->attackTarget = 0;
@@ -204,7 +202,7 @@ void minionUpdate(struct Minion* minion) {
             minDistance = ATTACK_RADIUS;
         }
     }
-*/
+
     struct Vector3 targetVelocity = gZeroVec;
 
     int useWalkAnimation = 0;
@@ -219,6 +217,12 @@ void minionUpdate(struct Minion* minion) {
         if (distSqr > minDistance * minDistance) {
             vector3Scale(&offset, &targetVelocity, MINION_MOVE_SPEED / sqrtf(distSqr));
             useWalkAnimation = 1;
+        }
+        else{
+           // if(minion->pathfinder.currentNode != NODE_NONE && minion->pathfinder.currentNode == minion->pathfinder.targetNode){
+               // minionIssueCommand(minion, MinionCommandDefend, minion->followingPlayer);
+               // pathfinderReset(&minion->pathfinder);
+            //}
         }
     }
 

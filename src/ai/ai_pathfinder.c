@@ -1,4 +1,5 @@
 #include "ai_pathfinder.h"
+#include <stdio.h>
 
 unsigned short nav_getClosestPoint(struct Vector3* closestTo, struct Vector3* allPoints, unsigned numPoints){
 
@@ -92,8 +93,8 @@ void pathfinderUpdate(struct Pathfinder* pathfinder, struct PathfindingDefinitio
         unsigned int currDist = vector3DistSqrd(currentPosition, &pathfinding->nodePositions[pathfinder->currentNode]);
         if(currDist <= NAV_ACCEPTANCE_RADIUS*NAV_ACCEPTANCE_RADIUS){
             if(pathfinder->currentNode == pathfinder->targetNode){
-                pathfinder->currentNode = NODE_NONE;
-                pathfinder->targetNode = NODE_NONE;
+                //pathfinder->currentNode = NODE_NONE;
+                //pathfinder->targetNode = NODE_NONE;
             }
             else pathfinder->currentNode = nav_getNextNavPoint(pathfinder->currentNode, pathfinder->targetNode, pathfinding->nextNode, pathfinding->nodeCount);
         }
@@ -109,4 +110,9 @@ void pathfinderSetTarget(struct Pathfinder* pathfinder, struct PathfindingDefini
     pathfinder->targetPosition.x = target->x;
     pathfinder->targetPosition.y = target->y;
     pathfinder->targetPosition.z = target->z;
+}
+
+void pathfinderReset(struct Pathfinder* pathfinder){
+    pathfinder->targetNode = NODE_NONE;
+    pathfinder->currentNode = NODE_NONE;
 }
