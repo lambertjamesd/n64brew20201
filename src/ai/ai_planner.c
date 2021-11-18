@@ -36,6 +36,7 @@ void aiPlannerScorePlan(struct LevelScene* levelScene, struct AIPlanner* planner
             ) * MINION_DISTANCE_SCALAR;
             break;  
         default:
+            plan->estimatedCost = 0.0f;
             break;
     }
 

@@ -27,6 +27,12 @@ OUTPUT_ARCH (mips)
       build/data/levels/name/level.o(.bss); \
    } \
    END_SEG(name) \
+   BEGIN_SEG(name##_wireframe, 0x07000000) \
+   { \
+      build/data/levels/name/level.wire.o(.data); \
+      build/data/levels/name/level.wire.o(.bss); \
+   } \
+   END_SEG(name##_wireframe) \
 
 #define DEFINE_THEME(theme) \
    BEGIN_SEG(theme, 0x05000000) \

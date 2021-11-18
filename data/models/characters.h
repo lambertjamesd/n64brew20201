@@ -16,5 +16,6 @@
 #include "itemdrop/header.h"
 #include "itemdropbase/header.h"
 #include "target/header.h"
+#include "dizzy/header.h"
 
 #endif

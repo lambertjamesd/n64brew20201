@@ -1,4 +1,5 @@
 DEFINE_LEVEL("Level Template", Level_Template, Mars, 4, 0)
+DEFINE_LEVEL("Spaceship Template", Spaceship_Template, Mars, 4, 0 | LevelMetadataFlagsCampaign | LevelMetadataFlagsMultiplayer)
 DEFINE_LEVEL("Boot Camp", Boot_Camp, Mars, 2, 0 | LevelMetadataFlagsCampaign | LevelMetadataFlagsMultiplayer | LevelMetadataFlagsTutorial)
 DEFINE_LEVEL("Sojourner", Sojourner, Mars, 4, 0 | LevelMetadataFlagsCampaign)
 DEFINE_LEVEL("The Octogon", The_Octogon, Mars, 4, 0 | LevelMetadataFlagsMultiplayer)

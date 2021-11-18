@@ -2,6 +2,8 @@
 #include "util/memory.h"
 #include "util/time.h"
 #include "math/mathf.h"
+#include "scene/player.h"
+#include "../data/models/characters.h"
 
 #define CAMERA_ROTATE_DURATION 0.5f
 
@@ -90,6 +92,42 @@ void controlsScramblerApply(struct ControlsScrambler* scrambler) {
             vector3Normalize(&scrambler->playerInput.targetWorldDirection, &scrambler->playerInput.targetWorldDirection);
         }
     }
+}
+
+int controlsScramblerIsAnyActive(struct ControlsScrambler* scrambler) {
+    for (unsigned i = 0; i < ControlsScramblerTypeCount; ++i) {
+        if (scrambler->timers[i] > 0.0f) {
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
+#define ORBIT_RADIUS    (SCENE_SCALE * 0.5f)
+#define ORBIT_PERIOD    (2.0f * M_PI / 0.75f)
+
+void controlsScramblerRender(struct ControlsScrambler* scrambler, struct Player* forPlayer, struct RenderState* renderState) {
+    if (!controlsScramblerIsAnyActive(scrambler)) {
+        return;
+    }
+
+    Mtx* matrix = renderStateRequestMatrices(renderState, 1);
+
+    if (!matrix) {
+        return;
+    }
+
+    struct Transform transform;
+    vector3AddScaled(&forPlayer->transform.position, &gUp, 3.0f * SCENE_SCALE, &transform.position);
+    vector3AddScaled(&transform.position, &gRight, sinf(gTimePassed * ORBIT_PERIOD) * ORBIT_RADIUS, &transform.position);
+    vector3AddScaled(&transform.position, &gForward, cosf(gTimePassed * ORBIT_PERIOD) * ORBIT_RADIUS, &transform.position);
+    transform.rotation = *renderState->cameraRotation;
+    vector3Scale(&gOneVec, &transform.scale, 3.0f);
+    transformToMatrixL(&transform, matrix);
+    gSPMatrix(renderState->dl++, matrix, G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
+    gSPDisplayList(renderState->dl++, Dizzy_Dizzy_mesh_tri_0);
+    gSPPopMatrix(renderState->dl++, G_MTX_MODELVIEW);
 }
 
 int controlsScramblerIsActive(struct ControlsScrambler* scrambler, enum ControlsScramblerType type) {

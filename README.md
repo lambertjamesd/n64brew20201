@@ -11,6 +11,7 @@ TODO
     make lots of levels
     ultrarare intro
     credits
+    figure out culling on level geometry
 
     balance
         minions damage player more

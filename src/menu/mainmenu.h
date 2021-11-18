@@ -41,6 +41,8 @@ struct MainMenu {
     unsigned short levelCount;
     struct MainMenuFactionSelector factionSelection[MAX_PLAYERS];
     struct EndGameMenu endGameMenu;
+    Gfx* showingWireframe;
+    unsigned showWireframeDelay;
 };
 
 extern enum MainMenuState gMainMenuTargetState;

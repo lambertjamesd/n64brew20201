@@ -45,7 +45,7 @@ int collisionCirclePolygon(struct CollisionShape* a, struct CollisionShape* b, s
     struct CollisionCircle* aAsCircle = (struct CollisionCircle*)a;
     struct CollisionPolygon* bAsPolygon = (struct CollisionPolygon*)b;
 
-    float minOverlap = 10000000.0f;
+    float minOverlap = 0.0f;
     unsigned edgeIndex = bAsPolygon->edgeCount;
     int wasFirstLerpBefore = 0;
     int wasPrevLerpAfter = 0;
@@ -64,17 +64,20 @@ int collisionCirclePolygon(struct CollisionShape* a, struct CollisionShape* b, s
 
         float edgeLerp = vector2Cross(&offset, &currEdge->normal);
 
+        unsigned isLerpBefore = edgeLerp < EDGE_LERP_TOLERANCE;
+        unsigned isLerpAfter = edgeLerp > currEdge->edgeLen - EDGE_LERP_TOLERANCE;
+
         if (currEdge == bAsPolygon->edges) {
-            wasFirstLerpBefore = edgeLerp > currEdge->edgeLen - EDGE_LERP_TOLERANCE;
+            wasFirstLerpBefore = isLerpBefore;
         } else {
-            if (edgeLerp < EDGE_LERP_TOLERANCE && wasPrevLerpAfter) {
+            if (isLerpBefore && wasPrevLerpAfter) {
                 return collisionCirclePolygonPoint(aAsCircle, currEdge, aToB, shapeOverlap);
             }
 
-            wasPrevLerpAfter = edgeLerp > currEdge->edgeLen - EDGE_LERP_TOLERANCE;
+            wasPrevLerpAfter = isLerpAfter;
         }
 
-        if (edgeLerp >= 0.0f && edgeLerp <= currEdge->edgeLen && planeOverlap < minOverlap) {
+        if (!isLerpBefore && !isLerpAfter && (edgeIndex == bAsPolygon->edgeCount || planeOverlap < minOverlap)) {
             minOverlap = planeOverlap;
             edgeIndex = currEdge - bAsPolygon->edges;
         }

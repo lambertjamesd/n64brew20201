@@ -188,6 +188,7 @@ void levelSceneRender(struct LevelScene* levelScene, struct RenderState* renderS
             (float)viewport->vp.vscale[0] / (float)viewport->vp.vscale[1],
             controlsScramblerGetCameraRotation(&levelScene->scramblers[i])
         );
+        renderState->cameraRotation = &levelScene->cameras[i].transform.rotation;
         gSPViewport(renderState->dl++, osVirtualToPhysical(viewport));
         gDPSetScissor(
             renderState->dl++, 
@@ -206,6 +207,12 @@ void levelSceneRender(struct LevelScene* levelScene, struct RenderState* renderS
         gSPDisplayList(renderState->dl++, minionGfx);
         gSPDisplayList(renderState->dl++, itemDropsGfx);
         gSPDisplayList(renderState->dl++, renderState->transparentQueueStart);
+
+        gSPDisplayList(renderState->dl++, mat_Dizzy_Dizzy);
+        for (unsigned playerIndex = 0; playerIndex < levelScene->playerCount; ++playerIndex) {
+            controlsScramblerRender(&levelScene->scramblers[playerIndex], &levelScene->players[playerIndex], renderState);
+        }
+        gSPDisplayList(renderState->dl++, mat_revert_Dizzy_Dizzy);
 
         baseCommandMenuRender(
             &levelScene->baseCommandMenu[i], 

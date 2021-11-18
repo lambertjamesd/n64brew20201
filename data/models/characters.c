@@ -14,3 +14,4 @@
 #include "itemdrop/model.inc.h"
 #include "itemdropbase/model.inc.h"
 #include "target/model.inc.h"
+#include "dizzy/model.inc.h"

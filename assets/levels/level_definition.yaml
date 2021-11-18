@@ -11,6 +11,13 @@ Themes:
           Output: ../../data/levels/Level_Template/level.h
           MaxPlayers: 4
 
+        - Name: Spaceship Template
+          Filename: Spaceship_Template.fbx
+          Output: ../../data/levels/Spaceship_Template/level.h
+          Campaign: True
+          Multiplayer: True
+          MaxPlayers: 4
+
         - Name: Boot Camp
           Filename: BootCamp.fbx
           Output: ../../data/levels/Boot_Camp/level.h

@@ -4,5 +4,6 @@
 #include "scene/leveldefinition.h"
 
 extern struct LevelDefinition Boot_Camp_Definition;
+extern Gfx Boot_Camp_wireframe_model_gfx[];
 
 #endif

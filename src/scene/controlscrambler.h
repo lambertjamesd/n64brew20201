@@ -2,6 +2,7 @@
 #define _CONTROLS_SCRAMBLER_H
 
 #include "playerinput.h"
+#include "graphics/render_state.h"
 
 enum ControlsScramblerType {
     ControlsScramblerTypeJoystickFipped,
@@ -19,10 +20,13 @@ struct ControlsScrambler {
     float timers[ControlsScramblerTypeCount];
 };
 
+struct Player;
+
 void controlsScramblerInit(struct ControlsScrambler* scrambler);
 void controlsScramblerUpdate(struct ControlsScrambler* scrambler);
 void controlsScramblerTrigger(struct ControlsScrambler* scrambler, enum ControlsScramblerType type);
 void controlsScramblerApply(struct ControlsScrambler* scrambler);
+void controlsScramblerRender(struct ControlsScrambler* scrambler, struct Player* forPlayer, struct RenderState* renderState);
 int controlsScramblerIsActive(struct ControlsScrambler* scrambler, enum ControlsScramblerType type);
 
 float controlsScramblerGetCameraRotation(struct ControlsScrambler* scrambler);

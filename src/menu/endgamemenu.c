@@ -141,13 +141,7 @@ float endGameCalcCaptureFreq(struct EndGameMenu* menu) {
         progressIndex = STAT_COLUMNS - 1;
     }
 
-    float activeBases = 0.0f;
-
-    for (unsigned i = 0; i < menu->teamCount; ++i) {
-        activeBases += menu->baseStats[i][progressIndex];
-    }
-
-    return powf(2.0f, activeBases / menu->maxBases) * 0.5f;    
+    return powf(2.0f, menu->baseStats[menu->winningTeam][progressIndex] / menu->maxBases) * 0.5f;    
 }
 
 void endGameMenuEnterLoadedState(struct EndGameMenu* menu) {

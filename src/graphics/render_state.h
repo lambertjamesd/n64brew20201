@@ -3,6 +3,7 @@
 
 #include <ultra64.h>
 #include "math/color.h"
+#include "math/quaternion.h"
 
 #define MAX_ACTIVE_TRANSFORMS   320
 #define MAX_DL_LENGTH           1024
@@ -26,6 +27,7 @@ struct RenderState {
     unsigned currentMatrix;
     unsigned currentChunkEnd;
     struct SpriteState spriteState;
+    struct Quaternion* cameraRotation;
 };
 
 void renderStateInit(struct RenderState* renderState);

@@ -6,6 +6,8 @@
 #include "models/mars.h"
 
 extern Gfx gMainMenuSolidColor[];
+extern Gfx gMainMenuLevelWireframePass0[];
+extern Gfx gMainMenuLevelWireframePass1[];
 
 extern unsigned short __attribute__((aligned(8))) players_1_img[];
 extern unsigned short __attribute__((aligned(8))) players_2_img[];

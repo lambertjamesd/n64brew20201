@@ -165,6 +165,11 @@ void mainMenuEnterFactionSelection(struct MainMenu* mainMenu) {
     gfxInitSplitscreenViewport(mainMenu->selectedPlayerCount + 1);
 }
 
+void mainMenuLoadWireframe(struct MainMenu* mainMenu, struct WireframeMetadata* wireframe) {
+    romCopy(wireframe->romSegmentStart, gWireframeSegment, wireframe->romSegmentEnd - wireframe->romSegmentStart);
+    mainMenu->showingWireframe = wireframe->wireframe;
+}
+
 void mainMenuEnterLevelSelection(struct MainMenu* mainMenu) {
     mainMenu->menuState = MainMenuStateSelectingLevel;
     mainMenu->targetMenuState = MainMenuStateSelectingLevel;
@@ -180,6 +185,8 @@ void mainMenuEnterLevelSelection(struct MainMenu* mainMenu) {
     }
 
     textBoxInit(&gTextBox, mainMenu->filteredLevels[0]->name, 200, SCREEN_WD / 2, 46);
+
+    mainMenuLoadWireframe(mainMenu, &mainMenu->filteredLevels[0]->wireframe);
 }
 
 void mainMenuInit(struct MainMenu* mainMenu) {
@@ -192,11 +199,21 @@ void mainMenuInit(struct MainMenu* mainMenu) {
     mainMenu->selectedPlayerCount = 0;
     mainMenu->selectedLevel = 0;
     mainMenu->filteredLevels = malloc(sizeof(struct ThemeMetadata*) * gLevelCount);
+    mainMenu->showingWireframe = 0;
+    mainMenu->showWireframeDelay = 0;
     initKickflipFont();
 
     for (unsigned i = 0; i < MAX_PLAYERS; ++i) {
         mainMenuFactionInit(&mainMenu->factionSelection[i], i);
     }
+
+    unsigned wireframeSize = 0;
+
+    for (unsigned i = 0; i < gLevelCount; ++i) {
+        wireframeSize = MAX(wireframeSize, gLevels[i].wireframe.romSegmentEnd - gLevels[i].wireframe.romSegmentStart);
+    }
+
+    gWireframeSegment = malloc(wireframeSize);
 }
 
 void mainMenuUpdatePlayerCount(struct MainMenu* mainMenu) {
@@ -261,6 +278,8 @@ void mainMenuUpdateLevelSelect(struct MainMenu* mainMenu) {
 
     enum ControllerDirection direction = controllerGetDirectionDown(0);
 
+    unsigned lastLevel = mainMenu->selectedLevel;
+
     if ((direction & ControllerDirectionLeft) != 0 && mainMenu->selectedLevel > 0) {
         --mainMenu->selectedLevel;
     }
@@ -269,7 +288,21 @@ void mainMenuUpdateLevelSelect(struct MainMenu* mainMenu) {
         ++mainMenu->selectedLevel;
     }
 
-    textBoxChangeText(&gTextBox, mainMenu->filteredLevels[mainMenu->selectedLevel]->name);
+    if (lastLevel != mainMenu->selectedLevel) {
+        mainMenu->showingWireframe = 0;
+        // delay 2 frames to ensure any pending display lists
+        // are done with gWireframeSegment before changing it
+        mainMenu->showWireframeDelay = 5;
+        textBoxChangeText(&gTextBox, mainMenu->filteredLevels[mainMenu->selectedLevel]->name);
+    }
+
+    if (mainMenu->showWireframeDelay) {
+        --mainMenu->showWireframeDelay;
+
+        if (mainMenu->showWireframeDelay == 0) {
+            mainMenuLoadWireframe(mainMenu, &mainMenu->filteredLevels[mainMenu->selectedLevel]->wireframe);
+        }
+    }
 
     if (controllerGetButtonDown(0, A_BUTTON)) {
         soundPlayerPlay(SOUNDS_UI_SELECT, 0);
@@ -402,6 +435,30 @@ void mainMenuRenderFactions(struct MainMenu* mainMenu, struct RenderState* rende
 
 void mainMenuRenderLevels(struct MainMenu* mainMenu, struct RenderState* renderState) {
     textBoxRender(&gTextBox, renderState);
+
+    if (mainMenu->showingWireframe) {
+        Mtx* matrix = renderStateRequestMatrices(renderState, 1);
+        struct Transform transform;
+        transform.position = gZeroVec;
+        transform.position.y = -0.3f * SCENE_SCALE;
+        struct Quaternion topSpin;
+        struct Quaternion sideTilt;
+
+        quatAxisAngle(&gUp, gTimePassed, &topSpin);
+        quatAxisAngle(&gRight, M_PI * 0.125f, &sideTilt);
+        quatMultiply(&sideTilt, &topSpin, &transform.rotation);
+
+        vector3Scale(&gOneVec, &transform.scale, 0.08f);
+
+        transformToMatrixL(&transform, matrix);
+
+        gSPMatrix(renderState->dl++, matrix, G_MTX_MODELVIEW | G_MTX_PUSH | G_MTX_MUL);
+        gSPDisplayList(renderState->dl++, gMainMenuLevelWireframePass0);
+        gSPDisplayList(renderState->dl++, mainMenu->showingWireframe);
+        gSPDisplayList(renderState->dl++, gMainMenuLevelWireframePass1);
+        gSPDisplayList(renderState->dl++, mainMenu->showingWireframe);
+        gSPPopMatrix(renderState->dl++, G_MTX_MODELVIEW);
+    }
 }
 
 void mainMenuRender(struct MainMenu* mainMenu, struct RenderState* renderState) {
