@@ -34,6 +34,7 @@ struct DynamicMarker gIntensityMarkers[] = {
     {75, {127, 0, 127, 127, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
 };
 
+#define GAME_START_DELAY 5.0f
 #define GAME_END_DELAY  5.0f
 #define LOSE_BY_KNOCKOUT_TIME   15.0f
 
@@ -48,6 +49,7 @@ void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* defin
     levelScene->levelDL = definition->sceneRender;
     levelScene->levelFlags = flags;
     levelScene->knockoutTimer = LOSE_BY_KNOCKOUT_TIME;
+    levelScene->gameTimer = 0.0f;
 
     levelScene->baseCount = definition->baseCount;
     levelScene->bases = malloc(sizeof(struct LevelBase) * definition->baseCount);
@@ -363,9 +365,11 @@ void levelSceneUpdate(struct LevelScene* levelScene) {
         levelScene->stateTimer -= gTimeDelta;
 
         if (levelScene->stateTimer < 0.0f) {
-            sceneQueuePostGameScreen(levelScene->winningTeam, levelScene->playerCount);
+            sceneQueuePostGameScreen(levelScene->winningTeam, levelScene->playerCount, levelScene->gameTimer - GAME_END_DELAY - GAME_START_DELAY);
         }
     }
+
+    levelScene->gameTimer += gTimeDelta;
 
     for (unsigned i = 0; i < levelScene->botsCount; ++i) {
         ai_update(levelScene, &levelScene->bots[i]);

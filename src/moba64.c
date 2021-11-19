@@ -18,6 +18,7 @@
 #include "audio/dynamic_music.h"
 #include "scene/minion_animations.h"
 #include "scene/faction.h"
+#include "savefile/savefile.h"
 
 /**** threads used by this file ****/
 static OSThread gameThread;
@@ -112,10 +113,15 @@ static void gameproc(void *argv)
                     drawbuffer ^= 1; /* switch the drawbuffer */
                 }
 
+                if (!controllerHasPendingMessage() && pendingGFX == 0) {
+                    // save when there isn't a 
+                    // message expected on the queue
+                    saveFileCheckSave();
+                }
                 controllersTriggerRead();
                 timeUpdateDelta();
                 skReadMessages();
-                sceneUpdate(pendingGFX > 0);
+                sceneUpdate(pendingGFX == 0 && !gShouldSave);
                 soundPlayerUpdate();
                 dynamicMusicUpdate();
 
@@ -176,8 +182,10 @@ static void initGame(void)
     skInitDataPool(gPiHandle);
     initGFX();
     controllersInit();
+    saveFileLoad();
     initAudio();
     soundPlayerInit();
+    mainMenuInitSelections(&gMainMenu);
     sceneQueueMainMenu();
 
 #ifdef WITH_DEBUGGER

@@ -14,6 +14,10 @@ enum ControllerDirection {
     ControllerDirectionLeft = (1 << 3),
 };
 
+void controllersListen();
+void controllersClearState();
+int controllerHasPendingMessage();
+int controllerIsConnected(int index);
 OSContPad* controllersGetControllerData(int index);
 u16 controllerGetLastButton(int index);
 u16 controllerGetButtonDown(int index, u16 button);

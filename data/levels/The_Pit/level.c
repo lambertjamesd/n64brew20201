@@ -1,0 +1,217 @@
+#include "level.h"
+#include "../../level_themes/Mars/theme.h"
+#include "sk64/skelatool_defs.h"
+#include <ultra64.h>
+
+Vtx The_Pit_Grid_001_color[] = {
+    {{{-2185, 0, -2343}, 0, {756, 977}, {203, 98, 97, 255}}},
+    {{{-2948, 1438, -2345}, 0, {756, 314}, {203, 98, 97, 255}}},
+    {{{-3608, 1459, 2580}, 0, {-377, 304}, {202, 93, 92, 255}}},
+    {{{-2654, 0, 2233}, 0, {-298, 977}, {202, 93, 92, 255}}},
+    {{{-3608, 1459, 2580}, 0, {-116, 2594}, {202, 93, 92, 255}}},
+    {{{-2948, 1438, -2345}, 0, {35, 324}, {203, 98, 97, 255}}},
+    {{{-3945, 1438, -2336}, 0, {-194, 329}, {203, 98, 97, 255}}},
+    {{{-4785, 1459, 2890}, 0, {-387, 2737}, {202, 93, 92, 255}}},
+    {{{-110, 937, 6546}, 0, {689, 4421}, {202, 92, 91, 255}}},
+    {{{-107, 937, 5849}, 0, {689, 4100}, {202, 92, 91, 255}}},
+    {{{-2654, 0, 2233}, 0, {-298, 977}, {202, 93, 92, 255}}},
+    {{{-3608, 1459, 2580}, 0, {-377, 304}, {202, 93, 92, 255}}},
+    {{{-107, 937, 5849}, 0, {-1130, 545}, {202, 92, 91, 255}}},
+    {{{-107, 0, 5194}, 0, {-979, 977}, {202, 92, 91, 255}}},
+    {{{2260, 0, -2142}, 0, {710, 977}, {203, 98, 97, 255}}},
+    {{{2988, 0, 2039}, 0, {-253, 977}, {202, 93, 92, 255}}},
+    {{{3814, 2595, 2754}, 0, {-417, -218}, {202, 93, 92, 255}}},
+    {{{2933, 3418, -2140}, 0, {709, -597}, {203, 98, 97, 255}}},
+    {{{3814, 2595, 2754}, 0, {1593, 2674}, {202, 93, 92, 255}}},
+    {{{-107, 937, 5849}, 0, {689, 4100}, {202, 92, 91, 255}}},
+    {{{-110, 937, 6546}, 0, {689, 4421}, {202, 92, 91, 255}}},
+    {{{4811, 2595, 3451}, 0, {1822, 2995}, {202, 93, 92, 255}}},
+    {{{3931, 3418, -2130}, 0, {1620, 423}, {203, 98, 97, 255}}},
+    {{{2933, 3418, -2140}, 0, {1390, 419}, {203, 98, 97, 255}}},
+    {{{2988, 0, 2039}, 0, {-253, 977}, {202, 93, 92, 255}}},
+    {{{-107, 0, 5194}, 0, {-979, 977}, {202, 92, 91, 255}}},
+    {{{-107, 937, 5849}, 0, {-1130, 545}, {202, 92, 91, 255}}},
+    {{{3814, 2595, 2754}, 0, {-417, -218}, {202, 93, 92, 255}}},
+    {{{-2185, 0, -2343}, 0, {756, 977}, {203, 98, 97, 255}}},
+    {{{-1775, 0, -6774}, 0, {1777, 977}, {202, 93, 92, 255}}},
+    {{{-2508, 1160, -7378}, 0, {1916, 442}, {202, 93, 92, 255}}},
+    {{{-2948, 1438, -2345}, 0, {756, 314}, {203, 98, 97, 255}}},
+    {{{-2508, 1160, -7378}, 0, {136, -1993}, {202, 93, 92, 255}}},
+    {{{-99, 1129, -8961}, 0, {691, -2723}, {202, 92, 91, 255}}},
+    {{{-97, 1129, -9659}, 0, {692, -3044}, {202, 92, 91, 255}}},
+    {{{-3505, 1160, -8075}, 0, {-93, -2314}, {202, 93, 92, 255}}},
+    {{{-3945, 1438, -2336}, 0, {-194, 329}, {203, 98, 97, 255}}},
+    {{{-2948, 1438, -2345}, 0, {35, 324}, {203, 98, 97, 255}}},
+    {{{-1775, 0, -6774}, 0, {305, 977}, {202, 93, 92, 255}}},
+    {{{-100, 0, -8306}, 0, {691, 977}, {202, 92, 91, 255}}},
+    {{{-99, 1129, -8961}, 0, {691, 456}, {202, 92, 91, 255}}},
+    {{{-2508, 1160, -7378}, 0, {136, 442}, {202, 93, 92, 255}}},
+    {{{2260, 0, -2142}, 0, {710, 977}, {203, 98, 97, 255}}},
+    {{{2933, 3418, -2140}, 0, {709, -597}, {203, 98, 97, 255}}},
+    {{{2111, 2220, -7539}, 0, {1953, -45}, {202, 93, 92, 255}}},
+    {{{1468, 0, -6952}, 0, {1818, 977}, {202, 93, 92, 255}}},
+    {{{2111, 2220, -7539}, 0, {1200, -2067}, {202, 93, 92, 255}}},
+    {{{2933, 3418, -2140}, 0, {1390, 419}, {203, 98, 97, 255}}},
+    {{{3931, 3418, -2130}, 0, {1620, 423}, {203, 98, 97, 255}}},
+    {{{3109, 2220, -8236}, 0, {1430, -2389}, {202, 93, 92, 255}}},
+    {{{-97, 1129, -9659}, 0, {692, -3044}, {202, 92, 91, 255}}},
+    {{{-99, 1129, -8961}, 0, {691, -2723}, {202, 92, 91, 255}}},
+    {{{1468, 0, -6952}, 0, {1052, 977}, {202, 93, 92, 255}}},
+    {{{2111, 2220, -7539}, 0, {1200, -45}, {202, 93, 92, 255}}},
+    {{{-99, 1129, -8961}, 0, {691, 456}, {202, 92, 91, 255}}},
+    {{{-100, 0, -8306}, 0, {691, 977}, {202, 92, 91, 255}}},
+};
+
+
+Vtx The_Pit_Grid_color[] = {
+    {{{-29, 0, 3245}, 0, {359, 4357}, {202, 93, 92, 255}}},
+    {{{-2705, 0, 658}, 0, {-1733, 2334}, {202, 93, 92, 255}}},
+    {{{-2862, 0, 2129}, 0, {-1856, 3484}, {202, 93, 92, 255}}},
+    {{{-29, 0, 5534}, 0, {359, 6146}, {202, 93, 92, 255}}},
+    {{{2919, 0, 630}, 0, {2664, 2312}, {202, 93, 92, 255}}},
+    {{{3185, 0, 2129}, 0, {2872, 3484}, {202, 93, 92, 255}}},
+    {{{1541, 0, -7119}, 0, {1587, -3746}, {202, 93, 92, 255}}},
+    {{{-29, 0, -8587}, 0, {359, -4893}, {202, 93, 92, 255}}},
+    {{{-29, 0, -6086}, 0, {359, -2938}, {202, 93, 92, 255}}},
+    {{{1833, 0, -5481}, 0, {1815, -2465}, {202, 93, 92, 255}}},
+    {{{-1894, 0, -6943}, 0, {-1098, -3608}, {202, 93, 92, 255}}},
+    {{{-2065, 0, -5336}, 0, {-1232, -2352}, {202, 93, 92, 255}}},
+};
+
+
+Gfx The_Pit_model_gfx[] = {
+    // Material Rock
+    gsSPDisplayList(Mars_Rock),
+    // End Material Rock
+    gsSPVertex(&The_Pit_Grid_001_color[0], 32, 0),
+    gsSP2Triangles(0, 1, 2, 0, 0, 2, 3, 0),
+    gsSP2Triangles(4, 5, 6, 0, 7, 4, 6, 0),
+    gsSP2Triangles(4, 7, 8, 0, 9, 4, 8, 0),
+    gsSP2Triangles(10, 11, 12, 0, 10, 12, 13, 0),
+    gsSP2Triangles(14, 15, 16, 0, 14, 16, 17, 0),
+    gsSP2Triangles(18, 19, 20, 0, 21, 18, 20, 0),
+    gsSP2Triangles(18, 21, 22, 0, 23, 18, 22, 0),
+    gsSP2Triangles(24, 25, 26, 0, 24, 26, 27, 0),
+    gsSP2Triangles(28, 29, 30, 0, 28, 30, 31, 0),
+    gsSPVertex(&The_Pit_Grid_001_color[32], 24, 0),
+    gsSP2Triangles(0, 1, 2, 0, 3, 0, 2, 0),
+    gsSP2Triangles(0, 3, 4, 0, 5, 0, 4, 0),
+    gsSP2Triangles(6, 7, 8, 0, 6, 8, 9, 0),
+    gsSP2Triangles(10, 11, 12, 0, 10, 12, 13, 0),
+    gsSP2Triangles(14, 15, 16, 0, 17, 14, 16, 0),
+    gsSP2Triangles(14, 17, 18, 0, 19, 14, 18, 0),
+    gsSP2Triangles(20, 21, 22, 0, 20, 22, 23, 0),
+    // Material Ground
+    gsSPDisplayList(Mars_Ground),
+    // End Material Ground
+    gsSPVertex(&The_Pit_Grid_color[0], 12, 0),
+    gsSP2Triangles(0, 1, 2, 0, 0, 2, 3, 0),
+    gsSP2Triangles(4, 0, 3, 0, 4, 3, 5, 0),
+    gsSP2Triangles(6, 7, 8, 0, 6, 8, 9, 0),
+    gsSP2Triangles(9, 8, 0, 0, 9, 0, 4, 0),
+    gsSP2Triangles(7, 10, 11, 0, 7, 11, 8, 0),
+    gsSP2Triangles(8, 11, 1, 0, 8, 1, 0, 0),
+    // Begin decor
+    gsSPDisplayList(Mars_Crate),
+    gsSPMatrix((Mtx*)MATRIX_TRANSFORM_SEGMENT_ADDRESS + 2, G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH),
+    gsSPDisplayList(Mars_CrateDisplayList),
+    gsSPPopMatrix(G_MTX_MODELVIEW),
+    gsSPMatrix((Mtx*)MATRIX_TRANSFORM_SEGMENT_ADDRESS + 7, G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH),
+    gsSPDisplayList(Mars_CrateDisplayList),
+    gsSPPopMatrix(G_MTX_MODELVIEW),
+    gsSPMatrix((Mtx*)MATRIX_TRANSFORM_SEGMENT_ADDRESS + 8, G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH),
+    gsSPDisplayList(Mars_CrateDisplayList),
+    gsSPPopMatrix(G_MTX_MODELVIEW),
+    gsSPDisplayList(Mars_Metal),
+    gsSPMatrix((Mtx*)MATRIX_TRANSFORM_SEGMENT_ADDRESS + 1, G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH),
+    gsSPDisplayList(Mars_ConsoleBDisplayList),
+    gsSPPopMatrix(G_MTX_MODELVIEW),
+    gsSPMatrix((Mtx*)MATRIX_TRANSFORM_SEGMENT_ADDRESS + 3, G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH),
+    gsSPDisplayList(Mars_SearchlightDisplayList),
+    gsSPPopMatrix(G_MTX_MODELVIEW),
+    gsSPMatrix((Mtx*)MATRIX_TRANSFORM_SEGMENT_ADDRESS + 4, G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH),
+    gsSPDisplayList(Mars_SearchlightDisplayList),
+    gsSPPopMatrix(G_MTX_MODELVIEW),
+    gsSPMatrix((Mtx*)MATRIX_TRANSFORM_SEGMENT_ADDRESS + 5, G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH),
+    gsSPDisplayList(Mars_SearchlightDisplayList),
+    gsSPPopMatrix(G_MTX_MODELVIEW),
+    gsSPDisplayList(Mars_Rock),
+    gsSPMatrix((Mtx*)MATRIX_TRANSFORM_SEGMENT_ADDRESS + 0, G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH),
+    gsSPDisplayList(Mars_Rock003DisplayList),
+    gsSPPopMatrix(G_MTX_MODELVIEW),
+    gsSPMatrix((Mtx*)MATRIX_TRANSFORM_SEGMENT_ADDRESS + 6, G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH),
+    gsSPDisplayList(Mars_Rock003DisplayList),
+    gsSPPopMatrix(G_MTX_MODELVIEW),
+    gsSPEndDisplayList(),
+};
+struct BaseDefinition The_Pit_Bases[] = {
+    {.position = {0, 3100}, .startingTeam = TEAM(0)},
+    {.position = {-49.0348, -6077.22}, .startingTeam = TEAM(1)},
+    {.position = {700, 2400}, .startingTeam = TEAM_NONE},
+    {.position = {-800, 2400}, .startingTeam = TEAM_NONE},
+};
+
+struct Vector2 The_Pit_StartingPositions[] = {
+    {0, 3100},
+    {-49.0348, -6077.22},
+};
+
+struct SceneBoundary The_Pit_Boundary[] = {
+    {{-894.603, -7540.06}, {0.656212, 0.754577}},
+    {{675.564, -7615.42}, {-0.673354, 0.73932}},
+    {{2191.26, -2450.47}, {-0.98493, 0.172954}},
+    {{1448.97, 3614.66}, {-0.713199, -0.700962}},
+    {{-1371.58, 3671.87}, {0.75952, -0.650484}},
+    {{-2199.45, -2317.9}, {0.994802, 0.101834}},
+};
+
+struct DecorDefinition The_Pit_Decor[] = {
+    {{-1617.33, 0, 393.479}, {1.19209e-07, -0.134282, 7.45058e-09, 0.990943}, ROCK003_DECOR_ID},
+    {{844.614, 0, -6314.1}, {-2.23517e-08, 0.979941, -8.9407e-08, -0.199289}, CONSOLEB_DECOR_ID},
+    {{1626.34, 0, 1614.5}, {0, 0, 0, 1}, CRATE_DECOR_ID},
+    {{1099.23, 0, 775.287}, {-8.9407e-08, -0.0343833, 0, 0.999409}, SEARCHLIGHT_DECOR_ID},
+    {{759.458, 0, -1874.9}, {-8.9407e-08, -0.0343833, 0, 0.999409}, SEARCHLIGHT_DECOR_ID},
+    {{470.655, 0, -4100.39}, {-8.9407e-08, -0.0343833, 0, 0.999409}, SEARCHLIGHT_DECOR_ID},
+    {{-1018.21, 0, -4432.93}, {-8.9407e-08, -0.210634, -7.45058e-09, 0.977565}, ROCK003_DECOR_ID},
+    {{1803.3, 0, 1201.58}, {0, 0, 0, 1}, CRATE_DECOR_ID},
+    {{1472.97, 0, 1284.17}, {-5.96046e-08, 0.205467, 7.45058e-09, 0.978664}, CRATE_DECOR_ID},
+};
+struct Vector3 The_Pit_PathingNodes[] = {
+    {-26.9693, 0.0f, -6072.2},
+    {710.766, 0.0f, 2431.8},
+    {-809.698, 0.0f, 2406.32},
+    {8.57487, 0.0f, 3122.66},
+};
+char The_Pit_BasesPathNodes[] = {
+    3,
+    0,
+    1,
+};
+struct basesDistance The_Pit_basePathNodeDistnaces[] = {
+    {0, 1, 8535.94}, 
+    {0, 3, 10056.6}, 
+    {1, 0, 10035.2}, 
+    {1, 3, 985.069}, 
+    {3, 0, 9602.1}, 
+    {3, 1, 18138}, 
+};
+char The_Pit_NextNode[] = {
+    0, 1, 1, 1, 
+    2, 1, 2, 3, 
+    0, 0, 2, 0, 
+    2, 2, 2, 3, 
+};
+struct LevelDefinition The_Pit_Definition = {
+    .maxPlayerCount = 2,
+    .playerStartLocations = The_Pit_StartingPositions,
+    .baseCount = 4,
+    .decorCount = 9,
+    .bases = The_Pit_Bases,
+    .decor = The_Pit_Decor,
+    .levelBoundaries = {{-2658.75, -8275.38}, {2982.34, 5174.8}},
+    .sceneRender = The_Pit_model_gfx,
+    .theme = &MarsTheme,
+    .staticScene = {The_Pit_Boundary, 6},
+    .pathfinding = {.nodeCount = 4, .baseNodes = The_Pit_BasesPathNodes, .baseDistances = The_Pit_basePathNodeDistnaces, .nodePositions = The_Pit_PathingNodes, .nextNode = The_Pit_NextNode},
+};
+

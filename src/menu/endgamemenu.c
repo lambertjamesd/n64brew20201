@@ -164,8 +164,12 @@ void endGameMenuEnterLoadedState(struct EndGameMenu* menu) {
 
 int endGameMenuUpdate(struct EndGameMenu* menu) {
     if (controllerGetButtonDown(0, B_BUTTON | START_BUTTON | A_BUTTON)) {
-        soundPlayerStop(&menu->captureSound);
-        return 1;
+        if (menu->drawAnimationTimer < DRAW_ANIMATION_TIME) {
+            menu->drawAnimationTimer = DRAW_ANIMATION_TIME;
+        } else {
+            soundPlayerStop(&menu->captureSound);
+            return 1;
+        }
     }
 
     switch (menu->state) {

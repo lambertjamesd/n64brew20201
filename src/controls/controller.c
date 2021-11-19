@@ -2,18 +2,38 @@
 #include "controller.h"
 #include "game_defs.h"
 #include "moba64.h"
+#include "util/memory.h"
 
 static u8    validcontrollers = 0;
 static u8    cntrlReadInProg  = 0;
 
 static OSContStatus  gControllerStatus[MAX_PLAYERS];
 static OSContPad     gControllerData[MAX_PLAYERS];
-static OSScMsg       gControllerMessage;
+OSScMsg       gControllerMessage;
 static u16           gControllerLastButton[MAX_PLAYERS];
 static enum ControllerDirection gControllerLastDirection[MAX_PLAYERS];
+static int gControllerDeadFrames;
 
-// #define REMAP_PLAYER_INDEX(index)   (index)
-#define REMAP_PLAYER_INDEX(index)   0
+#define REMAP_PLAYER_INDEX(index)   (index)
+// #define REMAP_PLAYER_INDEX(index)   0
+
+void controllersClearState() {
+    zeroMemory(gControllerData, sizeof(gControllerData));
+    zeroMemory(gControllerLastButton, sizeof(gControllerLastButton));
+    zeroMemory(gControllerLastDirection, sizeof(gControllerLastDirection));
+
+    gControllerDeadFrames = 30;
+}
+
+int controllerIsConnected(int index) {
+    return !gControllerStatus[index].errno;
+}
+
+void controllersListen() {
+    /**** Set up message and queue, for read completion notification ****/
+    gControllerMessage.type = SIMPLE_CONTROLLER_MSG;
+    osSetEventMesg(OS_EVENT_SI, &gfxFrameMsgQ, (OSMesg)&gControllerMessage);
+}
 
 void controllersInit(void)
 {
@@ -29,7 +49,6 @@ void controllersInit(void)
     
     /**** Set up message and queue, for read completion notification ****/
     gControllerMessage.type = SIMPLE_CONTROLLER_MSG;
-
     osSetEventMesg(OS_EVENT_SI, &gfxFrameMsgQ, (OSMesg)&gControllerMessage);
 }
 
@@ -42,6 +61,15 @@ void controllersUpdate(void)
 
     osContGetReadData(gControllerData);
     cntrlReadInProg = 0;
+
+    if (gControllerDeadFrames) {
+        --gControllerDeadFrames;
+        zeroMemory(gControllerData, sizeof(gControllerData));
+    }
+}
+
+int controllerHasPendingMessage() {
+    return cntrlReadInProg;
 }
 
 void controllersTriggerRead(void) {

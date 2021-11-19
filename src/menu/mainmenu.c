@@ -13,6 +13,7 @@
 #include "scene/faction.h"
 #include "util/rom.h"
 #include "textbox.h"
+#include "savefile/savefile.h"
 
 #include "../data/mainmenu/menu.h"
 #include "../data/fonts/fonts.h"
@@ -44,10 +45,23 @@ struct ButtonLayoutInfo gPlayerCountSelectButtons[] = {
     {177, 131, 64, 77, players_4_img},
 };
 
-enum MainMenuState gMainMenuTargetState;
+int mainMenuGetPlayerCount(struct MainMenu* menu) {
+    return menu->selections.selectedPlayerCount + 1;
+}
+
+int mainMenuIsLevelUnlocked(struct MainMenu* mainMenu) {
+    return mainMenu->selections.selectedLevel == 0 || saveFileIsLevelComplete(mainMenu->selections.selectedLevel - 1);
+}
 
 void mainMenuFactionInit(struct MainMenuFactionSelector* faction, unsigned index) {
-    faction->selectedFaction = index % FACTION_COUNT;
+    faction->selectedFaction = 0;
+
+    for (unsigned i = 0; i < FACTION_COUNT; ++i) {
+        if (gTeamFactions[index] == gFactions[i]) {
+            faction->selectedFaction = i;
+            break;
+        }
+    }
 
     skAnimatorInit(&faction->animator, ANY_FACTION_BONE_COUNT, 0, 0);
     skArmatureInit(
@@ -141,7 +155,7 @@ void mainMenuFactionUpdate(struct MainMenuFactionSelector* faction, unsigned ind
  
 void mainMenuStartLevel(struct MainMenu* mainMenu) {
     struct GameConfiguration gameConfig;
-    gameConfig.humanPlayerCount = mainMenu->selectedPlayerCount + 1;
+    gameConfig.humanPlayerCount = mainMenuGetPlayerCount(mainMenu);
 
     if (gameConfig.humanPlayerCount == 1) {
         gameConfig.playerCount = 2;
@@ -149,9 +163,9 @@ void mainMenuStartLevel(struct MainMenu* mainMenu) {
         gameConfig.playerCount = gameConfig.humanPlayerCount;
     }
 
-    gameConfig.level = mainMenu->filteredLevels[mainMenu->selectedLevel];
+    gameConfig.level = mainMenu->filteredLevels[mainMenu->selections.selectedLevel];
 
-    for (unsigned i = 0; i <= mainMenu->selectedPlayerCount; ++i) {
+    for (unsigned i = 0; i <= mainMenu->selections.selectedPlayerCount; ++i) {
         gTeamFactions[i] = gFactions[mainMenu->factionSelection[i].selectedFaction];
     }
 
@@ -159,34 +173,54 @@ void mainMenuStartLevel(struct MainMenu* mainMenu) {
 }
 
 void mainMenuEnterFactionSelection(struct MainMenu* mainMenu) {
-    mainMenu->menuState = MainMenuStateSelectingFaction;
-    mainMenu->targetMenuState = MainMenuStateSelectingFaction;
+    mainMenu->selections.menuState = MainMenuStateSelectingFaction;
+    mainMenu->selections.targetMenuState = MainMenuStateSelectingFaction;
 
-    gfxInitSplitscreenViewport(mainMenu->selectedPlayerCount + 1);
+    gfxInitSplitscreenViewport(mainMenuGetPlayerCount(mainMenu));
+
+    for (unsigned i = 0; i < mainMenuGetPlayerCount(mainMenu); ++i) {
+        mainMenu->factionSelection->flags = controllerIsConnected(i) ? 0 : MainMenuFactionFlagsAI;
+    }
 }
 
 void mainMenuLoadWireframe(struct MainMenu* mainMenu, struct WireframeMetadata* wireframe) {
-    romCopy(wireframe->romSegmentStart, gWireframeSegment, wireframe->romSegmentEnd - wireframe->romSegmentStart);
-    mainMenu->showingWireframe = wireframe->wireframe;
+    if (mainMenuIsLevelUnlocked(mainMenu)) {
+        romCopy(wireframe->romSegmentStart, gWireframeSegment, wireframe->romSegmentEnd - wireframe->romSegmentStart);
+        mainMenu->showingWireframe = wireframe->wireframe;
+    } else {
+        mainMenu->showingWireframe = gLevelplaceholder_mesh;
+    }
 }
 
 void mainMenuEnterLevelSelection(struct MainMenu* mainMenu) {
-    mainMenu->menuState = MainMenuStateSelectingLevel;
-    mainMenu->targetMenuState = MainMenuStateSelectingLevel;
+    mainMenu->selections.menuState = MainMenuStateSelectingLevel;
+    mainMenu->selections.targetMenuState = MainMenuStateSelectingLevel;
     
-    mainMenu->selectedLevel = 0;
     mainMenu->levelCount = 0;
+    unsigned playercount = mainMenuGetPlayerCount(mainMenu);
 
     for (unsigned i = 0; i < gLevelCount; ++i) {
-        if ((gLevels[i].flags & LevelMetadataFlagsMultiplayer) != 0 && gLevels[i].maxPlayers >= mainMenu->selectedPlayerCount + 1) {
+        if ((playercount > 1 && (gLevels[i].flags & LevelMetadataFlagsMultiplayer) != 0 && gLevels[i].maxPlayers >= playercount) || 
+            (playercount == 1 && (gLevels[i].flags & LevelMetadataFlagsCampaign) != 0)) {
             mainMenu->filteredLevels[mainMenu->levelCount] = &gLevels[i];
             ++mainMenu->levelCount;
         }
     }
 
-    textBoxInit(&gTextBox, mainMenu->filteredLevels[0]->name, 200, SCREEN_WD / 2, 46);
+    if (mainMenu->selections.selectedLevel >= mainMenu->levelCount) {
+        mainMenu->selections.selectedLevel = mainMenu->levelCount - 1;
+    }
 
-    mainMenuLoadWireframe(mainMenu, &mainMenu->filteredLevels[0]->wireframe);
+    textBoxInit(&gTextBox, mainMenu->filteredLevels[mainMenu->selections.selectedLevel]->name, 200, SCREEN_WD / 2, 46);
+    mainMenuLoadWireframe(mainMenu, &mainMenu->filteredLevels[mainMenu->selections.selectedLevel]->wireframe);
+}
+
+void mainMenuInitSelections(struct MainMenu* mainMenu) {
+    mainMenu->selections.menuState = MainMenuStateSelectingPlayerCount;
+    mainMenu->selections.targetMenuState = MainMenuStateSelectingPlayerCount;
+
+    mainMenu->selections.selectedPlayerCount = 0;
+    mainMenu->selections.selectedLevel = 0;
 }
 
 void mainMenuInit(struct MainMenu* mainMenu) {
@@ -194,10 +228,6 @@ void mainMenuInit(struct MainMenu* mainMenu) {
     mainMenu->camera.transform.position.z = 600.0f;
     transformInitIdentity(&mainMenu->marsTransform);
     mainMenu->marsTransform.position.x = 50.0f;
-    mainMenu->menuState = gMainMenuTargetState;
-    mainMenu->targetMenuState = gMainMenuTargetState;
-    mainMenu->selectedPlayerCount = 0;
-    mainMenu->selectedLevel = 0;
     mainMenu->filteredLevels = malloc(sizeof(struct ThemeMetadata*) * gLevelCount);
     mainMenu->showingWireframe = 0;
     mainMenu->showWireframeDelay = 0;
@@ -219,17 +249,17 @@ void mainMenuInit(struct MainMenu* mainMenu) {
 void mainMenuUpdatePlayerCount(struct MainMenu* mainMenu) {
     enum ControllerDirection direction = controllerGetDirectionDown(0);
     
-    if ((direction & ControllerDirectionLeft) != 0 && mainMenu->selectedPlayerCount > 0) {
-        --mainMenu->selectedPlayerCount;
+    if ((direction & ControllerDirectionLeft) != 0 && mainMenu->selections.selectedPlayerCount > 0) {
+        --mainMenu->selections.selectedPlayerCount;
     }
-    if ((direction & ControllerDirectionRight) != 0 && mainMenu->selectedPlayerCount + 1 < MAX_PLAYERS) {
-        ++mainMenu->selectedPlayerCount;
+    if ((direction & ControllerDirectionRight) != 0 && mainMenuGetPlayerCount(mainMenu) < MAX_PLAYERS) {
+        ++mainMenu->selections.selectedPlayerCount;
     }
-    if ((direction & ControllerDirectionDown) != 0 && mainMenu->selectedPlayerCount + 2 < MAX_PLAYERS) {
-        mainMenu->selectedPlayerCount += 2;
+    if ((direction & ControllerDirectionDown) != 0 && mainMenu->selections.selectedPlayerCount + 2 < MAX_PLAYERS) {
+        mainMenu->selections.selectedPlayerCount += 2;
     }
-    if ((direction & ControllerDirectionUp) != 0 && mainMenu->selectedPlayerCount > 1) {
-        mainMenu->selectedPlayerCount -= 2;
+    if ((direction & ControllerDirectionUp) != 0 && mainMenu->selections.selectedPlayerCount > 1) {
+        mainMenu->selections.selectedPlayerCount -= 2;
     }
 
     if (controllerGetButtonDown(0, A_BUTTON)) {
@@ -243,10 +273,10 @@ void mainMenuUpdateFaction(struct MainMenu* mainMenu) {
 
     if ((mainMenu->factionSelection[0].flags & MainMenuFactionFlagsSelected) == 0 && controllerGetButtonDown(0, B_BUTTON)) {
         soundPlayerPlay(SOUNDS_UI_SELECT, 0);
-        mainMenu->menuState = MainMenuStateSelectingPlayerCount;
+        mainMenu->selections.menuState = MainMenuStateSelectingPlayerCount;
     }
 
-    for (unsigned i = 0; i <= mainMenu->selectedPlayerCount; ++i) {
+    for (unsigned i = 0; i <= mainMenu->selections.selectedPlayerCount; ++i) {
         if (!(mainMenu->factionSelection[i].flags & MainMenuFactionFlagsSelected)) {
             isReady = 0;
         }
@@ -263,56 +293,60 @@ void mainMenuUpdateFaction(struct MainMenu* mainMenu) {
 void mainMenuUpdateLevelSelect(struct MainMenu* mainMenu) {
     textBoxUpdate(&gTextBox);
 
-    if (mainMenu->targetMenuState == MainMenuStateStarting) {
+    if (mainMenu->selections.targetMenuState == MainMenuStateStarting) {
         if (!textBoxIsVisible(&gTextBox)) {
             mainMenuStartLevel(mainMenu);
         }
         return;
-    } else if (mainMenu->targetMenuState == MainMenuStateSelectingFaction) {
+    } else if (mainMenu->selections.targetMenuState == MainMenuStateSelectingFaction) {
         if (!textBoxIsVisible(&gTextBox)) {
-            mainMenu->menuState = MainMenuStateSelectingFaction;
-            mainMenu->targetMenuState = MainMenuStateSelectingFaction;
+            mainMenu->selections.menuState = MainMenuStateSelectingFaction;
+            mainMenu->selections.targetMenuState = MainMenuStateSelectingFaction;
         }
         return;
     }
 
     enum ControllerDirection direction = controllerGetDirectionDown(0);
 
-    unsigned lastLevel = mainMenu->selectedLevel;
+    unsigned lastLevel = mainMenu->selections.selectedLevel;
 
-    if ((direction & ControllerDirectionLeft) != 0 && mainMenu->selectedLevel > 0) {
-        --mainMenu->selectedLevel;
+    if ((direction & ControllerDirectionLeft) != 0 && mainMenu->selections.selectedLevel > 0) {
+        --mainMenu->selections.selectedLevel;
     }
 
-    if ((direction & ControllerDirectionRight) != 0 && mainMenu->selectedLevel + 1 < mainMenu->levelCount) {
-        ++mainMenu->selectedLevel;
+    if ((direction & ControllerDirectionRight) != 0 && mainMenu->selections.selectedLevel + 1 < mainMenu->levelCount) {
+        ++mainMenu->selections.selectedLevel;
     }
 
-    if (lastLevel != mainMenu->selectedLevel) {
+    if (lastLevel != mainMenu->selections.selectedLevel) {
         mainMenu->showingWireframe = 0;
         // delay 2 frames to ensure any pending display lists
         // are done with gWireframeSegment before changing it
         mainMenu->showWireframeDelay = 5;
-        textBoxChangeText(&gTextBox, mainMenu->filteredLevels[mainMenu->selectedLevel]->name);
+        if (mainMenuIsLevelUnlocked(mainMenu)) {
+            textBoxChangeText(&gTextBox, mainMenu->filteredLevels[mainMenu->selections.selectedLevel]->name);
+        } else {
+            textBoxChangeText(&gTextBox, "???");
+        }
     }
 
     if (mainMenu->showWireframeDelay) {
         --mainMenu->showWireframeDelay;
 
         if (mainMenu->showWireframeDelay == 0) {
-            mainMenuLoadWireframe(mainMenu, &mainMenu->filteredLevels[mainMenu->selectedLevel]->wireframe);
+            mainMenuLoadWireframe(mainMenu, &mainMenu->filteredLevels[mainMenu->selections.selectedLevel]->wireframe);
         }
     }
 
-    if (controllerGetButtonDown(0, A_BUTTON)) {
+    if (controllerGetButtonDown(0, A_BUTTON) && mainMenuIsLevelUnlocked(mainMenu)) {
         soundPlayerPlay(SOUNDS_UI_SELECT, 0);
-        mainMenu->targetMenuState = MainMenuStateStarting;
+        mainMenu->selections.targetMenuState = MainMenuStateStarting;
         textBoxHide(&gTextBox);
     }
 
     if (controllerGetButtonDown(0, B_BUTTON)) {
         soundPlayerPlay(SOUNDS_UI_SELECT, 0);
-        mainMenu->targetMenuState = MainMenuStateSelectingFaction;
+        mainMenu->selections.targetMenuState = MainMenuStateSelectingFaction;
         textBoxHide(&gTextBox);
     }
 }
@@ -324,7 +358,7 @@ void mainMenuUpdate(struct MainMenu* mainMenu) {
     quatAxisAngle(&gForward, MARS_TILT, &axisTilt);
     quatMultiply(&axisTilt, &axisSpin, &mainMenu->marsTransform.rotation);
 
-    switch (mainMenu->menuState) {
+    switch (mainMenu->selections.menuState) {
         case MainMenuStateSelectingPlayerCount:
             mainMenuUpdatePlayerCount(mainMenu);
             break;
@@ -338,7 +372,7 @@ void mainMenuUpdate(struct MainMenu* mainMenu) {
             break;
         case MainMenuStatePostGame:
             if (endGameMenuUpdate(&mainMenu->endGameMenu)) {
-                mainMenu->menuState = MainMenuStateSelectingPlayerCount;
+                mainMenuEnterLevelSelection(mainMenu);
             }
             break;
     }
@@ -355,7 +389,7 @@ void mainMenuSelectionColor(struct Coloru8* result) {
 void mainMenuRenderPlayerCount(struct MainMenu* mainMenu, struct RenderState* renderState) {
     for (unsigned i = 0; i < MAX_PLAYERS; ++i) {
         struct Coloru8 color;
-        if (mainMenu->selectedPlayerCount == i) {
+        if (mainMenu->selections.selectedPlayerCount == i) {
             mainMenuSelectionColor(&color);
         } else {
             color = gDeselectedColor;
@@ -381,7 +415,7 @@ void mainMenuRenderPlayerCount(struct MainMenu* mainMenu, struct RenderState* re
 void mainMenuRenderFactions(struct MainMenu* mainMenu, struct RenderState* renderState) {
     unsigned isReady = 1;
 
-    for (unsigned int i = 0; i < mainMenu->selectedPlayerCount+1; ++i) {
+    for (unsigned int i = 0; i < mainMenu->selections.selectedPlayerCount+1; ++i) {
         gDPPipeSync(renderState->dl++);
         Vp* viewport = &gSplitScreenViewports[i];
         cameraSetupMatrices(
@@ -489,7 +523,7 @@ void mainMenuRender(struct MainMenu* mainMenu, struct RenderState* renderState) 
     gSPSetGeometryMode(renderState->dl++, G_ZBUFFER);
     gDPSetRenderMode(renderState->dl++, G_RM_AA_ZB_OPA_SURF, G_RM_AA_ZB_OPA_SURF2);
 
-    switch (mainMenu->menuState) {
+    switch (mainMenu->selections.menuState) {
         case MainMenuStateSelectingPlayerCount:
             mainMenuRenderPlayerCount(mainMenu, renderState);
             break;

@@ -14,8 +14,6 @@ Themes:
         - Name: Spaceship Template
           Filename: Spaceship_Template.fbx
           Output: ../../data/levels/Spaceship_Template/level.h
-          Campaign: True
-          Multiplayer: True
           MaxPlayers: 4
 
         - Name: Boot Camp
@@ -23,8 +21,13 @@ Themes:
           Output: ../../data/levels/Boot_Camp/level.h
           MaxPlayers: 2
           Campaign: True
-          Multiplayer: True
           Tutorial: True
+
+        - Name: The Pit
+          Filename: ThePit.fbx
+          Output: ../../data/levels/The_Pit/level.h
+          MaxPlayers: 2
+          Campaign: True
 
         - Name: Sojourner
           Filename: Campaign_Sojourner.fbx

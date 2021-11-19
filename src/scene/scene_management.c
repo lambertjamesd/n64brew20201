@@ -5,6 +5,7 @@
 #include "util/rom.h"
 #include "util/memory.h"
 #include "menu/endgamemenu.h"
+#include "savefile/savefile.h"
 
 enum SceneState gSceneState;
 enum SceneState gNextSceneState;
@@ -50,13 +51,20 @@ void sceneQueueLoadLevel(struct GameConfiguration* nextLevel) {
 
 void sceneQueueMainMenu() {
     gNextSceneState = SceneStateInMainMenu;
-    gMainMenuTargetState = MainMenuStateSelectingPlayerCount;
+    gMainMenu.selections.menuState = MainMenuStateSelectingPlayerCount;
+    gMainMenu.selections.targetMenuState = MainMenuStateSelectingPlayerCount;
 }
 
-void sceneQueuePostGameScreen(unsigned winningTeam, unsigned teamCount) {
+void sceneQueuePostGameScreen(unsigned winningTeam, unsigned teamCount, float time) {
     gNextSceneState = SceneStateInMainMenu;
     endGameMenuInit(&gMainMenu.endGameMenu, winningTeam, teamCount);
-    gMainMenuTargetState = MainMenuStatePostGame;
+    gMainMenu.selections.menuState = MainMenuStatePostGame;
+    gMainMenu.selections.targetMenuState = MainMenuStatePostGame;
+
+    if (winningTeam == 0 && gMainMenu.selections.selectedPlayerCount == 0) {
+        saveFileMarkLevelComplete(gMainMenu.selections.selectedLevel, time);
+        ++gMainMenu.selections.selectedLevel;
+    }
 }
 
 void sceneLoadMainMenu() {
@@ -75,9 +83,9 @@ void sceneCleanup() {
     skResetDataPool();
 }
 
-void sceneUpdate(int hasActiveGraphics) {
+void sceneUpdate(int readyForSceneSwitch) {
     if (sceneIsLoading()) {
-        if (!hasActiveGraphics && !skHasPendingMessages()) {
+        if (readyForSceneSwitch && !skHasPendingMessages()) {
             sceneCleanup();
             switch (gNextSceneState) {
                 case SceneStateInLevel:
