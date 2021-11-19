@@ -1,10 +1,53 @@
 #include "ai_controller.h"
 #include "scene/scene_management.h"
 
+
+
 unsigned getNumNeutralBases(struct LevelBase* bases, unsigned numBases){
     unsigned count = 0;
     for(unsigned i = 0; i < numBases; ++i) if(bases[i].team.teamNumber == TEAM_NONE) count++;
     return count;
+}
+
+void ai_getClosestEnemyCharacter(const unsigned playerIndex, struct TeamEntity* outEnemy, float* dist){
+    unsigned team = gCurrentLevel.players[playerIndex].team.teamNumber;
+    unsigned minIdx = -1;
+    float minDist = ~0;
+    float currDist = ~0;
+    struct TeamEntity* outEntity = NULL;
+
+    for(unsigned i = 0; i < gCurrentLevel.playerCount + gCurrentLevel.minionCount; ++i){
+        if(i < gCurrentLevel.playerCount){
+            if(gCurrentLevel.players[i].team.teamNumber != team){
+                currDist = vector3DistSqrd(
+                    &gCurrentLevel.players[playerIndex].transform.position, 
+                    &gCurrentLevel.players[i].transform.position);
+                if(minIdx == -1 || currDist < minDist){
+                    minIdx = i;
+                    minDist = currDist;
+                }
+            }
+        }
+        else{
+            if(gCurrentLevel.minions[i - gCurrentLevel.playerCount].team.teamNumber != team){
+                currDist = vector3DistSqrd(
+                    &gCurrentLevel.players[playerIndex].transform.position, 
+                    &gCurrentLevel.minions[i - gCurrentLevel.playerCount].transform.position);
+                if(minIDx == -1 || currDist < minDist){
+                    minIdx = i;
+                    minDist = currDist;
+                }
+            }
+        }
+    }
+    if(minIdx != -1){
+        if(minIdx < gCurrentLevel.playerCount){
+            outEntity = (struct TeamEntity*)&gCurrentLevel.players[minIdx];
+        }
+        else outEntity = (struct TeamEntity*)&gCurrentLevel.minions[minIdx-gCurrentLevel.playerCount];
+    }
+    dist = minDist;
+    outEnemy = outEntity;
 }
 
 void ai_Init(struct AIController* inController, struct PathfindingDefinition* pathfinder, unsigned playerIndex, unsigned teamIndex, unsigned baseCount){
@@ -14,9 +57,9 @@ void ai_Init(struct AIController* inController, struct PathfindingDefinition* pa
     inController->botAction = 0;
     inController->currTarget = gZeroVec;
     inController->attackTarget = 0;
-    inController->isUsingPathfinding = 0;
     inController->numMinions = 0;
     aiPlannerInit(&inController->planner, teamIndex, baseCount);
+    pathfinderInit(&inContorller->pathfinder);
 }
 
 void ai_moveTowardsTarget(struct AIController* inController, struct Vector3* currLocation, struct PlayerInput* inputRef){
@@ -47,27 +90,22 @@ void ai_moveTowardsTarget(struct AIController* inController, struct Vector3* cur
         }
     }
     else if(targetBase != NULL) {
-        if(inController->isUsingPathfinding == 1){
-            unsigned navTargetDistance = vector3DistSqrd(currLocation, &inController->currTarget);
-            if(navTargetDistance <= 200){
-                unsigned indFrom = inController->lastPathfidningIndex;
-                unsigned indTo = nav_getClosestPoint(&targetBase->position, inController->pathfindingInfo->nodePositions, inController->pathfindingInfo->nodeCount);
-               inController->lastPathfidningIndex = nav_getNextNavPoint(indFrom, indTo, inController->pathfindingInfo->nextNode, inController->pathfindingInfo->nodeCount);
-               inController->currTarget = inController->pathfindingInfo->nodePositions[inController->lastPathfidningIndex];
-            }
+        if(inController->pathfinder.currentNode != NODE_NONE){
+            inContorller->currTarget = &gCurrentLevel.definition->pathfinding.nodePositions[inController->pathfinder.currentNode]; 
         }
-        else inController->currTarget = targetBase->position;
+        else {
+            pathfinderSetTarget(&inController->pathfinder, &gCurrentLevel.definition->pathfinding, currLocation, &targetBase->position);
+        }
         
         unsigned baseDistance = vector3DistSqrd(currLocation, &targetBase->position);
         if (baseDistance > 625)
             inController->botAction = 2;
         else {
             inController->botAction = 0;
-            inController->isUsingPathfinding = 0;
         }
     }
 
-    if(inController->botAction == 1 || inController->botAction == 2){
+    if(inController->botAction != 0){
         struct Vector3 dir;
 
         vector3Sub(&inController->currTarget, currLocation, &dir);
@@ -84,6 +122,7 @@ void ai_moveTowardsTarget(struct AIController* inController, struct Vector3* cur
 
 void ai_update(struct LevelScene* level, struct AIController* ai) {
     aiPlannerUpdate(level, &ai->planner);
+    pathfinderUpdate(&ai->pathfinder, level.definition->pathfinding, currLocation, currLocation);
 
     if (ai->planner.currentPlan) {
         switch (ai->planner.currentPlan->planType) {
@@ -99,8 +138,41 @@ void ai_update(struct LevelScene* level, struct AIController* ai) {
     }
 }
 
+unsigned short wasPlayerJustHit(struct AIContorller* ai){
+    return (ai && !ai->attackTarget && gCurrentLevel->players[ai->playerIndex].damageHandler.damageTimer > 0.f);
+}
+
 void ai_collectPlayerInput(struct LevelScene* levelScene, struct AIController* ai, struct PlayerInput* playerInput) {
-    struct Vector3* targetPosition = aiPlannerGetTarget(levelScene, &ai->planner);
+    struct Vector3* targetPosition;// = aiPlannerGetTarget(levelScene, &ai->planner);
+    struct Vector3* enemyPosition;
+    float* enemyDist;
+
+    if(!ai->attackTarget && wasPlayerJustHit(ai))
+        ai_getClosestEnemyCharacter(ai->playerIndex, &ai->attackTarget, enemyDist);
+    if(ai->attackTarget){
+        if(!enemyDist) &enemyDist = vector3DistSqrd(&gCurrentLevel->players[ai->playerIndex].transform.position,
+        &enemyPosition = teamEntityGetPosition(ai->attackTarget));
+        if(enemyDist > 2000 || !teamEntityIsAlive(ai->attackTarget)) ai->attackTarget = NULL;
+    }
+
+    if(ai->attackTarget) targetPosition = enemyPosition;
+    else if(ai->planner.currentPlan && ai->planner.currentPlan.targetBase){
+        if(ai->pathfinder.currentNode != NODE_NONE &&
+            (levelScene->definition.patpathfinding.baseNodes[ai->planner.currentPlan.targetBase] == 
+            ai->pathfinder.targetNode)){
+
+                targetPosition = &gCurrentLevel->definition.pathfinding.nodePositions[ai->planner.currentPlan];
+            
+        }
+        else {
+            pathfinderSetTarget(&ai->pathfinder, 
+            levelScene->definition.pathfinding, 
+            &levelScene->players[ai->playerIndex].transform.position, 
+            &levelScene->bases[ai->planner.currentPlan.targetBase].position);
+
+            targetPosition = &gCurrentLevel->definition.pathfinding.nodePositions[ai->planner.currentPlan];
+        }
+    }
 
     playerInput->actionFlags = 0;
 
@@ -108,51 +180,10 @@ void ai_collectPlayerInput(struct LevelScene* levelScene, struct AIController* a
         vector3Sub(targetPosition, &levelScene->players[ai->playerIndex].transform.position, &playerInput->targetWorldDirection);
         vector3Normalize(&playerInput->targetWorldDirection, &playerInput->targetWorldDirection);
     } else {
+        playerInputNoInput(playerInput);
         playerInput->targetWorldDirection = gZeroVec;
+        &gCurrentLevel->players[ai->playerIndex].velocity = gZeroVec;
     }
-
-    // //if the player just got hit 
-    // if(ai->attackTarget == NULL && levelScene->players[ai->playerIndex].damageHandler.damageTimer > 0.0f){
-    //     float minionDist;
-    //     float playerDist;
-
-    //     struct Player* playerEnt = levelGetClosestEnemyPlayer(
-    //         levelScene,
-    //         &levelScene->players[ai->playerIndex].transform.position,
-    //         ai->playerIndex,
-    //         &playerDist
-    //     );
-
-    //     struct Minion* minionEnt = levelGetClosestEnemyMinion(
-    //         levelScene,
-    //         &levelScene->players[ai->playerIndex].transform.position,
-    //         ai->playerIndex,
-    //         &minionDist
-    //     );
-
-    //     if(minionEnt && minionDist < playerDist) {
-    //         if(minionEnt->team.teamNumber != levelScene->players[ai->playerIndex].team.teamNumber) {
-    //             ai->attackTarget = (struct TeamEntity*)minionEnt;
-    //         }
-    //     } else {
-    //         if(playerEnt->team.teamNumber != levelScene->players[ai->playerIndex].team.teamNumber) {
-    //             ai->attackTarget = (struct TeamEntity*)playerEnt;
-    //         }
-    //     }
-    // }
-
-    // ai_moveTowardsTarget(
-    //     ai, 
-    //     &levelScene->players[ai->playerIndex].transform.position, 
-    //     playerInput
-    // );
-
-    // if(playerInput->targetWorldDirection.x == 0 && playerInput->targetWorldDirection.y == 0 && playerInput->targetWorldDirection.z == 0){
-    //     playerInputNoInput(playerInput);
-    //     levelScene->players[ai->playerIndex].velocity.x = 0;
-    //     levelScene->players[ai->playerIndex].velocity.y = 0;
-    //     levelScene->players[ai->playerIndex].velocity.z = 0;
-    // } 
 }
 
 struct LevelBase* ai_getClosestUncapturedBase(struct AIController* inController, struct LevelBase* bases, unsigned baseCount, struct Vector3* closeTo, unsigned team, unsigned short usePathfinding){

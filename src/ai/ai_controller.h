@@ -6,11 +6,12 @@
 #include "scene/playerinput.h"
 #include "scene/leveldefinition.h"
 #include "scene/teamentity.h"
+#include "ai_pathfinder.h"
 #include "ai_planner.h"
 
 #define MOVETO_ACCEPTANCE_RADIUS  10
 #define BASE_ACCEPTANCE_RADIUS 10
-#define ATTACK_ACCEPTANCE_RADIUS 1
+#define ATTACK_ACCEPTANCE_RADIUS 100
 
 struct AIController{
     struct PathfindingDefinition* pathfindingInfo; 
@@ -19,12 +20,12 @@ struct AIController{
     unsigned playerIndex;
     unsigned teamIndex;
     unsigned lastPathfidningIndex;
-    unsigned isUsingPathfinding;
     unsigned numMinions;
 
     struct Vector3 currTarget;
     struct TeamEntity* attackTarget;
     struct AIPlanner planner;
+    struct Pathfinder pathfinder;
 };
 
 void ai_moveTowardsTarget(struct AIController* inController, struct Vector3* currLocation, struct PlayerInput* inputRef);
