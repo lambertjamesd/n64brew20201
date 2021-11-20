@@ -33,6 +33,7 @@ struct basesDistance{
 struct DecorDefinition {
     struct Vector3 position;
     struct Quaternion rotation;
+    float scale;
     unsigned decorID;
 };
 

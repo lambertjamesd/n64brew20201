@@ -21,7 +21,7 @@ struct CollisionShape {
 
 typedef int (*CollisionFunction)(struct CollisionShape* a, struct CollisionShape* b, struct Vector2* aToB, struct ShapeOverlap* shapeOverlap);
 
-void collisionShapeBoundingBox(struct CollisionShape* shape, struct Vector2* at, struct Vector2* rotation, struct Box2D* outuput);
+void collisionShapeBoundingBox(struct CollisionShape* shape, struct Vector2* at, struct Vector2* rotation, float scale, struct Box2D* outuput);
 int collisionCollidePair(struct CollisionShape* a, struct CollisionShape* b, struct Vector2* aToB, struct ShapeOverlap* shapeOverlap);
 
 struct CollisionShape* collisionShapeUnpack(struct CollisionShape* shape, void* segmentRamStart);

@@ -16,7 +16,7 @@ struct CollisionPolygon {
     unsigned edgeCount;
 };
 
-void collisionPolygonBoundingBox(struct CollisionPolygon* shape, struct Vector2* at, struct Vector2* rotation, struct Box2D* outuput);
+void collisionPolygonBoundingBox(struct CollisionPolygon* shape, struct Vector2* at, struct Vector2* rotation, float scale, struct Box2D* outuput);
 
 int collisionCirclePolygon(struct CollisionShape* a, struct CollisionShape* b, struct Vector2* aToB, struct ShapeOverlap* shapeOverlap);
 

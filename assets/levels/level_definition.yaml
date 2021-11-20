@@ -29,6 +29,12 @@ Themes:
           MaxPlayers: 2
           Campaign: True
 
+        - Name: Curiosity
+          Filename: Campaign_Curiosity.fbx
+          Output: ../../data/levels/Curiosity/level.h
+          MaxPlayers: 4
+          Campaign: True
+
         - Name: Sojourner
           Filename: Campaign_Sojourner.fbx
           Output: ../../data/levels/Sojourner/level.h
@@ -51,5 +57,10 @@ Themes:
           Filename: Multiplayer_Sojourner.fbx
           Output: ../../data/levels/Sojourner_2/level.h
           MaxPlayers: 4
-          Campaign: True
+          Multiplayer: True
+
+        - Name: Curiosity 2
+          Filename: Multiplayer_Curiosity.fbx
+          Output: ../../data/levels/Curiosity_2/level.h
+          MaxPlayers: 4
           Multiplayer: True

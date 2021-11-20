@@ -9,7 +9,7 @@ struct CollisionCircle {
     float radius;
 };
 
-void collisionCircleBoundingBox(struct CollisionCircle* shape, struct Vector2* at, struct Vector2* rotation, struct Box2D* outuput);
+void collisionCircleBoundingBox(struct CollisionCircle* shape, struct Vector2* at, struct Vector2* rotation, float scale, struct Box2D* outuput);
 
 int collisionCircleCircle(struct CollisionShape* a, struct CollisionShape* b, struct Vector2* aToB, struct ShapeOverlap* shapeOverlap);
 

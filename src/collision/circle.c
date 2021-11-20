@@ -3,7 +3,7 @@
 
 #include "math/mathf.h"
 
-void collisionCircleBoundingBox(struct CollisionCircle* shape, struct Vector2* at, struct Vector2* rotation, struct Box2D* outuput) {
+void collisionCircleBoundingBox(struct CollisionCircle* shape, struct Vector2* at, struct Vector2* rotation, float scale, struct Box2D* outuput) {
     outuput->min.x = at->x - shape->radius;
     outuput->min.y = at->y - shape->radius;
     outuput->max.x = at->x + shape->radius;

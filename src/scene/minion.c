@@ -138,7 +138,7 @@ void minionIssueCommand(struct Minion* minion, enum MinionCommand command, unsig
 }
     
 void minionUpdate(struct Minion* minion) {
-    struct Vector3* target;
+    struct Vector3* target = 0;
     float minDistance = 0.0f;
 
     damageHandlerUpdate(&minion->damageHandler);
@@ -185,11 +185,18 @@ void minionUpdate(struct Minion* minion) {
         case MinionCommandAttack:
             minDistance = SCENE_SCALE;
 
-            if(minion->pathfinder.currentNode < gCurrentLevel.definition->pathfinding.nodeCount)
-                target = &gCurrentLevel.definition->pathfinding.nodePositions[minion->pathfinder.currentNode]; 
+            if (minion->currentTarget && (minion->currentTarget->entityType != TeamEntityTypeBase || minion->pathfinder.currentNode == NODE_NONE)) {
+                target = teamEntityGetPosition(minion->currentTarget);
+                minDistance = ATTACK_RADIUS;
+            } else {
+                if(minion->pathfinder.currentNode < gCurrentLevel.definition->pathfinding.nodeCount) {
+                    target = &gCurrentLevel.definition->pathfinding.nodePositions[minion->pathfinder.currentNode]; 
+                }
+            }
 
             break;
     }
+
     pathfinderUpdate(&minion->pathfinder, &gCurrentLevel.definition->pathfinding, &minion->transform.position, &minion->transform.position);
 
     if (minion->attackTarget) {

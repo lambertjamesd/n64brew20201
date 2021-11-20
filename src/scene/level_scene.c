@@ -86,7 +86,7 @@ void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* defin
         struct Transform decorTransform;
         decorTransform.position = definition->decor[i].position;
         decorTransform.rotation = definition->decor[i].rotation;
-        decorTransform.scale = gOneVec;
+        vector3Scale(&gOneVec, &decorTransform.scale, definition->decor[i].scale);
         transformToMatrixL(&decorTransform, &levelScene->decorMatrices[i]);
 
         unsigned id = definition->decor[i].decorID;
@@ -97,6 +97,7 @@ void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* defin
             pos2D.y = decorTransform.position.z;
             struct DynamicSceneEntry* entry = dynamicSceneNewEntry(definition->theme->decorShapes[id], 0, &pos2D, 0, 0, CollisionLayersTangible | CollisionLayersStatic);
             dynamicEntrySetRotation3D(entry, &decorTransform.rotation);
+            dynamicEntrySetScale(entry, decorTransform.scale.x);
         }
     }
 
@@ -422,7 +423,7 @@ void levelSceneSpawnMinion(struct LevelScene* levelScene, enum MinionType type, 
 
     do {
         if (!(levelScene->minions[levelScene->lastMinion].minionFlags & MinionFlagsActive)) {
-            minionInit(&levelScene->minions[levelScene->lastMinion], type, at, baseId, team, MinionCommandAttack, followPlayer);
+            minionInit(&levelScene->minions[levelScene->lastMinion], type, at, baseId, team, defualtCommand, followPlayer);
             break;
         }
         levelScene->lastMinion = (levelScene->lastMinion + 1) % levelScene->minionCount;

@@ -21,6 +21,7 @@ struct DynamicSceneEntry {
     struct CollisionShape* forShape;
     struct Vector2 center;
     struct Vector2 rotation;
+    float scale;
     struct Box2D boundingBox;
     CollisionCallback onCollide;
     unsigned short flags;
@@ -63,5 +64,6 @@ void dynamicSceneCollide();
 void dynamicEntrySetPos(struct DynamicSceneEntry* entry, struct Vector2* pos);
 void dynamicEntrySetPos3D(struct DynamicSceneEntry* entry, struct Vector3* pos);
 void dynamicEntrySetRotation3D(struct DynamicSceneEntry* entry, struct Quaternion* rotation);
+void dynamicEntrySetScale(struct DynamicSceneEntry* entry, float scale);
 
 #endif

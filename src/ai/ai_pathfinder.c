@@ -4,7 +4,7 @@
 unsigned short nav_getClosestPoint(struct Vector3* closestTo, struct Vector3* allPoints, unsigned numPoints){
 
     float minDist = vector3DistSqrd(&allPoints[0], closestTo);
-    unsigned short minIndex = 0;
+    unsigned short minIndex = NODE_NONE;
     for(unsigned short i = 1; i < numPoints; ++i){
         float thisDist = vector3DistSqrd(&allPoints[i], closestTo);
         if(thisDist < minDist){
@@ -93,10 +93,12 @@ void pathfinderUpdate(struct Pathfinder* pathfinder, struct PathfindingDefinitio
         unsigned int currDist = vector3DistSqrd(currentPosition, &pathfinding->nodePositions[pathfinder->currentNode]);
         if(currDist <= NAV_ACCEPTANCE_RADIUS*NAV_ACCEPTANCE_RADIUS){
             if(pathfinder->currentNode == pathfinder->targetNode){
-                //pathfinder->currentNode = NODE_NONE;
-                //pathfinder->targetNode = NODE_NONE;
+                pathfinder->currentNode = NODE_NONE;
+                pathfinder->targetNode = NODE_NONE;
             }
-            else pathfinder->currentNode = nav_getNextNavPoint(pathfinder->currentNode, pathfinder->targetNode, pathfinding->nextNode, pathfinding->nodeCount);
+            else {
+                pathfinder->currentNode = nav_getNextNavPoint(pathfinder->currentNode, pathfinder->targetNode, pathfinding->nextNode, pathfinding->nodeCount);
+            }
         }
     }
 }

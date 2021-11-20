@@ -4,7 +4,7 @@
 
 #define EDGE_LERP_TOLERANCE 0.1f
 
-void collisionPolygonBoundingBox(struct CollisionPolygon* shape, struct Vector2* at, struct Vector2* rotation, struct Box2D* outuput) {
+void collisionPolygonBoundingBox(struct CollisionPolygon* shape, struct Vector2* at, struct Vector2* rotation, float scale, struct Box2D* outuput) {
     vector2ComplexMul(&shape->edges[0].corner, rotation, &outuput->min);
     outuput->max = outuput->min;
 
@@ -14,6 +14,9 @@ void collisionPolygonBoundingBox(struct CollisionPolygon* shape, struct Vector2*
         vector2Min(&outuput->min, &edgePos, &outuput->min);
         vector2Max(&outuput->max, &edgePos, &outuput->max);
     }
+
+    vector2Scale(&outuput->min, scale, &outuput->min);
+    vector2Scale(&outuput->max, scale, &outuput->max);
 
     vector2Add(&outuput->min, at, &outuput->min);
     vector2Add(&outuput->max, at, &outuput->max);
