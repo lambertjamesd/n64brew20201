@@ -11,11 +11,6 @@ Themes:
           Output: ../../data/levels/Level_Template/level.h
           MaxPlayers: 4
 
-        - Name: Spaceship Template
-          Filename: Spaceship_Template.fbx
-          Output: ../../data/levels/Spaceship_Template/level.h
-          MaxPlayers: 4
-
         - Name: Boot Camp
           Filename: BootCamp.fbx
           Output: ../../data/levels/Boot_Camp/level.h
@@ -62,5 +57,20 @@ Themes:
         - Name: Curiosity 2
           Filename: Multiplayer_Curiosity.fbx
           Output: ../../data/levels/Curiosity_2/level.h
+          MaxPlayers: 4
+          Multiplayer: True
+  
+    - Name: Space
+      Output: ../../data/level_themes/Space/theme.h
+
+      Levels:
+        - Name: Spaceship Template
+          Filename: Spaceship_Template.fbx
+          Output: ../../data/levels/Spaceship_Template/level.h
+          MaxPlayers: 4
+
+        - Name: Spacestation F1
+          Filename: Spaceship_Lowest_Level.fbx
+          Output: ../../data/levels/Spacestation_F1/level.h
           MaxPlayers: 4
           Multiplayer: True

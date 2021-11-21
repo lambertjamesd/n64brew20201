@@ -1,1 +1,2 @@
 DEFINE_THEME(Mars)
+DEFINE_THEME(Space)

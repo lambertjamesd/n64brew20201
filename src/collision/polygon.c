@@ -28,14 +28,16 @@ int collisionCirclePolygonPoint(struct CollisionCircle* aAsCircle, struct Collis
     float pointDistance = vector2DistSqr(&currEdge->corner, &offset);
     
     if (pointDistance < aAsCircle->radius * aAsCircle->radius) {
-        float distance = sqrtf(pointDistance);
+        if (shapeOverlap) {
+            float distance = sqrtf(pointDistance);
 
-        if (distance < 0.00001f) {
-            vector2Negate(&currEdge->normal, &shapeOverlap->normal);
-            shapeOverlap->depth  = aAsCircle->radius;
-        } else {
-            vector2Scale(aToB, 1.0f / distance, &shapeOverlap->normal);
-            shapeOverlap->depth = aAsCircle->radius - distance;
+            if (distance < 0.00001f) {
+                vector2Negate(&currEdge->normal, &shapeOverlap->normal);
+                shapeOverlap->depth  = aAsCircle->radius;
+            } else {
+                vector2Scale(aToB, 1.0f / distance, &shapeOverlap->normal);
+                shapeOverlap->depth = aAsCircle->radius - distance;
+            }
         }
 
         return 1;
@@ -91,8 +93,10 @@ int collisionCirclePolygon(struct CollisionShape* a, struct CollisionShape* b, s
     }
 
     if (edgeIndex < bAsPolygon->edgeCount) {
-        shapeOverlap->depth = minOverlap;
-        vector2Negate(&bAsPolygon->edges[edgeIndex].normal, &shapeOverlap->normal);
+        if (shapeOverlap) {
+            shapeOverlap->depth = minOverlap;
+            vector2Negate(&bAsPolygon->edges[edgeIndex].normal, &shapeOverlap->normal);
+        }
         return 1;
     }
 

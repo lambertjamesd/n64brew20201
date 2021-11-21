@@ -20,7 +20,7 @@
 #include "collision/staticscene.h"
 #include <stdbool.h>
 
-#define PLAYER_MAX_HP                              8.0f
+#define PLAYER_MAX_HP                              6.0f
 #define PLAYER_MIN_RESPAWN_TIME                    2.0f
 #define PLAYER_RESPAWN_PER_BASE                    5.0f
 #define PLAYER_INVINCIBILITY_TIME                  0.5f

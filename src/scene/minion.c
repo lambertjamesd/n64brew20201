@@ -24,8 +24,8 @@
 #define MINION_FOLLOW_DIST  3.0f
 #define MINION_MOVE_SPEED   (PLAYER_MOVE_SPEED * 10.0f)
 #define MINION_ACCELERATION (PLAYER_MOVE_ACCELERATION * 2.0f)
-#define MINION_HP           2
-#define MINION_DPS          1
+#define MINION_HP           4
+#define MINION_DPS          2
 #define INVINCIBILITY_TIME  0.5f
 #define INVINCIBLE_FLASH_FREQ                      0.1f
 #define ATTACK_RADIUS       (1.0f * SCENE_SCALE)

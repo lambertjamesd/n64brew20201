@@ -151,10 +151,10 @@ struct Vector2 Level_Template_StartingPositions[] = {
 };
 
 struct SceneBoundary Level_Template_Boundary[] = {
-    {{0, -4046.9}, {-0, 1}},
-    {{4046.9, 0}, {-1, 0}},
-    {{0, 4046.9}, {-0, -1}},
-    {{-4046.9, 0}, {1, 0}},
+    {{4046.9, -4046.9}, {-1, 0}, 8093.81},
+    {{4046.9, 4046.9}, {-0, -1}, 8093.81},
+    {{-4046.9, 4046.9}, {1, 0}, 8093.81},
+    {{-4046.9, -4046.9}, {-0, 1}, 8093.81},
 };
 
 struct DecorDefinition Level_Template_Decor[] = {

@@ -4,8 +4,9 @@
 #include "math/vector2.h"
 
 struct SceneBoundary {
-    struct Vector2 at;
+    struct Vector2 corner;
     struct Vector2 normal;
+    float length;
 };
 
 struct StaticScene {

@@ -8,6 +8,8 @@ struct SaveData gSaveData;
 int gEepromProbe;
 int gShouldSave = 0;
 
+#define UNLOCK_ALL  1
+
 void saveFileNew() {
     zeroMemory(&gSaveData, sizeof(gSaveData));
     gSaveData.header = SAVEFILE_HEADER;
@@ -55,7 +57,7 @@ void saveFileSave() {
 }
 
 int saveFileIsLevelComplete(int level) {
-    return gSaveData.levels[level].completionTime != 0;
+    return UNLOCK_ALL || gSaveData.levels[level].completionTime != 0;
 }
 
 void saveFileMarkLevelComplete(int level, float time) {
