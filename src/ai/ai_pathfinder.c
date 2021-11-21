@@ -1,5 +1,4 @@
 #include "ai_pathfinder.h"
-#include <stdio.h>
 
 unsigned short nav_getClosestPoint(struct Vector3* closestTo, struct Vector3* allPoints, unsigned numPoints){
 

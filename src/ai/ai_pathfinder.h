@@ -1,3 +1,6 @@
+#ifndef _AI_PATHFINDER_H
+#define _AI_PATHFINDER_H
+
 #include "math/vector3.h"
 #include "scene/leveldefinition.h"
 #include "scene/levelbase.h"
@@ -34,3 +37,5 @@ void pathfinderSetTarget(struct Pathfinder* pathfinder, struct PathfindingDefini
 // there is no current node
 void pathfinderUpdate(struct Pathfinder* pathfinder, struct PathfindingDefinition* pathfinding, struct Vector3* currentPosition, struct Vector3* nextTarget);
 void pathfinderReset(struct Pathfinder* pathfinder);
+
+#endif

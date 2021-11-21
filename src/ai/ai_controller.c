@@ -33,7 +33,7 @@ void ai_getClosestEnemyCharacter(const unsigned playerIndex, struct TeamEntity* 
                 currDist = vector3DistSqrd(
                     &gCurrentLevel.players[playerIndex].transform.position, 
                     &gCurrentLevel.minions[i - gCurrentLevel.playerCount].transform.position);
-                if(minIDx == -1 || currDist < minDist){
+                if(minIdx == -1 || currDist < minDist){
                     minIdx = i;
                     minDist = currDist;
                 }
@@ -46,7 +46,7 @@ void ai_getClosestEnemyCharacter(const unsigned playerIndex, struct TeamEntity* 
         }
         else outEntity = (struct TeamEntity*)&gCurrentLevel.minions[minIdx-gCurrentLevel.playerCount];
     }
-    dist = minDist;
+    dist = &minDist;
     outEnemy = outEntity;
 }
 
@@ -59,70 +59,12 @@ void ai_Init(struct AIController* inController, struct PathfindingDefinition* pa
     inController->attackTarget = 0;
     inController->numMinions = 0;
     aiPlannerInit(&inController->planner, teamIndex, baseCount);
-    pathfinderInit(&inContorller->pathfinder);
-}
-
-void ai_moveTowardsTarget(struct AIController* inController, struct Vector3* currLocation, struct PlayerInput* inputRef){
-    inputRef->actionFlags = 0;
-    inController->botAction = (inController->attackTarget != 0 && 
-    teamEntityIsAlive(inController->attackTarget)) ? 1 : 0;
-
-    struct LevelBase* targetBase = aiPlannerGetTargetBase(&gCurrentLevel, &inController->planner);
-
-    if(inController->botAction == 1){
-        struct Vector3* newTarget = teamEntityGetPosition(inController->attackTarget);
-        inController->currTarget.x = newTarget->x;
-        inController->currTarget.y = newTarget->y;
-        inController->currTarget.z = newTarget->z;
-
-        unsigned int distToTarget = vector3DistSqrd(currLocation, &inController->currTarget);
-        
-       if(targetBase != NULL && vector3DistSqrd(&targetBase->position, &inController->currTarget) > 825){
-            inController->attackTarget = 0;
-            inController->botAction = 0;
-        }
-
-        if(distToTarget <= 800){ 
-            inputRef->actionFlags = PlayerInputActionsAttack;
-            if(distToTarget <= 625){
-                inController->botAction = 0;
-            }
-        }
-    }
-    else if(targetBase != NULL) {
-        if(inController->pathfinder.currentNode != NODE_NONE){
-            inContorller->currTarget = &gCurrentLevel.definition->pathfinding.nodePositions[inController->pathfinder.currentNode]; 
-        }
-        else {
-            pathfinderSetTarget(&inController->pathfinder, &gCurrentLevel.definition->pathfinding, currLocation, &targetBase->position);
-        }
-        
-        unsigned baseDistance = vector3DistSqrd(currLocation, &targetBase->position);
-        if (baseDistance > 625)
-            inController->botAction = 2;
-        else {
-            inController->botAction = 0;
-        }
-    }
-
-    if(inController->botAction != 0){
-        struct Vector3 dir;
-
-        vector3Sub(&inController->currTarget, currLocation, &dir);
-        vector3Normalize(&dir, &dir);
-        inputRef->targetWorldDirection = dir;
-    }
-    else{
-        inputRef->targetWorldDirection.x = 0;
-        inputRef->targetWorldDirection.y = 0;
-        inputRef->targetWorldDirection.z = 0;
-
-    }
+    pathfinderInit(&inController->pathfinder, &gZeroVec);
 }
 
 void ai_update(struct LevelScene* level, struct AIController* ai) {
     aiPlannerUpdate(level, &ai->planner);
-    pathfinderUpdate(&ai->pathfinder, level.definition->pathfinding, currLocation, currLocation);
+    pathfinderUpdate(&ai->pathfinder, &level->definition->pathfinding, &level->players[ai->playerIndex].transform.position, &level->players[ai->playerIndex].transform.position);
 
     if (ai->planner.currentPlan) {
         switch (ai->planner.currentPlan->planType) {
@@ -138,39 +80,42 @@ void ai_update(struct LevelScene* level, struct AIController* ai) {
     }
 }
 
-unsigned short wasPlayerJustHit(struct AIContorller* ai){
-    return (ai && !ai->attackTarget && gCurrentLevel->players[ai->playerIndex].damageHandler.damageTimer > 0.f);
+unsigned short wasPlayerJustHit(struct AIController* ai){
+    return (ai && !ai->attackTarget && gCurrentLevel.players[ai->playerIndex].damageHandler.damageTimer > 0.f);
 }
 
 void ai_collectPlayerInput(struct LevelScene* levelScene, struct AIController* ai, struct PlayerInput* playerInput) {
     struct Vector3* targetPosition;// = aiPlannerGetTarget(levelScene, &ai->planner);
     struct Vector3* enemyPosition;
-    float* enemyDist;
+    float enemyDist = -1.f;
 
     if(!ai->attackTarget && wasPlayerJustHit(ai))
-        ai_getClosestEnemyCharacter(ai->playerIndex, &ai->attackTarget, enemyDist);
+        ai_getClosestEnemyCharacter(ai->playerIndex, ai->attackTarget, &enemyDist);
     if(ai->attackTarget){
-        if(!enemyDist) &enemyDist = vector3DistSqrd(&gCurrentLevel->players[ai->playerIndex].transform.position,
-        &enemyPosition = teamEntityGetPosition(ai->attackTarget));
+        if(enemyDist > -1.f) enemyDist = vector3DistSqrd(&gCurrentLevel.players[ai->playerIndex].transform.position,
+        enemyPosition = teamEntityGetPosition(ai->attackTarget));
         if(enemyDist > 2000 || !teamEntityIsAlive(ai->attackTarget)) ai->attackTarget = NULL;
     }
 
     if(ai->attackTarget) targetPosition = enemyPosition;
-    else if(ai->planner.currentPlan && ai->planner.currentPlan.targetBase){
-        if(ai->pathfinder.currentNode != NODE_NONE &&
-            (levelScene->definition.patpathfinding.baseNodes[ai->planner.currentPlan.targetBase] == 
+    else if(ai->planner.currentPlan && 
+        ai->planner.currentPlan->targetBase >= 0 && (ai->planner.currentPlan->targetBase < gCurrentLevel.baseCount)){
+        if(ai->pathfinder.currentNode < levelScene->definition->pathfinding.nodeCount &&
+            (levelScene->definition->pathfinding.baseNodes[ai->planner.currentPlan->targetBase] == 
             ai->pathfinder.targetNode)){
 
-                targetPosition = &gCurrentLevel->definition.pathfinding.nodePositions[ai->planner.currentPlan];
+                //unsigned nodeIdx = gCurrentLevel.definition->pathfinding.baseNodes[ai->planner.currentPlan->targetBase];
+                targetPosition = &gCurrentLevel.definition->pathfinding.nodePositions[ai->pathfinder.currentNode];
             
         }
         else {
             pathfinderSetTarget(&ai->pathfinder, 
-            levelScene->definition.pathfinding, 
+            &levelScene->definition->pathfinding, 
             &levelScene->players[ai->playerIndex].transform.position, 
-            &levelScene->bases[ai->planner.currentPlan.targetBase].position);
+            &levelScene->bases[ai->planner.currentPlan->targetBase].position);
 
-            targetPosition = &gCurrentLevel->definition.pathfinding.nodePositions[ai->planner.currentPlan];
+            //unsigned nodeIdx = gCurrentLevel.definition->pathfinding.baseNodes[ai->planner.currentPlan->targetBase];
+            targetPosition = &gCurrentLevel.definition->pathfinding.nodePositions[ai->pathfinder.currentNode];
         }
     }
 
@@ -182,7 +127,7 @@ void ai_collectPlayerInput(struct LevelScene* levelScene, struct AIController* a
     } else {
         playerInputNoInput(playerInput);
         playerInput->targetWorldDirection = gZeroVec;
-        &gCurrentLevel->players[ai->playerIndex].velocity = gZeroVec;
+        gCurrentLevel.players[ai->playerIndex].velocity = gZeroVec;
     }
 }
 
