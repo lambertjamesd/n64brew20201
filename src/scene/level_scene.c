@@ -65,7 +65,7 @@ void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* defin
     
     levelScene->playerCount = playercount;
 
-    //initializing player controlled characters 
+    //initializing player characters 
     for(unsigned i = 0; i < playercount; ++i){
         playerInit(&levelScene->players[i], i, i, &definition->playerStartLocations[i]);
         controlsScramblerInit(&levelScene->scramblers[i]);

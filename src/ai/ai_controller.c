@@ -1,7 +1,39 @@
 #include "ai_controller.h"
+#include "collision/collisionlayers.h"
 #include "scene/scene_management.h"
 
+struct CollisionCircle gBotCollider = {
+    {CollisionShapeTypeCircle},
+    SCENE_SCALE * 0.5f,
+};
 
+void ai_CorrectOverlap(struct DynamicSceneOverlap* overlap) {
+    teamEntityCorrectOverlap(overlap);
+
+    if (overlap->otherEntry->flags & DynamicSceneEntryHasTeam) {
+        struct TeamEntity* entityA = (struct TeamEntity*)overlap->thisEntry->data;
+        struct TeamEntity* entityB = (struct TeamEntity*)overlap->otherEntry->data;
+
+        struct Player* player = 0;
+        for(unsigned plIdx = 0; plIdx < gCurrentLevel.playerCount; ++plIdx){
+            if(&gCurrentLevel.players[plIdx] == overlap->thisEntry->data){
+                player = (struct Player*)entityA;
+                break;
+            }
+        }
+
+
+        if(player != 0){
+            unsigned aiIdx = player->playerIndex - gCurrentLevel.humanPlayerCount;
+            struct AIController* bot = &gCurrentLevel.bots[aiIdx];
+
+            if (entityB->teamNumber != player->team.teamNumber && !bot->attackTarget) {
+                bot->attackTarget = entityB;
+            }
+        }
+
+    }
+}
 
 unsigned getNumNeutralBases(struct LevelBase* bases, unsigned numBases){
     unsigned count = 0;
@@ -60,9 +92,32 @@ void ai_Init(struct AIController* inController, struct PathfindingDefinition* pa
     inController->numMinions = 0;
     aiPlannerInit(&inController->planner, teamIndex, baseCount);
     pathfinderInit(&inController->pathfinder, &gZeroVec);
+
+    struct Vector2 position;
+
+    position.x = gCurrentLevel.players[playerIndex].transform.position.x;
+    position.y = gCurrentLevel.players[playerIndex].transform.position.z;
+
+    inController->collider = dynamicSceneNewEntry(
+        &gBotCollider.shapeCommon, 
+        &gCurrentLevel.players[playerIndex], 
+        &position,
+        ai_CorrectOverlap,
+        DynamicSceneEntryIsTrigger,
+        CollisionLayersTangible | COLLISION_LAYER_FOR_TEAM(teamIndex)
+    );
 }
 
 void ai_update(struct LevelScene* level, struct AIController* ai) {
+
+    if (gCurrentLevel.players[ai->playerIndex].damageHandler.hp <= 0) {
+        if (ai->collider) {
+            dynamicSceneDeleteEntry(ai->collider);
+            ai->collider = 0;
+        }
+    }
+    else dynamicEntrySetPos3D(ai->collider, &gCurrentLevel.players[ai->playerIndex].transform.position);
+
     aiPlannerUpdate(level, &ai->planner);
     pathfinderUpdate(&ai->pathfinder, &level->definition->pathfinding, &level->players[ai->playerIndex].transform.position, &level->players[ai->playerIndex].transform.position);
 
@@ -85,26 +140,27 @@ unsigned short wasPlayerJustHit(struct AIController* ai){
 }
 
 void ai_collectPlayerInput(struct LevelScene* levelScene, struct AIController* ai, struct PlayerInput* playerInput) {
-    struct Vector3* targetPosition;// = aiPlannerGetTarget(levelScene, &ai->planner);
+    struct Vector3* targetPosition = &gZeroVec;// = aiPlannerGetTarget(levelScene, &ai->planner);
     struct Vector3* enemyPosition;
     float enemyDist = -1.f;
 
-    if(!ai->attackTarget && wasPlayerJustHit(ai))
+    if(ai->attackTarget == 0 && wasPlayerJustHit(ai))
         ai_getClosestEnemyCharacter(ai->playerIndex, ai->attackTarget, &enemyDist);
-    if(ai->attackTarget){
-        if(enemyDist > -1.f) enemyDist = vector3DistSqrd(&gCurrentLevel.players[ai->playerIndex].transform.position,
-        enemyPosition = teamEntityGetPosition(ai->attackTarget));
-        if(enemyDist > 2000 || !teamEntityIsAlive(ai->attackTarget)) ai->attackTarget = NULL;
+    if(ai->attackTarget != 0){
+        enemyPosition = teamEntityGetPosition(ai->attackTarget);
+        if(enemyDist < 0.f) enemyDist = vector3DistSqrd(&gCurrentLevel.players[ai->playerIndex].transform.position, enemyPosition);
+        //if(enemyDist > 16000 || !teamEntityIsAlive(ai->attackTarget)) ai->attackTarget = 0;
     }
 
-    if(ai->attackTarget) targetPosition = enemyPosition;
+    if(ai->attackTarget != 0){
+        targetPosition = enemyPosition;
+    } 
     else if(ai->planner.currentPlan && 
         ai->planner.currentPlan->targetBase >= 0 && (ai->planner.currentPlan->targetBase < gCurrentLevel.baseCount)){
         if(ai->pathfinder.currentNode < levelScene->definition->pathfinding.nodeCount &&
             (levelScene->definition->pathfinding.baseNodes[ai->planner.currentPlan->targetBase] == 
             ai->pathfinder.targetNode)){
 
-                //unsigned nodeIdx = gCurrentLevel.definition->pathfinding.baseNodes[ai->planner.currentPlan->targetBase];
                 targetPosition = &gCurrentLevel.definition->pathfinding.nodePositions[ai->pathfinder.currentNode];
             
         }
@@ -114,7 +170,6 @@ void ai_collectPlayerInput(struct LevelScene* levelScene, struct AIController* a
             &levelScene->players[ai->playerIndex].transform.position, 
             &levelScene->bases[ai->planner.currentPlan->targetBase].position);
 
-            //unsigned nodeIdx = gCurrentLevel.definition->pathfinding.baseNodes[ai->planner.currentPlan->targetBase];
             targetPosition = &gCurrentLevel.definition->pathfinding.nodePositions[ai->pathfinder.currentNode];
         }
     }
@@ -133,11 +188,11 @@ void ai_collectPlayerInput(struct LevelScene* levelScene, struct AIController* a
 
 struct LevelBase* ai_getClosestUncapturedBase(struct AIController* inController, struct LevelBase* bases, unsigned baseCount, struct Vector3* closeTo, unsigned team, unsigned short usePathfinding){
     unsigned int minIndex = 0;
-    //if(usePathfinding == 1){
-    //    minIndex = getClosestNeutralBase(inController->pathfindingInfo, bases, baseCount, inController->targetBase->baseId);
-    //    if(minIndex == -1) minIndex = getClosestEnemyBase(inController->pathfindingInfo, bases, baseCount, inController->targetBase->baseId, team);
-    //}
-    //else{ //in the beginning of the game we still might want to compare the base position to player's location since there will be no targetBase reference
+    if(usePathfinding == 1 && inController->planner.currentPlan){
+        minIndex = getClosestNeutralBase(inController->pathfindingInfo, bases, baseCount, inController->planner.currentPlan->targetBase);
+        if(minIndex == -1) minIndex = getClosestEnemyBase(inController->pathfindingInfo, bases, baseCount, inController->planner.currentPlan->targetBase, team);
+    }
+    else{ //in the beginning of the game we still might want to compare the base position to player's location since there will be no targetBase reference
         struct Vector3 basePos;
         basePos.x = bases[0].position.x;
         basePos.y = bases[0].position.y;
@@ -154,7 +209,7 @@ struct LevelBase* ai_getClosestUncapturedBase(struct AIController* inController,
                 minDist = currDist;
             }
         }
-    //}
+    }
     struct LevelBase* outBase = &bases[minIndex];
     return outBase;
 }

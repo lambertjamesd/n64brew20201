@@ -7,10 +7,27 @@
 
 #define MINION_DISTANCE_SCALAR 0.25f
 
+unsigned getClosestBaseFromPoint(struct LevelScene* levelScene, struct Vector3* from){
+    unsigned minIdx = 0;
+    float minDist = sqrtf(vector3DistSqrd(from, &levelScene->bases[0].position));
+    for(unsigned i = 1; i < levelScene->baseCount; ++i){
+        float dist = sqrtf(vector3DistSqrd(from, &levelScene->bases[i].position));
+        if(dist < minDist){
+            minIdx = i;
+            minDist = dist;
+        }
+    }
+    return minIdx;
+}
+
 float aiPlannerFindDistance(struct LevelScene* levelScene, struct Vector3* from, int toBase) {
-    // TODO
+    return getDistanceToBase(&levelScene->definition->pathfinding, 
+            getClosestBaseFromPoint(levelScene, from), 
+            toBase, 
+            levelScene->baseCount);
+
     // return 0.0f;
-    return sqrtf(vector3DistSqrd(from, &levelScene->bases[toBase].position));
+    //return sqrtf(vector3DistSqrd(from, &levelScene->bases[toBase].position));
 }
 
 void aiPlannerScorePlan(struct LevelScene* levelScene, struct AIPlanner* planner, struct AIPlan* plan) {

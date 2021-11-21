@@ -26,6 +26,7 @@ struct AIController{
     struct TeamEntity* attackTarget;
     struct AIPlanner planner;
     struct Pathfinder pathfinder;
+    struct DynamicSceneEntry* collider;
 };
 
 void ai_moveTowardsTarget(struct AIController* inController, struct Vector3* currLocation, struct PlayerInput* inputRef);
