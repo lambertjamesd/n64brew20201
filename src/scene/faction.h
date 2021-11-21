@@ -31,7 +31,7 @@ enum PlayerAttack {
 #define PLAYER_ATTACK_END_ID                       0x1
 #define PLAYER_ATTACK_WINDOW_ID                    0x2
 
-#define PLAYER_BASE_MOVE_SPEED                     16.0f
+#define PLAYER_BASE_MOVE_SPEED                     10.0f
 
 #define FACTION_COUNT   2
 

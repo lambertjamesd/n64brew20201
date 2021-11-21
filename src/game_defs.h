@@ -5,7 +5,6 @@
 #define SCENE_SCALE     100.0f
 #define FLOOR_HEIGHT    0.0f
 #define GRAVITY         -60.7
-#define PLAYER_MOVE_SPEED           16.0f
 #define PLAYER_MOVE_ACCELERATION    40.0f
 
 #endif

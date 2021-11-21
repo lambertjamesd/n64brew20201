@@ -12,9 +12,11 @@ TODO
     ultrarare intro
     credits
     figure out culling on level geometry
+    death animation is slow
+    crash on defeat
+    defeat timer for single player
 
     balance
-        minions damage player more
 
     graphcis feedback
         Well, hard to tell at the moment. I haven't seen a lot of the UI implemented yet so I'm not sure what needs to be revised right now. 

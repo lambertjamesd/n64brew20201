@@ -33,7 +33,7 @@ struct CollisionCircle gPlayerCollider = {
 
 struct Vector3 gRecallOffset = {0.0f, 0.0f, -4.0 * SCENE_SCALE};
 
-#define PLAYER_AIR_SPEED            (PLAYER_MOVE_SPEED * 0.8f)
+#define PLAYER_AIR_SPEED_SCALAR     0.8f
 #define PLAYER_STOP_ACCELERATION    50.0f
 #define PLAYER_AIR_ACCELERATION     10.0f
 
@@ -42,7 +42,7 @@ struct Vector3 gRecallOffset = {0.0f, 0.0f, -4.0 * SCENE_SCALE};
 #define PLAYER_JUMP_IMPULSE         18.0f
 
 #define PLAYER_AIR_MAX_ROTATE_SEC   (90.0f * (M_PI / 180.0f))
-#define PLAYER_MAX_ROTATE_SEC       (500.0f * (M_PI / 180.0f))
+#define PLAYER_MAX_ROTATE_SEC       (300.0f * (M_PI / 180.0f))
 #define PLAYER_ATTACK_MAX_ROTATE_SEC (180.0f * (M_PI / 180.0f))
 #define PLAYER_JUMP_ATTACK_HOVER_TIME       0.1f
 #define PLAYER_JUMP_ATTACK_FALL_VELOICTY    -20.0f
@@ -341,8 +341,16 @@ void playerStateJumpAttackStart(struct Player* player, struct PlayerInput* input
 }
 
 void playerStateFreefall(struct Player* player, struct PlayerInput* input) {
+    float moveSpeed = gTeamFactions[player->team.teamNumber]->moveSpeed;
+
     playerRotateTowardsInput(player, input, PLAYER_AIR_MAX_ROTATE_SEC);
-    playerAccelerateTowards(player, &input->targetWorldDirection, PLAYER_AIR_SPEED, PLAYER_AIR_ACCELERATION, PLAYER_AIR_ACCELERATION);
+    playerAccelerateTowards(
+        player, 
+        &input->targetWorldDirection, 
+        PLAYER_AIR_SPEED_SCALAR * moveSpeed, 
+        PLAYER_AIR_ACCELERATION, 
+        PLAYER_AIR_ACCELERATION
+    );
 
     int wasGoingUp = player->velocity.y > 0.0f;
 
@@ -407,9 +415,24 @@ void playerStateDead(struct Player* player, struct PlayerInput* input) {
 }
 
 void playerStateWalk(struct Player* player, struct PlayerInput* input) {
-
     playerRotateTowardsInput(player, input, PLAYER_MAX_ROTATE_SEC);
-    playerAccelerateTowards(player, &input->targetWorldDirection, PLAYER_MOVE_SPEED, PLAYER_MOVE_ACCELERATION, PLAYER_STOP_ACCELERATION);
+
+    struct Vector3 forwardDir;
+    quatMultVector(&player->transform.rotation, &gForward, &forwardDir);
+    vector3Project(&player->velocity, &forwardDir, &player->velocity);
+
+    float accelerateScale = vector3Dot(&forwardDir, &input->targetWorldDirection);
+    float inputScale = vector3MagSqrd(&input->targetWorldDirection);
+
+    if (accelerateScale > 0.0f || inputScale < 0.03f) {
+        accelerateScale = 0.0f;
+    }
+
+    vector3Scale(&forwardDir, &forwardDir, accelerateScale * sqrtf(inputScale));
+
+    float moveSpeed = gTeamFactions[player->team.teamNumber]->moveSpeed;
+
+    playerAccelerateTowards(player, &forwardDir, moveSpeed, PLAYER_MOVE_ACCELERATION, PLAYER_STOP_ACCELERATION);
 
     if (input->actionFlags & PlayerInputActionsCommandRecall) {
         struct Vector3 recallPos3;
@@ -424,7 +447,7 @@ void playerStateWalk(struct Player* player, struct PlayerInput* input) {
 
     float speed = sqrtf(vector3MagSqrd(&player->velocity));
 
-    player->animationSpeed = speed / PLAYER_MOVE_SPEED;
+    player->animationSpeed = speed / moveSpeed;
 
     int isMoving = speed > 0.01f;
 

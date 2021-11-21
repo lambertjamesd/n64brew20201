@@ -87,7 +87,7 @@ struct Faction gDogFaction = {
         .walkSound = SOUNDS_DOG_WALKING_LOOP_1,
     },
     .moveSpeed = PLAYER_BASE_MOVE_SPEED,
-    .accel = 40.0f,
+    .accel = 20.0f,
 
     .minionMesh = Minion_DogMinion_mesh,
 };
@@ -166,7 +166,7 @@ struct Faction gCatFaction = {
         .walkSound = SOUNDS_DOG_WALKING_LOOP_1,
     },
     .moveSpeed = PLAYER_BASE_MOVE_SPEED,
-    .accel = 40.0f,
+    .accel = 20.0f,
 
     .minionMesh = Minion_CatMinion_mesh,
 };
