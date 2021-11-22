@@ -42,6 +42,7 @@ struct SKAnimationHeader* gDogAnimations[] = {
     [PlayerAnimationJumpAttackLanding] = &doglow_animations[DOGLOW_DOGLOW_ARMATURE_001_JUMP_ATTACK_LANDING_INDEX],
     [PlayerAnimationSelectIdle] = &doglow_animations[DOGLOW_DOGLOW_ARMATURE_001_WALK_INDEX],
     [PlayerAnimationSelected] = &doglow_animations[DOGLOW_DOGLOW_ARMATURE_001_PUNCH_002_INDEX],
+    [PlayerAnimationVictory] = &doglow_animations[DOGLOW_DOGLOW_ARMATURE_001_VICTORY_INDEX],
 };
 
 struct SKAnimationEvent gDogAttack001Events[] = {
@@ -124,11 +125,12 @@ struct SKAnimationHeader* gCatAnimations[] = {
     [PlayerAnimationWalk] = &catlow_animations[CATLOW_CATLOW_ARMATURE_001_WALK_INDEX],
     [PlayerAnimationDie] = &catlow_animations[CATLOW_CATLOW_ARMATURE_001_DIE_INDEX],
     [PlayerAnimationJump] = &catlow_animations[CATLOW_CATLOW_ARMATURE_001_JUMP_INDEX],
-    [PlayerAnimationFall] = &catlow_animations[CATLOW_CATLOW_ARMATURE_001_JUMP_PEAK_INDEX],
+    [PlayerAnimationFall] = &catlow_animations[CATLOW_CATLOW_ARMATURE_001_FALL_INDEX],
     [PlayerAnimationJumpAttack] = &catlow_animations[CATLOW_CATLOW_ARMATURE_001_JUMP_ATTACK_INDEX],
     [PlayerAnimationJumpAttackLanding] = &catlow_animations[CATLOW_CATLOW_ARMATURE_001_JUMP_ATTACK_LANDING_INDEX],
     [PlayerAnimationSelectIdle] = &catlow_animations[CATLOW_CATLOW_ARMATURE_001_WALK_INDEX],
     [PlayerAnimationSelected] = &catlow_animations[CATLOW_CATLOW_ARMATURE_001_PUNCH_003_INDEX],
+    [PlayerAnimationVictory] = &catlow_animations[CATLOW_CATLOW_ARMATURE_001_VICTORY_INDEX],
 };
 
 struct SKAnimationEvent gCatAttack001Events[] = {

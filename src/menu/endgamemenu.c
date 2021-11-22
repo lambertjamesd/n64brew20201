@@ -159,7 +159,9 @@ void endGameMenuEnterLoadedState(struct EndGameMenu* menu) {
         CALC_ROM_POINTER(character_animations, winningFaction->playerDefaultPose),
         winningFaction->playerBoneParent
     );
-    skAnimatorRunClip(&menu->winnerAnimator, winningFaction->playerAnimations[PlayerAnimationSelected], 0);
+    skAnimatorRunClip(&menu->winnerAnimator, winningFaction->playerAnimations[PlayerAnimationVictory], 0);
+    skWaitForPendingRequest(&menu->winnerAnimator);
+    skAnimatorUpdate(&menu->winnerAnimator, menu->winnerArmature.boneTransforms, 1.0f);
 }
 
 int endGameMenuUpdate(struct EndGameMenu* menu) {

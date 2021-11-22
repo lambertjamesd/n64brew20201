@@ -34,11 +34,12 @@ struct DynamicMarker gIntensityMarkers[] = {
     {75, {127, 0, 127, 127, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
 };
 
+#define GO_SHOW_DURATION 0.5f
 #define GAME_START_DELAY 5.0f
 #define GAME_END_DELAY  5.0f
 #define LOSE_BY_KNOCKOUT_TIME   15.0f
 
-#define WIN_BY_PRESSING_START   0
+#define WIN_BY_PRESSING_START   1
 
 void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* definition, unsigned int playercount, unsigned char humanPlayerCount, enum LevelMetadataFlags flags) {
     levelScene->definition = definition;
@@ -118,7 +119,9 @@ void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* defin
 
     gfxInitSplitscreenViewport(humanPlayerCount);
 
-    levelScene->state = LevelSceneStatePlaying;
+    levelScene->state = LevelSceneStateIntro;
+    textBoxInit(&gTextBox, "Ready?", 200, SCREEN_WD / 2, SCREEN_HT / 2);
+    levelScene->stateTimer = GAME_START_DELAY;
     levelScene->winningTeam = TEAM_NONE;
 
     // dynamicMusicUseMarkers(gIntensityMarkers, sizeof(gIntensityMarkers) / sizeof(*gIntensityMarkers));
@@ -237,6 +240,8 @@ void levelSceneRender(struct LevelScene* levelScene, struct RenderState* renderS
 
     minimapRender(levelScene, renderState, gViewportPosition[levelScene->humanPlayerCount-1].minimapLocation);
 
+    textBoxRender(&gTextBox, renderState);
+
     spriteFinish(renderState);
 }
 
@@ -311,8 +316,10 @@ void levelSceneCollectPlayerInput(struct LevelScene* levelScene, unsigned player
     if (levelScene->state == LevelSceneStatePlaying) {
         if (playerIndex < levelScene->humanPlayerCount) {
             levelSceneCollectHumanPlayerInput(levelScene, playerIndex, playerInput);
-        } else {
+        } else if (!(levelScene->levelFlags & LevelMetadataFlagsTutorial)) {
             ai_collectPlayerInput(levelScene, &levelScene->bots[playerIndex - levelScene->humanPlayerCount], playerInput);
+        } else {
+            playerInputNoInput(playerInput);
         }
     } else {
         playerInputNoInput(playerInput);
@@ -372,8 +379,10 @@ void levelSceneUpdate(struct LevelScene* levelScene) {
 
     levelScene->gameTimer += gTimeDelta;
 
-    for (unsigned i = 0; i < levelScene->botsCount; ++i) {
-        ai_update(levelScene, &levelScene->bots[i]);
+    if (!(levelScene->levelFlags & LevelMetadataFlagsTutorial)) {
+        for (unsigned i = 0; i < levelScene->botsCount; ++i) {
+            ai_update(levelScene, &levelScene->bots[i]);
+        }
     }
 
     for (unsigned playerIndex = 0; playerIndex < levelScene->playerCount; ++playerIndex) {
@@ -393,9 +402,29 @@ void levelSceneUpdate(struct LevelScene* levelScene) {
         playerUpdate(&levelScene->players[playerIndex], playerInput);
         leveSceneUpdateCamera(levelScene, playerIndex);
 
-        if (levelScene->levelFlags & LevelMetadataFlagsTutorial) {
+        if (levelScene->state == LevelSceneStatePlaying && levelScene->levelFlags & LevelMetadataFlagsTutorial) {
             tutorialUpdate(levelScene, playerInput);
         }
+    }
+
+    if (levelScene->state == LevelSceneStateIntro) {
+        levelScene->stateTimer -= gTimeDelta;
+
+        if (levelScene->stateTimer < 0.0f) {
+            levelScene->state = LevelSceneStatePlaying;
+            textBoxHide(&gTextBox);
+        } else if (levelScene->stateTimer < GO_SHOW_DURATION) {
+            if (!textBoxIsVisible(&gTextBox)) {
+                textBoxInit(&gTextBox, "GO!", 200, SCREEN_WD / 2, SCREEN_HT / 2);
+                gTextBox.currState = TextBoxStateShowing;
+                gTextBox.animateTimer = 0.0f;
+            }
+        } else if (levelScene->stateTimer < GAME_START_DELAY * 0.5f) {
+            textBoxHide(&gTextBox);
+        }
+
+        textBoxUpdate(&gTextBox);
+        return;
     }
 
     for (unsigned int baseIndex = 0; baseIndex < levelScene->baseCount; ++baseIndex) {
@@ -416,6 +445,7 @@ void levelSceneUpdate(struct LevelScene* levelScene) {
 
     dynamicSceneCollide();
     levelSceneUpdateMusic(levelScene);
+    textBoxUpdate(&gTextBox);
 }
 
 void levelSceneSpawnMinion(struct LevelScene* levelScene, enum MinionType type, struct Transform* at, unsigned char baseId, unsigned team, enum MinionCommand defualtCommand, unsigned followPlayer) {

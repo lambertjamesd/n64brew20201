@@ -49,6 +49,8 @@ void saveFileCheckSave() {
         osEepromLongWrite(&serialMsgQ, 0, (u8*)&gSaveData, sizeof(gSaveData));
         controllersListen();
         gShouldSave = 0;
+    } else {
+        gShouldSave = 0;
     }
 }
 
@@ -60,8 +62,15 @@ int saveFileIsLevelComplete(int level) {
     return UNLOCK_ALL || gSaveData.levels[level].completionTime != 0;
 }
 
+float saveFileLevelTime(int level) {
+    return gSaveData.levels[level].completionTime / 10.0f;
+}
+
 void saveFileMarkLevelComplete(int level, float time) {
-    gSaveData.levels[level].completionTime = (unsigned short)(time * 10.0f);
+    unsigned short newTime = (unsigned short)(time * 10.0f);
+    if (newTime < gSaveData.levels[level].completionTime) {
+        gSaveData.levels[level].completionTime = newTime;
+    }
     gShouldSave = 1;
 }
 

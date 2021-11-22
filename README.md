@@ -13,7 +13,6 @@ TODO
     credits
     figure out culling on level geometry
     death animation is slow
-    crash on defeat
     defeat timer for single player
 
     balance

@@ -100,7 +100,7 @@ void targetFinderUpdate(struct TargetFinder* finder) {
             
             minion->currentTarget = targetFinderFindNearestTarget(&gCurrentLevel, &minion->transform.position, minion->team.teamNumber);
 
-            if(vector3DistSqrd(teamEntityGetPosition(minion->currentTarget), &minion->transform.position) > 10000){
+            if(minion->currentTarget && vector3DistSqrd(teamEntityGetPosition(minion->currentTarget), &minion->transform.position) > 10000){
                 if(minion->currentTarget->entityType == TeamEntityTypeBase){
                     if(minion->pathfinder.currentNode >= gCurrentLevel.definition->pathfinding.nodeCount || 
                         minion->currentTarget->teamNumber == minion->team.teamNumber){

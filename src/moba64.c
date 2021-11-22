@@ -118,7 +118,9 @@ static void gameproc(void *argv)
                     // message expected on the queue
                     saveFileCheckSave();
                 }
-                controllersTriggerRead();
+                if (!sceneIsLoading()) {
+                    controllersTriggerRead();
+                }
                 timeUpdateDelta();
                 skReadMessages();
                 sceneUpdate(pendingGFX == 0 && !gShouldSave);

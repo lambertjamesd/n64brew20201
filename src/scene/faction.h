@@ -45,6 +45,7 @@ enum PlayerAnimation {
     PlayerAnimationJumpAttackLanding,
     PlayerAnimationSelectIdle,
     PlayerAnimationSelected,
+    PlayerAnimationVictory,
 };
 
 struct PlayerFactionSounds {

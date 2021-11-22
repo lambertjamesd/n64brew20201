@@ -24,6 +24,7 @@ void saveFileSave();
 void saveFileCheckSave();
 
 int saveFileIsLevelComplete(int level);
+float saveFileLevelTime(int level);
 void saveFileMarkLevelComplete(int level, float time);
 
 void saveFileErase();
