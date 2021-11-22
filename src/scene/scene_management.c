@@ -57,7 +57,7 @@ void sceneQueueMainMenu() {
 
 void sceneQueuePostGameScreen(unsigned winningTeam, unsigned teamCount, float time) {
     gNextSceneState = SceneStateInMainMenu;
-    endGameMenuInit(&gMainMenu.endGameMenu, winningTeam, teamCount);
+    endGameMenuInit(&gMainMenu.endGameMenu, winningTeam, teamCount, time);
     gMainMenu.selections.menuState = MainMenuStatePostGame;
     gMainMenu.selections.targetMenuState = MainMenuStatePostGame;
 

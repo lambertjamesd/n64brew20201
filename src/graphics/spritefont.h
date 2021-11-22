@@ -9,17 +9,18 @@
 struct CharacterDefinition
 {
     char character;
+    char spriteLayer;
     struct SpriteTile data;
 };
 
 struct Font
 {
     struct SpriteTile characters[ANSI_CHAR_COUNT];
-    short spriteLayer;
+    char characterLayer[ANSI_CHAR_COUNT];
     short spaceWidth; 
 };
 
-void fontInit(struct Font* font, int layer, int spaceWidth, struct CharacterDefinition* chars, int charCount);
+void fontInit(struct Font* font, int spaceWidth, struct CharacterDefinition* chars, int charCount);
 void fontRenderText(struct RenderState* renderState, struct Font* font, const char* str, int x, int y, int scaleShift);
 int fontMeasure(struct Font* font, const char* str, int scaleShift);
 

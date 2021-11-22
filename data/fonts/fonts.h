@@ -4,5 +4,6 @@
 #include <ultra64.h>
 
 extern Gfx gUseKickflipFont[];
+extern Gfx gUseKickflipNumbersFont[];
 
 #endif

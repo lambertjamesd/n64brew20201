@@ -23,7 +23,7 @@ struct PlayerAttackInfo gDogAttacks[] = {
         &doglow_animations[DOGLOW_DOGLOW_ARMATURE_001_PUNCH_002_INDEX],
     },
     [PlayerAttackJumpAttack] = {
-        DOGLOW_BOOT1_BONE, 
+        DOGLOW_TAIL_BONE, 
         0,
         0.5f,
         {0.0f, 0.65f * SCENE_SCALE, 0.0f}, 
@@ -47,8 +47,8 @@ struct SKAnimationHeader* gDogAnimations[] = {
 
 struct SKAnimationEvent gDogAttack001Events[] = {
     {9, PLAYER_ATTACK_START_ID},
-    {11, PLAYER_ATTACK_WINDOW_ID},
-    {12, PLAYER_ATTACK_END_ID},
+    {14, PLAYER_ATTACK_WINDOW_ID},
+    {15, PLAYER_ATTACK_END_ID},
 };
 
 struct SKAnimationEvent gDogAttack002Events[] = {
@@ -134,9 +134,9 @@ struct SKAnimationHeader* gCatAnimations[] = {
 };
 
 struct SKAnimationEvent gCatAttack001Events[] = {
-    {9, PLAYER_ATTACK_START_ID},
-    {13, PLAYER_ATTACK_WINDOW_ID},
-    {14, PLAYER_ATTACK_END_ID},
+    {7, PLAYER_ATTACK_START_ID},
+    {12, PLAYER_ATTACK_END_ID},
+    {14, PLAYER_ATTACK_WINDOW_ID},
 };
 
 struct SKAnimationEvent gCatAttack002Events[] = {

@@ -23,6 +23,7 @@ struct EndGameMenu {
     unsigned short winningTeam;
     unsigned short teamCount;
     unsigned short state;
+    unsigned short gameTime;
     float baseStats[MAX_PLAYERS][STAT_COLUMNS];
     float drawAnimationTimer;
     float maxBases;
@@ -32,8 +33,10 @@ struct EndGameMenu {
     struct Transform winnerTransform;
 };
 
-void endGameMenuInit(struct EndGameMenu* menu, unsigned winningTeam, unsigned teamCount);
+void endGameMenuInit(struct EndGameMenu* menu, unsigned winningTeam, unsigned teamCount, float gameTime);
 void endGameMenuRender(struct EndGameMenu* menu, struct RenderState* renderState);
 int endGameMenuUpdate(struct EndGameMenu* menu);
+
+void renderTimeString(unsigned short time, char* output);
 
 #endif

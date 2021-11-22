@@ -9,6 +9,8 @@
 #include "scene/faction.h"
 #include "util/rom.h"
 #include "graphics/gfx.h"
+#include "graphics/spritefont.h"
+#include "kickflipfont.h"
 
 #define DRAW_ANIMATION_TIME 3.0f
 
@@ -28,13 +30,14 @@ void endGameMenuResetStats() {
     }
 }
 
-void endGameMenuInit(struct EndGameMenu* menu, unsigned winningTeam, unsigned teamCount) {
+void endGameMenuInit(struct EndGameMenu* menu, unsigned winningTeam, unsigned teamCount, float gameTime) {
     menu->winningTeam = winningTeam;
     menu->teamCount = teamCount;
     menu->drawAnimationTimer = 0.0f;
     menu->maxBases = 0.0f;
     menu->state = EndGameStateLoading;
     menu->captureSound = SOUND_ID_NONE;
+    menu->gameTime = (unsigned short)(gameTime * 10.0f);
     
     for (unsigned teamIndex = 0; teamIndex < teamCount; ++teamIndex) {
         statTrackerFinalize(&gPlayerBaseStats[teamIndex]);
@@ -124,6 +127,8 @@ void endGameMenuRender(struct EndGameMenu* menu, struct RenderState* renderState
     spriteSolid(renderState, LAYER_SOLID_COLOR, 20, 30, 180, 180);
     endGameDrawGraph(menu, renderState, 30, 40, 190, 200);
 
+    unsigned secondsToDisplay;
+
     if (menu->state == EndGameStateLoaded) {
         Mtx* matrix = renderStateRequestMatrices(renderState, 1);
         transformToMatrixL(&menu->winnerTransform, matrix);
@@ -131,7 +136,16 @@ void endGameMenuRender(struct EndGameMenu* menu, struct RenderState* renderState
         gSPDisplayList(renderState->dl++, gTeamPalleteTexture[menu->winningTeam]);
         skRenderObject(&menu->winnerArmature, renderState);
         gSPPopMatrix(renderState->dl++, G_MTX_MODELVIEW);
+
+        secondsToDisplay = menu->gameTime;
+    } else {
+        secondsToDisplay = (unsigned short)(menu->gameTime * menu->drawAnimationTimer / DRAW_ANIMATION_TIME);
     }
+
+    char timeString[16];
+    renderTimeString(secondsToDisplay, timeString);
+    unsigned timeWidth = fontMeasure(&gKickflipFont, timeString, 0);
+    fontRenderText(renderState, &gKickflipFont, timeString, 260 - timeWidth / 2, 200, 0);
 }
 
 float endGameCalcCaptureFreq(struct EndGameMenu* menu) {
@@ -195,4 +209,12 @@ int endGameMenuUpdate(struct EndGameMenu* menu) {
     }
 
     return 0;
+}
+
+void renderTimeString(unsigned short time, char* output) {
+    unsigned subSeconds = time % 10;
+    unsigned seconds = (time / 10) % 60;
+    unsigned minutes = time / 600;
+
+    sprintf(output, "%d:%d.%d", minutes, seconds, subSeconds);
 }

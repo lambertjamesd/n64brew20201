@@ -12,7 +12,6 @@
 #include "graphics/sprite.h"
 #include "menu/basecommandmenu.h"
 #include "menu/playerstatusmenu.h"
-#include "menu/gbfont.h"
 #include "minimap.h"
 #include "audio/dynamic_music.h"
 #include "events.h"
@@ -45,7 +44,6 @@ void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* defin
     levelScene->definition = definition;
     dynamicSceneInit(&gDynamicScene);
     endGameMenuResetStats();
-    initGBFont();
 
     levelScene->levelDL = definition->sceneRender;
     levelScene->levelFlags = flags;
@@ -138,7 +136,7 @@ void levelSceneRender(struct LevelScene* levelScene, struct RenderState* renderS
     spriteSetLayer(renderState, LAYER_MENU_BORDER, gUseMenuBorder);
     spriteSetLayer(renderState, LAYER_BUTTONS, gUseButtonsIcon);
     spriteSetLayer(renderState, LAYER_COMMAND_BUTTONS, gUseCommandsTexture);
-    spriteSetLayer(renderState, LAYER_GB_FONT, gUseFontTexture);
+    spriteSetLayer(renderState, LAYER_KICKFLIP_NUMBERS_FONT, gUseKickflipNumbersFont);
     spriteSetLayer(renderState, LAYER_KICKFLIP_FONT, gUseKickflipFont);
     spriteSetLayer(renderState, LAYER_UPGRADE_ICONS, gUseUpgradeIcons);
 

@@ -4,7 +4,7 @@
 #include "playerstatusmenu.h"
 #include "scene/leveldefinition.h"
 #include "graphics/spritefont.h"
-#include "gbfont.h"
+#include "kickflipfont.h"
 #include "graphics/gfx.h"
 
 void playerStatusMenuRender(struct Player* player, struct RenderState* renderState, int winningTeam, float knockoutTime, unsigned short* screenPos) {
@@ -20,13 +20,13 @@ void playerStatusMenuRender(struct Player* player, struct RenderState* renderSta
             strcpy(message, "Defeat");
         }
 
-        scaleShift = 1;
+        scaleShift = 0;
     } else if (knockoutTime >= 0.0f && player->controlledBases) {
         sprintf(message, "Victory in %d", (int)(knockoutTime + 1));
     } else if (!playerIsAlive(player)) {
         if (player->controlledBases == 0) {
             strcpy(message, "Defeat");
-            scaleShift = 1;
+            scaleShift = 0;
         } else {
             int respawnIn = (int)(player->stateTimer + 1.0f);
             sprintf(message, "Respawn in %d", respawnIn);
@@ -48,7 +48,7 @@ void playerStatusMenuRender(struct Player* player, struct RenderState* renderSta
             barHeight
         );
 
-        int messageWidth = fontMeasure(&gGBFont, message, scaleShift);
-        fontRenderText(renderState, &gGBFont, message, horizontalCenter - (messageWidth >> 1), verticalCenter - (8 << scaleShift), scaleShift);        
+        int messageWidth = fontMeasure(&gKickflipFont, message, scaleShift);
+        fontRenderText(renderState, &gKickflipFont, message, horizontalCenter - (messageWidth >> 1), verticalCenter - (8 << scaleShift), scaleShift);        
     }
 }

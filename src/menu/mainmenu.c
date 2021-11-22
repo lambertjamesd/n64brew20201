@@ -493,10 +493,18 @@ void mainMenuRenderLevels(struct MainMenu* mainMenu, struct RenderState* renderS
         gSPDisplayList(renderState->dl++, mainMenu->showingWireframe);
         gSPPopMatrix(renderState->dl++, G_MTX_MODELVIEW);
     }
+
+    if (mainMenu->selections.selectedPlayerCount == 0 && saveFileIsLevelComplete(mainMenu->selections.selectedLevel)) {
+        char timeString[16];
+        renderTimeString(saveFileLevelTime(mainMenu->selections.selectedLevel), timeString);
+        unsigned timeWidth = fontMeasure(&gKickflipFont, timeString, 0);
+        fontRenderText(renderState, &gKickflipFont, timeString, 260 - timeWidth / 2, 200, 0);
+    }
 }
 
 void mainMenuRender(struct MainMenu* mainMenu, struct RenderState* renderState) {
     spriteSetLayer(renderState, LAYER_SOLID_COLOR, gMainMenuSolidColor);
+    spriteSetLayer(renderState, LAYER_KICKFLIP_NUMBERS_FONT, gUseKickflipNumbersFont);
     spriteSetLayer(renderState, LAYER_KICKFLIP_FONT, gUseKickflipFont);
 
     graphicsCopyImage(renderState, gMenuBackground, SCREEN_WD, SCREEN_HT, 0, 0, 0, 0, SCREEN_WD, SCREEN_HT, gColorWhite);

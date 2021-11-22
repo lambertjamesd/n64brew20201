@@ -2,9 +2,8 @@
 #include "spritefont.h"
 #include "sprite.h"
 
-void fontInit(struct Font* font, int layer, int spaceWidth, struct CharacterDefinition* chars, int charCount)
+void fontInit(struct Font* font, int spaceWidth, struct CharacterDefinition* chars, int charCount)
 {
-    font->spriteLayer = layer;
     font->spaceWidth = spaceWidth;
 
     for (int i = 0; i < ANSI_CHAR_COUNT; ++i)
@@ -15,6 +14,7 @@ void fontInit(struct Font* font, int layer, int spaceWidth, struct CharacterDefi
     for (int i = 0; i < charCount; ++i)
     {
         font->characters[(unsigned)chars[i].character] = chars[i].data;
+        font->characterLayer[(unsigned)chars[i].character] = chars[i].spriteLayer;
     }
 }
 
@@ -24,10 +24,11 @@ void fontRenderText(struct RenderState* renderState, struct Font* font, const ch
 
     while (*str)
     {
-        struct SpriteTile curr = font->characters[(unsigned)*str];
+        unsigned charValue = (unsigned)*str;
+        struct SpriteTile curr = font->characters[charValue];
         if (curr.w)
         {
-            spriteDraw(renderState, font->spriteLayer, x, y, curr.w, curr.h, curr.x, curr.y, scaleShift, scaleShift);
+            spriteDraw(renderState, font->characterLayer[charValue], x, y, curr.w, curr.h, curr.x, curr.y, scaleShift, scaleShift);
             if (scaleShift >= 0) {
                 x += curr.w << scaleShift;
             } else {

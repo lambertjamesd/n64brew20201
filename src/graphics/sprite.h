@@ -12,7 +12,7 @@
 #define LAYER_BUTTONS           3
 #define LAYER_COMMAND_BUTTONS   4
 #define LAYER_UPGRADE_ICONS     5
-#define LAYER_GB_FONT           6
+#define LAYER_KICKFLIP_NUMBERS_FONT     6
 #define LAYER_KICKFLIP_FONT     7
 
 struct SpriteTile
