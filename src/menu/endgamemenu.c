@@ -216,5 +216,5 @@ void renderTimeString(unsigned short time, char* output) {
     unsigned seconds = (time / 10) % 60;
     unsigned minutes = time / 600;
 
-    sprintf(output, "%d:%d.%d", minutes, seconds, subSeconds);
+    sprintf(output, "%d:%02d.%d", minutes, seconds, subSeconds);
 }

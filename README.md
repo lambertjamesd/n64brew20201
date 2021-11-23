@@ -14,6 +14,7 @@ TODO
     figure out culling on level geometry
     death animation is slow
     defeat timer for single player
+    minion needs to attack better
 
     balance
 

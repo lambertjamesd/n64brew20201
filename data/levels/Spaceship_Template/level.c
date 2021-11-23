@@ -55,7 +55,7 @@ struct Vector3 Spaceship_Template_PathingNodes[] = {
 };
 char Spaceship_Template_BasesPathNodes[] = {
 };
-struct basesDistance Spaceship_Template_basePathNodeDistnaces[] = {
+unsigned short Spaceship_Template_NodeDistances[] = {
 };
 char Spaceship_Template_NextNode[] = {
 };
@@ -70,6 +70,6 @@ struct LevelDefinition Spaceship_Template_Definition = {
     .sceneRender = Spaceship_Template_model_gfx,
     .theme = &SpaceTheme,
     .staticScene = {Spaceship_Template_Boundary, 6},
-    .pathfinding = {.nodeCount = 0, .baseNodes = Spaceship_Template_BasesPathNodes, .baseDistances = Spaceship_Template_basePathNodeDistnaces, .nodePositions = Spaceship_Template_PathingNodes, .nextNode = Spaceship_Template_NextNode},
+    .pathfinding = {.nodeCount = 0, .baseNodes = Spaceship_Template_BasesPathNodes, .nodeDistances = Spaceship_Template_NodeDistances, .nodePositions = Spaceship_Template_PathingNodes, .nextNode = Spaceship_Template_NextNode},
 };
 

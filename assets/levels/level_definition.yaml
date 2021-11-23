@@ -24,6 +24,12 @@ Themes:
           MaxPlayers: 2
           Campaign: True
 
+        - Name: Galaxy
+          Filename: Galaxy.fbx
+          Output: ../../data/levels/Galaxy/level.h
+          MaxPlayers: 2
+          Campaign: True
+
         - Name: Curiosity
           Filename: Campaign_Curiosity.fbx
           Output: ../../data/levels/Curiosity/level.h

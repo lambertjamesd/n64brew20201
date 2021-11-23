@@ -187,19 +187,17 @@ char The_Pit_BasesPathNodes[] = {
     0,
     1,
 };
-struct basesDistance The_Pit_basePathNodeDistnaces[] = {
-    {0, 1, 8535.94}, 
-    {0, 3, 10056.6}, 
-    {1, 0, 10035.2}, 
-    {1, 3, 985.069}, 
-    {3, 0, 9602.1}, 
-    {3, 1, 18138}, 
+unsigned short The_Pit_NodeDistances[] = {
+    0, 8535, 8514, 9521, 
+    8535, 0, 1520, 985, 
+    8514, 1520, 0, 1087, 
+    9521, 985, 1087, 0, 
 };
 char The_Pit_NextNode[] = {
-    0, 1, 1, 1, 
-    2, 1, 2, 3, 
-    0, 0, 2, 0, 
-    2, 2, 2, 3, 
+    0, 1, 2, 1, 
+    0, 1, 2, 3, 
+    0, 1, 2, 3, 
+    1, 1, 2, 3, 
 };
 struct LevelDefinition The_Pit_Definition = {
     .maxPlayerCount = 2,
@@ -212,6 +210,6 @@ struct LevelDefinition The_Pit_Definition = {
     .sceneRender = The_Pit_model_gfx,
     .theme = &MarsTheme,
     .staticScene = {The_Pit_Boundary, 6},
-    .pathfinding = {.nodeCount = 4, .baseNodes = The_Pit_BasesPathNodes, .baseDistances = The_Pit_basePathNodeDistnaces, .nodePositions = The_Pit_PathingNodes, .nextNode = The_Pit_NextNode},
+    .pathfinding = {.nodeCount = 4, .baseNodes = The_Pit_BasesPathNodes, .nodeDistances = The_Pit_NodeDistances, .nodePositions = The_Pit_PathingNodes, .nextNode = The_Pit_NextNode},
 };
 

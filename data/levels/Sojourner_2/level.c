@@ -320,7 +320,7 @@ struct Vector3 Sojourner_2_PathingNodes[] = {
 };
 char Sojourner_2_BasesPathNodes[] = {
 };
-struct basesDistance Sojourner_2_basePathNodeDistnaces[] = {
+unsigned short Sojourner_2_NodeDistances[] = {
 };
 char Sojourner_2_NextNode[] = {
 };
@@ -335,6 +335,6 @@ struct LevelDefinition Sojourner_2_Definition = {
     .sceneRender = Sojourner_2_model_gfx,
     .theme = &MarsTheme,
     .staticScene = {Sojourner_2_Boundary, 4},
-    .pathfinding = {.nodeCount = 0, .baseNodes = Sojourner_2_BasesPathNodes, .baseDistances = Sojourner_2_basePathNodeDistnaces, .nodePositions = Sojourner_2_PathingNodes, .nextNode = Sojourner_2_NextNode},
+    .pathfinding = {.nodeCount = 0, .baseNodes = Sojourner_2_BasesPathNodes, .nodeDistances = Sojourner_2_NodeDistances, .nodePositions = Sojourner_2_PathingNodes, .nextNode = Sojourner_2_NextNode},
 };
 

@@ -24,12 +24,6 @@ struct BaseDefinition {
     unsigned char startingTeam;
 };
 
-struct basesDistance{
-    unsigned fromBase;
-    unsigned toBase;
-    float distance;
-};
-
 struct DecorDefinition {
     struct Vector3 position;
     struct Quaternion rotation;
@@ -41,7 +35,7 @@ struct PathfindingDefinition {
     unsigned short nodeCount;
     struct Vector3* nodePositions;
     char* baseNodes;
-    struct basesDistance* baseDistances;
+    unsigned short* nodeDistances;
     char *nextNode;
 };
 

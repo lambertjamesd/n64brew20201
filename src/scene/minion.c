@@ -187,7 +187,7 @@ void minionUpdate(struct Minion* minion) {
 
             if (minion->currentTarget && (minion->currentTarget->entityType != TeamEntityTypeBase || minion->pathfinder.currentNode == NODE_NONE)) {
                 target = teamEntityGetPosition(minion->currentTarget);
-                minDistance = ATTACK_RADIUS;
+                minDistance = ATTACK_RADIUS * 0.5f;
             } else {
                 if(minion->pathfinder.currentNode < gCurrentLevel.definition->pathfinding.nodeCount) {
                     target = &gCurrentLevel.definition->pathfinding.nodePositions[minion->pathfinder.currentNode]; 

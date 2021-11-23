@@ -50,6 +50,10 @@ int mainMenuGetPlayerCount(struct MainMenu* menu) {
 }
 
 int mainMenuIsLevelUnlocked(struct MainMenu* mainMenu) {
+    if (mainMenu->selections.selectedPlayerCount > 0) {
+        return 1;
+    }
+
     return mainMenu->selections.selectedLevel == 0 || saveFileIsLevelComplete(mainMenu->selections.selectedLevel - 1);
 }
 

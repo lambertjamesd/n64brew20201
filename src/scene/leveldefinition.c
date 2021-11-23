@@ -12,6 +12,6 @@ struct LevelDefinition* levelDefinitionUnpack(struct LevelDefinition* addressPtr
     result->pathfinding.nodePositions = CALC_RAM_POINTER(result->pathfinding.nodePositions, segmentRamStart);
     result->pathfinding.nextNode = CALC_RAM_POINTER(result->pathfinding.nextNode, segmentRamStart);
     result->pathfinding.baseNodes = CALC_RAM_POINTER(result->pathfinding.baseNodes, segmentRamStart);
-    result->pathfinding.baseDistances = CALC_RAM_POINTER(result->pathfinding.baseDistances, segmentRamStart);
+    result->pathfinding.nodeDistances = CALC_RAM_POINTER(result->pathfinding.nodeDistances, segmentRamStart);
     return result;
 }

@@ -28,13 +28,7 @@ float getDistanceToBase(struct PathfindingDefinition* inPathfinding, unsigned fr
     unsigned from = getBasePathNodeID(inPathfinding, fromBase);
     unsigned to = getBasePathNodeID(inPathfinding, toBase);
 
-    for(unsigned i = 0; i < numBases; ++i){
-        if(inPathfinding->baseDistances[i].fromBase == from &&
-        inPathfinding->baseDistances[i].toBase == to){
-            return inPathfinding->baseDistances[i].distance;
-        }
-    }
-    return -1.f;
+    return (float)inPathfinding->nodeDistances[from * inPathfinding->nodeCount + to];
 }
 
 unsigned getClosestEnemyBase(struct PathfindingDefinition* inPathfinding, struct LevelBase* allBases, unsigned numBases, unsigned closestToBase, unsigned freindlyTeam){

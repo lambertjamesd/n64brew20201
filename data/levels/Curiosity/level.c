@@ -520,7 +520,7 @@ struct Vector3 Curiosity_PathingNodes[] = {
 };
 char Curiosity_BasesPathNodes[] = {
 };
-struct basesDistance Curiosity_basePathNodeDistnaces[] = {
+unsigned short Curiosity_NodeDistances[] = {
 };
 char Curiosity_NextNode[] = {
 };
@@ -535,6 +535,6 @@ struct LevelDefinition Curiosity_Definition = {
     .sceneRender = Curiosity_model_gfx,
     .theme = &MarsTheme,
     .staticScene = {Curiosity_Boundary, 13},
-    .pathfinding = {.nodeCount = 0, .baseNodes = Curiosity_BasesPathNodes, .baseDistances = Curiosity_basePathNodeDistnaces, .nodePositions = Curiosity_PathingNodes, .nextNode = Curiosity_NextNode},
+    .pathfinding = {.nodeCount = 0, .baseNodes = Curiosity_BasesPathNodes, .nodeDistances = Curiosity_NodeDistances, .nodePositions = Curiosity_PathingNodes, .nextNode = Curiosity_NextNode},
 };
 

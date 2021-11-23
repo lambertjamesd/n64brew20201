@@ -267,15 +267,14 @@ char Boot_Camp_BasesPathNodes[] = {
     1,
     0,
 };
-struct basesDistance Boot_Camp_basePathNodeDistnaces[] = {
-    {1, 0, 2908.6}, 
-    {1, 2, 2908.6}, 
-    {2, 0, 5545.26}, 
-    {2, 1, 2636.66}, 
+unsigned short Boot_Camp_NodeDistances[] = {
+    0, 2908, 5545, 
+    2908, 0, 2636, 
+    5545, 2636, 0, 
 };
 char Boot_Camp_NextNode[] = {
-    0, 0, 0, 
-    0, 1, 0, 
+    0, 1, 1, 
+    0, 1, 2, 
     1, 1, 2, 
 };
 struct LevelDefinition Boot_Camp_Definition = {
@@ -289,6 +288,6 @@ struct LevelDefinition Boot_Camp_Definition = {
     .sceneRender = Boot_Camp_model_gfx,
     .theme = &MarsTheme,
     .staticScene = {Boot_Camp_Boundary, 7},
-    .pathfinding = {.nodeCount = 3, .baseNodes = Boot_Camp_BasesPathNodes, .baseDistances = Boot_Camp_basePathNodeDistnaces, .nodePositions = Boot_Camp_PathingNodes, .nextNode = Boot_Camp_NextNode},
+    .pathfinding = {.nodeCount = 3, .baseNodes = Boot_Camp_BasesPathNodes, .nodeDistances = Boot_Camp_NodeDistances, .nodePositions = Boot_Camp_PathingNodes, .nextNode = Boot_Camp_NextNode},
 };
 
