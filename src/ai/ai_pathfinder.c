@@ -1,5 +1,12 @@
 #include "ai_pathfinder.h"
 
+unsigned getBaseFromNodeId(struct PathfindingDefinition* inPathfinding, unsigned nodeId, unsigned numBases){
+    for(unsigned i = 0; i < numBases; ++i){
+        if(inPathfinding->baseNodes[i] == nodeId) return i;
+    }
+    return -1;
+}
+
 unsigned short nav_getClosestPoint(struct Vector3* closestTo, struct Vector3* allPoints, unsigned numPoints){
 
     if (numPoints == 0) {

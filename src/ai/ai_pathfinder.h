@@ -9,6 +9,7 @@ unsigned short nav_getClosestPoint(struct Vector3* closestTo, struct Vector3* al
 unsigned nav_getNextNavPoint(unsigned movingFrom, unsigned movingTo, char* nextNodeArr, unsigned numPoints);
 unsigned getBasePathNodeID(struct PathfindingDefinition* inPathfinding, unsigned baseID);
 float getDistanceToBase(struct PathfindingDefinition* inPathfinding, unsigned fromBase, unsigned toBase, unsigned numBases);
+unsigned getBaseFromNodeId(struct PathfindingDefinition* inPathfinding, unsigned NodeId, unsigned numBases);
 
 unsigned getClosestEnemyBase(struct PathfindingDefinition* inPathfinding, struct LevelBase* allBases, unsigned numBases, unsigned closestToBase, unsigned freindlyTeam);
 unsigned getClosestNeutralBase(struct PathfindingDefinition* inPathfinding, struct LevelBase* allBases, unsigned numBases, unsigned closestToBase);

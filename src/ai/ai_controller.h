@@ -9,9 +9,8 @@
 #include "ai_pathfinder.h"
 #include "ai_planner.h"
 
-#define MOVETO_ACCEPTANCE_RADIUS  10
-#define BASE_ACCEPTANCE_RADIUS 10
-#define ATTACK_ACCEPTANCE_RADIUS 100
+#define BASE_ACCEPTANCE_RADIUS 300.f
+#define ATTACK_ACCEPTANCE_RADIUS 300.f
 
 struct AIController{
     struct PathfindingDefinition* pathfindingInfo; 

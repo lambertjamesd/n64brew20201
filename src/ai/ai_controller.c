@@ -4,7 +4,7 @@
 
 struct CollisionCircle gBotCollider = {
     {CollisionShapeTypeCircle},
-    SCENE_SCALE * 0.5f,
+    2.0f * SCENE_SCALE,
 };
 
 void ai_CorrectOverlap(struct DynamicSceneOverlap* overlap) {
@@ -103,8 +103,8 @@ void ai_Init(struct AIController* inController, struct PathfindingDefinition* pa
         &gCurrentLevel.players[playerIndex], 
         &position,
         ai_CorrectOverlap,
-        DynamicSceneEntryIsTrigger,
-        CollisionLayersTangible | COLLISION_LAYER_FOR_TEAM(teamIndex)
+        DynamicSceneEntryHasTeam,
+        CollisionLayersTangible | CollisionLayersBase | COLLISION_LAYER_FOR_TEAM(teamIndex)
     );
 }
 
@@ -139,30 +139,36 @@ unsigned short wasPlayerJustHit(struct AIController* ai){
     return (ai && !ai->attackTarget && gCurrentLevel.players[ai->playerIndex].damageHandler.damageTimer > 0.f);
 }
 
+unsigned isTargetBaseCaptured(struct AIController* ai){
+    unsigned baseIdx = getBaseFromNodeId(&gCurrentLevel.definition->pathfinding, ai->pathfinder.targetNode, gCurrentLevel.baseCount);
+    if(baseIdx != -1){
+        return gCurrentLevel.bases[baseIdx].team.teamNumber == ai->teamIndex;
+    }
+    else return 0;
+}
+
 void ai_collectPlayerInput(struct LevelScene* levelScene, struct AIController* ai, struct PlayerInput* playerInput) {
     struct Vector3* targetPosition = &gZeroVec;// = aiPlannerGetTarget(levelScene, &ai->planner);
     struct Vector3* enemyPosition;
     float enemyDist = -1.f;
+    unsigned short closeEnoughToTarget = 0;
 
     if(ai->attackTarget == 0 && wasPlayerJustHit(ai))
         ai_getClosestEnemyCharacter(ai->playerIndex, ai->attackTarget, &enemyDist);
     if(ai->attackTarget != 0){
         enemyPosition = teamEntityGetPosition(ai->attackTarget);
         if(enemyDist < 0.f) enemyDist = vector3DistSqrd(&gCurrentLevel.players[ai->playerIndex].transform.position, enemyPosition);
-        //if(enemyDist > 16000 || !teamEntityIsAlive(ai->attackTarget)) ai->attackTarget = 0;
+        if(enemyDist > 400000 || !teamEntityIsAlive(ai->attackTarget)) ai->attackTarget = 0;
     }
 
     if(ai->attackTarget != 0){
         targetPosition = enemyPosition;
+        closeEnoughToTarget = enemyDist <= 13000.f;
     } 
     else if(ai->planner.currentPlan && 
         ai->planner.currentPlan->targetBase >= 0 && (ai->planner.currentPlan->targetBase < gCurrentLevel.baseCount)){
-        if(ai->pathfinder.currentNode < levelScene->definition->pathfinding.nodeCount &&
-            (levelScene->definition->pathfinding.baseNodes[ai->planner.currentPlan->targetBase] == 
-            ai->pathfinder.targetNode)){
-
-                targetPosition = &gCurrentLevel.definition->pathfinding.nodePositions[ai->pathfinder.currentNode];
-            
+        if(ai->pathfinder.currentNode < levelScene->definition->pathfinding.nodeCount && !isTargetBaseCaptured(ai)){
+                targetPosition = &gCurrentLevel.definition->pathfinding.nodePositions[ai->pathfinder.currentNode];  
         }
         else {
             pathfinderSetTarget(&ai->pathfinder, 
@@ -172,9 +178,14 @@ void ai_collectPlayerInput(struct LevelScene* levelScene, struct AIController* a
 
             targetPosition = &gCurrentLevel.definition->pathfinding.nodePositions[ai->pathfinder.currentNode];
         }
+        closeEnoughToTarget = vector3DistSqrd(&gCurrentLevel.players[ai->playerIndex].transform.position, targetPosition) <= (100.f);
     }
 
-    playerInput->actionFlags = 0;
+    
+    if(ai->attackTarget && enemyDist < 12000) playerInput->actionFlags = PlayerInputActionsAttack;
+    else playerInput->actionFlags = 0;
+
+    if(closeEnoughToTarget){};
 
     if (targetPosition) {
         vector3Sub(targetPosition, &levelScene->players[ai->playerIndex].transform.position, &playerInput->targetWorldDirection);
@@ -182,7 +193,7 @@ void ai_collectPlayerInput(struct LevelScene* levelScene, struct AIController* a
     } else {
         playerInputNoInput(playerInput);
         playerInput->targetWorldDirection = gZeroVec;
-        gCurrentLevel.players[ai->playerIndex].velocity = gZeroVec;
+        //gCurrentLevel.players[ai->playerIndex].velocity = gZeroVec;
     }
 }
 
