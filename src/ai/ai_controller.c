@@ -2,36 +2,24 @@
 #include "collision/collisionlayers.h"
 #include "scene/scene_management.h"
 
+#define ATTACK_RADIUS (10.0f * SCENE_SCALE)
+
 struct CollisionCircle gBotCollider = {
     {CollisionShapeTypeCircle},
-    2.0f * SCENE_SCALE,
+    ATTACK_RADIUS,
 };
 
 void ai_CorrectOverlap(struct DynamicSceneOverlap* overlap) {
-    teamEntityCorrectOverlap(overlap);
-
     if (overlap->otherEntry->flags & DynamicSceneEntryHasTeam) {
-        struct TeamEntity* entityA = (struct TeamEntity*)overlap->thisEntry->data;
+        struct Player* player = (struct Player*)overlap->thisEntry->data;
         struct TeamEntity* entityB = (struct TeamEntity*)overlap->otherEntry->data;
 
-        struct Player* player = 0;
-        for(unsigned plIdx = 0; plIdx < gCurrentLevel.playerCount; ++plIdx){
-            if(&gCurrentLevel.players[plIdx] == overlap->thisEntry->data){
-                player = (struct Player*)entityA;
-                break;
-            }
+        unsigned aiIdx = player->playerIndex - gCurrentLevel.humanPlayerCount;
+        struct AIController* bot = &gCurrentLevel.bots[aiIdx];
+
+        if (entityB->teamNumber != player->team.teamNumber && !bot->attackTarget) {
+            bot->attackTarget = entityB;
         }
-
-
-        if(player != 0){
-            unsigned aiIdx = player->playerIndex - gCurrentLevel.humanPlayerCount;
-            struct AIController* bot = &gCurrentLevel.bots[aiIdx];
-
-            if (entityB->teamNumber != player->team.teamNumber && !bot->attackTarget) {
-                bot->attackTarget = entityB;
-            }
-        }
-
     }
 }
 
@@ -103,20 +91,13 @@ void ai_Init(struct AIController* inController, struct PathfindingDefinition* pa
         &gCurrentLevel.players[playerIndex], 
         &position,
         ai_CorrectOverlap,
-        DynamicSceneEntryHasTeam,
-        CollisionLayersTangible | CollisionLayersBase | COLLISION_LAYER_FOR_TEAM(teamIndex)
+        DynamicSceneEntryIsTrigger,
+        CollisionLayersAllTeams ^ COLLISION_LAYER_FOR_TEAM(teamIndex)
     );
 }
 
 void ai_update(struct LevelScene* level, struct AIController* ai) {
-
-    if (gCurrentLevel.players[ai->playerIndex].damageHandler.hp <= 0) {
-        if (ai->collider) {
-            dynamicSceneDeleteEntry(ai->collider);
-            ai->collider = 0;
-        }
-    }
-    else dynamicEntrySetPos3D(ai->collider, &gCurrentLevel.players[ai->playerIndex].transform.position);
+    dynamicEntrySetPos3D(ai->collider, &gCurrentLevel.players[ai->playerIndex].transform.position);
 
     aiPlannerUpdate(level, &ai->planner);
     pathfinderUpdate(&ai->pathfinder, &level->definition->pathfinding, &level->players[ai->playerIndex].transform.position, &level->players[ai->playerIndex].transform.position);
@@ -158,7 +139,7 @@ void ai_collectPlayerInput(struct LevelScene* levelScene, struct AIController* a
     if(ai->attackTarget != 0){
         enemyPosition = teamEntityGetPosition(ai->attackTarget);
         if(enemyDist < 0.f) enemyDist = vector3DistSqrd(&gCurrentLevel.players[ai->playerIndex].transform.position, enemyPosition);
-        if(enemyDist > 400000 || !teamEntityIsAlive(ai->attackTarget)) ai->attackTarget = 0;
+        if(enemyDist > ATTACK_RADIUS || !teamEntityIsAlive(ai->attackTarget)) ai->attackTarget = 0;
     }
 
     if(ai->attackTarget != 0){

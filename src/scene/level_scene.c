@@ -45,7 +45,7 @@ void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* defin
     dynamicSceneInit(
         &gDynamicScene, 
         definition->baseCount * (MAX_MINIONS_PER_BASE + 1) + 
-        playercount * 3 + 
+        playercount * 4 + 
         definition->decorCount + 
         TARGET_FINDER_COUNT + 
         MAX_ITEM_DROP
