@@ -315,6 +315,7 @@ void skAnimatorInit(struct SKAnimator* animator, unsigned boneCount, SKAnimation
     animator->nextSourceChunkSize = 0;
     animator->nextChunkSource = 0;
     animator->boneState = malloc(sizeof(struct SKBoneAnimationState) * boneCount); 
+    zeroMemory(animator->boneState, sizeof(struct SKBoneAnimationState) * boneCount);
     animator->currentAnimation = 0;
     animator->eventCallback = animtionCallback;
     animator->eventCallbackData = callbackData;

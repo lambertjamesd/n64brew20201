@@ -91,8 +91,11 @@ static void initproc(char *argv)
 static void gameproc(void *argv)
 {
     u32         drawbuffer = 0;
+    u32         useTimer = 0;
     u32         pendingGFX = 0;
     GFXMsg      *msg = NULL;
+
+    OSTime rcpTaskStart[2];
 
     initGame();
 
@@ -108,11 +111,16 @@ static void gameproc(void *argv)
                 /**** Create a new gfx task unless we already have 2  ****/                 
                 if (pendingGFX < 2 && !sceneIsLoading()) 
                 {
+                    OSTime drawTimeStart = osGetTime();
                     createGfxTask(&gInfo[drawbuffer]);
                     pendingGFX++;
+                    rcpTaskStart[drawbuffer] = osGetTime();
+                    gGFXCreateTime = rcpTaskStart[drawbuffer] - drawTimeStart;
                     drawbuffer ^= 1; /* switch the drawbuffer */
+
                 }
 
+                OSTime updateTimeStart = osGetTime();
                 if (!controllerHasPendingMessage() && pendingGFX == 0) {
                     // save when there isn't a 
                     // message expected on the queue
@@ -127,9 +135,13 @@ static void gameproc(void *argv)
                 soundPlayerUpdate();
                 dynamicMusicUpdate();
 
+                gUpdateTime = osGetTime() - updateTimeStart;
+
                 break;
 
             case (OS_SC_DONE_MSG):
+                gGFXRSPTime = osGetTime() - rcpTaskStart[useTimer];
+                useTimer ^= 1;
                 pendingGFX--;        /* decrement number of pending tasks */
                 break;
                 

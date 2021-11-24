@@ -20,6 +20,10 @@ extern OSSched         sc;
 extern OSMesgQueue     *sched_cmdQ;
 extern GFXInfo         gInfo[];
 
+OSTime gGFXCreateTime;
+OSTime gUpdateTime;
+OSTime gGFXRSPTime;
+
 char         *gStaticSegment = 0;
 char         *gMenuSegment = 0;
 char         *gCharacterSegment = 0;
@@ -225,4 +229,37 @@ void gfxInitSplitscreenViewport(unsigned playercount) {
         gClippingRegions[i * 4 + 2] = r;
         gClippingRegions[i * 4 + 3] = b;
     }
+}
+
+struct Coloru8 gfxCreateColor = {255, 0, 0, 255};
+struct Coloru8 updateColor = {0, 255, 0, 255};
+struct Coloru8 rspColor = {0, 0, 255, 255};
+
+#define BAR_Y 32
+#define BAR_X 32
+#define BAR_W 120
+
+#define TARGET_FRAME_USECS  33333
+
+void gfxDrawTimingInfo(struct RenderState* renderState) {
+
+    unsigned createWidth = BAR_W * OS_CYCLES_TO_USEC(gGFXCreateTime) / TARGET_FRAME_USECS;
+    unsigned updateWidth = BAR_W * OS_CYCLES_TO_USEC(gUpdateTime) / TARGET_FRAME_USECS;
+    unsigned rspWidth = BAR_W * OS_CYCLES_TO_USEC(gGFXRSPTime) / TARGET_FRAME_USECS;
+
+    spriteSetColor(renderState, LAYER_SOLID_COLOR, gfxCreateColor);
+    spriteSolid(renderState, LAYER_SOLID_COLOR, BAR_X, BAR_Y, createWidth, 4);
+
+    spriteSetColor(renderState, LAYER_SOLID_COLOR, updateColor);
+    spriteSolid(renderState, LAYER_SOLID_COLOR, BAR_X + createWidth, BAR_Y + 4, updateWidth, 4);
+
+    spriteSetColor(renderState, LAYER_SOLID_COLOR, rspColor);
+    spriteSolid(renderState, LAYER_SOLID_COLOR, BAR_X + createWidth, BAR_Y + 8, rspWidth, 4);
+
+    spriteSetColor(renderState, LAYER_SOLID_COLOR, gColorWhite);
+    spriteSolid(renderState, LAYER_SOLID_COLOR, BAR_X + BAR_W, BAR_Y, 2, 12);
+
+    spriteSolid(renderState, LAYER_SOLID_COLOR, BAR_X + BAR_W * 30 / 60, BAR_Y, 2, 12);
+    spriteSolid(renderState, LAYER_SOLID_COLOR, BAR_X + BAR_W * 30 / 20, BAR_Y, 2, 12);
+    spriteSolid(renderState, LAYER_SOLID_COLOR, BAR_X + BAR_W * 30 / 15, BAR_Y, 2, 12);
 }

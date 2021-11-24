@@ -97,7 +97,13 @@ extern u64          dram_stack[];
 
 extern void* rdp_output;
 
+extern OSTime gGFXCreateTime;
+extern OSTime gUpdateTime;
+extern OSTime gGFXRSPTime;
+
 void gfxInitSplitscreenViewport(unsigned playercount);
+
+void gfxDrawTimingInfo(struct RenderState* renderState);
 
 #endif	/* _LANGUAGE_C */
 #endif /* __simplegfx__ */

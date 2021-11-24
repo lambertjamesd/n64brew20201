@@ -162,7 +162,7 @@ void mainMenuStartLevel(struct MainMenu* mainMenu) {
     gameConfig.humanPlayerCount = mainMenuGetPlayerCount(mainMenu);
 
     if (gameConfig.humanPlayerCount == 1) {
-        gameConfig.playerCount = 2;
+        gameConfig.playerCount = mainMenu->filteredLevels[mainMenu->selections.selectedLevel]->maxPlayers;
     } else {
         gameConfig.playerCount = gameConfig.humanPlayerCount;
     }

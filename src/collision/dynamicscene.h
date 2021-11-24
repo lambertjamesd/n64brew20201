@@ -34,20 +34,18 @@ struct DynamicSceneOverlap {
     struct DynamicSceneEntry* otherEntry;
 };
 
-#define DYNAMIC_SCENE_ENTRY_COUNT   128
-
 struct DynamicScene {
-    struct DynamicSceneEntry entries[DYNAMIC_SCENE_ENTRY_COUNT];
-    struct DynamicSceneEntry* entryOrder[DYNAMIC_SCENE_ENTRY_COUNT];
-    // TODO move this to the stack
-    struct DynamicSceneEntry* workingMemory[DYNAMIC_SCENE_ENTRY_COUNT];
+    struct DynamicSceneEntry* entries;
+    struct DynamicSceneEntry** entryOrder;
+    struct DynamicSceneEntry** workingMemory;
+    unsigned short actorCapacity;
     unsigned short actorCount;
     unsigned short locked;
 };
 
 extern struct DynamicScene gDynamicScene;
 
-void dynamicSceneInit(struct DynamicScene* scene);
+void dynamicSceneInit(struct DynamicScene* scene, unsigned short actorCapacity);
 
 struct DynamicSceneEntry* dynamicSceneNewEntry(
     struct CollisionShape* forShape, 

@@ -6,10 +6,17 @@
 
 struct DynamicScene gDynamicScene;
 
-void dynamicSceneInit(struct DynamicScene* scene) {
+void dynamicSceneInit(struct DynamicScene* scene, unsigned short actorCapacity) {
     zeroMemory(scene, sizeof(struct DynamicScene));
+    scene->actorCapacity = actorCapacity;
 
-    for (unsigned i = 0; i < DYNAMIC_SCENE_ENTRY_COUNT; ++i) {
+    scene->entries = malloc(sizeof(struct DynamicSceneEntry) * actorCapacity);
+    zeroMemory(scene->entries, sizeof(struct DynamicSceneEntry) * actorCapacity);
+
+    scene->entryOrder = malloc(sizeof(struct DynamicSceneEntry*) * actorCapacity);
+    scene->workingMemory = malloc(sizeof(struct DynamicSceneEntry*) * actorCapacity);
+
+    for (unsigned i = 0; i < actorCapacity; ++i) {
         gDynamicScene.entryOrder[i] = &gDynamicScene.entries[i];
     }
 }
@@ -28,7 +35,7 @@ struct DynamicSceneEntry* dynamicSceneNewEntry(
         return 0;
     }
 
-    if (gDynamicScene.actorCount < DYNAMIC_SCENE_ENTRY_COUNT) {
+    if (gDynamicScene.actorCount < gDynamicScene.actorCapacity) {
         struct DynamicSceneEntry* result = gDynamicScene.entryOrder[gDynamicScene.actorCount];
         result->forShape = forShape;
         result->data = data;

@@ -18,7 +18,7 @@
 
 #include "game_defs.h"
 
-#define CAPTURE_TIME        7
+#define CAPTURE_TIME        3
 #define SPAWN_TIME          4
 #define FLASHES_PER_SPAWN   5
 
@@ -44,21 +44,21 @@ float gCapacityScalar[] = {
 #define MAX_UPGRADE_COUNT       3
 
 float gSpeedUpgradeTime[MAX_UPGRADE_COUNT] = {
+    10.0f,
     15.0f,
-    18.0f,
     20.0f,
 };
 
 float gCapacityUpgradeTime[MAX_UPGRADE_COUNT] = {
-    15.0f,
-    18.0f,
+    10.0f,
     20.0f,
+    30.0f,
 };
 
 float gDefenseUpgradeTime[MAX_UPGRADE_COUNT] = {
+    5.0f,
+    10.0f,
     15.0f,
-    18.0f,
-    20.0f,
 };
 
 #define MIN_FLAG_HEIGHT     0.5f

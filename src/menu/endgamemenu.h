@@ -16,6 +16,7 @@ void endGameMenuResetStats();
 
 enum EndGameState {
     EndGameStateLoading,
+    EndGameStateLoadingExtraFrame,
     EndGameStateLoaded,
 };
 

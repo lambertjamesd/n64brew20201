@@ -30,6 +30,12 @@ Themes:
           MaxPlayers: 2
           Campaign: True
 
+        - Name: Triangle
+          Filename: Triangle.fbx
+          Output: ../../data/levels/Triangle/level.h
+          MaxPlayers: 3
+          Campaign: True
+
         - Name: Curiosity
           Filename: Campaign_Curiosity.fbx
           Output: ../../data/levels/Curiosity/level.h
@@ -39,6 +45,18 @@ Themes:
         - Name: Sojourner
           Filename: Campaign_Sojourner.fbx
           Output: ../../data/levels/Sojourner/level.h
+          MaxPlayers: 4
+          Campaign: True
+
+        - Name: Perseverance
+          Filename: Campaign_Perseverance.fbx
+          Output: ../../data/levels/Perseverance/level.h
+          MaxPlayers: 4
+          Campaign: True
+
+        - Name: Spirit
+          Filename: Campaign_Spirit.fbx
+          Output: ../../data/levels/Spirit/level.h
           MaxPlayers: 4
           Campaign: True
 
@@ -79,4 +97,4 @@ Themes:
           Filename: Spaceship_Lowest_Level.fbx
           Output: ../../data/levels/Spacestation_F1/level.h
           MaxPlayers: 4
-          Multiplayer: True
+          Campaign: True

@@ -97,16 +97,11 @@ void targetFinderUpdate(struct TargetFinder* finder) {
             dynamicEntrySetPos3D(finder->trigger, &minion->defensePoint);
         } 
         else if (minion->currentCommand == MinionCommandAttack) {
-            
-            minion->currentTarget = targetFinderFindNearestTarget(&gCurrentLevel, &minion->transform.position, minion->team.teamNumber);
 
-            if(minion->currentTarget && vector3DistSqrd(teamEntityGetPosition(minion->currentTarget), &minion->transform.position) > 10000){
-                if(minion->currentTarget->entityType == TeamEntityTypeBase){
-                    if(minion->pathfinder.currentNode >= gCurrentLevel.definition->pathfinding.nodeCount || 
-                        minion->currentTarget->teamNumber == minion->team.teamNumber){
-                        pathfinderSetTarget(&minion->pathfinder, &gCurrentLevel.definition->pathfinding, &minion->transform.position, teamEntityGetPosition(minion->currentTarget));
-                    }
-                }
+            struct TeamEntity* nextEntity = targetFinderFindNearestTarget(&gCurrentLevel, &minion->transform.position, minion->team.teamNumber);
+            
+            if (nextEntity != minion->currentTarget) {
+                minionSetTarget(minion, nextEntity);
             }
         }
     }

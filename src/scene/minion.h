@@ -60,5 +60,6 @@ void minionIssueCommand(struct Minion* minion, enum MinionCommand command, unsig
 void minionSetAttackTarget(struct Minion* minion, struct TeamEntity* target);
 void minionApplyDamage(struct Minion* minion, float amount);
 int minionIsAlive(struct Minion* minion);
+void minionSetTarget(struct Minion* minion, struct TeamEntity* value);
 
 #endif

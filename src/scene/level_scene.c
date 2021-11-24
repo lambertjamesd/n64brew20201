@@ -34,7 +34,7 @@ struct DynamicMarker gIntensityMarkers[] = {
 };
 
 #define GO_SHOW_DURATION 0.5f
-#define GAME_START_DELAY 5.0f
+#define GAME_START_DELAY 3.0f
 #define GAME_END_DELAY  5.0f
 #define LOSE_BY_KNOCKOUT_TIME   15.0f
 
@@ -42,7 +42,14 @@ struct DynamicMarker gIntensityMarkers[] = {
 
 void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* definition, unsigned int playercount, unsigned char humanPlayerCount, enum LevelMetadataFlags flags) {
     levelScene->definition = definition;
-    dynamicSceneInit(&gDynamicScene);
+    dynamicSceneInit(
+        &gDynamicScene, 
+        definition->baseCount * (MAX_MINIONS_PER_BASE + 1) + 
+        playercount * 3 + 
+        definition->decorCount + 
+        TARGET_FINDER_COUNT + 
+        MAX_ITEM_DROP
+    );
     endGameMenuResetStats();
 
     levelScene->levelDL = definition->sceneRender;
@@ -239,6 +246,8 @@ void levelSceneRender(struct LevelScene* levelScene, struct RenderState* renderS
     minimapRender(levelScene, renderState, gViewportPosition[levelScene->humanPlayerCount-1].minimapLocation);
 
     textBoxRender(&gTextBox, renderState);
+
+    gfxDrawTimingInfo(renderState);
 
     spriteFinish(renderState);
 }
@@ -510,6 +519,16 @@ int levelSceneFindWinningTeam(struct LevelScene* levelScene) {
 #endif
 
     int result = -1;
+
+    if (levelScene->humanPlayerCount == 1 && !playerIsAlive(&levelScene->players[0]) && levelScene->players[0].controlledBases == 0) {
+        result = 1;
+        for (unsigned i = 2; i < levelScene->playerCount; ++i) {
+            if (levelScene->players[i].controlledBases > levelScene->players[result].controlledBases) {
+                result = i;
+            }
+        }
+        return result;
+    }
 
     for (unsigned i = 0; i < levelScene->baseCount; ++i) {
         if (levelScene->bases[i].state != LevelBaseStateNeutral &&

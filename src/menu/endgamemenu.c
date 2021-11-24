@@ -149,17 +149,11 @@ void endGameMenuRender(struct EndGameMenu* menu, struct RenderState* renderState
 }
 
 float endGameCalcCaptureFreq(struct EndGameMenu* menu) {
-    unsigned progressIndex = (unsigned)(menu->drawAnimationTimer * STAT_COLUMNS / DRAW_ANIMATION_TIME);
-
-    if (progressIndex + 1 >= STAT_COLUMNS) {
-        progressIndex = STAT_COLUMNS - 1;
-    }
-
-    return powf(2.0f, menu->baseStats[menu->winningTeam][progressIndex] / menu->maxBases) * 0.5f;    
+    return powf(2.0f, menu->drawAnimationTimer / DRAW_ANIMATION_TIME) * 0.5f;    
 }
 
 void endGameMenuEnterLoadedState(struct EndGameMenu* menu) {
-    menu->state = EndGameStateLoaded;
+    menu->state = EndGameStateLoadingExtraFrame;
     soundPlayerStop(&menu->captureSound);
     menu->winnerTransform = gWinnerTransform;
 
@@ -174,8 +168,6 @@ void endGameMenuEnterLoadedState(struct EndGameMenu* menu) {
         winningFaction->playerBoneParent
     );
     skAnimatorRunClip(&menu->winnerAnimator, winningFaction->playerAnimations[PlayerAnimationVictory], 0);
-    skWaitForPendingRequest(&menu->winnerAnimator);
-    skAnimatorUpdate(&menu->winnerAnimator, menu->winnerArmature.boneTransforms, 1.0f);
 }
 
 int endGameMenuUpdate(struct EndGameMenu* menu) {
@@ -203,6 +195,8 @@ int endGameMenuUpdate(struct EndGameMenu* menu) {
                 endGameMenuEnterLoadedState(menu);
             }
             break;
+        case EndGameStateLoadingExtraFrame:
+            menu->state = EndGameStateLoaded;
         case EndGameStateLoaded:
             skAnimatorUpdate(&menu->winnerAnimator, menu->winnerArmature.boneTransforms, 1.0f);
             break;
