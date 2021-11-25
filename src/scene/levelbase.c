@@ -122,28 +122,14 @@ void levelBaseStartUpgrade(struct LevelBase* base, enum LevelBaseState nextState
         return;
     }
 
-    switch (nextState) {
-        case LevelBaseStateUpgradingSpawnRate:
-            if (base->speedUpgrade + 1 < MAX_UPGRADE_COUNT) {
-                base->stateTimeLeft = gSpeedUpgradeTime[base->speedUpgrade];
-                base->state = nextState;
-            }
-            break;
-        case LevelBaseStateUpgradingCapacity:
-            if (base->capacityUpgrade + 1 < MAX_UPGRADE_COUNT) {
-                base->stateTimeLeft = gCapacityUpgradeTime[base->capacityUpgrade];
-                base->state = nextState;
-            }
-            break;
-        case LevelBaseStateUpgradingDefence:
-            if (base->defenseUpgrade + 1 < MAX_UPGRADE_COUNT) {
-                base->stateTimeLeft = gDefenseUpgradeTime[base->defenseUpgrade];
-                base->state = nextState;
-            }
-            break;
-        default:
-            break;
-    };
+    float time = levelBaseTimeForUpgrade(base, nextState);
+
+    if (time < 0.0f) {
+        return;
+    }
+
+    base->stateTimeLeft = time;
+    base->state = nextState;
 }
 
 void levelBaseInit(struct LevelBase* base, struct BaseDefinition* definition, unsigned char baseId, unsigned int makeNeutral) {
@@ -395,4 +381,32 @@ int levelBaseIsBeingCaptured(struct LevelBase* base) {
     } else {
         return base->captureProgress != base->lastCaptureProgress;
     }
+}
+
+int levelBaseIsBeingUpgraded(struct LevelBase* base) {
+    return base->state >= LevelBaseStateUpgradingSpawnRate && base->state <= LevelBaseStateUpgradingDefence;
+}
+
+float levelBaseTimeForUpgrade(struct LevelBase* base, enum LevelBaseState upgradeType) {
+    switch (upgradeType)
+    {
+    case LevelBaseStateUpgradingSpawnRate:
+        if (base->speedUpgrade + 1 < MAX_UPGRADE_COUNT) {
+            return gSpeedUpgradeTime[base->speedUpgrade];
+        }
+        break;
+    case LevelBaseStateUpgradingCapacity:
+        if (base->capacityUpgrade + 1 < MAX_UPGRADE_COUNT) {
+            return gCapacityUpgradeTime[base->capacityUpgrade];
+        }
+        break;
+    case LevelBaseStateUpgradingDefence:
+        if (base->defenseUpgrade + 1 < MAX_UPGRADE_COUNT) {
+            return gDefenseUpgradeTime[base->defenseUpgrade];
+        }
+        break;
+    default:
+    }
+
+    return -1.0f;
 }

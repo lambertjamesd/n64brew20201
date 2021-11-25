@@ -319,6 +319,17 @@ struct DecorDefinition Sojourner_2_Decor[] = {
 struct Vector3 Sojourner_2_PathingNodes[] = {
 };
 char Sojourner_2_BasesPathNodes[] = {
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
 };
 unsigned short Sojourner_2_NodeDistances[] = {
 };

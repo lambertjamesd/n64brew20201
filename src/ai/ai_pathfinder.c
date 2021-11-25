@@ -7,20 +7,23 @@ unsigned getBaseFromNodeId(struct PathfindingDefinition* inPathfinding, unsigned
     return -1;
 }
 
-unsigned short nav_getClosestPoint(struct Vector3* closestTo, struct Vector3* allPoints, unsigned numPoints){
-
-    if (numPoints == 0) {
+unsigned short nav_getClosestPoint(struct PathfindingDefinition* pathfinding, struct Vector3* closestTo, float* distSqr) {
+    if (pathfinding->nodeCount == 0) {
         return NODE_NONE;
     }
 
-    float minDist = vector3DistSqrd(&allPoints[0], closestTo);
-    unsigned short minIndex = NODE_NONE;
-    for(unsigned short i = 1; i < numPoints; ++i){
-        float thisDist = vector3DistSqrd(&allPoints[i], closestTo);
+    float minDist = vector3DistSqrd(&pathfinding->nodePositions[0], closestTo);
+    unsigned short minIndex = 0;
+    for(unsigned short i = 1; i < pathfinding->nodeCount; ++i){
+        float thisDist = vector3DistSqrd(&pathfinding->nodePositions[i], closestTo);
         if(thisDist < minDist){
             minIndex = i;
             minDist = thisDist;
         }
+    }
+
+    if (distSqr) {
+        *distSqr = minDist;
     }
 
     return minIndex;
@@ -37,57 +40,14 @@ unsigned getBasePathNodeID(struct PathfindingDefinition* inPathfinding, unsigned
     return inPathfinding->baseNodes[baseID];
 }
 
-float getDistanceToBase(struct PathfindingDefinition* inPathfinding, unsigned fromBase, unsigned toBase, unsigned numBases){
-    unsigned from = getBasePathNodeID(inPathfinding, fromBase);
-    unsigned to = getBasePathNodeID(inPathfinding, toBase);
-
+float nav_getDistanceBetweenNodes(struct PathfindingDefinition* inPathfinding, unsigned from, unsigned to) {
     return (float)inPathfinding->nodeDistances[from * inPathfinding->nodeCount + to];
 }
 
-unsigned getClosestEnemyBase(struct PathfindingDefinition* inPathfinding, struct LevelBase* allBases, unsigned numBases, unsigned closestToBase, unsigned freindlyTeam){
-    unsigned outInd = -1;
-    float minDist = ~0;
-
-    for(unsigned i = 0; i < numBases; ++i){
-        if(allBases[i].team.teamNumber != freindlyTeam){
-            if(outInd == -1){
-                outInd = i;
-                minDist = getDistanceToBase(inPathfinding, closestToBase, i, numBases);
-            }
-            else{
-                float thisDist = getDistanceToBase(inPathfinding, closestToBase, i, numBases);
-                if(minDist < thisDist){
-                    outInd = i;
-                    minDist = thisDist;
-                }
-            }
-        }
-    }
-
-    return outInd;
-}
-
-unsigned getClosestNeutralBase(struct PathfindingDefinition* inPathfinding, struct LevelBase* allBases, unsigned numBases, unsigned closestToBase){
-    unsigned outInd = -1;
-    float minDist = ~0; 
-
-    for(unsigned i = 0; i < numBases; ++i){
-        if(allBases[i].team.teamNumber == TEAM_NONE){
-            if(outInd == -1){
-                outInd = i;
-                minDist = getDistanceToBase(inPathfinding, closestToBase, i, numBases);
-            }
-            else{
-                float thisDist = getDistanceToBase(inPathfinding, closestToBase, i, numBases);
-                if(minDist < thisDist){
-                    outInd = i;
-                    minDist = thisDist;
-                }
-            }
-        }
-    }
-
-    return outInd;
+float getDistanceToBase(struct PathfindingDefinition* inPathfinding, unsigned fromBase, unsigned toBase, unsigned numBases){
+    unsigned from = getBasePathNodeID(inPathfinding, fromBase);
+    unsigned to = getBasePathNodeID(inPathfinding, toBase);
+    return nav_getDistanceBetweenNodes(inPathfinding, from, to);
 }
 
 void pathfinderInit(struct Pathfinder* pathfinder, struct Vector3* startingPos){
@@ -142,8 +102,8 @@ void pathfinderUpdate(struct Pathfinder* pathfinder, struct PathfindingDefinitio
 }
 
 void pathfinderSetTarget(struct Pathfinder* pathfinder, struct PathfindingDefinition* pathfinding, struct Vector3* currentPosition, struct Vector3* target){
-    unsigned short from = nav_getClosestPoint(currentPosition, pathfinding->nodePositions, pathfinding->nodeCount);
-    unsigned short to = nav_getClosestPoint(target, pathfinding->nodePositions, pathfinding->nodeCount);
+    unsigned short from = nav_getClosestPoint(pathfinding, currentPosition, 0);
+    unsigned short to = nav_getClosestPoint(pathfinding, target, 0);
     pathfinder->targetNode = to;
     pathfinder->currentNode = from;
     

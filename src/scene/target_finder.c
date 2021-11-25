@@ -18,7 +18,7 @@ struct TeamEntity* findCloserEntity(struct TeamEntity* current, struct TeamEntit
 
     float checkDistSqrd = vector3DistSqrd(checkPosition, from);
 
-    if (!current || checkDistSqrd < *currentBest) {
+    if (checkDistSqrd < MINION_DEFENSE_RADIUS * MINION_DEFENSE_RADIUS && (!current || checkDistSqrd < *currentBest)) {
         *currentBest = checkDistSqrd;
         return check;
     }
@@ -73,10 +73,11 @@ struct TeamEntity* targetFinderFindNearestTarget(struct LevelScene* forScene, st
         }
     }
 
-    for (unsigned i = 0; i < forScene->baseCount; ++i) {
-        if (forScene->bases[i].team.teamNumber != againstTeam || forScene->bases[i].state == LevelBaseStateNeutral) {
-            result = findCloserEntity(result, &forScene->bases[i].team, from, &bestDistance);
-        }
+    float baseDistance;
+    int closestBase = aiPlannerFindNearestBaseToPoint(forScene, from, againstTeam, EnemyTeam, &baseDistance);
+
+    if (closestBase != -1 && (!result || baseDistance * baseDistance < bestDistance)) {
+        result = &forScene->bases[closestBase].team;
     }
 
     return result;
@@ -92,12 +93,23 @@ void targetFinderUpdate(struct TargetFinder* finder) {
     finder->trigger->collisionLayers |= DynamicSceneEntryDirtyBox;
 
     if (minionIsAlive(minion)) {
-        if (minion->currentCommand == MinionCommandDefend) {
+        if (minion->currentCommand == MinionCommandFollow) {
+            struct Player* player = &gCurrentLevel.players[minion->team.teamNumber];
+
+            float playerDistance = vector3DistSqrd(&player->transform.position, &minion->transform.position);
+            minion->currentTarget = &player->team;
+
+            if (playerDistance <  MINION_FOLLOW_RADIUS * MINION_FOLLOW_RADIUS) {
+                pathfinderReset(&minion->pathfinder);
+            } else {
+                pathfinderSetTarget(&minion->pathfinder, &gCurrentLevel.definition->pathfinding, &minion->transform.position, &player->transform.position);
+            }
+
+        } else if (minion->currentCommand == MinionCommandDefend) {
             finder->trigger->collisionLayers = CollisionLayersAllTeams ^ COLLISION_LAYER_FOR_TEAM(minion->team.teamNumber);
             dynamicEntrySetPos3D(finder->trigger, &minion->defensePoint);
         } 
         else if (minion->currentCommand == MinionCommandAttack) {
-
             struct TeamEntity* nextEntity = targetFinderFindNearestTarget(&gCurrentLevel, &minion->transform.position, minion->team.teamNumber);
             
             if (nextEntity != minion->currentTarget) {

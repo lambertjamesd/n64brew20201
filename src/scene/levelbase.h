@@ -52,5 +52,7 @@ void levelBaseStartUpgrade(struct LevelBase* base, enum LevelBaseState nextState
 void levelBaseSetDefaultCommand(struct LevelBase* base, unsigned command, unsigned fromPlayer);
 int levelBaseGetTeam(struct LevelBase* base);
 int levelBaseIsBeingCaptured(struct LevelBase* base);
+int levelBaseIsBeingUpgraded(struct LevelBase* base);
+float levelBaseTimeForUpgrade(struct LevelBase* base, enum LevelBaseState upgradeType);
 
 #endif

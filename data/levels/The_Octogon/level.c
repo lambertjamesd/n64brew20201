@@ -745,6 +745,15 @@ struct DecorDefinition The_Octogon_Decor[] = {
 struct Vector3 The_Octogon_PathingNodes[] = {
 };
 char The_Octogon_BasesPathNodes[] = {
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
 };
 unsigned short The_Octogon_NodeDistances[] = {
 };

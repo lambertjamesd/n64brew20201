@@ -162,8 +162,12 @@ void minionUpdate(struct Minion* minion) {
 
     switch (minion->currentCommand) {
         case MinionCommandFollow:
-            target = &gCurrentLevel.players[minion->followingPlayer].transform.position;
-            minDistance = MINION_FOLLOW_DIST * SCENE_SCALE;
+            if(minion->pathfinder.currentNode < gCurrentLevel.definition->pathfinding.nodeCount) {
+                target = &gCurrentLevel.definition->pathfinding.nodePositions[minion->pathfinder.currentNode]; 
+            } else {
+                target = &gCurrentLevel.players[minion->followingPlayer].transform.position;
+                minDistance = MINION_FOLLOW_DIST * SCENE_SCALE;
+            }
             break;
         case MinionCommandDefend:
             target = teamEntityGetPosition(minion->currentTarget);
@@ -298,12 +302,9 @@ int minionIsAlive(struct Minion* minion) {
 void minionSetTarget(struct Minion* minion, struct TeamEntity* value) {
     minion->currentTarget = value;
 
-    if(minion->currentTarget && vector3DistSqrd(teamEntityGetPosition(minion->currentTarget), &minion->transform.position) > 10000){
-        if(minion->currentTarget->entityType == TeamEntityTypeBase){
-            if(minion->pathfinder.currentNode >= gCurrentLevel.definition->pathfinding.nodeCount || 
-                minion->currentTarget->teamNumber == minion->team.teamNumber){
-                pathfinderSetTarget(&minion->pathfinder, &gCurrentLevel.definition->pathfinding, &minion->transform.position, teamEntityGetPosition(minion->currentTarget));
-            }
-        }
+    if(minion->currentTarget && minion->currentTarget->entityType == TeamEntityTypeBase && vector3DistSqrd(teamEntityGetPosition(minion->currentTarget), &minion->transform.position) > 10000) {
+        pathfinderSetTarget(&minion->pathfinder, &gCurrentLevel.definition->pathfinding, &minion->transform.position, teamEntityGetPosition(minion->currentTarget));
+    } else {
+        pathfinderReset(&minion->pathfinder);
     }
 }

@@ -186,6 +186,7 @@ char The_Pit_BasesPathNodes[] = {
     3,
     0,
     1,
+    2,
 };
 unsigned short The_Pit_NodeDistances[] = {
     0, 8535, 8514, 9521, 

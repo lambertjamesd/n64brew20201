@@ -6,12 +6,28 @@
 #include "util/memory.h"
 
 #define MINION_DISTANCE_SCALAR 0.25f
+#define PLANS_PER_FRAME        4
+#define DISTANCE_SCALAR        (1.0f / (PLAYER_BASE_MOVE_SPEED * SCENE_SCALE))
+
+int aiPlannerDoesTeamMatch(unsigned fromTeam, unsigned toTeam, enum TeamBaseType teamType) {
+    switch (teamType)
+    {
+    case CurrentTeam:
+        return fromTeam == toTeam;
+    case EnemyTeam:
+        return fromTeam != toTeam;
+    case AnyTeam:
+        return 1;
+    }
+
+    return 0;
+}
 
 unsigned getClosestBaseFromPoint(struct LevelScene* levelScene, struct Vector3* from){
     unsigned minIdx = 0;
-    float minDist = sqrtf(vector3DistSqrd(from, &levelScene->bases[0].position));
+    float minDist = vector3DistSqrd(from, &levelScene->bases[0].position);
     for(unsigned i = 1; i < levelScene->baseCount; ++i){
-        float dist = sqrtf(vector3DistSqrd(from, &levelScene->bases[i].position));
+        float dist = vector3DistSqrd(from, &levelScene->bases[i].position);
         if(dist < minDist){
             minIdx = i;
             minDist = dist;
@@ -30,6 +46,12 @@ float aiPlannerFindDistance(struct LevelScene* levelScene, struct Vector3* from,
     //return sqrtf(vector3DistSqrd(from, &levelScene->bases[toBase].position));
 }
 
+float gUpgradeValueScalars[] = {
+    0.8f,
+    0.6f,
+    2.0f,
+};
+
 void aiPlannerScorePlan(struct LevelScene* levelScene, struct AIPlanner* planner, struct AIPlan* plan) {
     switch (plan->planType) {
         case AIPlanTypeAttackBase:
@@ -37,21 +59,37 @@ void aiPlannerScorePlan(struct LevelScene* levelScene, struct AIPlanner* planner
                 levelScene, 
                 &levelScene->players[planner->teamNumber].transform.position, 
                 plan->targetBase
-            );
+            ) * DISTANCE_SCALAR * planner->baseMultiplyer[plan->targetBase];
             break;
         case AIPlanTypeAttackBaseWithBase:
             plan->estimatedCost = aiPlannerFindDistance(
                 levelScene, 
                 &levelScene->players[planner->teamNumber].transform.position, 
-                plan->param0
-            );
+                plan->targetBase
+            ) * DISTANCE_SCALAR;
             // score the minion distance partially
             plan->estimatedCost += aiPlannerFindDistance(
                 levelScene, 
-                &levelScene->bases[plan->param0].position, 
-                plan->targetBase
-            ) * MINION_DISTANCE_SCALAR;
+                &levelScene->bases[plan->targetBase].position, 
+                plan->param0
+            ) * MINION_DISTANCE_SCALAR * DISTANCE_SCALAR;
             break;  
+        case AIPlanTypeUpgrade:
+        {
+            float timeToUpgrade = levelBaseTimeForUpgrade(&levelScene->bases[plan->targetBase], plan->param0);
+
+            if (timeToUpgrade < 0.0f) {
+                plan->estimatedCost = 1000000000000000.0f;
+            } else {
+                plan->estimatedCost = aiPlannerFindDistance(
+                    levelScene, 
+                    &levelScene->players[planner->teamNumber].transform.position, 
+                    plan->targetBase
+                ) * DISTANCE_SCALAR + timeToUpgrade * gUpgradeValueScalars[plan->param0 - LevelBaseStateUpgradingSpawnRate];
+            }
+
+            break;
+        }
         default:
             plan->estimatedCost = 0.0f;
             break;
@@ -60,12 +98,12 @@ void aiPlannerScorePlan(struct LevelScene* levelScene, struct AIPlanner* planner
     plan->estimatedCost *= 1 + plan->neededMinions;
 }
 
-int aiPlannerFindRandomBaseForTeam(struct LevelScene* levelScene, unsigned team, unsigned invertTeam) {
+int aiPlannerFindRandomBaseForTeam(struct LevelScene* levelScene, unsigned team, enum TeamBaseType teamType) {
     unsigned count = 0;
     for (unsigned i = 0; i < levelScene->baseCount; ++i) {
         unsigned doesTeamMatch = levelBaseGetTeam(&levelScene->bases[i]) == team;
         
-        if (doesTeamMatch != invertTeam) {
+        if (doesTeamMatch != teamType || teamType == AnyTeam) {
             ++count;
         }
     }
@@ -73,10 +111,8 @@ int aiPlannerFindRandomBaseForTeam(struct LevelScene* levelScene, unsigned team,
     unsigned randomIndex = randomInRange(0, count);
     count = 0;
 
-    for (unsigned i = 0; i < levelScene->baseCount; ++i) {
-        unsigned doesTeamMatch = levelBaseGetTeam(&levelScene->bases[i]) == team;
-        
-        if (doesTeamMatch != invertTeam) {
+    for (unsigned i = 0; i < levelScene->baseCount; ++i) {        
+        if (aiPlannerDoesTeamMatch(levelBaseGetTeam(&levelScene->bases[i]), team, teamType)) {
             if (count == randomIndex) {
                 return i;
             }
@@ -87,21 +123,44 @@ int aiPlannerFindRandomBaseForTeam(struct LevelScene* levelScene, unsigned team,
     return -1;
 }
 
-int aiPlannerFindNearestBase(struct LevelScene* levelScene, unsigned fromBaseIndex, unsigned team, unsigned invertTeam) {
-    // TODO
+int aiPlannerFindNearestBase(struct LevelScene* levelScene, unsigned fromBaseIndex, unsigned team, enum TeamBaseType teamType) {
     int result = -1;
     float distance = 0.0f;
 
-    struct Vector3* fromPos = &levelScene->bases[fromBaseIndex].position;
-
     for (unsigned i = 0; i < levelScene->baseCount; ++i) {
-        float distSqrd = vector3DistSqrd(fromPos, &levelScene->bases[i].position);
-        unsigned doesTeamMatch = levelBaseGetTeam(&levelScene->bases[i]) == team;
+        if (i == fromBaseIndex) {
+            continue;
+        }
 
-        if (doesTeamMatch != invertTeam && (result == -1 || distSqrd < distance)) {
-            distance = distSqrd;
+        float dist = getDistanceToBase(&levelScene->definition->pathfinding, fromBaseIndex, i, levelScene->baseCount);
+
+        if (aiPlannerDoesTeamMatch(levelBaseGetTeam(&levelScene->bases[i]), team, teamType) && (result == -1 || dist < distance)) {
+            distance = dist;
             result = i;
         }
+    }
+
+    return result;
+}
+
+int aiPlannerFindNearestBaseToPoint(struct LevelScene* levelScene, struct Vector3* from, unsigned team, enum TeamBaseType teamType, float* distanceOut) {
+    unsigned clostestNode = nav_getClosestPoint(&levelScene->definition->pathfinding, from, distanceOut);
+
+    int result = -1;
+    float distance = 0.0f;
+
+    for (unsigned i = 0; i < levelScene->baseCount; ++i) {
+        unsigned baseNode = levelScene->definition->pathfinding.baseNodes[i];
+        float dist = nav_getDistanceBetweenNodes(&levelScene->definition->pathfinding, baseNode, clostestNode);
+
+        if (aiPlannerDoesTeamMatch(levelBaseGetTeam(&levelScene->bases[i]), team, teamType) && (result == -1 || dist < distance)) {
+            distance = dist;
+            result = i;
+        }
+    }
+
+    if (distanceOut) {
+        *distanceOut = sqrtf(*distanceOut) + distance;
     }
 
     return result;
@@ -132,21 +191,37 @@ void aiPlannerComeUpWithPlan(struct LevelScene* levelScene, struct AIPlanner* pl
         }
         case AIPlanTypeAttackBaseWithBase:
         {
-            int sourceBase = aiPlannerFindRandomBaseForTeam(levelScene, planner->teamNumber, 0);
-            if (sourceBase < 0) {
+            int moveToBase = aiPlannerFindRandomBaseForTeam(levelScene, planner->teamNumber, 0);
+            if (moveToBase < 0) {
                 plan->planType = AIPlanTypeNone;
                 return;
             }
 
-            plan->param0 = sourceBase;
-            int targetBase = aiPlannerFindNearestBase(levelScene, plan->param0, planner->teamNumber, 1);
-            if (targetBase < 0) {
+            plan->targetBase = moveToBase;
+            int attackBase = aiPlannerFindNearestBase(levelScene, plan->targetBase, planner->teamNumber, 1);
+            if (attackBase < 0) {
                 plan->planType = AIPlanTypeNone;
                 return;
             }
-            plan->targetBase = targetBase;
-            plan->neededMinions = aiPlannerExtraMinionsNeededForCapture(&levelScene->bases[targetBase]);
+            plan->param0 = attackBase;
+            plan->neededMinions = aiPlannerExtraMinionsNeededForCapture(&levelScene->bases[attackBase]);
             break;
+        }
+        case AIPlanTypeUpgrade:
+        {
+            int sourceBase = aiPlannerFindRandomBaseForTeam(levelScene, planner->teamNumber, 0);
+            if (sourceBase < 0 || levelBaseIsBeingUpgraded(&levelScene->bases[sourceBase])) {
+                plan->planType = AIPlanTypeNone;
+                return;
+            }
+
+            plan->targetBase = sourceBase;
+            plan->param0 = randomInRange(LevelBaseStateUpgradingSpawnRate, LevelBaseStateUpgradingDefence + 1);
+            plan->neededMinions = 0;
+
+            if (levelBaseIsBeingUpgraded(&levelScene->bases[sourceBase]) && levelBaseTimeForUpgrade(&levelScene->bases[sourceBase], plan->param0) < 0.0f) {
+                plan->planType = AIPlanTypeNone;
+            }
         }
         default:
             break;
@@ -158,9 +233,12 @@ int aiPlannerIsPlanExecuted(struct LevelScene* levelScene, struct AIPlanner* pla
         case AIPlanTypeAttackBase:
             return levelBaseGetTeam(&levelScene->bases[plan->targetBase]) == planner->teamNumber; 
         case AIPlanTypeAttackBaseWithBase:
-            return levelBaseGetTeam(&levelScene->bases[plan->targetBase]) == planner->teamNumber ||
-                levelBaseGetTeam(&levelScene->bases[plan->param0]) != planner->teamNumber || 
-                levelScene->bases[plan->param0].defaultComand == MinionCommandAttack;
+            return levelBaseGetTeam(&levelScene->bases[plan->targetBase]) != planner->teamNumber ||
+                levelBaseGetTeam(&levelScene->bases[plan->param0]) == planner->teamNumber || 
+                levelScene->bases[plan->targetBase].defaultComand == MinionCommandAttack;
+        case AIPlanTypeUpgrade:
+            return levelBaseGetTeam(&levelScene->bases[plan->targetBase]) != planner->teamNumber ||
+                levelBaseIsBeingUpgraded(&levelScene->bases[plan->targetBase]);
         default:
             return 0;
     }
@@ -171,8 +249,10 @@ int aiPlannerIsPlanStillValid(struct LevelScene* levelScene, struct AIPlanner* p
         case AIPlanTypeAttackBase:
             return levelBaseGetTeam(&levelScene->bases[plan->targetBase]) != planner->teamNumber; 
         case AIPlanTypeAttackBaseWithBase:
-            return levelBaseGetTeam(&levelScene->bases[plan->targetBase]) != planner->teamNumber && 
-                levelBaseGetTeam(&levelScene->bases[plan->param0]) == planner->teamNumber; 
+            return levelBaseGetTeam(&levelScene->bases[plan->targetBase]) == planner->teamNumber && 
+                levelBaseGetTeam(&levelScene->bases[plan->param0]) != planner->teamNumber; 
+        case AIPlanTypeUpgrade:
+            return levelBaseGetTeam(&levelScene->bases[plan->targetBase]) == planner->teamNumber;
         default:
             return 0;
     }
@@ -248,18 +328,27 @@ void aiPlannerInit(struct AIPlanner* planner, unsigned teamNumber, unsigned base
     planner->baseCount = baseCount;
     planner->basesCoveredByPlan = malloc(sizeof(struct AIPlan*) * baseCount);
     zeroMemory(planner->basesCoveredByPlan, sizeof(struct AIPlan*) * baseCount);
+    planner->baseMultiplyer = malloc(sizeof(float) * baseCount);
+    zeroMemory(planner->baseMultiplyer, sizeof(float) * baseCount);
+
+    for (unsigned i = 0; i < baseCount; ++i) {
+        planner->baseMultiplyer[i] = 1.0f;
+    }
 }
 
 void aiPlannerUpdate(struct LevelScene* levelScene, struct AIPlanner* planner) {
-    struct AIPlan newPlan;
-    aiPlannerComeUpWithPlan(levelScene, planner, &newPlan);
-    if (!aiPlannerDoesPlanConflict(levelScene, planner, &newPlan)) {
-        // make sure next plan is up to date
-        aiPlannerScorePlan(levelScene, planner, &planner->nextPlan);
-        aiPlannerScorePlan(levelScene, planner, &newPlan);
-        
-        if (planner->nextPlan.planType == AIPlanTypeNone || (newPlan.planType != AIPlanTypeNone && planner->nextPlan.estimatedCost > newPlan.estimatedCost)) {
-            planner->nextPlan = newPlan;
+    // make sure next plan is up to date
+    aiPlannerScorePlan(levelScene, planner, &planner->nextPlan);
+
+    for (unsigned i = 0; i < PLANS_PER_FRAME; ++i) {
+        struct AIPlan newPlan;
+        aiPlannerComeUpWithPlan(levelScene, planner, &newPlan);
+        if (aiPlannerIsPlanStillValid(levelScene, planner, &newPlan) && !aiPlannerDoesPlanConflict(levelScene, planner, &newPlan)) {
+            aiPlannerScorePlan(levelScene, planner, &newPlan);
+            
+            if (planner->nextPlan.planType == AIPlanTypeNone || (newPlan.planType != AIPlanTypeNone && planner->nextPlan.estimatedCost > newPlan.estimatedCost)) {
+                planner->nextPlan = newPlan;
+            }
         }
     }
 
@@ -289,9 +378,9 @@ struct LevelBase* aiPlannerGetTargetBase(struct LevelScene* levelScene, struct A
 
     switch (planner->currentPlan->planType) {
         case AIPlanTypeAttackBase:
-            return &levelScene->bases[planner->currentPlan->targetBase];
         case AIPlanTypeAttackBaseWithBase:
-            return &levelScene->bases[planner->currentPlan->param0];
+        case AIPlanTypeUpgrade:
+            return &levelScene->bases[planner->currentPlan->targetBase];
         default:
             return 0;
     }
@@ -305,4 +394,16 @@ struct Vector3* aiPlannerGetTarget(struct LevelScene* levelScene, struct AIPlann
     } else {
         return 0;
     }
+}
+
+void aiPlannerReset(struct AIPlanner* planner) {
+    if (planner->currentPlan && planner->currentPlan->planType == AIPlanTypeAttackBase) {
+        planner->baseMultiplyer[planner->currentPlan->targetBase] *= 1.1f;
+    }
+
+    planner->currentPlan = 0;
+    planner->nextPlan.planType = AIPlanTypeNone;
+    planner->thinkingTimer = MINIMUM_THIKING_FRAMES;
+    zeroMemory(&planner->activePlans, sizeof(planner->activePlans));
+    zeroMemory(planner->basesCoveredByPlan, sizeof(struct AIPlan*) * planner->baseCount);
 }

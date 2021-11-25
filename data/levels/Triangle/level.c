@@ -197,6 +197,11 @@ char Triangle_BasesPathNodes[] = {
     8,
     1,
     3,
+    4,
+    2,
+    0,
+    6,
+    5,
 };
 unsigned short Triangle_NodeDistances[] = {
     0, 1097, 1123, 5373, 6498, 4710, 5387, 5840, 6495, 

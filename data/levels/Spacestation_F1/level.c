@@ -1035,6 +1035,19 @@ struct DecorDefinition Spacestation_F1_Decor[] = {
 struct Vector3 Spacestation_F1_PathingNodes[] = {
 };
 char Spacestation_F1_BasesPathNodes[] = {
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
 };
 unsigned short Spacestation_F1_NodeDistances[] = {
 };
