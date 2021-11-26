@@ -36,46 +36,6 @@ unsigned getNumNeutralBases(struct LevelBase* bases, unsigned numBases){
     return count;
 }
 
-struct TeamEntity* ai_getClosestEnemyCharacter(const unsigned playerIndex){
-    unsigned team = gCurrentLevel.players[playerIndex].team.teamNumber;
-    unsigned minIdx = -1;
-    float minDist = ~0;
-    float currDist = ~0;
-    struct TeamEntity* outEntity = NULL;
-
-    for(unsigned i = 0; i < gCurrentLevel.playerCount + gCurrentLevel.minionCount; ++i){
-        if(i < gCurrentLevel.playerCount){
-            if(gCurrentLevel.players[i].team.teamNumber != team){
-                currDist = vector3DistSqrd(
-                    &gCurrentLevel.players[playerIndex].transform.position, 
-                    &gCurrentLevel.players[i].transform.position);
-                if(minIdx == -1 || currDist < minDist){
-                    minIdx = i;
-                    minDist = currDist;
-                }
-            }
-        }
-        else{
-            if(gCurrentLevel.minions[i - gCurrentLevel.playerCount].team.teamNumber != team){
-                currDist = vector3DistSqrd(
-                    &gCurrentLevel.players[playerIndex].transform.position, 
-                    &gCurrentLevel.minions[i - gCurrentLevel.playerCount].transform.position);
-                if(minIdx == -1 || currDist < minDist){
-                    minIdx = i;
-                    minDist = currDist;
-                }
-            }
-        }
-    }
-    if(minIdx != -1){
-        if(minIdx < gCurrentLevel.playerCount){
-            outEntity = (struct TeamEntity*)&gCurrentLevel.players[minIdx];
-        }
-        else outEntity = (struct TeamEntity*)&gCurrentLevel.minions[minIdx-gCurrentLevel.playerCount];
-    }
-    return outEntity;
-}
-
 void ai_Init(struct AIController* inController, struct PathfindingDefinition* pathfinder, unsigned playerIndex, unsigned teamIndex, unsigned baseCount){
     inController->pathfindingInfo = pathfinder;
     inController->playerIndex = playerIndex;
@@ -100,10 +60,6 @@ void ai_Init(struct AIController* inController, struct PathfindingDefinition* pa
         DynamicSceneEntryIsTrigger,
         CollisionLayersAllTeams ^ COLLISION_LAYER_FOR_TEAM(teamIndex)
     );
-}
-
-unsigned short wasPlayerJustHit(struct AIController* ai){
-    return (ai && !ai->attackTarget && gCurrentLevel.players[ai->playerIndex].damageHandler.damageTimer > 0.f);
 }
 
 void ai_update(struct LevelScene* level, struct AIController* ai) {
@@ -151,13 +107,8 @@ void ai_update(struct LevelScene* level, struct AIController* ai) {
                 );
             }
         }
-
     } else {
         pathfinderReset(&ai->pathfinder);
-    }
-
-    if (ai->attackTarget == 0 && wasPlayerJustHit(ai)) {
-        ai->attackTarget = ai_getClosestEnemyCharacter(ai->playerIndex);
     }
 
     if (ai->attackTarget && (
@@ -185,7 +136,10 @@ void ai_collectPlayerInput(struct LevelScene* levelScene, struct AIController* a
     if(ai->attackTarget != 0){
         targetPosition = teamEntityGetPosition(ai->attackTarget);
 
-        if (vector3DistSqrd(&player->transform.position, targetPosition) < 12000) {
+        float attackRadius = ai->attackTarget->entityType == TeamEntityTypePlayer ? PLAYER_COLLIDER_RADIOUS * 2.0f : (PLAYER_COLLIDER_RADIOUS + MINION_COLLIDE_RADIUS);
+        attackRadius += 0.1f * SCENE_SCALE;
+
+        if (vector3DistSqrd(&player->transform.position, targetPosition) < attackRadius * attackRadius) {
             playerInput->actionFlags |= PlayerInputActionsAttack;
         }
     } else if(ai->planner.currentPlan && ai->pathfinder.currentNode < levelScene->definition->pathfinding.nodeCount) {

@@ -16,9 +16,11 @@
 #include "damagehandler.h"
 #include "faction.h"
 
-#define PLAYER_GFX_PER_PLAYER   7
+#define PLAYER_GFX_PER_PLAYER   8
 
 #define PLAYER_DEFENSE_RADIUS  10.0f
+
+#define PLAYER_COLLIDER_RADIOUS (0.5f * SCENE_SCALE)
 
 struct Player;
 

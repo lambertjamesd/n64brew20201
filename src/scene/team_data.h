@@ -28,7 +28,12 @@
 
 extern struct Coloru8 gTeamColors[];
 extern struct Coloru8 gTeamDarkColors[];
-extern Gfx* gTeamPalleteTexture[];
+extern Gfx gTeamTexture[];
+
+#define gDPUseTeamPallete(pkt, teamNumber, textureShift) \
+    gDPSetTile(pkt, G_IM_FMT_CI, G_IM_SIZ_4b, 1, 0, 0, teamNumber, G_TX_WRAP | G_TX_NOMIRROR, 4, 0, G_TX_WRAP | G_TX_NOMIRROR, 4, 0); \
+	gSPTexture(pkt, 65535 >> textureShift, 65535 >> textureShift, 0, 0, 1); \
+	gDPSetTextureLUT(pkt, G_TT_RGBA16)
 
 #define NUETRAL_FACTION_INDEX   4
 #define DAMAGE_PALLETE_INDEX    5

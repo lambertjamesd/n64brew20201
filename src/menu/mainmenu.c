@@ -442,7 +442,8 @@ void mainMenuRenderFactions(struct MainMenu* mainMenu, struct RenderState* rende
         Mtx* playerMatrix = renderStateRequestMatrices(renderState, 1);
         transformToMatrixL(&mainMenu->factionSelection[i].transform, playerMatrix);
         gSPMatrix(renderState->dl++, playerMatrix, G_MTX_MODELVIEW | G_MTX_PUSH | G_MTX_MUL);
-        gSPDisplayList(renderState->dl++, gTeamPalleteTexture[i]);
+        gSPDisplayList(renderState->dl++, gTeamTexture);
+        gDPUseTeamPallete(renderState->dl++, i, 1);
         skRenderObject(&mainMenu->factionSelection[i].armature, renderState);
         gSPPopMatrix(renderState->dl++, G_MTX_MODELVIEW);
 

@@ -28,7 +28,7 @@
 
 struct CollisionCircle gPlayerCollider = {
     {CollisionShapeTypeCircle},
-    SCENE_SCALE * 0.5f,
+    PLAYER_COLLIDER_RADIOUS,
 };
 
 struct Vector3 gRecallOffset = {0.0f, 0.0f, -4.0 * SCENE_SCALE};
@@ -521,8 +521,7 @@ void playerRender(struct Player* player, struct RenderState* renderState) {
 
     int isDamageFlash = damageHandlerIsFlashing(&player->damageHandler);
 
-    gDPPipeSync(renderState->dl++);
-    gSPDisplayList(renderState->dl++, gTeamPalleteTexture[isDamageFlash ? DAMAGE_PALLETE_INDEX : player->team.teamNumber]);
+    gDPUseTeamPallete(renderState->dl++, isDamageFlash ? DAMAGE_PALLETE_INDEX : player->team.teamNumber, 1);
     skRenderObject(&player->armature, renderState);
     gSPPopMatrix(renderState->dl++, G_MTX_MODELVIEW);
 

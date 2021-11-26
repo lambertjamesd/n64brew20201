@@ -73,7 +73,6 @@ void itemDropCollide(struct DynamicSceneOverlap* overlap) {
 
             if (entity->entityType == TeamEntityTypePlayer) {
                 drop->state = ItemDropStateCollected;
-                itemDropCleanup(drop);
                 levelSceneApplyScrambler(&gCurrentLevel, entity->teamNumber, randomInRange(0, ControlsScramblerTypeCount));
             }
 

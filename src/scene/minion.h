@@ -12,7 +12,8 @@
 
 #define MINION_DEFENSE_RADIUS  (10.0f * SCENE_SCALE)
 #define MINION_FOLLOW_RADIUS  (20.0f * SCENE_SCALE)
-#define MINION_GFX_PER_MINION  4
+#define MINION_GFX_PER_MINION  7
+#define MINION_COLLIDE_RADIUS (SCENE_SCALE * 0.4f)
 
 enum MinionFlags {
     MinionFlagsActive = (1 << 0),

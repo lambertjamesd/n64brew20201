@@ -24,36 +24,31 @@ u64 gTeamColorsTexture[] = {
 	
 };
 
-u64 gTeamColorsBluePallete[] = {
-	0x3efd2991a21395ef, 
+
+u64 gTeamColorsAllPalletes[] = {
+	0x3efd2991a21395ef, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000,
+	0xf57d62a16c5dd5f5, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000,
+	0xff552991ba49dee9, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000,
+	0x075b10c9a533b6f1, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000,
+	0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000,
+	0xc951304560c9b14f, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000,
 };
 
-u64 gTeamColorsPinkPallete[] = {
-	0xf57d62a16c5dd5f5, 
-};
+Lights1 gTeamLights = gdSPDefLights1(
+	0x7F, 0x7F, 0x7F,
+	0xFE, 0xFE, 0xFE, 0x28, 0x28, 0x28);
 
-u64 gTeamColorsYellowPallete[] = {
-	0xff552991ba49dee9, 
-};
-
-u64 gTeamColorsGreenPallete[] = {
-	0x075b10c9a533b6f1, 
-};
-
-u64 gTeamColorsDamagePallete[] = {
-	0xc951304560c9b14f, 
-};
-
-Gfx gTeamPalleteTexture0[] = {
+Gfx gTeamTexture[] = {
 	gsDPPipeSync(),
+	gsDPSetCombineLERP(TEXEL0, 0, SHADE, 0, 0, 0, 0, ENVIRONMENT, TEXEL0, 0, SHADE, 0, 0, 0, 0, ENVIRONMENT),
 	gsSPTexture(65535 >> 1, 65535 >> 1, 0, 0, 1),
 	gsDPSetTextureLUT(G_TT_RGBA16),
-	gsDPSetTextureImage(G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, gTeamColorsBluePallete),
+	gsDPSetTextureImage(G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, gTeamColorsAllPalletes),
     gsDPSetTextureFilter(G_TF_AVERAGE),
 	gsDPTileSync(),
 	gsDPSetTile(0, 0, 0, 256, 7, 0, G_TX_WRAP | G_TX_NOMIRROR, 0, 0, G_TX_WRAP | G_TX_NOMIRROR, 0, 0),
 	gsDPLoadSync(),
-	gsDPLoadTLUTCmd(7, 3),
+	gsDPLoadTLUTCmd(7, 95),
 	gsDPPipeSync(),
 	gsDPTileSync(),
 	gsDPSetTextureImage(G_IM_FMT_CI, G_IM_SIZ_16b, 1, gTeamColorsTexture),
@@ -63,98 +58,6 @@ Gfx gTeamPalleteTexture0[] = {
 	gsDPPipeSync(),
 	gsDPSetTile(G_IM_FMT_CI, G_IM_SIZ_4b, 1, 0, 0, 0, G_TX_WRAP | G_TX_NOMIRROR, 4, 0, G_TX_WRAP | G_TX_NOMIRROR, 4, 0),
 	gsDPSetTileSize(0, 0, 0, 60, 60),
+	gsSPSetLights1(gTeamLights),
 	gsSPEndDisplayList(),
-};
-
-Gfx gTeamPalleteTexture1[] = {
-	gsDPPipeSync(),
-	gsSPTexture(65535 >> 1, 65535 >> 1, 0, 0, 1),
-	gsDPSetTextureLUT(G_TT_RGBA16),
-	gsDPSetTextureImage(G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, gTeamColorsPinkPallete),
-	gsDPTileSync(),
-	gsDPSetTile(0, 0, 0, 256, 7, 0, G_TX_WRAP | G_TX_NOMIRROR, 0, 0, G_TX_WRAP | G_TX_NOMIRROR, 0, 0),
-	gsDPLoadSync(),
-	gsDPLoadTLUTCmd(7, 3),
-	gsDPPipeSync(),
-	gsDPTileSync(),
-	gsDPSetTextureImage(G_IM_FMT_CI, G_IM_SIZ_16b, 1, gTeamColorsTexture),
-	gsDPSetTile(G_IM_FMT_CI, G_IM_SIZ_16b, 0, 0, 7, 0, G_TX_WRAP | G_TX_NOMIRROR, 4, 0, G_TX_WRAP | G_TX_NOMIRROR, 4, 0),
-	gsDPLoadSync(),
-	gsDPLoadBlock(7, 0, 0, 63, 2048),
-	gsDPPipeSync(),
-	gsDPSetTile(G_IM_FMT_CI, G_IM_SIZ_4b, 1, 0, 0, 0, G_TX_WRAP | G_TX_NOMIRROR, 4, 0, G_TX_WRAP | G_TX_NOMIRROR, 4, 0),
-	gsDPSetTileSize(0, 0, 0, 60, 60),
-	gsSPEndDisplayList(),
-};
-
-Gfx gTeamPalleteTexture2[] = {
-	gsDPPipeSync(),
-	gsSPTexture(65535 >> 1, 65535 >> 1, 0, 0, 1),
-	gsDPSetTextureLUT(G_TT_RGBA16),
-	gsDPSetTextureImage(G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, gTeamColorsYellowPallete),
-	gsDPTileSync(),
-	gsDPSetTile(0, 0, 0, 256, 7, 0, G_TX_WRAP | G_TX_NOMIRROR, 0, 0, G_TX_WRAP | G_TX_NOMIRROR, 0, 0),
-	gsDPLoadSync(),
-	gsDPLoadTLUTCmd(7, 3),
-	gsDPPipeSync(),
-	gsDPTileSync(),
-	gsDPSetTextureImage(G_IM_FMT_CI, G_IM_SIZ_16b, 1, gTeamColorsTexture),
-	gsDPSetTile(G_IM_FMT_CI, G_IM_SIZ_16b, 0, 0, 7, 0, G_TX_WRAP | G_TX_NOMIRROR, 4, 0, G_TX_WRAP | G_TX_NOMIRROR, 4, 0),
-	gsDPLoadSync(),
-	gsDPLoadBlock(7, 0, 0, 63, 2048),
-	gsDPPipeSync(),
-	gsDPSetTile(G_IM_FMT_CI, G_IM_SIZ_4b, 1, 0, 0, 0, G_TX_WRAP | G_TX_NOMIRROR, 4, 0, G_TX_WRAP | G_TX_NOMIRROR, 4, 0),
-	gsDPSetTileSize(0, 0, 0, 60, 60),
-	gsSPEndDisplayList(),
-};
-
-Gfx gTeamPalleteTexture3[] = {
-	gsDPPipeSync(),
-	gsSPTexture(65535 >> 1, 65535 >> 1, 0, 0, 1),
-	gsDPSetTextureLUT(G_TT_RGBA16),
-	gsDPSetTextureImage(G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, gTeamColorsGreenPallete),
-	gsDPTileSync(),
-	gsDPSetTile(0, 0, 0, 256, 7, 0, G_TX_WRAP | G_TX_NOMIRROR, 0, 0, G_TX_WRAP | G_TX_NOMIRROR, 0, 0),
-	gsDPLoadSync(),
-	gsDPLoadTLUTCmd(7, 3),
-	gsDPPipeSync(),
-	gsDPTileSync(),
-	gsDPSetTextureImage(G_IM_FMT_CI, G_IM_SIZ_16b, 1, gTeamColorsTexture),
-	gsDPSetTile(G_IM_FMT_CI, G_IM_SIZ_16b, 0, 0, 7, 0, G_TX_WRAP | G_TX_NOMIRROR, 4, 0, G_TX_WRAP | G_TX_NOMIRROR, 4, 0),
-	gsDPLoadSync(),
-	gsDPLoadBlock(7, 0, 0, 63, 2048),
-	gsDPPipeSync(),
-	gsDPSetTile(G_IM_FMT_CI, G_IM_SIZ_4b, 1, 0, 0, 0, G_TX_WRAP | G_TX_NOMIRROR, 4, 0, G_TX_WRAP | G_TX_NOMIRROR, 4, 0),
-	gsDPSetTileSize(0, 0, 0, 60, 60),
-	gsSPEndDisplayList(),
-};
-
-Gfx gTeamPalleteTextureDamage[] = {
-	gsDPPipeSync(),
-	gsSPTexture(65535 >> 1, 65535 >> 1, 0, 0, 1),
-	gsDPSetTextureLUT(G_TT_RGBA16),
-	gsDPSetTextureImage(G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, gTeamColorsDamagePallete),
-	gsDPTileSync(),
-	gsDPSetTile(0, 0, 0, 256, 7, 0, G_TX_WRAP | G_TX_NOMIRROR, 0, 0, G_TX_WRAP | G_TX_NOMIRROR, 0, 0),
-	gsDPLoadSync(),
-	gsDPLoadTLUTCmd(7, 3),
-	gsDPPipeSync(),
-	gsDPTileSync(),
-	gsDPSetTextureImage(G_IM_FMT_CI, G_IM_SIZ_16b, 1, gTeamColorsTexture),
-	gsDPSetTile(G_IM_FMT_CI, G_IM_SIZ_16b, 0, 0, 7, 0, G_TX_WRAP | G_TX_NOMIRROR, 4, 0, G_TX_WRAP | G_TX_NOMIRROR, 4, 0),
-	gsDPLoadSync(),
-	gsDPLoadBlock(7, 0, 0, 63, 2048),
-	gsDPPipeSync(),
-	gsDPSetTile(G_IM_FMT_CI, G_IM_SIZ_4b, 1, 0, 0, 0, G_TX_WRAP | G_TX_NOMIRROR, 4, 0, G_TX_WRAP | G_TX_NOMIRROR, 4, 0),
-	gsDPSetTileSize(0, 0, 0, 60, 60),
-	gsSPEndDisplayList(),
-};
-
-Gfx* gTeamPalleteTexture[] = {
-    gTeamPalleteTexture0,
-    gTeamPalleteTexture1,
-    gTeamPalleteTexture2,
-    gTeamPalleteTexture3,
-	0,
-	gTeamPalleteTextureDamage,
 };

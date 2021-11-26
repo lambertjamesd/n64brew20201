@@ -15,8 +15,7 @@ TODO
     death animation is slow
     defeat timer for single player
     minion needs to attack better
-    number of dynamic scene entries in spacestation map
-    defeat for single player should skip to ga
+    second level should disallow upgrading
 
     balance
 

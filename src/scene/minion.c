@@ -29,10 +29,11 @@
 #define INVINCIBILITY_TIME  0.5f
 #define INVINCIBLE_FLASH_FREQ                      0.1f
 #define ATTACK_RADIUS       (1.0f * SCENE_SCALE)
+#define RENDER_SCALE           0.6f
 
 struct CollisionCircle gMinionCollider = {
     {CollisionShapeTypeCircle},
-    SCENE_SCALE * 0.4f,
+    MINION_COLLIDE_RADIUS,
 };
 
 struct MinionDef {
@@ -103,6 +104,7 @@ void minionInit(struct Minion* minion, enum MinionType type, struct Transform* a
     skAnimatorInit(&minion->animator, 1, minionAnimationEvent, minion);
     skAnimatorRunClip(&minion->animator, &minion_animations_animations[MINION_ANIMATIONS_MINION_ANIMATIONS_ARMATURE_IDLE_INDEX], SKAnimatorFlagsLoop);
     transformInitIdentity(&minion->animationTransform);
+    vector3Scale(&gOneVec, &minion->transform.scale, RENDER_SCALE);
 }
 
 void minionRender(struct Minion* minion, struct RenderState* renderState) {
@@ -118,9 +120,8 @@ void minionRender(struct Minion* minion, struct RenderState* renderState) {
 
     int isDamageFlash = damageHandlerIsFlashing(&minion->damageHandler);
 
-    struct Coloru8 color = gTeamColors[isDamageFlash ? DAMAGE_PALLETE_INDEX : minion->team.teamNumber];
-
-    gDPSetPrimColor(renderState->dl++, 0, 0, color.r, color.g, color.b, color.a);
+    gDPPipeSync(renderState->dl++);
+    gDPUseTeamPallete(renderState->dl++, isDamageFlash ? DAMAGE_PALLETE_INDEX : minion->team.teamNumber, 0);
     gSPMatrix(renderState->dl++, osVirtualToPhysical(matrix), G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
     gSPDisplayList(renderState->dl++, gTeamFactions[minion->team.teamNumber]->minionMesh);
     gSPPopMatrix(renderState->dl++, G_MTX_MODELVIEW);
@@ -254,8 +255,8 @@ void minionUpdate(struct Minion* minion) {
     vector3AddScaled(&minion->transform.position, &minion->velocity, SCENE_SCALE * gTimeDelta, &minion->transform.position);
 
     struct Vector2 right;
-    right.x = minion->velocity.x;
-    right.y = -minion->velocity.z;
+    right.x = -minion->velocity.x;
+    right.y = minion->velocity.z;
 
     if (right.x != 0.0f || right.y != 0.0f) {
         vector2Normalize(&right, &right);

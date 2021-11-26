@@ -21,6 +21,7 @@
 #include "scene_management.h"
 #include "tutorial/tutorial.h"
 #include "menu/endgamemenu.h"
+#include "team_data.h"
 #include "../data/fonts/fonts.h"
 
 #include "collision/polygon.h"
@@ -148,9 +149,9 @@ void levelSceneRender(struct LevelScene* levelScene, struct RenderState* renderS
     spriteSetLayer(renderState, LAYER_UPGRADE_ICONS, gUseUpgradeIcons);
 
     // render minions
-    Gfx* minionGfx = renderStateAllocateDLChunk(renderState, MINION_GFX_PER_MINION * levelScene->minionCount + 2);
+    Gfx* minionGfx = renderStateAllocateDLChunk(renderState, MINION_GFX_PER_MINION * levelScene->minionCount + 3);
     Gfx* prevDL = renderStateReplaceDL(renderState, minionGfx);
-    gSPDisplayList(renderState->dl++, mat_Minion_f3d_material);
+    gSPDisplayList(renderState->dl++, gTeamTexture);
     for (unsigned int minionIndex = 0; minionIndex < levelScene->minionCount; ++minionIndex) {
         if (levelScene->minions[minionIndex].minionFlags & MinionFlagsActive) {
             minionRender(&levelScene->minions[minionIndex], renderState);
@@ -171,8 +172,9 @@ void levelSceneRender(struct LevelScene* levelScene, struct RenderState* renderS
     assert(baseEnd <= baseGfx + MINION_GFX_PER_MINION * levelScene->baseCount + 1);
 
     // render players
-    Gfx* playerGfx = renderStateAllocateDLChunk(renderState, PLAYER_GFX_PER_PLAYER * levelScene->playerCount + 3);
+    Gfx* playerGfx = renderStateAllocateDLChunk(renderState, PLAYER_GFX_PER_PLAYER * levelScene->playerCount + 4);
     prevDL = renderStateReplaceDL(renderState, playerGfx);
+    gSPDisplayList(renderState->dl++, gTeamTexture);
     for (unsigned int i = 0; i < levelScene->playerCount; ++i) {
         playerRender(&levelScene->players[i], renderState);
     }
