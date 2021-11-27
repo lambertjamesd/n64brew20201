@@ -201,6 +201,7 @@ static void initGame(void)
     soundPlayerInit();
     mainMenuInitSelections(&gMainMenu);
     sceneQueueMainMenu();
+    //sceneQueueCredits();
 
 #ifdef WITH_DEBUGGER
     OSThread* debugThreads[2];
