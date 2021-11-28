@@ -196,7 +196,7 @@ Gfx Mars_Rock[] = {
 Gfx Mars_SetTextures1[] = {
     gsDPPipeSync(),
     gsDPSetCombineLERP(0, 0, 0, TEXEL0, 0, 0, 0, ENVIRONMENT, 0, 0, 0, TEXEL0, 0, 0, 0, ENVIRONMENT),
-    gsSPTexture(65535, 65535, 0, 0, 1),
+    gsSPTexture(65535 >> 1, 65535, 0, 0, 1),
     gsDPSetTextureLUT(G_TT_RGBA16),
     gsDPSetTextureImage(G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, Mars_Set_Textures1_ci8_pal_rgba16),
     gsDPTileSync(),

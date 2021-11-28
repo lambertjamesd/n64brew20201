@@ -224,7 +224,7 @@ void playerCorrectOverlap(struct DynamicSceneOverlap* overlap) {
 
     float velocityDot = vector2Dot(&vel2D, &overlap->shapeOverlap.normal);
 
-    if (velocityDot * overlap->shapeOverlap.depth < 0.0f) {
+    if (velocityDot * overlap->shapeOverlap.depth > 0.0f) {
         vector2Scale(&overlap->shapeOverlap.normal, velocityDot, &normVelocity);
         vector2Sub(&vel2D, &normVelocity, &vel2D);
         player->velocity.x = vel2D.x;

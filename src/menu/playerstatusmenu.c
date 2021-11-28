@@ -23,6 +23,10 @@ void playerStatusMenuRender(struct Player* player, struct RenderState* renderSta
         scaleShift = 0;
     } else if (knockoutTime >= 0.0f && player->controlledBases) {
         sprintf(message, "Victory in %d", (int)(knockoutTime + 1));
+        scaleShift = -1;
+    } else if (knockoutTime >= 0.0f && !player->controlledBases) {
+        sprintf(message, "Defeat in %d", (int)(knockoutTime + 1));
+        scaleShift = -1;
     } else if (!playerIsAlive(player)) {
         if (player->controlledBases == 0) {
             strcpy(message, "Defeat");
@@ -30,6 +34,7 @@ void playerStatusMenuRender(struct Player* player, struct RenderState* renderSta
         } else {
             int respawnIn = (int)(player->stateTimer + 1.0f);
             sprintf(message, "Respawn in %d", respawnIn);
+            scaleShift = -1;
             barHeight = screenPos[3] - screenPos[1];
         }
     }
@@ -49,6 +54,6 @@ void playerStatusMenuRender(struct Player* player, struct RenderState* renderSta
         );
 
         int messageWidth = fontMeasure(&gKickflipFont, message, scaleShift);
-        fontRenderText(renderState, &gKickflipFont, message, horizontalCenter - (messageWidth >> 1), verticalCenter - (8 << scaleShift), scaleShift);        
+        fontRenderText(renderState, &gKickflipFont, message, horizontalCenter - (messageWidth >> 1), verticalCenter - (4 << (scaleShift + 1)), scaleShift);        
     }
 }
