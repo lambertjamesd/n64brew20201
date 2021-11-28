@@ -41,7 +41,7 @@ struct DynamicMarker gIntensityMarkers[] = {
 
 #define WIN_BY_PRESSING_START   1
 
-void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* definition, unsigned int playercount, unsigned char humanPlayerCount, enum LevelMetadataFlags flags) {
+void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* definition, unsigned int playercount, unsigned aiPlayerMask, enum LevelMetadataFlags flags) {
     levelScene->definition = definition;
     dynamicSceneInit(
         &gDynamicScene, 
@@ -77,13 +77,27 @@ void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* defin
         gPlayerAtBase[i] = 0;
         
     }
+
     //initializing AI controlled characters 
-    unsigned numBots = playercount - humanPlayerCount;
+    unsigned numBots = 0;
+
+    levelScene->aiPlayerMask = aiPlayerMask;
+
+    for (unsigned i = 0; i < playercount; ++i) {
+        if (IS_PLAYER_AI(levelScene, i)) {
+            ++numBots;
+        }
+    }
+
     levelScene->botsCount = numBots;
+    unsigned botIndex = 0;
     if(numBots > 0){
         levelScene->bots = malloc(sizeof(struct AIController) * numBots);
-        for (unsigned i = humanPlayerCount; i < playercount; ++i) {
-            ai_Init(&levelScene->bots[i - humanPlayerCount], &definition->pathfinding, i, i, levelScene->baseCount);
+        for (unsigned i = 0; i < playercount; ++i) {
+            if (IS_PLAYER_AI(levelScene, i)) {
+                ai_Init(&levelScene->bots[botIndex], &definition->pathfinding, i, i, levelScene->baseCount);
+                ++botIndex;
+            }
         }
     }
     
@@ -121,9 +135,10 @@ void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* defin
 
     itemDropsInit(&levelScene->itemDrops);
 
-    levelScene->humanPlayerCount = humanPlayerCount;
+    levelScene->humanPlayerCount = playercount - numBots;
+    levelScene->aiPlayerMask = aiPlayerMask;
 
-    gfxInitSplitscreenViewport(humanPlayerCount);
+    gfxInitSplitscreenViewport(levelScene->humanPlayerCount);
 
     levelScene->state = LevelSceneStateIntro;
     textBoxInit(&gTextBox, "Ready?", 200, SCREEN_WD / 2, SCREEN_HT / 2);
@@ -192,24 +207,33 @@ void levelSceneRender(struct LevelScene* levelScene, struct RenderState* renderS
 
     gSPEndDisplayList(renderState->transparentDL++);
 
-    for (unsigned int i = 0; i < levelScene->humanPlayerCount; ++i) {
+    unsigned humanIndex = 0;
+
+    for (unsigned int playerIndex = 0; playerIndex < levelScene->playerCount; ++playerIndex) {
+        if (IS_PLAYER_AI(levelScene, playerIndex)) {
+            continue;
+        }
+
         gDPPipeSync(renderState->dl++);
-        Vp* viewport = &gSplitScreenViewports[i];
+        Vp* viewport = &gSplitScreenViewports[humanIndex];
         cameraSetupMatrices(
-            &levelScene->cameras[i], 
+            &levelScene->cameras[playerIndex], 
             renderState, 
             (float)viewport->vp.vscale[0] / (float)viewport->vp.vscale[1],
-            controlsScramblerGetCameraRotation(&levelScene->scramblers[i])
+            controlsScramblerGetCameraRotation(&levelScene->scramblers[playerIndex])
         );
-        renderState->cameraRotation = &levelScene->cameras[i].transform.rotation;
+        renderState->cameraRotation = &levelScene->cameras[playerIndex].transform.rotation;
         gSPViewport(renderState->dl++, osVirtualToPhysical(viewport));
+
+        unsigned short* clippingRegions = &gClippingRegions[humanIndex * 4];
+
         gDPSetScissor(
             renderState->dl++, 
             G_SC_NON_INTERLACE, 
-            gClippingRegions[i * 4 + 0],
-            gClippingRegions[i * 4 + 1],
-            gClippingRegions[i * 4 + 2],
-            gClippingRegions[i * 4 + 3]
+            clippingRegions[0],
+            clippingRegions[1],
+            clippingRegions[2],
+            clippingRegions[3]
         );
         gDPPipeSync(renderState->dl++);
         gSPClearGeometryMode(renderState->dl++, G_ZBUFFER | G_LIGHTING | G_CULL_BOTH);
@@ -218,7 +242,7 @@ void levelSceneRender(struct LevelScene* levelScene, struct RenderState* renderS
         if (levelScene->definition->theme->skybox) {
             Mtx* skyboxMatrix = renderStateRequestMatrices(renderState, 1);
             struct Transform skyboxTransform;
-            skyboxTransform.position = levelScene->cameras[i].transform.position;
+            skyboxTransform.position = levelScene->cameras[playerIndex].transform.position;
             quatIdent(&skyboxTransform.rotation);
             skyboxTransform.scale = gOneVec;
             transformToMatrixL(&skyboxTransform, skyboxMatrix);
@@ -241,17 +265,25 @@ void levelSceneRender(struct LevelScene* levelScene, struct RenderState* renderS
         gSPDisplayList(renderState->dl++, renderState->transparentQueueStart);
 
         gSPDisplayList(renderState->dl++, mat_Dizzy_Dizzy);
-        for (unsigned playerIndex = 0; playerIndex < levelScene->playerCount; ++playerIndex) {
-            controlsScramblerRender(&levelScene->scramblers[playerIndex], &levelScene->players[playerIndex], renderState);
+        for (unsigned playerIndexB = 0; playerIndexB < levelScene->playerCount; ++playerIndexB) {
+            controlsScramblerRender(&levelScene->scramblers[playerIndexB], &levelScene->players[playerIndexB], renderState);
         }
         gSPDisplayList(renderState->dl++, mat_revert_Dizzy_Dizzy);
 
         baseCommandMenuRender(
-            &levelScene->baseCommandMenu[i], 
+            &levelScene->baseCommandMenu[playerIndex], 
             renderState, 
-            &gClippingRegions[i * 4]
+            clippingRegions
         );
-        playerStatusMenuRender(&levelScene->players[i], renderState, levelScene->winningTeam, levelScene->knockoutTimer < LOSE_BY_KNOCKOUT_TIME ? levelScene->knockoutTimer : -1.0f, &gClippingRegions[i * 4]);
+        playerStatusMenuRender(
+            &levelScene->players[playerIndex], 
+            renderState, 
+            levelScene->winningTeam, 
+            levelScene->knockoutTimer < LOSE_BY_KNOCKOUT_TIME ? levelScene->knockoutTimer : -1.0f, 
+            clippingRegions
+        );
+
+        ++humanIndex;
     }
 
     gSPViewport(renderState->dl++, osVirtualToPhysical(&gFullScreenVP));
@@ -340,12 +372,12 @@ void levelSceneCollectHumanPlayerInput(struct LevelScene* levelScene, unsigned p
     }
 }
 
-void levelSceneCollectPlayerInput(struct LevelScene* levelScene, unsigned playerIndex, struct PlayerInput* playerInput) {
+void levelSceneCollectPlayerInput(struct LevelScene* levelScene, unsigned playerIndex, unsigned botIndex, struct PlayerInput* playerInput) {
     if (levelScene->state == LevelSceneStatePlaying) {
-        if (playerIndex < levelScene->humanPlayerCount) {
+        if (!IS_PLAYER_AI(levelScene, playerIndex)) {
             levelSceneCollectHumanPlayerInput(levelScene, playerIndex, playerInput);
         } else if (!(levelScene->levelFlags & LevelMetadataFlagsTutorial)) {
-            ai_collectPlayerInput(levelScene, &levelScene->bots[playerIndex - levelScene->humanPlayerCount], playerInput);
+            ai_collectPlayerInput(levelScene, &levelScene->bots[botIndex], playerInput);
         } else {
             playerInputNoInput(playerInput);
         }
@@ -413,12 +445,18 @@ void levelSceneUpdate(struct LevelScene* levelScene) {
         }
     }
 
+    unsigned botIndex = 0;
+
     for (unsigned playerIndex = 0; playerIndex < levelScene->playerCount; ++playerIndex) {
         struct PlayerInput* playerInput = &levelScene->scramblers[playerIndex].playerInput;
 
         controlsScramblerUpdate(&levelScene->scramblers[playerIndex]);
 
-        levelSceneCollectPlayerInput(levelScene, playerIndex, playerInput);
+        levelSceneCollectPlayerInput(levelScene, playerIndex, botIndex, playerInput);
+
+        if (IS_PLAYER_AI(levelScene, playerIndex)) {
+            ++botIndex;
+        }
 
         if (!playerIsAlive(&levelScene->players[playerIndex])) {
             baseCommandMenuHide(&levelScene->baseCommandMenu[playerIndex]);

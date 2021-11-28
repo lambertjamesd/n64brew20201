@@ -29,6 +29,7 @@ Themes:
           Output: ../../data/levels/Galaxy/level.h
           MaxPlayers: 2
           Campaign: True
+          Multiplayer: True
 
         - Name: Triangle
           Filename: Triangle.fbx

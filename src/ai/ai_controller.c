@@ -13,11 +13,9 @@ struct CollisionCircle gBotCollider = {
 
 void ai_TriggerVision(struct DynamicSceneOverlap* overlap) {
     if (overlap->otherEntry->flags & DynamicSceneEntryHasTeam) {
-        struct Player* player = (struct Player*)overlap->thisEntry->data;
+        struct AIController* bot = (struct AIController*)overlap->thisEntry->data;
+        struct Player* player = (struct Player*)&gCurrentLevel.players[bot->playerIndex];
         struct TeamEntity* entityB = (struct TeamEntity*)overlap->otherEntry->data;
-
-        unsigned aiIdx = player->playerIndex - gCurrentLevel.humanPlayerCount;
-        struct AIController* bot = &gCurrentLevel.bots[aiIdx];
 
         if (entityB->teamNumber != player->team.teamNumber && 
             (!bot->attackTarget || aiAttackPriority(bot->attackTarget) < aiAttackPriority(entityB))) {
@@ -50,7 +48,7 @@ void ai_Init(struct AIController* inController, struct PathfindingDefinition* pa
 
     inController->collider = dynamicSceneNewEntry(
         &gBotCollider.shapeCommon, 
-        &gCurrentLevel.players[playerIndex], 
+        inController, 
         &position,
         ai_TriggerVision,
         DynamicSceneEntryIsTrigger,

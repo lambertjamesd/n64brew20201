@@ -36,6 +36,7 @@ struct LevelScene {
     unsigned char humanPlayerCount;
     unsigned char botsCount;
     unsigned char winningTeam;
+    unsigned char aiPlayerMask;
 
     unsigned short levelFlags;
 
@@ -59,10 +60,12 @@ struct LevelScene {
     float gameTimer;
 };
 
+#define IS_PLAYER_AI(levelScene, playerIndex) ((1 << (playerIndex)) & (levelScene)->aiPlayerMask)
+
 struct Player* levelGetClosestEnemyPlayer(struct LevelScene* forScene, struct Vector3* closeTo, unsigned team, float* outDist);
 struct Minion* levelGetClosestEnemyMinion(struct LevelScene* forScene, struct Vector3* closeTo, unsigned team, float* outDist);
 
-void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* definition, unsigned int playercount, unsigned char humanPlayerCount, enum LevelMetadataFlags flags);
+void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* definition, unsigned int playercount, unsigned aiPlayerMask, enum LevelMetadataFlags flags);
 void levelSceneRender(struct LevelScene* levelScene, struct RenderState* renderState);
 void levelSceneUpdate(struct LevelScene* levelScene);
 

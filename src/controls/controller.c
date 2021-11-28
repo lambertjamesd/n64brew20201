@@ -14,8 +14,8 @@ static u16           gControllerLastButton[MAX_PLAYERS];
 static enum ControllerDirection gControllerLastDirection[MAX_PLAYERS];
 static int gControllerDeadFrames;
 
-// #define REMAP_PLAYER_INDEX(index)   (index)
-#define REMAP_PLAYER_INDEX(index)   0
+#define REMAP_PLAYER_INDEX(index)   (index)
+// #define REMAP_PLAYER_INDEX(index)   0
 
 void controllersClearState() {
     zeroMemory(gControllerData, sizeof(gControllerData));

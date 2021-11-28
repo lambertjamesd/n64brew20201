@@ -1,7 +1,7 @@
 DEFINE_LEVEL("Level Template", Level_Template, Mars, 4, 0)
 DEFINE_LEVEL("Boot Camp", Boot_Camp, Mars, 2, 0 | LevelMetadataFlagsCampaign | LevelMetadataFlagsTutorial)
 DEFINE_LEVEL("The Pit", The_Pit, Mars, 2, 0 | LevelMetadataFlagsCampaign)
-DEFINE_LEVEL("Galaxy", Galaxy, Mars, 2, 0 | LevelMetadataFlagsCampaign)
+DEFINE_LEVEL("Galaxy", Galaxy, Mars, 2, 0 | LevelMetadataFlagsCampaign | LevelMetadataFlagsMultiplayer)
 DEFINE_LEVEL("Triangle", Triangle, Mars, 3, 0 | LevelMetadataFlagsCampaign)
 DEFINE_LEVEL("Curiosity", Curiosity, Mars, 4, 0 | LevelMetadataFlagsCampaign)
 DEFINE_LEVEL("Sojourner", Sojourner, Mars, 4, 0 | LevelMetadataFlagsCampaign)

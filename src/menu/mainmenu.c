@@ -115,7 +115,7 @@ void mainMenuFactionUpdate(struct MainMenuFactionSelector* faction, unsigned ind
 
         faction->rotateLerp = mathfMoveTowards(faction->rotateLerp, 0.0f, gTimeDelta / SELECT_SPIN_TIME);
         
-        if (controllerGetButtonDown(index, A_BUTTON)) {
+        if (controllerGetButtonDown(index, A_BUTTON) || (faction->flags & MainMenuFactionFlagsAI) != 0) {
             soundPlayerPlay(SOUNDS_UI_SELECT, 0);
             faction->flags |= MainMenuFactionFlagsSelected;
             skAnimatorRunClip(
@@ -159,13 +159,21 @@ void mainMenuFactionUpdate(struct MainMenuFactionSelector* faction, unsigned ind
  
 void mainMenuStartLevel(struct MainMenu* mainMenu) {
     struct GameConfiguration gameConfig;
-    gameConfig.humanPlayerCount = mainMenuGetPlayerCount(mainMenu);
+    gameConfig.playerCount = mainMenuGetPlayerCount(mainMenu);
 
-    if (gameConfig.humanPlayerCount == 1) {
+    unsigned aiPlayerMask = 0;
+
+    if (gameConfig.playerCount == 1) {
         gameConfig.playerCount = mainMenu->filteredLevels[mainMenu->selections.selectedLevel]->maxPlayers;
-    } else {
-        gameConfig.playerCount = gameConfig.humanPlayerCount;
     }
+
+    for (unsigned i = 0; i < gameConfig.playerCount; ++i) {
+        if (!controllerIsConnected(i)) {
+            aiPlayerMask |= (1 << i);
+        }
+    }
+
+    gameConfig.aiPlayerMask = aiPlayerMask;
 
     gameConfig.level = mainMenu->filteredLevels[mainMenu->selections.selectedLevel];
 
@@ -183,7 +191,7 @@ void mainMenuEnterFactionSelection(struct MainMenu* mainMenu) {
     gfxInitSplitscreenViewport(mainMenuGetPlayerCount(mainMenu));
 
     for (unsigned i = 0; i < mainMenuGetPlayerCount(mainMenu); ++i) {
-        mainMenu->factionSelection->flags = controllerIsConnected(i) ? 0 : MainMenuFactionFlagsAI;
+        mainMenu->factionSelection[i].flags = controllerIsConnected(i) ? 0 : MainMenuFactionFlagsAI;
     }
 }
 
@@ -387,6 +395,7 @@ void mainMenuUpdate(struct MainMenu* mainMenu) {
             break;
         case MainMenuStatePostGame:
             if (endGameMenuUpdate(&mainMenu->endGameMenu)) {
+                gfxInitSplitscreenViewport(mainMenuGetPlayerCount(mainMenu));
                 mainMenuEnterLevelSelection(mainMenu);
             }
             break;

@@ -14,7 +14,7 @@ enum SceneState {
 
 struct GameConfiguration {
     unsigned char playerCount;
-    unsigned char humanPlayerCount;
+    unsigned char aiPlayerMask;
     struct LevelMetadata* level;
 };
 
