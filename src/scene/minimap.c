@@ -106,7 +106,9 @@ void minimapRender(struct LevelScene* scene, struct RenderState* renderState, un
             continue;
         }
 
-        transformToMatrixL(&scene->players[i].transform, matrix);
+        struct Transform transform = scene->players[i].transform;
+        transform.position.y = 0.0f;
+        transformToMatrixL(&transform, matrix);
         curr = tmpBuffer;
         gSPMatrix(curr++, matrix, G_MTX_MODELVIEW | G_MTX_PUSH | G_MTX_MUL);
         gSPVertex(curr++, gPointerVertex, 3, 0);
