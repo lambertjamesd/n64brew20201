@@ -76,23 +76,8 @@ void minimapRender(struct LevelScene* scene, struct RenderState* renderState, un
         }
     }
 
-    Mtx* minimapTransform = renderStateRequestMatrices(renderState, 1);
-
-    if (!minimapTransform) {
-        return;
-    }
-
-    float minimapMtx[4][4];
-    guScaleF(minimapMtx, transform.scaleX, 1.0f, transform.scaleY);
-    minimapMtx[3][0] = transform.offsetX;
-    minimapMtx[3][2] = transform.offsetY;
-
-
-    guMtxF2L(minimapMtx, minimapTransform);
-
     Gfx tmpBuffer[8];
     Gfx* curr = tmpBuffer;
-    gSPMatrix(curr++, minimapTransform, G_MTX_MODELVIEW | G_MTX_PUSH | G_MTX_MUL);
     gSPClearGeometryMode(curr++, G_CULL_BOTH);
     spriteWriteRaw(renderState, LAYER_SOLID_COLOR, tmpBuffer, curr - tmpBuffer);
 
@@ -106,9 +91,13 @@ void minimapRender(struct LevelScene* scene, struct RenderState* renderState, un
             continue;
         }
 
-        struct Transform transform = scene->players[i].transform;
-        transform.position.y = 0.0f;
-        transformToMatrixL(&transform, matrix);
+        struct Transform playerTransform = scene->players[i].transform;
+        playerTransform.position.x = scene->players[i].transform.position.x * transform.scaleX + transform.offsetX;
+        playerTransform.position.y = 0.0f;
+        playerTransform.position.z = scene->players[i].transform.position.z * transform.scaleY + transform.offsetY;
+        playerTransform.rotation = scene->players[i].transform.rotation;
+        vector3Scale(&gOneVec, &playerTransform.scale, 1.0f / SCENE_SCALE);
+        transformToMatrixL(&playerTransform, matrix);
         curr = tmpBuffer;
         gSPMatrix(curr++, matrix, G_MTX_MODELVIEW | G_MTX_PUSH | G_MTX_MUL);
         gSPVertex(curr++, gPointerVertex, 3, 0);
@@ -116,8 +105,4 @@ void minimapRender(struct LevelScene* scene, struct RenderState* renderState, un
         gSPPopMatrix(curr++, G_MTX_MODELVIEW);
         spriteWriteRaw(renderState, LAYER_SOLID_COLOR, tmpBuffer, curr - tmpBuffer);
     }
-
-    curr = tmpBuffer;
-    gSPPopMatrix(curr++, G_MTX_MODELVIEW);
-    spriteWriteRaw(renderState, LAYER_SOLID_COLOR, tmpBuffer, curr - tmpBuffer);
 }
