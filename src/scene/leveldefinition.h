@@ -17,6 +17,7 @@ enum LevelMetadataFlags {
     LevelMetadataFlagsMultiplayer = (1 << 1),
     LevelMetadataFlagsUnlocked = (1 << 2),
     LevelMetadataFlagsTutorial = (1 << 3),
+    LevelMetadataFlagsDisallowUpgrade = (1 << 4),
 };
 
 struct BaseDefinition {

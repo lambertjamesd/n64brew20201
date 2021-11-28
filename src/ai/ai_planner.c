@@ -4,6 +4,7 @@
 #include "math/mathf.h"
 #include "math/vector3.h"
 #include "util/memory.h"
+#include "scene/scene_management.h"
 
 #define MINION_DISTANCE_SCALAR 0.25f
 #define PLANS_PER_FRAME        4
@@ -209,6 +210,11 @@ void aiPlannerComeUpWithPlan(struct LevelScene* levelScene, struct AIPlanner* pl
         }
         case AIPlanTypeUpgrade:
         {
+            if (gCurrentLevelMetadata && (gCurrentLevelMetadata->flags & LevelMetadataFlagsDisallowUpgrade) != 0) {
+                plan->planType = AIPlanTypeNone;
+                return;
+            }
+
             int sourceBase = aiPlannerFindRandomBaseForTeam(levelScene, planner->teamNumber, 0);
             if (sourceBase < 0 || levelBaseIsBeingUpgraded(&levelScene->bases[sourceBase])) {
                 plan->planType = AIPlanTypeNone;

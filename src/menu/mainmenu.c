@@ -163,14 +163,16 @@ void mainMenuStartLevel(struct MainMenu* mainMenu) {
 
     unsigned aiPlayerMask = 0;
 
-    if (gameConfig.playerCount == 1) {
-        gameConfig.playerCount = mainMenu->filteredLevels[mainMenu->selections.selectedLevel]->maxPlayers;
-    }
-
-    for (unsigned i = 0; i < gameConfig.playerCount; ++i) {
-        if (!controllerIsConnected(i)) {
+    for (unsigned i = 0; i < mainMenu->filteredLevels[mainMenu->selections.selectedLevel]->maxPlayers; ++i) {
+        if ((mainMenu->factionSelection[i].flags & MainMenuFactionFlagsAI) != 0 ||
+            i >= gameConfig.playerCount || 
+            !controllerIsConnected(i)) {
             aiPlayerMask |= (1 << i);
         }
+    }
+
+    if (gameConfig.playerCount == 1) {
+        gameConfig.playerCount = mainMenu->filteredLevels[mainMenu->selections.selectedLevel]->maxPlayers;
     }
 
     gameConfig.aiPlayerMask = aiPlayerMask;
@@ -180,6 +182,8 @@ void mainMenuStartLevel(struct MainMenu* mainMenu) {
     for (unsigned i = 0; i <= mainMenu->selections.selectedPlayerCount; ++i) {
         gTeamFactions[i] = gFactions[mainMenu->factionSelection[i].selectedFaction];
     }
+
+    gCurrentLevelMetadata = mainMenu->filteredLevels[mainMenu->selections.selectedLevel];
 
     sceneQueueLoadLevel(&gameConfig);
 }
@@ -192,6 +196,10 @@ void mainMenuEnterFactionSelection(struct MainMenu* mainMenu) {
 
     for (unsigned i = 0; i < mainMenuGetPlayerCount(mainMenu); ++i) {
         mainMenu->factionSelection[i].flags = controllerIsConnected(i) ? 0 : MainMenuFactionFlagsAI;
+    }
+
+    for (unsigned i = mainMenuGetPlayerCount(mainMenu); i < MAX_PLAYERS; ++i) {
+        mainMenu->factionSelection[i].flags = MainMenuFactionFlagsAI;
     }
 }
 

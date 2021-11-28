@@ -10,13 +10,8 @@ TODO
     figure out culling on level geometry
     death animation is slow
     defeat timer for single player
-    second level should disallow upgrading
-    ai should punch things it touches
-    velocity should only be effected by touches if it goes against touch
     pause menu
     fix drop graphics
-    implement title screen
-        import new image graphics
-    ai when no controller is connected
+    fix surface textures
 
     balance

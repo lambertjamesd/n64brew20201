@@ -17,12 +17,14 @@ Themes:
           MaxPlayers: 2
           Campaign: True
           Tutorial: True
+          DisallowUpgrade: True
 
         - Name: The Pit
           Filename: ThePit.fbx
           Output: ../../data/levels/The_Pit/level.h
           MaxPlayers: 2
           Campaign: True
+          DisallowUpgrade: True
 
         - Name: Galaxy
           Filename: Galaxy.fbx
@@ -84,6 +86,12 @@ Themes:
           Output: ../../data/levels/Curiosity_2/level.h
           MaxPlayers: 4
           Multiplayer: True
+
+        - Name: Cluster
+          Filename: Cluster.fbx
+          Output: ../../data/levels/Cluster/level.h
+          MaxPlayers: 3
+          Campaign: True
   
     - Name: Space
       Output: ../../data/level_themes/Space/theme.h

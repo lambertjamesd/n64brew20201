@@ -59,7 +59,7 @@ void minimapRender(struct LevelScene* scene, struct RenderState* renderState, un
         if (levelBaseIsBeingCaptured(base) && mathfMod(gTimePassed, CAPTURE_FLASH_FREQ) > CAPTURE_FLASH_FREQ * 0.5f) {
             color = gColorBlack;
         } else if (base->state == LevelBaseStateNeutral || base->state == LevelBaseStateSpawning)  {
-            color = gTeamColors[levelBaseGetTeam(base)];
+            color = gTeamColorsSaturated[levelBaseGetTeam(base)];
         } else {
             color = gTeamDarkColors[levelBaseGetTeam(base)];
         }
@@ -70,7 +70,7 @@ void minimapRender(struct LevelScene* scene, struct RenderState* renderState, un
 
     for (unsigned i = 0; i < scene->minionCount; ++i) {
         if (scene->minions[i].minionFlags & MinionFlagsActive) {
-            struct Coloru8 color = gTeamColors[scene->minions[i].team.teamNumber];
+            struct Coloru8 color = gTeamColorsSaturated[scene->minions[i].team.teamNumber];
             spriteSetColor(renderState, LAYER_SOLID_COLOR, color);
             minimapRenderDot(renderState, &transform, &scene->minions[i].transform.position, 2);
         }
@@ -97,7 +97,7 @@ void minimapRender(struct LevelScene* scene, struct RenderState* renderState, un
     spriteWriteRaw(renderState, LAYER_SOLID_COLOR, tmpBuffer, curr - tmpBuffer);
 
     for (unsigned i = 0; i < scene->playerCount; ++i) {
-        struct Coloru8 color = gTeamColors[scene->players[i].team.teamNumber];
+        struct Coloru8 color = gTeamColorsSaturated[scene->players[i].team.teamNumber];
         spriteSetColor(renderState, LAYER_SOLID_COLOR, color);
 
         Mtx* matrix = renderStateRequestMatrices(renderState, 1);

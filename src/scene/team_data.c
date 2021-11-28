@@ -9,6 +9,15 @@ struct Coloru8 gTeamColors[] = {
 	{TEAM_DAMAGE_COLOR, 255},
 };
 
+struct Coloru8 gTeamColorsSaturated[] = {
+    {TEAM_MAIN_COLOR_SATURATED_0, 255},
+    {TEAM_MAIN_COLOR_SATURATED_1, 255},
+    {TEAM_MAIN_COLOR_SATURATED_2, 255},
+    {TEAM_MAIN_COLOR_SATURATED_3, 255},
+    {200, 200, 200, 255}, // neutral faction
+	{TEAM_DAMAGE_COLOR, 255},
+};
+
 struct Coloru8 gTeamDarkColors[] = {
     {TEAM_DARK_COLOR_0, 255},
     {TEAM_DARK_COLOR_1, 255},

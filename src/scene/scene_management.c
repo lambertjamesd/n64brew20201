@@ -12,6 +12,7 @@ enum SceneState gNextSceneState;
 struct LevelScene gCurrentLevel;
 struct MainMenu gMainMenu;
 struct GameConfiguration gNextLevel;
+struct LevelMetadata* gCurrentLevelMetadata;
 
 struct LevelDefinition* gLevelsTmp[] = {
     &gLevelTest,
