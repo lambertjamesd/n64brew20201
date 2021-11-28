@@ -7,6 +7,10 @@
 #include "images/players_3.h"
 #include "images/players_4.h"
 #include "images/background.h"
+#include "images/title_mission.h"
+#include "images/title_lostcontrol.h"
+#include "images/title_startbutton.h"
+#include "images/arrows.h"
 
 Gfx gMainMenuSolidColor[] = {
     gsDPPipeSync(),

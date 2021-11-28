@@ -48,6 +48,9 @@ struct Vector3 gRecallOffset = {0.0f, 0.0f, -4.0 * SCENE_SCALE};
 #define PLAYER_JUMP_ATTACK_FALL_VELOICTY    -20.0f
 #define PLAYER_JUMP_ATTCK_DELAY             0.5f
 
+int aiAttackPriority(struct TeamEntity* target) {
+    return target->entityType;
+}
 
 void playerCalculateAttackLocation(struct Player* player, struct PlayerAttackInfo* attackInfo, struct Vector3* output) {
     skCalculateBonePosition(&player->armature, attackInfo->boneIndex, &attackInfo->localPosition, output);
@@ -218,10 +221,25 @@ void playerCorrectOverlap(struct DynamicSceneOverlap* overlap) {
     struct Vector2 vel2D;
     vel2D.x = player->velocity.x;
     vel2D.y = player->velocity.z;
-    vector2Scale(&overlap->shapeOverlap.normal, vector2Dot(&vel2D, &overlap->shapeOverlap.normal), &normVelocity);
-    vector2Sub(&vel2D, &normVelocity, &vel2D);
-    player->velocity.x = vel2D.x;
-    player->velocity.z = vel2D.y;
+
+    float velocityDot = vector2Dot(&vel2D, &overlap->shapeOverlap.normal);
+
+    if (velocityDot * overlap->shapeOverlap.depth < 0.0f) {
+        vector2Scale(&overlap->shapeOverlap.normal, velocityDot, &normVelocity);
+        vector2Sub(&vel2D, &normVelocity, &vel2D);
+        player->velocity.x = vel2D.x;
+        player->velocity.z = vel2D.y;
+    }
+
+    if (overlap->otherEntry->flags & DynamicSceneEntryHasTeam) {
+        struct TeamEntity* otherEntity = (struct TeamEntity*)overlap->otherEntry->data;
+
+        if (otherEntity->teamNumber != player->team.teamNumber &&
+            (player->touchedBy == 0 || aiAttackPriority(player->touchedBy) < aiAttackPriority(otherEntity))) {
+            player->touchedBy = otherEntity;
+        }
+    }
+
 
     teamEntityCorrectOverlap(overlap);
 }
@@ -241,6 +259,8 @@ void playerInit(struct Player* player, unsigned playerIndex, unsigned team, stru
     player->idleSoundEffect = SOUND_ID_NONE;
     player->animationSpeed = 1.0f;
     player->controlledBases = 0;
+    player->touchedBy = 0;
+    player->aiTarget = 0;
 
     player->velocity = gZeroVec;
     player->rightDir = gRight2;
@@ -507,6 +527,14 @@ void playerUpdate(struct Player* player, struct PlayerInput* input) {
     player->transform.position.z = player->collider->center.y;
     player->velocity.x = vel2D.x;
     player->velocity.z = vel2D.y;
+
+    if (player->touchedBy) {
+        player->aiTarget = player->touchedBy;
+    } else {
+        player->aiTarget = 0;
+    }
+
+    player->touchedBy = 0;
 }
 
 void playerRender(struct Player* player, struct RenderState* renderState) {

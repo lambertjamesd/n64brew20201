@@ -176,9 +176,9 @@ struct Faction gCatFaction = {
 // can't have a null pointer exception if gTeamFactions never point to null
 struct Faction* gTeamFactions[MAX_PLAYERS] = {
     &gDogFaction,
+    &gCatFaction,
     &gDogFaction,
-    &gDogFaction,
-    &gDogFaction,
+    &gCatFaction,
 };
 
 struct Faction* gFactions[FACTION_COUNT] = {

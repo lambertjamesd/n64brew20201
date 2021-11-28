@@ -7,8 +7,10 @@
 #include "sk64/skelatool_armature.h"
 #include "game_defs.h"
 #include "endgamemenu.h"
+#include "titlescreen.h"
 
 enum MainMenuState {
+    MainMenuStateSelectingTitleScreen,
     MainMenuStateSelectingPlayerCount,
     MainMenuStateSelectingFaction,
     MainMenuStateSelectingLevel,
@@ -45,6 +47,7 @@ struct MainMenu {
     unsigned short levelCount;
     struct MainMenuFactionSelector factionSelection[MAX_PLAYERS];
     struct EndGameMenu endGameMenu;
+    struct TitleScreen titleScreen;
     Gfx* showingWireframe;
     unsigned showWireframeDelay;
 };

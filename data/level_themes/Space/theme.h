@@ -6,6 +6,7 @@
 extern Gfx Space_Lockers[];
 extern Gfx Space_SSCrate[];
 extern Gfx Space_SSFloor[];
+extern Gfx Space_SSSkybox[];
 extern Gfx Space_SSWall[];
 extern Gfx Space_SetTextures2[];
 
@@ -15,6 +16,7 @@ extern Gfx Space_CrateDisplayList[];
 extern Gfx Space_Food_DishesDisplayList[];
 extern Gfx Space_LockersDisplayList[];
 extern Gfx Space_TableDisplayList[];
+extern Gfx Space_SkyboxDisplayList[];
 #define CHAIR_DECOR_ID 0
 #define CONSOLE_DECOR_ID 1
 #define CRATE_DECOR_ID 2

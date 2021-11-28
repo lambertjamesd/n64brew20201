@@ -11,10 +11,6 @@ struct CollisionCircle gBotCollider = {
     ATTACK_RADIUS,
 };
 
-int aiAttackPriority(struct TeamEntity* target) {
-    return target->entityType;
-}
-
 void ai_TriggerVision(struct DynamicSceneOverlap* overlap) {
     if (overlap->otherEntry->flags & DynamicSceneEntryHasTeam) {
         struct Player* player = (struct Player*)overlap->thisEntry->data;
@@ -133,14 +129,22 @@ void ai_collectPlayerInput(struct LevelScene* levelScene, struct AIController* a
 
     playerInput->actionFlags = 0;
 
-    if(ai->attackTarget != 0){
-        targetPosition = teamEntityGetPosition(ai->attackTarget);
+    struct TeamEntity* attackTarget = ai->attackTarget;
 
-        float attackRadius = ai->attackTarget->entityType == TeamEntityTypePlayer ? PLAYER_COLLIDER_RADIOUS * 2.0f : (PLAYER_COLLIDER_RADIOUS + MINION_COLLIDE_RADIUS);
+    if (player->aiTarget) {
+        attackTarget = player->aiTarget;
+    }
+
+    if(attackTarget != 0){
+        targetPosition = teamEntityGetPosition(attackTarget);
+
+        float attackRadius = attackTarget->entityType == TeamEntityTypePlayer ? PLAYER_COLLIDER_RADIOUS * 2.0f : (PLAYER_COLLIDER_RADIOUS + MINION_COLLIDE_RADIUS);
         attackRadius += 0.1f * SCENE_SCALE;
 
-        if (vector3DistSqrd(&player->transform.position, targetPosition) < attackRadius * attackRadius) {
-            playerInput->actionFlags |= PlayerInputActionsAttack;
+        if (player->aiTarget != 0 || vector3DistSqrd(&player->transform.position, targetPosition) < attackRadius * attackRadius) {
+            if (!(playerInput->prevActions & PlayerInputActionsAttack)) {
+                playerInput->actionFlags |= PlayerInputActionsAttack;
+            }
         }
     } else if(ai->planner.currentPlan && ai->pathfinder.currentNode < levelScene->definition->pathfinding.nodeCount) {
         targetPosition = &levelScene->definition->pathfinding.nodePositions[ai->pathfinder.currentNode];

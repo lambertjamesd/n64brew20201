@@ -51,8 +51,8 @@ void sceneQueueLoadLevel(struct GameConfiguration* nextLevel) {
 
 void sceneQueueMainMenu() {
     gNextSceneState = SceneStateInMainMenu;
-    gMainMenu.selections.menuState = MainMenuStateSelectingPlayerCount;
-    gMainMenu.selections.targetMenuState = MainMenuStateSelectingPlayerCount;
+    gMainMenu.selections.menuState = MainMenuStateSelectingTitleScreen;
+    gMainMenu.selections.targetMenuState = MainMenuStateSelectingTitleScreen;
 }
 
 void sceneQueuePostGameScreen(unsigned winningTeam, unsigned teamCount, float time) {

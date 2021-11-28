@@ -212,6 +212,25 @@ void levelSceneRender(struct LevelScene* levelScene, struct RenderState* renderS
             gClippingRegions[i * 4 + 3]
         );
         gDPPipeSync(renderState->dl++);
+        gSPClearGeometryMode(renderState->dl++, G_ZBUFFER | G_LIGHTING | G_CULL_BOTH);
+        gDPSetRenderMode(renderState->dl++, G_RM_OPA_SURF, G_RM_OPA_SURF2);
+
+        if (levelScene->definition->theme->skybox) {
+            Mtx* skyboxMatrix = renderStateRequestMatrices(renderState, 1);
+            struct Transform skyboxTransform;
+            skyboxTransform.position = levelScene->cameras[i].transform.position;
+            quatIdent(&skyboxTransform.rotation);
+            skyboxTransform.scale = gOneVec;
+            transformToMatrixL(&skyboxTransform, skyboxMatrix);
+            gSPMatrix(renderState->dl++, skyboxMatrix, G_MTX_MODELVIEW | G_MTX_PUSH | G_MTX_MUL);
+            gSPDisplayList(renderState->dl++, levelScene->definition->theme->skyboxMaterial);
+            gSPDisplayList(renderState->dl++, levelScene->definition->theme->skybox);
+            gSPPopMatrix(renderState->dl++, G_MTX_MODELVIEW);
+            gDPPipeSync(renderState->dl++);
+        }
+        
+
+        gSPSetGeometryMode(renderState->dl++, G_ZBUFFER | G_CULL_BACK);
         gDPSetRenderMode(renderState->dl++, G_RM_ZB_OPA_SURF, G_RM_ZB_OPA_SURF2);
         gSPSegment(renderState->dl++, MATRIX_TRANSFORM_SEGMENT, levelScene->decorMatrices);
         gSPDisplayList(renderState->dl++, levelScene->levelDL);

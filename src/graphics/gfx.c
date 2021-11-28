@@ -145,9 +145,9 @@ void createGfxTask(GFXInfo *i)
     /* clearcolor is 32-bits (2 pixels wide) because fill mode
      * does two pixels at a time.
      */
-    gDPSetFillColor(renderState->dl++, (GPACK_RGBA5551(0, 0, 0, 1) << 16 | 
-			       GPACK_RGBA5551(0, 0, 0, 1)));
-    gDPFillRectangle(renderState->dl++, 0, 0, SCREEN_WD-1, SCREEN_HT-1);
+    // gDPSetFillColor(renderState->dl++, (GPACK_RGBA5551(0, 0, 0, 1) << 16 | 
+	// 		       GPACK_RGBA5551(0, 0, 0, 1)));
+    // gDPFillRectangle(renderState->dl++, 0, 0, SCREEN_WD-1, SCREEN_HT-1);
 
     gDPPipeSync(renderState->dl++);
     gDPSetCycleType(renderState->dl++, G_CYC_1CYCLE); 

@@ -7,6 +7,8 @@
 #include "collision/circle.h"
 
 struct ThemeDefinition {
+    Gfx* skybox;
+    Gfx* skyboxMaterial;
     Gfx** decorMaterials;
     Gfx** decorDisplayLists;
     struct CollisionShape** decorShapes;

@@ -52,7 +52,11 @@ struct Player {
     struct DamageHandler damageHandler;
     float stateTimer;
     float animationSpeed;
+    struct TeamEntity *touchedBy;
+    struct TeamEntity *aiTarget;
 };
+
+int aiAttackPriority(struct TeamEntity* target);
 
 void playerInit(struct Player* player, unsigned playerIndex, unsigned team, struct Vector2* at);
 void playerUpdate(struct Player* player, struct PlayerInput* input);
