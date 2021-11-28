@@ -9,9 +9,9 @@ TODO
     ultrarare intro
     figure out culling on level geometry
     death animation is slow
-    pause menu
     fix drop graphics
     fix surface textures
     fix minimap squashing
+    finish title screen
 
     balance

@@ -39,7 +39,7 @@ struct DynamicMarker gIntensityMarkers[] = {
 #define GAME_END_DELAY  5.0f
 #define LOSE_BY_KNOCKOUT_TIME   15.0f
 
-#define WIN_BY_PRESSING_START   1
+#define WIN_BY_PRESSING_L   1
 
 void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* definition, unsigned int playercount, unsigned aiPlayerMask, enum LevelMetadataFlags flags) {
     levelScene->definition = definition;
@@ -421,6 +421,29 @@ void levelSceneCollectStats(struct LevelScene* levelScene) {
 }
 
 void levelSceneUpdate(struct LevelScene* levelScene) {
+    if (levelScene->state == LevelSceneStatePaused) {
+        unsigned togglePause = 0;
+
+        for (unsigned playerIndex = 0; playerIndex < levelScene->playerCount; ++playerIndex) {
+            if (!IS_PLAYER_AI(levelScene, playerIndex) && controllerGetButtonDown(playerIndex, START_BUTTON)) {
+                togglePause = 1;
+                break;
+            }
+        }
+
+        if (togglePause) {
+            textBoxHide(&gTextBox);
+        }
+
+        if (!textBoxIsVisible(&gTextBox)) {
+            levelScene->state = LevelSceneStatePlaying;
+        }
+
+        textBoxUpdate(&gTextBox);
+        
+        return;
+    }
+
     levelSceneCollectStats(levelScene);
     levelScene->winningTeam = levelSceneFindWinningTeam(levelScene);
 
@@ -447,6 +470,8 @@ void levelSceneUpdate(struct LevelScene* levelScene) {
 
     unsigned botIndex = 0;
 
+    unsigned togglePause = 0;
+
     for (unsigned playerIndex = 0; playerIndex < levelScene->playerCount; ++playerIndex) {
         struct PlayerInput* playerInput = &levelScene->scramblers[playerIndex].playerInput;
 
@@ -456,6 +481,8 @@ void levelSceneUpdate(struct LevelScene* levelScene) {
 
         if (IS_PLAYER_AI(levelScene, playerIndex)) {
             ++botIndex;
+        } else if (controllerGetButtonDown(playerIndex, START_BUTTON)) {
+            togglePause = 1;
         }
 
         if (!playerIsAlive(&levelScene->players[playerIndex])) {
@@ -471,6 +498,11 @@ void levelSceneUpdate(struct LevelScene* levelScene) {
         if (levelScene->state == LevelSceneStatePlaying && levelScene->levelFlags & LevelMetadataFlagsTutorial) {
             tutorialUpdate(levelScene, playerInput);
         }
+    }
+
+    if (togglePause && levelScene->state == LevelSceneStatePlaying) {
+        levelScene->state = LevelSceneStatePaused;
+        textBoxInit(&gTextBox, "Paused", 200, SCREEN_WD / 2, SCREEN_HT / 2);
     }
 
     if (levelScene->state == LevelSceneStateIntro) {
@@ -569,9 +601,9 @@ int levelSceneFindWinningTeam(struct LevelScene* levelScene) {
         return levelScene->winningTeam;
     }
 
-#if WIN_BY_PRESSING_START
+#if WIN_BY_PRESSING_L
     for (unsigned i = 0; i < levelScene->playerCount; ++i) {
-        if (controllerGetButtonDown(i, START_BUTTON)) {
+        if (controllerGetButtonDown(i, L_TRIG)) {
             return i;
         }
     }

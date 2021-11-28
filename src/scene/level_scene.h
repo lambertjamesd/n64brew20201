@@ -22,6 +22,7 @@
 enum LevelSceneState {
     LevelSceneStateIntro,
     LevelSceneStatePlaying,
+    LevelSceneStatePaused,
     LevelSceneStateDone,
 };
 

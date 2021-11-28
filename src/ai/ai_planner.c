@@ -210,7 +210,7 @@ void aiPlannerComeUpWithPlan(struct LevelScene* levelScene, struct AIPlanner* pl
         }
         case AIPlanTypeUpgrade:
         {
-            if (gCurrentLevelMetadata && (gCurrentLevelMetadata->flags & LevelMetadataFlagsDisallowUpgrade) != 0) {
+            if ((gCurrentLevel.levelFlags & LevelMetadataFlagsDisallowUpgrade) != 0) {
                 plan->planType = AIPlanTypeNone;
                 return;
             }

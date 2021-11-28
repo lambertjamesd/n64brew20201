@@ -183,8 +183,6 @@ void mainMenuStartLevel(struct MainMenu* mainMenu) {
         gTeamFactions[i] = gFactions[mainMenu->factionSelection[i].selectedFaction];
     }
 
-    gCurrentLevelMetadata = mainMenu->filteredLevels[mainMenu->selections.selectedLevel];
-
     sceneQueueLoadLevel(&gameConfig);
 }
 
