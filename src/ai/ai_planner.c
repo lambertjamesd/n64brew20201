@@ -48,9 +48,9 @@ float aiPlannerFindDistance(struct LevelScene* levelScene, struct Vector3* from,
 }
 
 float gUpgradeValueScalars[] = {
-    0.8f,
-    0.6f,
-    2.0f,
+    0.4f,
+    0.2f,
+    1.5f,
 };
 
 void aiPlannerScorePlan(struct LevelScene* levelScene, struct AIPlanner* planner, struct AIPlan* plan) {

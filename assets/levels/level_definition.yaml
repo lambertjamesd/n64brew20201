@@ -107,3 +107,24 @@ Themes:
           Output: ../../data/levels/Spacestation_F1/level.h
           MaxPlayers: 4
           Campaign: True
+  
+    - Name: Snow
+      Output: ../../data/level_themes/Snow/theme.h
+
+      Levels:
+        - Name: Snow Template
+          Filename: SnowTemplate.fbx
+          Output: ../../data/levels/Snow_Template/level.h
+          MaxPlayers: 4
+
+        - Name: Triple Threat
+          Filename: TripleThreat.fbx
+          Output: ../../data/levels/Triple_Threat/level.h
+          MaxPlayers: 4
+          Campaign: True
+
+        - Name: Sagittarius
+          Filename: Sagittarius.fbx
+          Output: ../../data/levels/Sagittarius/level.h
+          MaxPlayers: 3
+          Campaign: True

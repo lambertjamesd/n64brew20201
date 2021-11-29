@@ -11,6 +11,7 @@
 #include "images/title_lostcontrol.h"
 #include "images/title_startbutton.h"
 #include "images/arrows.h"
+#include "images/title_screen.h"
 
 Gfx gMainMenuSolidColor[] = {
     gsDPPipeSync(),

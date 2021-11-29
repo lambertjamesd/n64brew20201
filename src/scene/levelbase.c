@@ -45,20 +45,20 @@ float gCapacityScalar[] = {
 
 float gSpeedUpgradeTime[MAX_UPGRADE_COUNT] = {
     10.0f,
-    15.0f,
-    20.0f,
-};
-
-float gCapacityUpgradeTime[MAX_UPGRADE_COUNT] = {
-    10.0f,
     20.0f,
     30.0f,
 };
 
-float gDefenseUpgradeTime[MAX_UPGRADE_COUNT] = {
-    5.0f,
-    10.0f,
+float gCapacityUpgradeTime[MAX_UPGRADE_COUNT] = {
     15.0f,
+    30.0f,
+    45.0f,
+};
+
+float gDefenseUpgradeTime[MAX_UPGRADE_COUNT] = {
+    8.0f,
+    16.0f,
+    24.0f,
 };
 
 #define MIN_FLAG_HEIGHT     0.5f

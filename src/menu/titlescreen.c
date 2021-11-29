@@ -18,6 +18,9 @@
 #define START_X         96
 #define START_Y         151
 
+#define IMAGE_X         23
+#define IMAGE_Y         66
+
 void titleScreenInit(struct TitleScreen* titleScreen) {
     titleScreen->timer = TITLE_SCROLL_TIME;
     titleScreen->targetTime = 0.0f;
@@ -37,6 +40,20 @@ int titleScreenUpdate(struct TitleScreen* titleScreen) {
 }
 
 void titleScreenRender(struct TitleScreen* titleScreen, struct RenderState* renderState) {
+    graphicsCopyImage(
+        renderState,
+        TitleScreenImage_0_0,
+        256,
+        174,
+        0,
+        0,
+        IMAGE_X,
+        IMAGE_Y,
+        256,
+        174,
+        gColorWhite
+    );
+
     graphicsCopyImage(
         renderState, 
         TitleMission_0_0, 

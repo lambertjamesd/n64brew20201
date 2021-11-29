@@ -213,6 +213,7 @@ Gfx Space_SSFloor[] = {
 };
 Gfx Space_SSSkybox[] = {
     gsDPPipeSync(),
+    gsDPSetTexturePersp(G_TP_PERSP),
     gsDPSetCombineLERP(0, 0, 0, TEXEL0, 0, 0, 0, ENVIRONMENT, 0, 0, 0, TEXEL0, 0, 0, 0, ENVIRONMENT),
     gsSPTexture(65535, 65535, 0, 0, 1),
     gsDPTileSync(),
