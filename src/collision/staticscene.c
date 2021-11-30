@@ -1,5 +1,6 @@
 
 #include "staticscene.h"
+#include "math/mathf.h"
 
 void staticSceneConstrainToBoundaries(struct StaticScene* staticScene, struct Vector2* pos, struct Vector2* velocity, float radius) {
     for (unsigned i = 0; i < staticScene->boundaryCount; ++i) {
@@ -37,7 +38,34 @@ void staticSceneConstrainToBoundaries(struct StaticScene* staticScene, struct Ve
 }
 
 int staticSceneInInsideBoundary(struct StaticScene* staticScene, struct Vector2* pos, float radius) {
-    // TODO make work with non convex outline
+    unsigned intersectionCount = 0;
+
+    for (unsigned i = 0; i < staticScene->boundaryCount; ++i) {
+        struct SceneBoundary* curr = &staticScene->boundary[i];
+        struct SceneBoundary* next = &staticScene->boundary[(i + 1) % staticScene->boundaryCount];
+
+        float yDiff = next->corner.y - curr->corner.y;
+        if (fabsf(yDiff) < 0.0001f) {
+            continue;
+        }
+
+        float lerpValue = -curr->corner.y / yDiff;
+
+        if (lerpValue < -0.0001f || lerpValue > 1.0001f) {
+            continue;
+        }
+
+        float xValue = (1.0f - lerpValue) * curr->corner.x + lerpValue * next->corner.x;
+
+        if (xValue > 0.00001f) {
+            ++intersectionCount;
+        }
+    }
+
+    if ((intersectionCount & 0x1) == 0) {
+        return 0;
+    }
+
     struct Vector2 velocity = gZeroVec2;
     struct Vector2 posCheck = *pos;
     staticSceneConstrainToBoundaries(staticScene, pos, &velocity, radius);

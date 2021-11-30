@@ -11,7 +11,6 @@ TODO
     death animation is slow
     fix drop graphics
     fix surface textures
-    fix minimap squashing
     finish title screen
     choppy animations
     minion attack speed down

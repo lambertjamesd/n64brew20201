@@ -532,7 +532,7 @@ Materials:
       gsSPSetLights1(Metal_lights),
   Crate:
     UsedResources: ["Crate_lights"]
-    VertexType: Color
+    VertexType: Normal
     Content: |-
       gsDPPipeSync(),
       gsSPSetGeometryMode(G_LIGHTING),

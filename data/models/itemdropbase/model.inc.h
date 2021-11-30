@@ -138,7 +138,7 @@ Gfx ItemPickup_ItemDropBase_mesh[] = {
 	gsSPVertex(ItemPickup_ItemDropBase_mesh_vtx_cull + 0, 8, 0),
 	gsSPSetGeometryMode(G_LIGHTING),
 	gsSPCullDisplayList(0, 7),
-	// gsSPDisplayList(mat_ItemPickup_Drop_Platform),
+	gsSPDisplayList(mat_ItemPickup_Drop_Platform),
 	gsSPDisplayList(ItemPickup_ItemDropBase_mesh_tri_0),
 	// gsSPDisplayList(mat_revert_ItemPickup_Drop_Platform),
 	// gsDPPipeSync(),
