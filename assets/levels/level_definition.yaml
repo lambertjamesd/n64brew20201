@@ -2,13 +2,13 @@ LevelList: ../../src/levels/level_list.h
 ThemeList: ../../src/levels/theme_list.h
 
 Themes:
-    - Name: Mars
-      Output: ../../data/level_themes/Mars/theme.h
+    - Name: Space
+      Output: ../../data/level_themes/Space/theme.h
 
       Levels:
-        - Name: Level Template
-          Filename: LevelTemplate.fbx
-          Output: ../../data/levels/Level_Template/level.h
+        - Name: Spaceship Template
+          Filename: Spaceship_Template.fbx
+          Output: ../../data/levels/Spaceship_Template/level.h
           MaxPlayers: 4
 
         - Name: Boot Camp
@@ -19,17 +19,47 @@ Themes:
           Tutorial: True
           DisallowUpgrade: True
 
-        - Name: The Pit
-          Filename: ThePit.fbx
-          Output: ../../data/levels/The_Pit/level.h
-          MaxPlayers: 2
+        - Name: Taurus
+          Filename: Taurus.fbx
+          Output: ../../data/levels/Taurus/level.h
+          MaxPlayers: 3
           Campaign: True
           DisallowUpgrade: True
 
+        - Name: Cassiopeia
+          Filename: Cassiopeia.fbx
+          Output: ../../data/levels/Cassiopeia/level.h
+          MaxPlayers: 2
+          Campaign: True
+          Multiplayer: True
+          DisallowUpgrade: True
+
+        - Name: Spacestation F1
+          Filename: Spaceship_Lowest_Level.fbx
+          Output: ../../data/levels/Spacestation_F1/level.h
+          MaxPlayers: 4
+          Campaign: True
+
+    - Name: Mars
+      Output: ../../data/level_themes/Mars/theme.h
+
+      Levels:
+        - Name: Level Template
+          Filename: LevelTemplate.fbx
+          Output: ../../data/levels/Level_Template/level.h
+          MaxPlayers: 4
+
         - Name: Galaxy
           Filename: Galaxy.fbx
-          Output: ../../data/levels/Galaxy/level.h
+          Output: ../../data/levels/Galaxy/level.hz
           MaxPlayers: 2
+          Campaign: True
+          Multiplayer: True
+
+        - Name: Orion
+          Filename: Orion.fbx
+          Output: ../../data/levels/Orion/level.h
+          MaxPlayers: 4
           Campaign: True
           Multiplayer: True
 
@@ -38,6 +68,7 @@ Themes:
           Output: ../../data/levels/Triangle/level.h
           MaxPlayers: 3
           Campaign: True
+          Multiplayer: True
 
         - Name: Curiosity
           Filename: Campaign_Curiosity.fbx
@@ -63,49 +94,10 @@ Themes:
           MaxPlayers: 4
           Campaign: True
 
-        - Name: The Octogon
-          Filename: TheOctogon.fbx
-          Output: ../../data/levels/The_Octogon/level.h
-          MaxPlayers: 4
-          Multiplayer: True
-          
-        - Name: Course 01
-          Filename: Course_01.fbx
-          Output: ../../data/levels/Course_01/level.h
-          MaxPlayers: 4
-          Multiplayer: True
-
-        - Name: Sojourner 2
-          Filename: Multiplayer_Sojourner.fbx
-          Output: ../../data/levels/Sojourner_2/level.h
-          MaxPlayers: 4
-          Multiplayer: True
-
-        - Name: Curiosity 2
-          Filename: Multiplayer_Curiosity.fbx
-          Output: ../../data/levels/Curiosity_2/level.h
-          MaxPlayers: 4
-          Multiplayer: True
-
         - Name: Cluster
           Filename: Cluster.fbx
           Output: ../../data/levels/Cluster/level.h
           MaxPlayers: 3
-          Campaign: True
-  
-    - Name: Space
-      Output: ../../data/level_themes/Space/theme.h
-
-      Levels:
-        - Name: Spaceship Template
-          Filename: Spaceship_Template.fbx
-          Output: ../../data/levels/Spaceship_Template/level.h
-          MaxPlayers: 4
-
-        - Name: Spacestation F1
-          Filename: Spaceship_Lowest_Level.fbx
-          Output: ../../data/levels/Spacestation_F1/level.h
-          MaxPlayers: 4
           Campaign: True
   
     - Name: Snow
@@ -116,6 +108,12 @@ Themes:
           Filename: SnowTemplate.fbx
           Output: ../../data/levels/Snow_Template/level.h
           MaxPlayers: 4
+
+        - Name: Cygnus
+          Filename: Cygnus.fbx
+          Output: ../../data/levels/Cygnus/level.h
+          MaxPlayers: 2
+          Campaign: True
 
         - Name: Triple Threat
           Filename: TripleThreat.fbx

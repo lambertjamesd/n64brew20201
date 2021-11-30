@@ -20,6 +20,7 @@ struct AIController{
     unsigned teamIndex;
     unsigned lastPathfidningIndex;
     unsigned numMinions;
+    float punchDelay;
 
     struct Vector3 currTarget;
     struct TeamEntity* attackTarget;

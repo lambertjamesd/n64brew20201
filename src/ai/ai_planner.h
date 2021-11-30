@@ -3,7 +3,7 @@
 
 struct LevelScene;
 
-#define MINIMUM_THIKING_FRAMES  30
+#define MINIMUM_THIKING_FRAMES  60
 
 enum AIPlanType {
     AIPlanTypeNone,

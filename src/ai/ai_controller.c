@@ -1,10 +1,13 @@
 #include "ai_controller.h"
 #include "collision/collisionlayers.h"
 #include "scene/scene_management.h"
+#include "util/time.h"
 
 #define ATTACK_RADIUS (10.0f * SCENE_SCALE)
 
 #define MOVEMENT_SLOWDOWN_RADIUS    (1.0f * SCENE_SCALE)
+
+#define PUNCH_DELAY 1.0f
 
 struct CollisionCircle gBotCollider = {
     {CollisionShapeTypeCircle},
@@ -38,6 +41,7 @@ void ai_Init(struct AIController* inController, struct PathfindingDefinition* pa
     inController->currTarget = gZeroVec;
     inController->attackTarget = 0;
     inController->numMinions = 0;
+    inController->punchDelay = 0;
     aiPlannerInit(&inController->planner, teamIndex, baseCount);
     pathfinderInit(&inController->pathfinder, &gZeroVec);
 
@@ -111,6 +115,10 @@ void ai_update(struct LevelScene* level, struct AIController* ai) {
     ) {
         ai->attackTarget = 0;
     }
+    
+    if (ai->punchDelay) {
+        ai->punchDelay -= gTimeDelta;
+    }
 }
 
 unsigned isTargetBaseCaptured(struct AIController* ai){
@@ -140,8 +148,9 @@ void ai_collectPlayerInput(struct LevelScene* levelScene, struct AIController* a
         attackRadius += 0.1f * SCENE_SCALE;
 
         if (player->aiTarget != 0 || vector3DistSqrd(&player->transform.position, targetPosition) < attackRadius * attackRadius) {
-            if (!(playerInput->prevActions & PlayerInputActionsAttack)) {
+            if (!(playerInput->prevActions & PlayerInputActionsAttack) && ai->punchDelay <= 0.0f) {
                 playerInput->actionFlags |= PlayerInputActionsAttack;
+                ai->punchDelay = PUNCH_DELAY;
             }
         }
     } else if(ai->planner.currentPlan && ai->pathfinder.currentNode < levelScene->definition->pathfinding.nodeCount) {

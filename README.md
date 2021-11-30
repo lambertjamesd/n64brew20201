@@ -13,5 +13,14 @@ TODO
     fix surface textures
     fix minimap squashing
     finish title screen
+    choppy animations
+    minion attack speed down
+    minion dps down
+    slower ai thinking
+    don't draw dead players on minimap
+    starting orientation
 
     balance
+
+    level feedback
+        bootcamp
