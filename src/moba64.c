@@ -199,9 +199,9 @@ static void initGame(void)
     saveFileLoad();
     initAudio();
     soundPlayerInit();
-    mainMenuInitSelections(&gMainMenu);
-    sceneQueueMainMenu();
-    //sceneQueueCredits();
+    //mainMenuInitSelections(&gMainMenu);
+    //sceneQueueMainMenu();
+    sceneQueueCredits();
 
 #ifdef WITH_DEBUGGER
     OSThread* debugThreads[2];

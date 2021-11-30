@@ -12,6 +12,7 @@
 #include "images/title_startbutton.h"
 #include "images/arrows.h"
 #include "images/title_screen.h"
+#include "images/discord_logo.h"
 
 Gfx gMainMenuSolidColor[] = {
     gsDPPipeSync(),

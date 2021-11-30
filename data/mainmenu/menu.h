@@ -20,5 +20,6 @@ extern unsigned short __attribute__((aligned(8))) TitleLostcontrol_0_0[];
 extern unsigned short __attribute__((aligned(8))) Start_Button_0[];
 extern unsigned short __attribute__((aligned(8))) ArrowButtons_0_0[];
 extern unsigned short __attribute__((aligned(8))) TitleScreenImage_0_0[];
+extern unsigned short __attribute__((aligned(8))) discordlogo_img[];
 
 #endif
