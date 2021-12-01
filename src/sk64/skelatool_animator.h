@@ -12,12 +12,6 @@ struct SKU16Vector3 {
     short z;
 };
 
-enum SKBoneStateFlags {
-    SKBoneStateFlagsConstantPosition = (1 << 0),
-    SKBoneStateFlagsConstantRotation = (1 << 1),
-    SKBoneStateFlagsConstantScale = (1 << 2),
-};
-
 struct SKBoneState {
     unsigned short positionTick;
     unsigned short rotationTick;

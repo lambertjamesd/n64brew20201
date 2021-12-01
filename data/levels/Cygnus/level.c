@@ -291,5 +291,6 @@ struct LevelDefinition Cygnus_Definition = {
     .theme = &SnowTheme,
     .staticScene = {Cygnus_Boundary, 13},
     .pathfinding = {.nodeCount = 9, .baseNodes = Cygnus_BasesPathNodes, .nodeDistances = Cygnus_NodeDistances, .nodePositions = Cygnus_PathingNodes, .nextNode = Cygnus_NextNode},
+    .aiDifficulty = 1,
 };
 

@@ -250,5 +250,6 @@ struct LevelDefinition Taurus_Definition = {
     .theme = &SpaceTheme,
     .staticScene = {Taurus_Boundary, 8},
     .pathfinding = {.nodeCount = 10, .baseNodes = Taurus_BasesPathNodes, .nodeDistances = Taurus_NodeDistances, .nodePositions = Taurus_PathingNodes, .nextNode = Taurus_NextNode},
+    .aiDifficulty = 0.1,
 };
 

@@ -5,10 +5,22 @@
 #include "math/vector3.h"
 #include "util/memory.h"
 #include "scene/scene_management.h"
+#include "util/time.h"
 
 #define MINION_DISTANCE_SCALAR 0.25f
-#define PLANS_PER_FRAME        4
 #define DISTANCE_SCALAR        (1.0f / (PLAYER_BASE_MOVE_SPEED * SCENE_SCALE))
+
+#define UPGRADE_EASY_SCALAR     2.0f
+
+#define EASY_THINKING_TIME      5.0f
+#define HARD_THINKING_TIME      0.75f
+
+#define HARD_PLANS_PER_FRAME    12
+#define EASY_PLANS_PER_FRAME    1
+
+float aiPlannerThinkingTime(struct AIPlanner* planner) {
+    return mathfLerp(EASY_THINKING_TIME, HARD_THINKING_TIME, planner->difficulty);
+}
 
 int aiPlannerDoesTeamMatch(unsigned fromTeam, unsigned toTeam, enum TeamBaseType teamType) {
     switch (teamType)
@@ -42,15 +54,12 @@ float aiPlannerFindDistance(struct LevelScene* levelScene, struct Vector3* from,
             getClosestBaseFromPoint(levelScene, from), 
             toBase, 
             levelScene->baseCount);
-
-    // return 0.0f;
-    //return sqrtf(vector3DistSqrd(from, &levelScene->bases[toBase].position));
 }
 
 float gUpgradeValueScalars[] = {
     0.4f,
     0.2f,
-    1.5f,
+    0.8f,
 };
 
 void aiPlannerScorePlan(struct LevelScene* levelScene, struct AIPlanner* planner, struct AIPlan* plan) {
@@ -88,6 +97,8 @@ void aiPlannerScorePlan(struct LevelScene* levelScene, struct AIPlanner* planner
                     plan->targetBase
                 ) * DISTANCE_SCALAR + timeToUpgrade * gUpgradeValueScalars[plan->param0 - LevelBaseStateUpgradingSpawnRate];
             }
+
+            plan->estimatedCost *= mathfLerp(UPGRADE_EASY_SCALAR, 1.0f, planner->difficulty);
 
             break;
         }
@@ -225,7 +236,7 @@ void aiPlannerComeUpWithPlan(struct LevelScene* levelScene, struct AIPlanner* pl
             plan->param0 = randomInRange(LevelBaseStateUpgradingSpawnRate, LevelBaseStateUpgradingDefence + 1);
             plan->neededMinions = 0;
 
-            if (levelBaseIsBeingUpgraded(&levelScene->bases[sourceBase]) && levelBaseTimeForUpgrade(&levelScene->bases[sourceBase], plan->param0) < 0.0f) {
+            if (levelBaseIsBeingUpgraded(&levelScene->bases[sourceBase]) || levelBaseTimeForUpgrade(&levelScene->bases[sourceBase], plan->param0) < 0.0f) {
                 plan->planType = AIPlanTypeNone;
             }
         }
@@ -286,7 +297,7 @@ void aiPlannerImplementNextPlan(struct LevelScene* levelScene, struct AIPlanner*
 
     *nextPlan = planner->nextPlan;
     planner->currentPlan = nextPlan;
-    planner->thinkingTimer = MINIMUM_THIKING_FRAMES;
+    planner->thinkingTimer = aiPlannerThinkingTime(planner);
 
     if (nextPlan->targetBase < planner->baseCount) {
         planner->basesCoveredByPlan[nextPlan->targetBase] = nextPlan;
@@ -327,11 +338,12 @@ int aiPlannerDoesPlanConflict(struct LevelScene* levelScene, struct AIPlanner* p
     }
 }
 
-void aiPlannerInit(struct AIPlanner* planner, unsigned teamNumber, unsigned baseCount) {
+void aiPlannerInit(struct AIPlanner* planner, unsigned teamNumber, unsigned baseCount, float difficulty) {
     zeroMemory(planner, sizeof(struct AIPlanner));
-    planner->thinkingTimer = MINIMUM_THIKING_FRAMES;
+    planner->thinkingTimer = aiPlannerThinkingTime(planner);
     planner->teamNumber = teamNumber;
     planner->baseCount = baseCount;
+    planner->difficulty = difficulty;
     planner->basesCoveredByPlan = malloc(sizeof(struct AIPlan*) * baseCount);
     zeroMemory(planner->basesCoveredByPlan, sizeof(struct AIPlan*) * baseCount);
     planner->baseMultiplyer = malloc(sizeof(float) * baseCount);
@@ -346,7 +358,9 @@ void aiPlannerUpdate(struct LevelScene* levelScene, struct AIPlanner* planner) {
     // make sure next plan is up to date
     aiPlannerScorePlan(levelScene, planner, &planner->nextPlan);
 
-    for (unsigned i = 0; i < PLANS_PER_FRAME; ++i) {
+    int plansPerFrame = (int)mathfLerp(EASY_PLANS_PER_FRAME, HARD_PLANS_PER_FRAME, planner->difficulty);
+
+    for (unsigned i = 0; i < plansPerFrame; ++i) {
         struct AIPlan newPlan;
         aiPlannerComeUpWithPlan(levelScene, planner, &newPlan);
         if (aiPlannerIsPlanStillValid(levelScene, planner, &newPlan) && !aiPlannerDoesPlanConflict(levelScene, planner, &newPlan)) {
@@ -367,13 +381,13 @@ void aiPlannerUpdate(struct LevelScene* levelScene, struct AIPlanner* planner) {
 
     if (planner->currentPlan && aiPlannerIsPlanExecuted(levelScene, planner, planner->currentPlan)) {
         planner->currentPlan = 0;
-        planner->thinkingTimer = MINIMUM_THIKING_FRAMES;
-    } else if (!planner->currentPlan && planner->thinkingTimer == 0) {
+        planner->thinkingTimer = aiPlannerThinkingTime(planner);
+    } else if (!planner->currentPlan && planner->thinkingTimer <= 0) {
         aiPlannerImplementNextPlan(levelScene, planner);
     } else if (planner->thinkingTimer > 0) {
         // thinking timer is used to ensure the AI comes up with a few 
         // plans before trying to execute the best option
-        --planner->thinkingTimer;
+        planner->thinkingTimer -= gTimeDelta;
     }
 }
 
@@ -409,7 +423,7 @@ void aiPlannerReset(struct AIPlanner* planner) {
 
     planner->currentPlan = 0;
     planner->nextPlan.planType = AIPlanTypeNone;
-    planner->thinkingTimer = MINIMUM_THIKING_FRAMES;
+    planner->thinkingTimer = aiPlannerThinkingTime(planner);
     zeroMemory(&planner->activePlans, sizeof(planner->activePlans));
     zeroMemory(planner->basesCoveredByPlan, sizeof(struct AIPlan*) * planner->baseCount);
 }

@@ -69,7 +69,7 @@ void minimapRender(struct LevelScene* scene, struct RenderState* renderState, un
     }
 
     for (unsigned i = 0; i < scene->minionCount; ++i) {
-        if (scene->minions[i].minionFlags & MinionFlagsActive) {
+        if (minionIsAlive(&scene->minions[i])) {
             struct Coloru8 color = gTeamColorsSaturated[scene->minions[i].team.teamNumber];
             spriteSetColor(renderState, LAYER_SOLID_COLOR, color);
             minimapRenderDot(renderState, &transform, &scene->minions[i].transform.position, 2);
@@ -82,6 +82,10 @@ void minimapRender(struct LevelScene* scene, struct RenderState* renderState, un
     spriteWriteRaw(renderState, LAYER_SOLID_COLOR, tmpBuffer, curr - tmpBuffer);
 
     for (unsigned i = 0; i < scene->playerCount; ++i) {
+        if (!playerIsAlive(&scene->players[i])) {
+            continue;
+        }
+
         struct Coloru8 color = gTeamColorsSaturated[scene->players[i].team.teamNumber];
         spriteSetColor(renderState, LAYER_SOLID_COLOR, color);
 

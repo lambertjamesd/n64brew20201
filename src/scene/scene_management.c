@@ -40,7 +40,7 @@ void sceneLoadLevel(struct GameConfiguration* gameConfig) {
 
     struct LevelDefinition* definition = levelDefinitionUnpack(metadata->fullDefinition, gLevelSegment, gThemeSegment);
 
-    levelSceneInit(&gCurrentLevel, definition, gameConfig->playerCount, gameConfig->aiPlayerMask, metadata->flags);
+    levelSceneInit(&gCurrentLevel, definition, gameConfig->playerCount, gameConfig->aiPlayerMask, metadata->flags, gMainMenu.selections.selectedPlayerCount == 0 ? definition->aiDifficulty : 1.0f);
     gSceneState = SceneStateInLevel;
 }
 

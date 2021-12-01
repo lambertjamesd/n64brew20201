@@ -706,5 +706,6 @@ struct LevelDefinition Sagittarius_Definition = {
     .theme = &SnowTheme,
     .staticScene = {Sagittarius_Boundary, 7},
     .pathfinding = {.nodeCount = 28, .baseNodes = Sagittarius_BasesPathNodes, .nodeDistances = Sagittarius_NodeDistances, .nodePositions = Sagittarius_PathingNodes, .nextNode = Sagittarius_NextNode},
+    .aiDifficulty = 1,
 };
 

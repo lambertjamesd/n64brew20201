@@ -18,4 +18,6 @@
 #include "target/header.h"
 #include "dizzy/header.h"
 
+extern Gfx ItemPickup_Fireball_mesh[];
+
 #endif

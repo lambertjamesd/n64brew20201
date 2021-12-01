@@ -245,5 +245,6 @@ struct LevelDefinition Galaxy_Definition = {
     .theme = &MarsTheme,
     .staticScene = {Galaxy_Boundary, 8},
     .pathfinding = {.nodeCount = 13, .baseNodes = Galaxy_BasesPathNodes, .nodeDistances = Galaxy_NodeDistances, .nodePositions = Galaxy_PathingNodes, .nextNode = Galaxy_NextNode},
+    .aiDifficulty = 1,
 };
 

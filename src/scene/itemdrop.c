@@ -9,6 +9,7 @@
 #include "../data/models/itemdrop/header.h"
 #include "../data/models/itemdropbase/header.h"
 #include "../data/models/target/header.h"
+#include "../data/models/characters.h"
 #include "controlscrambler.h"
 
 #define DROP_TIME       4.0f
@@ -165,14 +166,24 @@ void itemDropRender(struct ItemDrop* itemDrop, struct RenderState* renderState) 
             transform.position.y = FALL_VELOCITY * itemDrop->stateTimer;
         }
 
+        if (itemDrop->state == ItemDropStateFalling) {
+            quatAxisAngle(&gUp, gTimePassed * M_PI * 4.0f, &transform.rotation);
+        }
+
         transformToMatrixL(&transform, matrix);
         gSPMatrix(renderState->dl++, matrix, G_MTX_PUSH | G_MTX_MODELVIEW | G_MTX_MUL);
         gSPDisplayList(renderState->dl++, ItemPickup_ItemDropBase_mesh);
         gSPPopMatrix(renderState->dl++, G_MTX_MODELVIEW);
+
+        if (itemDrop->state == ItemDropStateFalling) {
+            gSPMatrix(renderState->transparentDL++, matrix, G_MTX_PUSH | G_MTX_MODELVIEW | G_MTX_MUL);
+            gSPDisplayList(renderState->transparentDL++, ItemPickup_Fireball_mesh);
+            gSPPopMatrix(renderState->transparentDL++, G_MTX_MODELVIEW);
+        }
     }
 
     if (itemDrop->state == ItemDropStateWaiting && (itemDrop->stateTimer > FLICKER_AWAY_TIME || mathfMod(gTimePassed, FLICKER_AWAY_PERIOD) < FLICKER_AWAY_PERIOD * 0.5f)) {
-        Mtx* matrix = renderStateRequestMatrices(renderState, 1);
+        Mtx* matrix = renderStateRequestMatrices(renderState, 2);
 
         if (!matrix) {
             return;
@@ -183,6 +194,10 @@ void itemDropRender(struct ItemDrop* itemDrop, struct RenderState* renderState) 
         transformToMatrixL(&transform, matrix);
         gSPMatrix(renderState->transparentDL++, matrix, G_MTX_PUSH | G_MTX_MODELVIEW | G_MTX_MUL);
         gSPDisplayList(renderState->transparentDL++, ItemPickup_ItemDrop_mesh);
+        guScale(&matrix[1], 1.25f, 2.5f + (mathfMod(gTimePassed, 0.125f) * 1.0f), 1.25f);
+        gSPMatrix(renderState->transparentDL++, &matrix[1], G_MTX_NOPUSH | G_MTX_MODELVIEW | G_MTX_MUL);
+        gDPSetPrimColor(renderState->transparentDL++, 255, 255, 120, 240, 200, 160);
+        gSPDisplayList(renderState->transparentDL++, RecallCircle_Cylinder_mesh);
         gSPPopMatrix(renderState->transparentDL++, G_MTX_MODELVIEW);
     } else if (itemDrop->state == ItemDropStateFalling) {
         Mtx* matrix = renderStateRequestMatrices(renderState, 1);
@@ -214,7 +229,7 @@ float gNextDropTime[] = {
     55.0f,
 };
 
-float itemDropsNextTime(unsigned currentDropCount) {
+float itemDropsNextTime(unsigned currentDropCount) {    
     if (currentDropCount + 2 >= sizeof(gNextDropTime) / sizeof(*gNextDropTime)) {
         currentDropCount = sizeof(gNextDropTime) / sizeof(*gNextDropTime) - 2;
     }

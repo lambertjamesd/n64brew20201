@@ -52,6 +52,7 @@ struct Minion {
 
     struct SKAnimator animator;
     struct Transform animationTransform;
+    float attackTimer;
 };
 
 void minionInit(struct Minion* minion, enum MinionType type, struct Transform* at, unsigned char baseId, unsigned team, enum MinionCommand defualtCommand, unsigned followPlayer);

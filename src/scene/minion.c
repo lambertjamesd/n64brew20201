@@ -24,8 +24,10 @@
 #define MINION_FOLLOW_DIST  3.0f
 #define MINION_MOVE_SPEED   (PLAYER_BASE_MOVE_SPEED * 10.0f)
 #define MINION_ACCELERATION (PLAYER_MOVE_ACCELERATION * 2.0f)
-#define MINION_HP           4
-#define MINION_DPS          2
+#define MINION_HP           3.5
+#define DEFENDER_HEAL_RATE  0.2f
+#define ATTACK_RATE         0.8f
+#define MINION_DPS          1.1f
 #define INVINCIBILITY_TIME  0.5f
 #define INVINCIBLE_FLASH_FREQ                      0.1f
 #define ATTACK_RADIUS       (1.0f * SCENE_SCALE)
@@ -49,7 +51,10 @@ void minionCorrectOverlap(struct DynamicSceneOverlap* overlap) {
         struct Minion* minion = (struct Minion*)overlap->thisEntry->data;
         struct TeamEntity* entityB = (struct TeamEntity*)overlap->otherEntry->data;
 
-        if (entityB->teamNumber != minion->team.teamNumber && minion->attackTarget == 0 && minion->currentCommand != MinionCommandFollow) {
+        if (entityB->teamNumber != minion->team.teamNumber && 
+            minion->attackTarget == 0 && 
+            minion->currentCommand != MinionCommandFollow && 
+            minion->attackTimer <= 0.0f) {
             minionSetAttackTarget(minion, entityB);
         }
     }
@@ -61,7 +66,7 @@ void minionAnimationEvent(struct SKAnimator* animator, void* data, struct SKAnim
     if (event->id == MINION_ANIMATION_EVENT_ATTACK && minion->attackTarget) {
         float distSqr = vector3DistSqrd(teamEntityGetPosition(minion->attackTarget), &minion->transform.position);
         if (distSqr < ATTACK_RADIUS * ATTACK_RADIUS) {
-            teamEntityApplyDamage(minion->attackTarget, MINION_DPS * skAnimationLength(&minion_animations_animations[MINION_ANIMATIONS_MINION_ANIMATIONS_ARMATURE_ATTACK_INDEX]));
+            teamEntityApplyDamage(minion->attackTarget, MINION_DPS * ATTACK_RATE);
         } else {
             minion->attackTarget = 0;
         }
@@ -79,6 +84,7 @@ void minionInit(struct Minion* minion, enum MinionType type, struct Transform* a
     minion->minionFlags = MinionFlagsActive;
     minion->sourceBaseId = sourceBaseId;
     minion->velocity = gZeroVec;
+    minion->attackTimer = 0.0f;
     damageHandlerInit(&minion->damageHandler, MINION_HP);
     pathfinderInit(&minion->pathfinder, &minion->transform.position);
 
@@ -142,6 +148,8 @@ void minionUpdate(struct Minion* minion) {
     struct Vector3* target = 0;
     float minDistance = 0.0f;
 
+    minion->attackTimer -= gTimeDelta;
+
     damageHandlerUpdate(&minion->damageHandler);
 
     if (minion->damageHandler.hp <= 0) {
@@ -171,6 +179,12 @@ void minionUpdate(struct Minion* minion) {
             }
             break;
         case MinionCommandDefend:
+            minion->damageHandler.hp += DEFENDER_HEAL_RATE * gTimeDelta;
+
+            if (minion->damageHandler.hp > MINION_HP) {
+                minion->damageHandler.hp = MINION_HP;
+            }
+
             target = teamEntityGetPosition(minion->currentTarget);
         
             if (target != 0) {
@@ -282,6 +296,7 @@ void minionCleanup(struct Minion* minion) {
 
 void minionSetAttackTarget(struct Minion* minion, struct TeamEntity* target) {
     minion->attackTarget = target;
+    minion->attackTimer = ATTACK_RATE;
     skAnimatorRunClip(&minion->animator, &minion_animations_animations[MINION_ANIMATIONS_MINION_ANIMATIONS_ARMATURE_ATTACK_INDEX], 0);
 }
 

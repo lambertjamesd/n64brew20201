@@ -673,5 +673,6 @@ struct LevelDefinition Perseverance_Definition = {
     .theme = &MarsTheme,
     .staticScene = {Perseverance_Boundary, 16},
     .pathfinding = {.nodeCount = 28, .baseNodes = Perseverance_BasesPathNodes, .nodeDistances = Perseverance_NodeDistances, .nodePositions = Perseverance_PathingNodes, .nextNode = Perseverance_NextNode},
+    .aiDifficulty = 1,
 };
 

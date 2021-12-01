@@ -271,5 +271,6 @@ struct LevelDefinition Cassiopeia_Definition = {
     .theme = &SpaceTheme,
     .staticScene = {Cassiopeia_Boundary, 12},
     .pathfinding = {.nodeCount = 8, .baseNodes = Cassiopeia_BasesPathNodes, .nodeDistances = Cassiopeia_NodeDistances, .nodePositions = Cassiopeia_PathingNodes, .nextNode = Cassiopeia_NextNode},
+    .aiDifficulty = 0.3,
 };
 

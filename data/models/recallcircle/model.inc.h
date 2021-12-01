@@ -49,7 +49,7 @@ Gfx RecallCircle_Cylinder_mesh[] = {
 	gsSPClearGeometryMode(G_LIGHTING | G_CULL_BOTH),
 	gsSPVertex(RecallCircle_Cylinder_mesh_vtx_cull + 0, 8, 0),
 	gsSPCullDisplayList(0, 7),
-	gsDPSetCombineLERP(0, 0, 0, PRIMITIVE, 0, 0, 0, SHADE, 0, 0, 0, PRIMITIVE, 0, 0, 0, SHADE),
+	gsDPSetCombineLERP(0, 0, 0, PRIMITIVE, PRIMITIVE, 0, SHADE, 0, 0, 0, 0, PRIMITIVE, PRIMITIVE, 0, SHADE, 0),
 	gsSPDisplayList(RecallCircle_Cylinder_mesh_tri_0),
 	gsDPPipeSync(),
 	gsSPSetGeometryMode(G_CULL_BACK),

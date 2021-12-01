@@ -1,6 +1,10 @@
 
 #include "staticscene.h"
 #include "math/mathf.h"
+#include "math/vector3.h"
+#include "game_defs.h"
+
+#define STATIC_WALL_THICKNESS   (SCENE_SCALE * 1.5f)
 
 void staticSceneConstrainToBoundaries(struct StaticScene* staticScene, struct Vector2* pos, struct Vector2* velocity, float radius) {
     for (unsigned i = 0; i < staticScene->boundaryCount; ++i) {
@@ -9,7 +13,7 @@ void staticSceneConstrainToBoundaries(struct StaticScene* staticScene, struct Ve
         vector2Sub(pos, &curr->corner, &offset);
         float intersectionDepth = vector2Dot(&offset, &curr->normal) - radius;
 
-        if (intersectionDepth > 0.0f || intersectionDepth < -radius * 2.0f) {
+        if (intersectionDepth > 0.0f || intersectionDepth + STATIC_WALL_THICKNESS < -radius * 2.0f) {
             continue;
         }
 
@@ -31,9 +35,11 @@ void staticSceneConstrainToBoundaries(struct StaticScene* staticScene, struct Ve
         vector2Scale(&curr->normal, -intersectionDepth, &offsetCorrection);
         vector2Add(pos, &offsetCorrection, pos);
 
-        struct Vector2 velocityIntoFace;
-        vector2Scale(&curr->normal, vector2Dot(&curr->normal, velocity), &velocityIntoFace);
-        vector2Sub(velocity, &velocityIntoFace, velocity);
+        if (velocity) {
+            struct Vector2 velocityIntoFace;
+            vector2Scale(&curr->normal, vector2Dot(&curr->normal, velocity), &velocityIntoFace);
+            vector2Sub(velocity, &velocityIntoFace, velocity);
+        }
     }
 }
 
@@ -44,20 +50,26 @@ int staticSceneInInsideBoundary(struct StaticScene* staticScene, struct Vector2*
         struct SceneBoundary* curr = &staticScene->boundary[i];
         struct SceneBoundary* next = &staticScene->boundary[(i + 1) % staticScene->boundaryCount];
 
-        float yDiff = next->corner.y - curr->corner.y;
+        struct Vector2 currPoint;
+        struct Vector2 nextPoint;
+
+        vector2Sub(&curr->corner, pos, &currPoint);
+        vector2Sub(&next->corner, pos, &nextPoint);
+
+        float yDiff = nextPoint.y - currPoint.y;
         if (fabsf(yDiff) < 0.0001f) {
             continue;
         }
 
-        float lerpValue = -curr->corner.y / yDiff;
+        float lerpValue = -currPoint.y / yDiff;
 
-        if (lerpValue < -0.0001f || lerpValue > 1.0001f) {
+        if (lerpValue < 0 || lerpValue > 1.0f) {
             continue;
         }
 
-        float xValue = (1.0f - lerpValue) * curr->corner.x + lerpValue * next->corner.x;
+        float xValue = (1.0f - lerpValue) * currPoint.x + lerpValue * nextPoint.x;
 
-        if (xValue > 0.00001f) {
+        if (xValue > 0.0f) {
             ++intersectionCount;
         }
     }
@@ -66,8 +78,7 @@ int staticSceneInInsideBoundary(struct StaticScene* staticScene, struct Vector2*
         return 0;
     }
 
-    struct Vector2 velocity = gZeroVec2;
     struct Vector2 posCheck = *pos;
-    staticSceneConstrainToBoundaries(staticScene, pos, &velocity, radius);
+    staticSceneConstrainToBoundaries(staticScene, pos, 0, radius);
     return posCheck.x == pos->x && posCheck.y == pos->y;
 }

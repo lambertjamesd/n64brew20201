@@ -7,10 +7,10 @@
 enum ControlsScramblerType {
     ControlsScramblerTypeJoystickFipped,
     ControlsScramblerTypeButtonsFlipped,
-    ControlsScramblerTypeAttackTurbo,
+    // ControlsScramblerTypeAttackTurbo,
     ControlsScramblerTypeJumpTurbo,
     ControlsScramblerTypeMoveTurbo,
-    ControlsScramblerDPADSwap,
+    // ControlsScramblerDPADSwap,
     ControlsScramblerViewFlipped,
     ControlsScramblerTypeCount,
 };

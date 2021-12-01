@@ -8,12 +8,10 @@
 #define CAMERA_ROTATE_DURATION 0.5f
 
 float gDebuffTime[ControlsScramblerTypeCount] = {
+    12.0f,
     8.0f,
-    8.0f,
-    8.0f,
-    8.0f,
-    8.0f,
-    8.0f,
+    5.0f,
+    9.0f,
     8.0f,
 };
 
@@ -71,10 +69,10 @@ void controlsScramblerApply(struct ControlsScrambler* scrambler) {
         scrambler->playerInput.prevActions = controlsScramblerSwapFlags(scrambler->playerInput.prevActions, PlayerInputActionsJump, PlayerInputActionsAttack);
     }
 
-    if (scrambler->timers[ControlsScramblerTypeAttackTurbo]) {
-        int newFlagValue = (scrambler->playerInput.actionFlags ^ scrambler->playerInput.prevActions ^ PlayerInputActionsAttack) & PlayerInputActionsAttack;
-        scrambler->playerInput.actionFlags = (scrambler->playerInput.actionFlags & ~PlayerInputActionsAttack) | newFlagValue;
-    }
+    // if (scrambler->timers[ControlsScramblerTypeAttackTurbo]) {
+    //     int newFlagValue = (scrambler->playerInput.actionFlags ^ scrambler->playerInput.prevActions ^ PlayerInputActionsAttack) & PlayerInputActionsAttack;
+    //     scrambler->playerInput.actionFlags = (scrambler->playerInput.actionFlags & ~PlayerInputActionsAttack) | newFlagValue;
+    // }
 
     if (scrambler->timers[ControlsScramblerTypeJumpTurbo]) {
         int newFlagValue = (scrambler->playerInput.actionFlags ^ scrambler->playerInput.prevActions ^ PlayerInputActionsJump) & PlayerInputActionsJump;

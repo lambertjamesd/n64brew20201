@@ -1298,5 +1298,6 @@ struct LevelDefinition Spacestation_F1_Definition = {
     .theme = &SpaceTheme,
     .staticScene = {Spacestation_F1_Boundary, 64},
     .pathfinding = {.nodeCount = 26, .baseNodes = Spacestation_F1_BasesPathNodes, .nodeDistances = Spacestation_F1_NodeDistances, .nodePositions = Spacestation_F1_PathingNodes, .nextNode = Spacestation_F1_NextNode},
+    .aiDifficulty = 0.3,
 };
 

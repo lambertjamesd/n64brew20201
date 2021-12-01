@@ -3,48 +3,55 @@ Lights1 ItemPickup_Clear_lights = gdSPDefLights1(
 	0xFE, 0xFE, 0xFE, 0x28, 0x28, 0x28);
 
 u64 ItemPickup_Scramble_Texture_ia8[] = {
-	0xb4b4b45f5f5fb4b4, 0xb4b4b4b4b4b4b4b4, 0xb4b4b4b45fb4b4b4, 0xb4b4b4b4b4b4b4b4, 0xb4b45f5f5f5fb4b4, 0xb4b4b4b4b4b4b4b4, 0xb4b4b45fb4b4b4b4, 0xb4b4b4b4b4b4b4b4, 
-	0x5f5fb45f5f5fb4b4, 0xb4b4b4b4b4b4b4b4, 0xb4b45fb4b4b4b4b4, 0xb4b4b4b4b4b45f5f, 0xb4b4b4b4b4b4b4b4, 0xb4b4b4b4b4b4b4b4, 0xb4b45fb4b4b4b45f, 0x5f5fb4b4b4b45fb4, 
-	0xb4b4b4b4b4b4b4b4, 0xb4b4b4b4b4b4b4b4, 0xb4b45fb4b4b4b45f, 0x5f5f5f5f5f5fb4b4, 0xb4b4b4b4b4b4b4b4, 0xb4b4b4b4b4b4b4b4, 0xb4b45fb4b4b4b45f, 0x5f5fb4b4b4b4b4b4, 
-	0xb4b4b4b4b4b4b4b4, 0xb45f5f5fb4b4b4b4, 0xb4b45fb4b4b4b4b4, 0xb4b4b4b4b4b4b4b4, 0xb4b4b4b4b4b4b4b4, 0x5fb4b4b45f5fb4b4, 0xb45fb4b4b4b4b4b4, 0xb4b4b4b4b4b4b4b4, 
-	0xb4b4b4b4b4b4b45f, 0x5f5fb4b4b4b45f5f, 0x5fb4b4b4b4b4b4b4, 0xb4b4b4b4b4b4b4b4, 0xb4b4b4b4b4b4b45f, 0x5f5fb4b4b4b4b4b4, 0xb4b4b4b4b4b4b4b4, 0xb4b4b4b4b4b4b4b4, 
-	0xb4b4b4b4b4b4b45f, 0x5f5fb4b4b4b4b4b4, 0xb4b4b4b4b4b4b4b4, 0xb4b4b4b4b4b4b4b4, 0xb4b4b4b4b4b4b4b4, 0xb4b4b4b4b4b4b4b4, 0xb4b4b4b4b4b4b4b4, 0xb4b4b4b4b4b4b4b4, 
-	0xb4b4b4b4b4b4b4b4, 0xb4b4b4b4b4b4b4b4, 0xb4b4b4b4b4b4b4b4, 0xb4b4b4b4b4b4b4b4, 0xb4b4b4b4b4b4b4b4, 0xb4b4b4b4b4b4b4b4, 0xb4b4b4b4b4b4b4b4, 0xb4b4b4b4b4b4b4b4, 
-	0xb4b4b4b4b4b4b4b4, 0xb4b4b4b4b4b4b4b4, 0xb4b4b4b4b4b4b4b4, 0xb4b4b4b4b4b4b4b4, 0xb4b4b4b4b4b4b4b4, 0xb4b4b4b4b4b4b4b4, 0xb45f5f5fb4b4b4b4, 0xb4b4b4b4b4b4b4b4, 
-	0xb4b4b4b4b4b4b4b4, 0xb4b4b4b4b4b4b4b4, 0xb45f5f5f5f5f5f5f, 0x5fb4b4b4b4b4b4b4, 0xb4b4b4b4b4b4b4b4, 0x5f5f5fb4b4b4b4b4, 0xb45f5f5fb4b4b4b4, 0xb45fb4b4b4b4b4b4, 
-	0xb4b4b4b4b4b4b4b4, 0x5f5f5fb4b4b4b4b4, 0xb4b4b4b4b4b4b4b4, 0xb4b45fb4b4b4b4b4, 0xb4b4b4b4b4b4b4b4, 0x5f5f5fb4b4b4b4b4, 0xb4b4b4b4b4b4b4b4, 0xb4b4b45fb4b4b4b4, 
-	0xb4b4b4b4b4b4b4b4, 0xb45fb4b4b4b4b4b4, 0xb4b4b4b4b4b4b4b4, 0xb4b4b45fb4b4b4b4, 0x5f5fb4b4b4b4b4b4, 0xb45fb4b4b4b4b4b4, 0xb4b4b4b4b4b4b4b4, 0xb4b4b4b45f5f5f5f, 
-	0xb4b45fb45f5f5fb4, 0xb45fb4b4b4b4b4b4, 0xb4b4b4b4b4b4b4b4, 0xb4b4b4b4b4b4b4b4, 0xb4b4b45f5f5f5fb4, 0xb4b45fb4b4b4b4b4, 0xb4b4b4b4b4b4b4b4, 0xb4b4b4b4b4b4b4b4, 
-	0xb4b4b4b45f5f5fb4, 0xb4b45fb4b4b4b4b4, 0xb4b4b4b4b4b4b4b4, 0xb4b4b4b4b4b4b4b4, 0xb4b4b4b4b4b4b4b4, 0xb4b45fb4b4b4b4b4, 0xb4b4b4b4b4b4b4b4, 0xb4b4b4b4b4b4b4b4, 
-	0xb4b4b4b4b4b4b4b4, 0xb4b45fb4b4b4b4b4, 0xb4b4b4b4b45f5f5f, 0xb4b4b4b4b4b4b4b4, 0xb4b4b4b4b4b4b4b4, 0xb4b45fb4b4b4b4b4, 0xb4b4b4b4b45f5f5f, 0xb4b4b4b4b4b4b4b4, 
-	0xb4b4b4b4b4b4b4b4, 0xb4b45fb4b4b4b4b4, 0xb4b4b4b4b45f5f5f, 0xb4b4b4b4b4b4b4b4, 0xb4b4b4b4b4b4b4b4, 0xb4b45fb4b4b4b4b4, 0xb4b4b4b4b4b45fb4, 0xb4b4b4b4b4b4b4b4, 
-	0xb4b4b4b4b4b45f5f, 0x5f5fb4b4b4b4b4b4, 0xb4b4b4b4b4b45fb4, 0xb4b4b4b4b4b4b4b4, 0xb4b4b4b4b45fb4b4, 0xb4b4b4b4b4b4b4b4, 0xb4b4b4b4b45fb4b4, 0xb4b4b4b4b4b4b4b4, 
+	0xb9b9b95f5f5fb9b9, 0xb9b9b9b9b9b9b9b9, 0xb9b9b9b95fb9b9b9, 0xb9b9b9b9b9b9b9b9, 0xb9b95f5f5f5fb9b9, 0xb9b9b9b9b9b9b9b9, 0xb9b9b95fb9b9b9b9, 0xb9b9b9b9b9b9b9b9, 
+	0x5f5fb95f5f5fb9b9, 0xb9b9b9b9b9b9b9b9, 0xb9b95fb9b9b9b9b9, 0xb9b9b9b9b9b95f5f, 0xb9b9b9b9b9b9b9b9, 0xb9b9b9b9b9b9b9b9, 0xb9b95fb9b9b9b95f, 0x5f5fb9b9b9b95fb9, 
+	0xb9b9b9b9b9b9b9b9, 0xb9b9b9b9b9b9b9b9, 0xb9b95fb9b9b9b95f, 0x5f5f5f5f5f5fb9b9, 0xb9b9b9b9b9b9b9b9, 0xb9b9b9b9b9b9b9b9, 0xb9b95fb9b9b9b95f, 0x5f5fb9b9b9b9b9b9, 
+	0xb9b9b9b9b9b9b9b9, 0xb95f5f5fb9b9b9b9, 0xb9b95fb9b9b9b9b9, 0xb9b9b9b9b9b9b9b9, 0xb9b9b9b9b9b9b9b9, 0x5fb9b9b95f5fb9b9, 0xb95fb9b9b9b9b9b9, 0xb9b9b9b9b9b9b9b9, 
+	0xb9b9b9b9b9b9b95f, 0x5f5fb9b9b9b95f5f, 0x5fb9b9b9b9b9b9b9, 0xb9b9b9b9b9b9b9b9, 0xb9b9b9b9b9b9b95f, 0x5f5fb9b9b9b9b9b9, 0xb9b9b9b9b9b9b9b9, 0xb9b9b9b9b9b9b9b9, 
+	0xb9b9b9b9b9b9b95f, 0x5f5fb9b9b9b9b9b9, 0xb9b9b9b9b9b9b9b9, 0xb9b9b9b9b9b9b9b9, 0xb9b9b9b9b9b9b9b9, 0xb9b9b9b9b9b9b9b9, 0xb9b9b9b9b9b9b9b9, 0xb9b9b9b9b9b9b9b9, 
+	0xb9b9b9b9b9b9b9b9, 0xb9b9b9b9b9b9b9b9, 0xb9b9b9b9b9b9b9b9, 0xb9b9b9b9b9b9b9b9, 0xb9b9b9b9b9b9b9b9, 0xb9b9b9b9b9b9b9b9, 0xb9b9b9b9b9b9b9b9, 0xb9b9b9b9b9b9b9b9, 
+	0xb9b9b9b9b9b9b9b9, 0xb9b9b9b9b9b9b9b9, 0xb9b9b9b9b9b9b9b9, 0xb9b9b9b9b9b9b9b9, 0xb9b9b9b9b9b9b9b9, 0xb9b9b9b9b9b9b9b9, 0xb95f5f5fb9b9b9b9, 0xb9b9b9b9b9b9b9b9, 
+	0xb9b9b9b9b9b9b9b9, 0xb9b9b9b9b9b9b9b9, 0xb95f5f5f5f5f5f5f, 0x5fb9b9b9b9b9b9b9, 0xb9b9b9b9b9b9b9b9, 0x5f5f5fb9b9b9b9b9, 0xb95f5f5fb9b9b9b9, 0xb95fb9b9b9b9b9b9, 
+	0xb9b9b9b9b9b9b9b9, 0x5f5f5fb9b9b9b9b9, 0xb9b9b9b9b9b9b9b9, 0xb9b95fb9b9b9b9b9, 0xb9b9b9b9b9b9b9b9, 0x5f5f5fb9b9b9b9b9, 0xb9b9b9b9b9b9b9b9, 0xb9b9b95fb9b9b9b9, 
+	0xb9b9b9b9b9b9b9b9, 0xb95fb9b9b9b9b9b9, 0xb9b9b9b9b9b9b9b9, 0xb9b9b95fb9b9b9b9, 0x5f5fb9b9b9b9b9b9, 0xb95fb9b9b9b9b9b9, 0xb9b9b9b9b9b9b9b9, 0xb9b9b9b95f5f5f5f, 
+	0xb9b95fb95f5f5fb9, 0xb95fb9b9b9b9b9b9, 0xb9b9b9b9b9b9b9b9, 0xb9b9b9b9b9b9b9b9, 0xb9b9b95f5f5f5fb9, 0xb9b95fb9b9b9b9b9, 0xb9b9b9b9b9b9b9b9, 0xb9b9b9b9b9b9b9b9, 
+	0xb9b9b9b95f5f5fb9, 0xb9b95fb9b9b9b9b9, 0xb9b9b9b9b9b9b9b9, 0xb9b9b9b9b9b9b9b9, 0xb9b9b9b9b9b9b9b9, 0xb9b95fb9b9b9b9b9, 0xb9b9b9b9b9b9b9b9, 0xb9b9b9b9b9b9b9b9, 
+	0xb9b9b9b9b9b9b9b9, 0xb9b95fb9b9b9b9b9, 0xb9b9b9b9b95f5f5f, 0xb9b9b9b9b9b9b9b9, 0xb9b9b9b9b9b9b9b9, 0xb9b95fb9b9b9b9b9, 0xb9b9b9b9b95f5f5f, 0xb9b9b9b9b9b9b9b9, 
+	0xb9b9b9b9b9b9b9b9, 0xb9b95fb9b9b9b9b9, 0xb9b9b9b9b95f5f5f, 0xb9b9b9b9b9b9b9b9, 0xb9b9b9b9b9b9b9b9, 0xb9b95fb9b9b9b9b9, 0xb9b9b9b9b9b95fb9, 0xb9b9b9b9b9b9b9b9, 
+	0xb9b9b9b9b9b95f5f, 0x5f5fb9b9b9b9b9b9, 0xb9b9b9b9b9b95fb9, 0xb9b9b9b9b9b9b9b9, 0xb9b9b9b9b95fb9b9, 0xb9b9b9b9b9b9b9b9, 0xb9b9b9b9b95fb9b9, 0xb9b9b9b9b9b9b9b9, 
 	
 };
 
+Vtx ItemPickup_ItemDrop_mesh_vtx_cull[8] = {
+	{{{-130, 7, -122},0, {-16, -16},{0x0, 0x0, 0x0, 0x0}}},
+	{{{-130, 7, 122},0, {-16, -16},{0x0, 0x0, 0x0, 0x0}}},
+	{{{-130, 318, 122},0, {-16, -16},{0x0, 0x0, 0x0, 0x0}}},
+	{{{-130, 318, -122},0, {-16, -16},{0x0, 0x0, 0x0, 0x0}}},
+	{{{130, 7, -122},0, {-16, -16},{0x0, 0x0, 0x0, 0x0}}},
+	{{{130, 7, 122},0, {-16, -16},{0x0, 0x0, 0x0, 0x0}}},
+	{{{130, 318, 122},0, {-16, -16},{0x0, 0x0, 0x0, 0x0}}},
+	{{{130, 318, -122},0, {-16, -16},{0x0, 0x0, 0x0, 0x0}}},
+};
+
 Vtx ItemPickup_ItemDrop_mesh_vtx_0[10] = {
-	{{{7, 318, -2},0, {379, 496},{0x13, 0xFF, 0xA3, 0xFF}}},
-	{{{-40, 195, 123},0, {-16, 1005},{0xD, 0xFF, 0xA3, 0xFF}}},
-	{{{103, 162, 79},0, {786, 1008},{0x3B, 0xFE, 0xAF, 0xFF}}},
-	{{{-103, 165, -79},0, {-16, -12},{0x27, 0xFF, 0xA5, 0xFF}}},
-	{{{40, 143, -123},0, {786, -16},{0x8F, 0xF0, 0xFF, 0xFF}}},
-	{{{103, 162, 79},0, {-3, 561},{0x3B, 0xFE, 0xAF, 0xFF}}},
-	{{{-40, 195, 123},0, {803, 564},{0xD, 0xFF, 0xA3, 0xFF}}},
-	{{{-7, 7, 2},0, {396, 52},{0x8F, 0xF0, 0xFF, 0xFF}}},
-	{{{-103, 165, -79},0, {803, -460},{0x27, 0xFF, 0xA5, 0xFF}}},
-	{{{40, 143, -123},0, {-3, -458},{0x8F, 0xF0, 0xFF, 0xFF}}},
+	{{{-4, 318, -6},0, {379, 496},{0x13, 0xFF, 0xA3, 0xFF}}},
+	{{{130, 195, 2},0, {-16, 1005},{0xD, 0xFF, 0xA3, 0xFF}}},
+	{{{45, 162, -122},0, {786, 1008},{0x3B, 0xFE, 0xAF, 0xFF}}},
+	{{{-45, 165, 122},0, {-16, -12},{0x27, 0xFF, 0xA5, 0xFF}}},
+	{{{-130, 143, -2},0, {786, -16},{0x8F, 0xF0, 0xFF, 0xFF}}},
+	{{{45, 162, -122},0, {-3, 561},{0x3B, 0xFE, 0xAF, 0xFF}}},
+	{{{130, 195, 2},0, {803, 564},{0xD, 0xFF, 0xA3, 0xFF}}},
+	{{{4, 7, 6},0, {396, 52},{0x8F, 0xF0, 0xFF, 0xFF}}},
+	{{{-45, 165, 122},0, {803, -460},{0x27, 0xFF, 0xA5, 0xFF}}},
+	{{{-130, 143, -2},0, {-3, -458},{0x8F, 0xF0, 0xFF, 0xFF}}},
 };
 
 Gfx ItemPickup_ItemDrop_mesh_tri_0[] = {
 	gsSPVertex(ItemPickup_ItemDrop_mesh_vtx_0 + 0, 10, 0),
-	gsSP1Triangle(0, 1, 2, 0),
-	gsSP1Triangle(1, 0, 3, 0),
-	gsSP1Triangle(4, 3, 0, 0),
-	gsSP1Triangle(0, 2, 4, 0),
-	gsSP1Triangle(5, 6, 7, 0),
-	gsSP1Triangle(7, 6, 8, 0),
-	gsSP1Triangle(7, 8, 9, 0),
-	gsSP1Triangle(5, 7, 9, 0),
+	gsSP2Triangles(0, 1, 2, 0, 1, 0, 3, 0),
+	gsSP2Triangles(4, 3, 0, 0, 0, 2, 4, 0),
+	gsSP2Triangles(5, 6, 7, 0, 7, 6, 8, 0),
+	gsSP2Triangles(7, 8, 9, 0, 5, 7, 9, 0),
 	gsSPEndDisplayList(),
 };
 
@@ -73,6 +80,10 @@ Gfx mat_revert_ItemPickup_Clear[] = {
 };
 
 Gfx ItemPickup_ItemDrop_mesh[] = {
+	gsSPClearGeometryMode(G_LIGHTING),
+	gsSPVertex(ItemPickup_ItemDrop_mesh_vtx_cull + 0, 8, 0),
+	gsSPSetGeometryMode(G_LIGHTING),
+	gsSPCullDisplayList(0, 7),
 	gsSPDisplayList(mat_ItemPickup_Clear),
 	gsSPDisplayList(ItemPickup_ItemDrop_mesh_tri_0),
 	gsSPDisplayList(mat_revert_ItemPickup_Clear),
@@ -83,4 +94,3 @@ Gfx ItemPickup_ItemDrop_mesh[] = {
 	gsSPTexture(65535, 65535, 0, 0, 0),
 	gsSPEndDisplayList(),
 };
-

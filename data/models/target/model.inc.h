@@ -29,6 +29,7 @@ Gfx mat_ItemPickup_Target[] = {
 	gsDPSetCombineLERP(0, 0, 0, PRIMITIVE, 0, 0, 0, TEXEL0, 0, 0, 0, PRIMITIVE, 0, 0, 0, TEXEL0),
 	gsSPTexture(65535, 65535, 0, 0, 1),
 	gsDPTileSync(),
+	gsDPSetTextureLUT(G_TT_NONE),
 	gsDPSetTextureImage(G_IM_FMT_I, G_IM_SIZ_16b, 1, ItemPickup_Target_i4),
 	gsDPSetTile(G_IM_FMT_I, G_IM_SIZ_16b, 0, 0, 7, 0, G_TX_WRAP | G_TX_NOMIRROR, 5, 0, G_TX_WRAP | G_TX_NOMIRROR, 5, 0),
 	gsDPLoadSync(),

@@ -488,5 +488,6 @@ struct LevelDefinition Spirit_Definition = {
     .theme = &MarsTheme,
     .staticScene = {Spirit_Boundary, 16},
     .pathfinding = {.nodeCount = 24, .baseNodes = Spirit_BasesPathNodes, .nodeDistances = Spirit_NodeDistances, .nodePositions = Spirit_PathingNodes, .nextNode = Spirit_NextNode},
+    .aiDifficulty = 1,
 };
 

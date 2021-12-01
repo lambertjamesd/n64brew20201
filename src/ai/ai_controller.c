@@ -2,12 +2,16 @@
 #include "collision/collisionlayers.h"
 #include "scene/scene_management.h"
 #include "util/time.h"
+#include "math/mathf.h"
 
 #define ATTACK_RADIUS (10.0f * SCENE_SCALE)
 
 #define MOVEMENT_SLOWDOWN_RADIUS    (1.0f * SCENE_SCALE)
 
-#define PUNCH_DELAY 1.0f
+#define PUNCH_DELAY_EASY 3.0f
+#define PUNCH_DELAY_HARD 0.0f
+
+#define SPEED_SCALAR_EASY 0.7f
 
 struct CollisionCircle gBotCollider = {
     {CollisionShapeTypeCircle},
@@ -33,7 +37,7 @@ unsigned getNumNeutralBases(struct LevelBase* bases, unsigned numBases){
     return count;
 }
 
-void ai_Init(struct AIController* inController, struct PathfindingDefinition* pathfinder, unsigned playerIndex, unsigned teamIndex, unsigned baseCount){
+void ai_Init(struct AIController* inController, struct PathfindingDefinition* pathfinder, unsigned playerIndex, unsigned teamIndex, unsigned baseCount, float difficulty) {
     inController->pathfindingInfo = pathfinder;
     inController->playerIndex = playerIndex;
     inController->teamIndex = teamIndex;
@@ -42,7 +46,8 @@ void ai_Init(struct AIController* inController, struct PathfindingDefinition* pa
     inController->attackTarget = 0;
     inController->numMinions = 0;
     inController->punchDelay = 0;
-    aiPlannerInit(&inController->planner, teamIndex, baseCount);
+    inController->difficulty = difficulty;
+    aiPlannerInit(&inController->planner, teamIndex, baseCount, difficulty);
     pathfinderInit(&inController->pathfinder, &gZeroVec);
 
     struct Vector2 position;
@@ -116,7 +121,7 @@ void ai_update(struct LevelScene* level, struct AIController* ai) {
         ai->attackTarget = 0;
     }
     
-    if (ai->punchDelay) {
+    if (ai->punchDelay > 0.0f) {
         ai->punchDelay -= gTimeDelta;
     }
 }
@@ -150,7 +155,7 @@ void ai_collectPlayerInput(struct LevelScene* levelScene, struct AIController* a
         if (player->aiTarget != 0 || vector3DistSqrd(&player->transform.position, targetPosition) < attackRadius * attackRadius) {
             if (!(playerInput->prevActions & PlayerInputActionsAttack) && ai->punchDelay <= 0.0f) {
                 playerInput->actionFlags |= PlayerInputActionsAttack;
-                ai->punchDelay = PUNCH_DELAY;
+                ai->punchDelay = mathfLerp(PUNCH_DELAY_EASY, PUNCH_DELAY_HARD, ai->difficulty);
             }
         }
     } else if(ai->planner.currentPlan && ai->pathfinder.currentNode < levelScene->definition->pathfinding.nodeCount) {
@@ -171,4 +176,6 @@ void ai_collectPlayerInput(struct LevelScene* levelScene, struct AIController* a
         playerInputNoInput(playerInput);
         playerInput->targetWorldDirection = gZeroVec;
     }
+
+    vector3Scale(&playerInput->targetWorldDirection, &playerInput->targetWorldDirection, mathfLerp(SPEED_SCALAR_EASY, 1.0f, ai->difficulty));
 }

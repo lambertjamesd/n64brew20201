@@ -41,7 +41,7 @@ struct DynamicMarker gIntensityMarkers[] = {
 
 #define WIN_BY_PRESSING_L   1
 
-void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* definition, unsigned int playercount, unsigned aiPlayerMask, enum LevelMetadataFlags flags) {
+void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* definition, unsigned int playercount, unsigned aiPlayerMask, enum LevelMetadataFlags flags, float aiDifficulty) {
     levelScene->definition = definition;
     dynamicSceneInit(
         &gDynamicScene, 
@@ -68,11 +68,19 @@ void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* defin
 
     //initializing player characters 
     for(unsigned i = 0; i < playercount; ++i){
-        playerInit(&levelScene->players[i], i, i, &definition->playerStartLocations[i]);
+        struct Player* player = &levelScene->players[i];
+        playerInit(player, i, i, &definition->playerStartLocations[i]);
         controlsScramblerInit(&levelScene->scramblers[i]);
-        cameraInit(&levelScene->cameras[i], 45.0f, 100.0f, 18000.0f);
-        vector3AddScaled(&levelScene->players[i].transform.position, &gForward, SCENE_SCALE * 2.0f, &levelScene->cameras[i].transform.position);
-        vector3AddScaled(&levelScene->cameras[i].transform.position, &gUp, SCENE_SCALE * 2.0f, &levelScene->cameras[i].transform.position);
+        
+        struct Camera* camera = &levelScene->cameras[i];
+        cameraInit(camera, 45.0f, 100.0f, 18000.0f);
+        struct Vector3 axisVector;
+        quatMultVector(&player->transform.rotation, &gForward, &axisVector);
+        vector3AddScaled(&player->transform.position, &axisVector, SCENE_SCALE * 2.0f, &camera->transform.position);
+        quatMultVector(&player->transform.rotation, &gUp, &axisVector);
+        vector3AddScaled(&camera->transform.position, &axisVector, SCENE_SCALE * 2.0f, &camera->transform.position);
+        camera->transform.rotation = player->transform.rotation;
+
         baseCommandMenuInit(&levelScene->baseCommandMenu[i]);
         gPlayerAtBase[i] = 0;
         
@@ -95,7 +103,7 @@ void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* defin
         levelScene->bots = malloc(sizeof(struct AIController) * numBots);
         for (unsigned i = 0; i < playercount; ++i) {
             if (IS_PLAYER_AI(levelScene, i)) {
-                ai_Init(&levelScene->bots[botIndex], &definition->pathfinding, i, i, levelScene->baseCount);
+                ai_Init(&levelScene->bots[botIndex], &definition->pathfinding, i, i, levelScene->baseCount, aiDifficulty);
                 ++botIndex;
             }
         }
@@ -323,6 +331,13 @@ void leveSceneUpdateCamera(struct LevelScene* levelScene, unsigned playerIndex) 
     }
 
     cameraUpdate(&levelScene->cameras[playerIndex], &target, 15.0f * SCENE_SCALE, 5.0f * SCENE_SCALE);
+
+    struct Vector2 camPos2d;
+    camPos2d.x = levelScene->cameras[playerIndex].transform.position.x;
+    camPos2d.y = levelScene->cameras[playerIndex].transform.position.z;
+    staticSceneConstrainToBoundaries(&levelScene->definition->staticScene, &camPos2d, 0, 0.5f * SCENE_SCALE);
+    levelScene->cameras[playerIndex].transform.position.x = camPos2d.x;
+    levelScene->cameras[playerIndex].transform.position.z = camPos2d.y;
 }
 
 unsigned short levelSceneCaluclateIntensity() {
@@ -366,7 +381,8 @@ void levelSceneCollectHumanPlayerInput(struct LevelScene* levelScene, unsigned p
         playerInputPopulateWithJoystickData(
             controllersGetControllerData(playerIndex), 
             &cameraRotation,
-            controlsScramblerIsActive(&levelScene->scramblers[playerIndex], ControlsScramblerDPADSwap) ? PlayerInputFlagsSwapJoystickAndDPad : 0,
+            0,
+            // controlsScramblerIsActive(&levelScene->scramblers[playerIndex], ControlsScramblerDPADSwap) ? PlayerInputFlagsSwapJoystickAndDPad : 0,
             playerInput
         );
     }

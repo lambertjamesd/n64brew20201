@@ -52,6 +52,7 @@ struct LevelDefinition {
     struct ThemeDefinition* theme;
     struct StaticScene staticScene;
     struct PathfindingDefinition pathfinding;
+    float aiDifficulty;
 };
 
 struct LevelDefinition* levelDefinitionUnpack(struct LevelDefinition* addressPtr, void* segmentRamStart, void* themeSegmentStart);

@@ -5,21 +5,23 @@ TODO
     add sounds
     add music
     polish up animations
-    make lots of levels
     ultrarare intro
     figure out culling on level geometry
     death animation is slow
-    fix drop graphics
-    fix surface textures
-    finish title screen
-    choppy animations
-    minion attack speed down
-    minion dps down
-    slower ai thinking
-    don't draw dead players on minimap
-    starting orientation
+    bigger punch boxes
+    upgrade time indicator
+    balance factions
+    spawn animations
+    check memory usage/dl usage
+    menu icons
 
     balance
+        curiosity - enemies get stuck on obstacles
+        Sojourner - inverted rocks
+        Perseverance - hard
+        Cygnus - easy of you capture base that is being upgraded
+        Triple Threat - needs level boundaries
+
 
     level feedback
         bootcamp

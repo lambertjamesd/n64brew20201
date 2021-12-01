@@ -18,6 +18,7 @@ Themes:
           Campaign: True
           Tutorial: True
           DisallowUpgrade: True
+          AIDifficulty: 0
 
         - Name: Taurus
           Filename: Taurus.fbx
@@ -25,6 +26,7 @@ Themes:
           MaxPlayers: 3
           Campaign: True
           DisallowUpgrade: True
+          AIDifficulty: 0.1
 
         - Name: Cassiopeia
           Filename: Cassiopeia.fbx
@@ -33,12 +35,14 @@ Themes:
           Campaign: True
           Multiplayer: True
           DisallowUpgrade: True
+          AIDifficulty: 0.3
 
         - Name: Spacestation F1
           Filename: Spaceship_Lowest_Level.fbx
           Output: ../../data/levels/Spacestation_F1/level.h
           MaxPlayers: 4
           Campaign: True
+          AIDifficulty: 0.3
 
     - Name: Mars
       Output: ../../data/level_themes/Mars/theme.h
@@ -55,13 +59,13 @@ Themes:
           MaxPlayers: 2
           Campaign: True
           Multiplayer: True
+          AIDifficulty: 1
 
-        - Name: Orion
-          Filename: Orion.fbx
-          Output: ../../data/levels/Orion/level.h
+        - Name: Spirit
+          Filename: Campaign_Spirit.fbx
+          Output: ../../data/levels/Spirit/level.h
           MaxPlayers: 4
           Campaign: True
-          Multiplayer: True
 
         - Name: Triangle
           Filename: Triangle.fbx
@@ -69,6 +73,15 @@ Themes:
           MaxPlayers: 3
           Campaign: True
           Multiplayer: True
+          AIDifficulty: 0.7
+
+        - Name: Orion
+          Filename: Orion.fbx
+          Output: ../../data/levels/Orion/level.h
+          MaxPlayers: 4
+          Campaign: True
+          Multiplayer: True
+          AIDifficulty: 0.7
 
         - Name: Curiosity
           Filename: Campaign_Curiosity.fbx
@@ -82,22 +95,17 @@ Themes:
           MaxPlayers: 4
           Campaign: True
 
-        - Name: Perseverance
-          Filename: Campaign_Perseverance.fbx
-          Output: ../../data/levels/Perseverance/level.h
-          MaxPlayers: 4
-          Campaign: True
-
-        - Name: Spirit
-          Filename: Campaign_Spirit.fbx
-          Output: ../../data/levels/Spirit/level.h
-          MaxPlayers: 4
-          Campaign: True
-
         - Name: Cluster
           Filename: Cluster.fbx
           Output: ../../data/levels/Cluster/level.h
           MaxPlayers: 3
+          Campaign: True
+          AIDifficulty: 0.7
+
+        - Name: Perseverance
+          Filename: Campaign_Perseverance.fbx
+          Output: ../../data/levels/Perseverance/level.h
+          MaxPlayers: 4
           Campaign: True
   
     - Name: Snow
@@ -109,20 +117,23 @@ Themes:
           Output: ../../data/levels/Snow_Template/level.h
           MaxPlayers: 4
 
+        - Name: Sagittarius
+          Filename: Sagittarius.fbx
+          Output: ../../data/levels/Sagittarius/level.h
+          MaxPlayers: 3
+          Campaign: True
+          AIDifficulty: 1
+
         - Name: Cygnus
           Filename: Cygnus.fbx
           Output: ../../data/levels/Cygnus/level.h
           MaxPlayers: 2
           Campaign: True
+          AIDifficulty: 1
 
         - Name: Triple Threat
           Filename: TripleThreat.fbx
           Output: ../../data/levels/Triple_Threat/level.h
           MaxPlayers: 4
           Campaign: True
-
-        - Name: Sagittarius
-          Filename: Sagittarius.fbx
-          Output: ../../data/levels/Sagittarius/level.h
-          MaxPlayers: 3
-          Campaign: True
+          AIDifficulty: 1

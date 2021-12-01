@@ -19,7 +19,7 @@
 #include "game_defs.h"
 
 #define CAPTURE_TIME        3
-#define SPAWN_TIME          4
+#define SPAWN_TIME          3.5
 #define FLASHES_PER_SPAWN   5
 
 float gSpawnTimeSpeedScalar[] = {
@@ -56,9 +56,9 @@ float gCapacityUpgradeTime[MAX_UPGRADE_COUNT] = {
 };
 
 float gDefenseUpgradeTime[MAX_UPGRADE_COUNT] = {
-    8.0f,
-    16.0f,
+    12.0f,
     24.0f,
+    36.0f,
 };
 
 #define MIN_FLAG_HEIGHT     0.5f
@@ -207,13 +207,17 @@ void levelBaseUpdate(struct LevelBase* base) {
         base->baseControlCount[i] = 0;
     }
 
+    if (base->state != LevelBaseStateNeutral) {
+        base->baseControlCount[base->team.teamNumber] = base->defenseUpgrade;
+    }
+
     int isCapturing = 0;
 
     if (controllingTeam != TEAM_NONE) {
         isCapturing = 1;
 
         if (controllingTeam != base->team.teamNumber) {
-            base->captureProgress -= gTimeDelta * gSpawnTimeCaptureScalar[base->defenseUpgrade];
+            base->captureProgress -= gTimeDelta;
             gLastCaptureTime = gTimePassed;
 
             if (base->captureProgress <= 0.0f) {
@@ -225,7 +229,7 @@ void levelBaseUpdate(struct LevelBase* base) {
                 base->collider->collisionLayers = DynamicSceneEntryIsTrigger | DynamicSceneEntryHasTeam | COLLISION_LAYER_FOR_TEAM(TEAM_NONE);
             }
         } else {
-            base->captureProgress += gTimeDelta * gSpawnTimeCaptureScalar[base->defenseUpgrade];
+            base->captureProgress += gTimeDelta;
 
             if (base->captureProgress >= CAPTURE_TIME) {
                 base->captureProgress = CAPTURE_TIME;

@@ -442,5 +442,6 @@ struct LevelDefinition Sojourner_Definition = {
     .theme = &MarsTheme,
     .staticScene = {Sojourner_Boundary, 8},
     .pathfinding = {.nodeCount = 21, .baseNodes = Sojourner_BasesPathNodes, .nodeDistances = Sojourner_NodeDistances, .nodePositions = Sojourner_PathingNodes, .nextNode = Sojourner_NextNode},
+    .aiDifficulty = 1,
 };
 

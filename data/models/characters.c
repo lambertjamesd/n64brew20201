@@ -15,3 +15,4 @@
 #include "itemdropbase/model.inc.h"
 #include "target/model.inc.h"
 #include "dizzy/model.inc.h"
+#include "fireball/model.inc.h"

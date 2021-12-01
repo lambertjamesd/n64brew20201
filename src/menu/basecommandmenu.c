@@ -14,6 +14,8 @@
 #define MENU_HEIGHT 70
 #define OPEN_ANIMATION_TIME 0.2f
 
+struct Coloru8 gDisabledTextColor = {40, 30, 30, 255};
+
 struct SpriteTile gBaseCommandTiles[] = {
     {16, 16, 16, 16},// MinionCommandFollow,
     {0, 0, 16, 16},// MinionCommandAttack,
@@ -159,7 +161,9 @@ void baseCommandMenuUpdate(struct BaseCommandMenu* menu, unsigned team) {
                 ++menu->selectedUpgrade;
             }
 
-            if (controllerGetButtonUp(team, A_BUTTON) != 0) {
+            unsigned canUpgrade = !levelBaseIsBeingUpgraded(menu->forBase) && levelBaseTimeForUpgrade(menu->forBase, gBaseUpgardeIndex[(unsigned)menu->selectedUpgrade]) >= 0.0f;
+
+            if (canUpgrade && controllerGetButtonUp(team, A_BUTTON) != 0) {
                 levelBaseStartUpgrade(menu->forBase, gBaseUpgardeIndex[(unsigned)menu->selectedUpgrade]);
                 baseCommandMenuHide(menu);
                 return;
@@ -208,6 +212,11 @@ void baseCommandMenuRenderUpgradeSelect(struct BaseCommandMenu* menu, struct Ren
     unsigned x = horizontalCenter - MENU_WIDTH / 2 + MENU_BORDER_WIDTH + 4;
     unsigned y = verticalCenter - MENU_HEIGHT / 2 + MENU_BORDER_WIDTH;
     for (unsigned i = 0; i < sizeof(gUpgradePrompts)/sizeof(gUpgradePrompts[0]); ++i) {
+        unsigned canUpgrade = !levelBaseIsBeingUpgraded(menu->forBase) && levelBaseTimeForUpgrade(menu->forBase, gBaseUpgardeIndex[i]) >= 0.0f;
+
+        spriteSetColor(renderState, LAYER_KICKFLIP_FONT, canUpgrade ? gColorWhite : gDisabledTextColor);
+        spriteSetColor(renderState, LAYER_UPGRADE_ICONS, canUpgrade ? gColorWhite : gColorBlack);
+        
         unsigned textX = x;
         if (menu->selectedUpgrade == i) {
             spriteDrawTile(renderState, LAYER_UPGRADE_ICONS, x, y, 16, 16, gBaseUpgradeTiles[i]);
@@ -251,7 +260,6 @@ void baseCommandMenuRender(struct BaseCommandMenu* menu, struct RenderState* ren
             baseCommandMenuRenderCommandSelect(menu, renderState, horizontalCenter, verticalCenter);
         }
     } else if ((menu->flags & BaseCommandMenuFlagsShowingOpenCommand) && !(menu->flags & BaseCommandMenuFlagsForceHideOpenCommand) && menu->forBase) {
-
         menuBorderRender(renderState, horizontalCenter - 30, promptScreenY - MENU_BORDER_WIDTH - 4, 60, 16 + MENU_BORDER_WIDTH + 8);
 
         struct SpriteTile spriteTile;

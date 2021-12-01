@@ -97,7 +97,7 @@ struct PlayerAttackInfo gCatAttacks[] = {
     [PlayerAttackPunch] = {
         CATLOW_ARM1_BONE, 
         1,
-        1.5f,
+        1.2f,
         {0.0f, 0.65f * SCENE_SCALE, 0.0f}, 
         {{CollisionShapeTypeCircle}, 0.5f * SCENE_SCALE},
         &catlow_animations[CATLOW_CATLOW_ARMATURE_001_PUNCH_004_INDEX],
@@ -105,7 +105,7 @@ struct PlayerAttackInfo gCatAttacks[] = {
     [PlayerAttackPunchChain] = {
         CATLOW_BOOT2_BONE, 
         0,
-        2.0f,
+        1.5f,
         {0.0f, 0.65f * SCENE_SCALE, 0.0f}, 
         {{CollisionShapeTypeCircle}, 0.5f * SCENE_SCALE},
         &catlow_animations[CATLOW_CATLOW_ARMATURE_001_PUNCH_003_INDEX],
@@ -167,7 +167,7 @@ struct Faction gCatFaction = {
         .idleSounds = {.options = gCatIdlesSounds, .count = sizeof(gCatIdlesSounds)/sizeof(gCatIdlesSounds[0])},
         .walkSound = SOUNDS_DOG_WALKING_LOOP_1,
     },
-    .moveSpeed = PLAYER_BASE_MOVE_SPEED,
+    .moveSpeed = PLAYER_BASE_MOVE_SPEED * 1.2f,
     .accel = 20.0f,
 
     .minionMesh = Minion_CatMinion_mesh,

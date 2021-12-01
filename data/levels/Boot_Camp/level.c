@@ -177,5 +177,6 @@ struct LevelDefinition Boot_Camp_Definition = {
     .theme = &SpaceTheme,
     .staticScene = {Boot_Camp_Boundary, 8},
     .pathfinding = {.nodeCount = 3, .baseNodes = Boot_Camp_BasesPathNodes, .nodeDistances = Boot_Camp_NodeDistances, .nodePositions = Boot_Camp_PathingNodes, .nextNode = Boot_Camp_NextNode},
+    .aiDifficulty = 0,
 };
 

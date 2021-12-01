@@ -115,6 +115,9 @@ void playerEnterAttackState(struct Player* player, struct PlayerAttackInfo* atta
 }
 
 void playerEnterDeadState(struct Player* player) {
+    // any minions that were following the player when they died
+    // should start attacking nearest target
+    levelSceneIssueMinionCommand(&gCurrentLevel, player->playerIndex, MinionCommandAttack);
     playerEndAttack(player);
     soundPlayerPlay(soundListRandom(&gTeamFactions[player->playerIndex]->playerSounds.deathSounds), 0);
     skAnimatorRunClip(&player->animator, factionGetAnimation(player->team.teamNumber, PlayerAnimationDie), 0);
@@ -288,6 +291,15 @@ void playerInit(struct Player* player, unsigned playerIndex, unsigned team, stru
 
     skAnimatorInit(&player->animator, gTeamFactions[player->team.teamNumber]->playerBoneCount, playerAnimationEvent, player);
     skAnimatorRunClip(&player->animator, factionGetAnimation(player->team.teamNumber, PlayerAnimationIdle), SKAnimatorFlagsLoop);
+
+    int closestBase = aiPlannerFindNearestBaseToPoint(&gCurrentLevel, &player->transform.position, player->team.teamNumber, EnemyTeam, 0);
+
+    if (closestBase >= 0) {
+        struct Vector3 towardsBase;
+        vector3Sub(&gCurrentLevel.bases[closestBase].position, &player->transform.position, &towardsBase);
+        quatLook(&towardsBase, &gUp, &player->transform.rotation);
+    }
+
 }
 
 void playerRotateTowardsInput(struct Player* player, struct PlayerInput* input, float rotationRate) {

@@ -1,6 +1,7 @@
 
 #include "camera.h"
 #include "math/transform.h"
+#include "collision/staticscene.h"
 
 void cameraInit(struct Camera* camera, float fov, float near, float far) {
     camera->mode = CameraModeFollow;

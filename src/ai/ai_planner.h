@@ -3,8 +3,6 @@
 
 struct LevelScene;
 
-#define MINIMUM_THIKING_FRAMES  60
-
 enum AIPlanType {
     AIPlanTypeNone,
     AIPlanTypeAttackBase,
@@ -38,14 +36,15 @@ struct AIPlanner {
     struct AIPlan nextPlan;
     unsigned short teamNumber;
     unsigned short baseCount;
-    unsigned short thinkingTimer;
     struct AIPlan** basesCoveredByPlan;
     float* baseMultiplyer;
+    float difficulty;
+    float thinkingTimer;
 };
 
 int aiPlannerDoesTeamMatch(unsigned fromTeam, unsigned toTeam, enum TeamBaseType teamType);
 
-void aiPlannerInit(struct AIPlanner* planner, unsigned teamNumber, unsigned baseCount);
+void aiPlannerInit(struct AIPlanner* planner, unsigned teamNumber, unsigned baseCount, float difficulty);
 void aiPlannerUpdate(struct LevelScene* levelScene, struct AIPlanner* planner);
 struct LevelBase* aiPlannerGetTargetBase(struct LevelScene* levelScene, struct AIPlanner* planner);
 struct Vector3* aiPlannerGetTarget(struct LevelScene* levelScene, struct AIPlanner* planner);

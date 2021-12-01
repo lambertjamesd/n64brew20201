@@ -300,5 +300,6 @@ struct LevelDefinition Triple_Threat_Definition = {
     .theme = &SnowTheme,
     .staticScene = {Triple_Threat_Boundary, 0},
     .pathfinding = {.nodeCount = 11, .baseNodes = Triple_Threat_BasesPathNodes, .nodeDistances = Triple_Threat_NodeDistances, .nodePositions = Triple_Threat_PathingNodes, .nextNode = Triple_Threat_NextNode},
+    .aiDifficulty = 1,
 };
 
