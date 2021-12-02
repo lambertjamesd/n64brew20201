@@ -105,6 +105,16 @@ void spriteDraw(struct RenderState* renderState, int layer, int x, int y, int w,
     unsigned dsdx = 0x400;
     unsigned dtdy = 0x400;
 
+    if (y < 0) {
+        h += y;
+        sy -= y;
+        y = 0;
+    }
+
+    if (h <= 0) {
+        return;
+    }
+
     if (sw >= 0) {
         w <<= sw;
         dsdx >>= sw;

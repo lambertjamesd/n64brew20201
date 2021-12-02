@@ -10,6 +10,7 @@ enum SceneState {
     SceneStateNone,
     SceneStateInLevel,
     SceneStateInMainMenu,
+    SceneStateInCredits,
 };
 
 struct GameConfiguration {
@@ -29,6 +30,7 @@ void sceneLoadLevel(struct GameConfiguration* gameConfig);
 void sceneQueueLoadLevel(struct GameConfiguration* gameConfig);
 void sceneQueueMainMenu();
 void sceneQueuePostGameScreen(unsigned winningTeam, unsigned teamCount, float time);
+void sceneQueueCredits();
 
 void sceneUpdate(int readyForSceneSwitch);
 void sceneRender(struct RenderState* renderState);

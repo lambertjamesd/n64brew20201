@@ -3,7 +3,7 @@
 
 #include "graphics/render_state.h"
 
-struct Credits{
+struct Credits {
     float offset;
 };
 

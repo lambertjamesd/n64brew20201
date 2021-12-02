@@ -401,8 +401,12 @@ void mainMenuUpdate(struct MainMenu* mainMenu) {
             break;
         case MainMenuStatePostGame:
             if (endGameMenuUpdate(&mainMenu->endGameMenu)) {
-                gfxInitSplitscreenViewport(mainMenuGetPlayerCount(mainMenu));
-                mainMenuEnterLevelSelection(mainMenu);
+                if (mainMenu->selections.selectedPlayerCount == 0 && mainMenu->selections.selectedLevel == mainMenu->levelCount) {
+                    sceneQueueCredits();
+                } else {
+                    gfxInitSplitscreenViewport(mainMenuGetPlayerCount(mainMenu));
+                    mainMenuEnterLevelSelection(mainMenu);
+                }
             }
             break;
     }

@@ -6,11 +6,13 @@
 #include "util/memory.h"
 #include "menu/endgamemenu.h"
 #include "savefile/savefile.h"
+#include "menu/credits.h"
 
 enum SceneState gSceneState;
 enum SceneState gNextSceneState;
 struct LevelScene gCurrentLevel;
 struct MainMenu gMainMenu;
+struct Credits gCredits;
 struct GameConfiguration gNextLevel;
 
 struct LevelDefinition* gLevelsTmp[] = {
@@ -49,6 +51,10 @@ void sceneQueueLoadLevel(struct GameConfiguration* nextLevel) {
     gNextSceneState = SceneStateInLevel;
 }
 
+void sceneQueueCredits() {
+    gNextSceneState = SceneStateInCredits;
+}
+
 void sceneQueueMainMenu() {
     gNextSceneState = SceneStateInMainMenu;
     gMainMenu.selections.menuState = MainMenuStateSelectingTitleScreen;
@@ -76,6 +82,15 @@ void sceneLoadMainMenu() {
     gSceneState = SceneStateInMainMenu;
 }
 
+void sceneLoadCredits() {
+    LOAD_SEGMENT(static, gStaticSegment);
+    LOAD_SEGMENT(mainmenu, gMenuSegment);
+    LOAD_SEGMENT(characters, gCharacterSegment);
+    LOAD_SEGMENT(fonts, gFontSegment);
+    creditsInit(&gCredits);
+    gSceneState = SceneStateInCredits;
+}
+
 void sceneCleanup() {
     gLevelSegment = 0;
     gThemeSegment = 0;
@@ -94,6 +109,9 @@ void sceneUpdate(int readyForSceneSwitch) {
                 case SceneStateInMainMenu:
                     sceneLoadMainMenu();
                     break;
+                case SceneStateInCredits:
+                    sceneLoadCredits();
+                    break;
                 default:
                     break;
             }
@@ -105,6 +123,9 @@ void sceneUpdate(int readyForSceneSwitch) {
                 break;
             case SceneStateInMainMenu:
                 mainMenuUpdate(&gMainMenu);
+                break;
+            case SceneStateInCredits:
+                creditsUpdate(&gCredits);
                 break;
             default:
                 break;
@@ -119,6 +140,10 @@ void sceneRender(struct RenderState* renderState) {
             break;
         case SceneStateInMainMenu:
             mainMenuRender(&gMainMenu, renderState);
+            break;
+        case SceneStateInCredits:
+            creditsRender(&gCredits, renderState);
+            break;
         default:
             break;
     }

@@ -14,6 +14,16 @@ void graphicsCopyImage(struct RenderState* state, void* source, int iw, int ih, 
     gDPSetTexturePersp(state->dl++, G_TP_NONE);
     gDPSetEnvColor(state->dl++, color.r, color.g, color.b, color.a);
 
+    if (dy < 0) {
+        height += dy;
+        sy -= dy;
+        dy = 0;
+    }
+
+    if (height <= 0) {
+        return;
+    }
+
     int tileXCount = (width + MAX_TILE_X-1) / MAX_TILE_X;
     int tileYCount = (height + MAX_TILE_Y-1) / MAX_TILE_Y;
     int tileX, tileY;
