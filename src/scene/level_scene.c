@@ -13,7 +13,6 @@
 #include "menu/basecommandmenu.h"
 #include "menu/playerstatusmenu.h"
 #include "minimap.h"
-#include "audio/dynamic_music.h"
 #include "events.h"
 #include "collision/collisionlayers.h"
 #include "levels/themedefinition.h"
@@ -26,13 +25,6 @@
 
 #include "collision/polygon.h"
 #include "math/vector3.h"
-
-struct DynamicMarker gIntensityMarkers[] = {
-    {0, {127, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
-    {25, {127, 0, 127, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
-    {50, {127, 0, 127, 127, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
-    {75, {127, 0, 127, 127, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
-};
 
 #define GO_SHOW_DURATION 0.5f
 #define GAME_START_DELAY 3.0f
@@ -153,13 +145,13 @@ void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* defin
     levelScene->stateTimer = GAME_START_DELAY;
     levelScene->winningTeam = TEAM_NONE;
 
-    // dynamicMusicUseMarkers(gIntensityMarkers, sizeof(gIntensityMarkers) / sizeof(*gIntensityMarkers));
-
     osWritebackDCache(&gSplitScreenViewports[0], sizeof(gSplitScreenViewports));
 
     if (flags & LevelMetadataFlagsTutorial) {
         tutorialInit(levelScene);
     }
+
+    // soundPlayerPlay(SOUNDS_LEVELMUSIC_FERMIPARADOX, SoundPlayerFlagsLoop);
 }
 
 void levelSceneRender(struct LevelScene* levelScene, struct RenderState* renderState) {
@@ -349,17 +341,6 @@ unsigned short levelSceneCaluclateIntensity() {
         return 25;
     } else {
         return 0;
-    }
-}
-
-void levelSceneUpdateMusic(struct LevelScene* levelScene) {
-    unsigned short targetIntensity = levelSceneCaluclateIntensity();
-    unsigned short currentIntesnity = dynamicMusicGetIntensity();
-
-    if (targetIntensity < currentIntesnity) {
-        dynamicMusicSetIntensity(currentIntesnity - 1);
-    } else if (targetIntensity > currentIntesnity) {
-        dynamicMusicSetIntensity(currentIntesnity + 1);
     }
 }
 
@@ -558,7 +539,6 @@ void levelSceneUpdate(struct LevelScene* levelScene) {
     itemDropsUpdate(&levelScene->itemDrops);
 
     dynamicSceneCollide();
-    levelSceneUpdateMusic(levelScene);
     textBoxUpdate(&gTextBox);
 }
 

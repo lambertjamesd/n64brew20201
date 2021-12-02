@@ -102,9 +102,9 @@ CLEAN_MUSIC = $(patsubst %.mid, build/%.mid, $(MUSIC))
 build/assets/music/%.mid: assets/music/%.mid
 	@mkdir -p $(@D)
 	$(MIDICVT) $< $@
-	truncate $@ --size 32KB
+	# truncate $@ --size 32KB
 
-RAW_SOUND_CLIPS = $(shell find assets/sounds/ -type f -name '*.aiff') $(shell find assets/sounds/ -type f -name '*.wav')
+RAW_SOUND_CLIPS = $(shell find assets/sounds/ -type f -name '*.aiff') $(shell find assets/sounds/ -type f -name '*.wav') $(shell find assets/sounds/ -type f -name '*.aifc')
 
 # INS_CLIPS = $(shell find assets/sounds/ -type f -name '*.ins')
 INS_CLIPS =
@@ -117,8 +117,8 @@ src/audio/clips.h: build_scripts/generate_sound_ids.js $(SOUND_CLIPS)
 build/assets/sounds/sounds.sounds build/assets/sounds/sounds.sounds.tbl: $(SOUND_CLIPS)
 	@mkdir -p $(@D)
 	$(SFZ2N64) --compress -o $@ $^
-	truncate build/assets/sounds/sounds.sounds --size 32KB
-	truncate build/assets/sounds/sounds.sounds.tbl --size 1MB
+	# truncate build/assets/sounds/sounds.sounds --size 32KB
+	# truncate build/assets/sounds/sounds.sounds.tbl --size 1MB
 
 asm/sound_data.s: build/assets/music/multilayer_midi_demo.mid \
 	build/assets/music/n64_2021_march.mid \
@@ -130,8 +130,8 @@ asm/sound_data.s: build/assets/music/multilayer_midi_demo.mid \
 build/assets/soundbanks/banks.ctl build/assets/soundbanks.banks.tbl: assets/soundbanks/banks.ins ${SFZ2N64}
 	@mkdir -p $(@D)
 	${SFZ2N64} --compress -o build/assets/soundbanks/banks.ctl assets/soundbanks/banks.ins
-	truncate build/assets/soundbanks/banks.ctl --size 32KB
-	truncate build/assets/soundbanks/banks.tbl --size 1MB
+	# truncate build/assets/soundbanks/banks.ctl --size 32KB
+	# truncate build/assets/soundbanks/banks.tbl --size 1MB
 
 LEVELS = $(shell find assets/levels/ -type f -name '*.fbx')
 

@@ -97,7 +97,7 @@ SoundID soundPlayerPlay(unsigned clipId, enum SoundPlayerFlags flags) {
     soundInfo->flags = flags;
     alSndpSetSound(&gSoundPlayer, soundInfo->soundId);
     alSndpPlay(&gSoundPlayer);
-    alSndpSetPitch(&gSoundPlayer, (float)SOUND_SAMPLE_RATE / (float)SOUND_SAMPLE_RATE);
+    alSndpSetPitch(&gSoundPlayer, (float)SOUND_SAMPLE_RATE / (float)OUTPUT_RATE);
 
     return soundInfo - gActiveSounds;
 }
@@ -143,7 +143,7 @@ void soundPlayerSetPitch(SoundID soundId, float speed) {
     }
 
     alSndpSetSound(&gSoundPlayer, gActiveSounds[soundId].soundId);
-    alSndpSetPitch(&gSoundPlayer, speed * ((float)SOUND_SAMPLE_RATE / (float)SOUND_SAMPLE_RATE));
+    alSndpSetPitch(&gSoundPlayer, speed * ((float)SOUND_SAMPLE_RATE / (float)OUTPUT_RATE));
 }
 
 void soundPlayerSetVolume(SoundID soundId, float volume) {

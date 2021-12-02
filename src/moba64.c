@@ -15,7 +15,6 @@
 #include "scene/minion.h"
 #include "audio/soundplayer.h"
 #include "scene/scene_management.h"
-#include "audio/dynamic_music.h"
 #include "scene/minion_animations.h"
 #include "scene/faction.h"
 #include "savefile/savefile.h"
@@ -133,7 +132,6 @@ static void gameproc(void *argv)
                 skReadMessages();
                 sceneUpdate(pendingGFX == 0 && !gShouldSave);
                 soundPlayerUpdate();
-                dynamicMusicUpdate();
 
                 gUpdateTime = osGetTime() - updateTimeStart;
 
