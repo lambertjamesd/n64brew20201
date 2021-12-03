@@ -133,7 +133,7 @@ void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* defin
         targetFinderInit(&levelScene->targetFinders[finderIndex], (levelScene->minionCount / TARGET_FINDER_COUNT) * finderIndex);
     }
 
-    itemDropsInit(&levelScene->itemDrops);
+    itemDropsInit(&levelScene->itemDrops, sceneIsCampaign() && (flags & LevelMetadataFlagsTutorial2) != 0);
 
     levelScene->humanPlayerCount = playercount - numBots;
     levelScene->aiPlayerMask = aiPlayerMask;
@@ -147,8 +147,8 @@ void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* defin
 
     osWritebackDCache(&gSplitScreenViewports[0], sizeof(gSplitScreenViewports));
 
-    if (flags & LevelMetadataFlagsTutorial) {
-        tutorialInit(levelScene);
+    if (sceneIsCampaign() && flags & (LevelMetadataFlagsTutorial | LevelMetadataFlagsTutorial2)) {
+        tutorialInit(levelScene, (flags & LevelMetadataFlagsTutorial) ? TutorialStateMove : TutorialStateUpgrade);
     }
 
     soundPlayerPlay(SOUNDS_LEVELMUSIC_FERMIPARADOX, SoundPlayerFlagsLoop);
@@ -201,7 +201,7 @@ void levelSceneRender(struct LevelScene* levelScene, struct RenderState* renderS
 
     Gfx* itemDropsGfx = itemDropsRender(&levelScene->itemDrops, renderState);
 
-    if (levelScene->levelFlags & LevelMetadataFlagsTutorial) {
+    if (levelScene->levelFlags & (LevelMetadataFlagsTutorial | LevelMetadataFlagsTutorial2)) {
         tutorialRender(levelScene, renderState);
     }
 
@@ -492,7 +492,7 @@ void levelSceneUpdate(struct LevelScene* levelScene) {
         playerUpdate(&levelScene->players[playerIndex], playerInput);
         leveSceneUpdateCamera(levelScene, playerIndex);
 
-        if (levelScene->state == LevelSceneStatePlaying && levelScene->levelFlags & LevelMetadataFlagsTutorial) {
+        if (levelScene->state == LevelSceneStatePlaying && levelScene->levelFlags & (LevelMetadataFlagsTutorial | LevelMetadataFlagsTutorial2)) {
             tutorialUpdate(levelScene, playerInput);
         }
     }
@@ -536,7 +536,9 @@ void levelSceneUpdate(struct LevelScene* levelScene) {
         }
     }
 
-    itemDropsUpdate(&levelScene->itemDrops);
+    if (!(levelScene->levelFlags & LevelMetadataFlagsDisableItems)) {
+        itemDropsUpdate(&levelScene->itemDrops);
+    }
 
     dynamicSceneCollide();
     textBoxUpdate(&gTextBox);

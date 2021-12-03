@@ -6,6 +6,8 @@
 #include "controls/controller.h"
 #include "scene/scene_management.h"
 #include "util/time.h"
+#include "savefile/savefile.h"
+#include "menu/endgamemenu.h"
 
 #include "../data/fonts/fonts.h"
 #include "../data/mainmenu/menu.h"
@@ -16,7 +18,7 @@
 #define LOGO_START  410
 
 
-#define CREDITS_END 500
+#define CREDITS_END 560
 
 Gfx gCreditsSolidColor[] = {
     gsDPPipeSync(),
@@ -31,6 +33,12 @@ Gfx gCreditsSolidColor[] = {
 void creditsInit(struct Credits* credits) {
     credits->offset = -SCREEN_HT;
     initKickflipFont();
+
+    credits->totalTime = 0;
+
+    for (unsigned i = 0; i < MAX_LEVELS; ++i) {
+        credits->totalTime += saveFileLevelTime(i);
+    }
 }
 
 void creditsUpdate(struct Credits* credits) {
@@ -70,6 +78,13 @@ void drawTitle(struct RenderState* renderState, unsigned offset){
         18,
         gColorWhite
     );
+}
+
+void drawTime(struct RenderState* renderState, unsigned offset, int time){
+    fontRenderText(renderState, &gKickflipFont, "Your Time", 36, LOGO_START + 128 - offset, 0);
+    char timeString[16];
+    renderTimeString(time, timeString);
+    fontRenderText(renderState, &gKickflipFont, timeString, 200, LOGO_START + 128 - offset, 0);
 }
 
 void drawDiscordLogo(struct RenderState* renderState, unsigned offset){
@@ -113,6 +128,7 @@ void creditsRender(struct Credits* credits, struct RenderState* renderState) {
     drawRoles(renderState, credits->offset);
     drawNames(renderState, credits->offset);
     drawGameJamNote(renderState, credits->offset);
+    drawTime(renderState, credits->offset, credits->totalTime);
 
     spriteFinish(renderState);
 }

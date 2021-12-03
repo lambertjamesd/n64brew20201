@@ -46,7 +46,7 @@ void sceneLoadLevel(struct GameConfiguration* gameConfig) {
 
     struct LevelDefinition* definition = levelDefinitionUnpack(metadata->fullDefinition, gLevelSegment, gThemeSegment);
 
-    levelSceneInit(&gCurrentLevel, definition, gameConfig->playerCount, gameConfig->aiPlayerMask, metadata->flags, gMainMenu.selections.selectedPlayerCount == 0 ? definition->aiDifficulty : 1.0f);
+    levelSceneInit(&gCurrentLevel, definition, gameConfig->playerCount, gameConfig->aiPlayerMask, metadata->flags, sceneIsCampaign() ? definition->aiDifficulty : 1.0f);
     gSceneState = SceneStateInLevel;
 }
 
@@ -71,7 +71,7 @@ void sceneQueuePostGameScreen(unsigned winningTeam, unsigned teamCount, float ti
     gMainMenu.selections.menuState = MainMenuStatePostGame;
     gMainMenu.selections.targetMenuState = MainMenuStatePostGame;
 
-    if (winningTeam == 0 && gMainMenu.selections.selectedPlayerCount == 0) {
+    if (winningTeam == 0 && sceneIsCampaign()) {
         saveFileMarkLevelComplete(gMainMenu.selections.selectedLevel, time);
         ++gMainMenu.selections.selectedLevel;
     }
@@ -118,6 +118,10 @@ void sceneLoadCutscene() {
 
 void sceneEndCutscene() {
     gNextSceneState = gAfterCutscene;
+}
+
+int sceneIsCampaign() {
+    return gMainMenu.selections.selectedPlayerCount == 0;
 }
 
 void sceneCleanup() {

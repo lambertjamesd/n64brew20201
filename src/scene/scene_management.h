@@ -35,6 +35,7 @@ void sceneQueuePostGameScreen(unsigned winningTeam, unsigned teamCount, float ti
 void sceneQueueCredits();
 void sceneInsertCutscene(unsigned cutsceneIndex);
 void sceneEndCutscene();
+int sceneIsCampaign();
 
 void sceneUpdate(int readyForSceneSwitch);
 void sceneRender(struct RenderState* renderState);

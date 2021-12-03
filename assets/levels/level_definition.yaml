@@ -19,6 +19,7 @@ Themes:
           Tutorial: True
           DisallowUpgrade: True
           AIDifficulty: 0
+          DisableItems: True
 
         - Name: Taurus
           Filename: Taurus.fbx
@@ -27,6 +28,7 @@ Themes:
           Campaign: True
           DisallowUpgrade: True
           AIDifficulty: 0.1
+          DisableItems: True
 
         - Name: Cassiopeia
           Filename: Cassiopeia.fbx
@@ -35,6 +37,7 @@ Themes:
           Campaign: True
           Multiplayer: True
           DisallowUpgrade: True
+          Tutorial2: True
           AIDifficulty: 0.3
 
         - Name: Spacestation F1

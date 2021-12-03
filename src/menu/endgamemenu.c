@@ -206,7 +206,7 @@ int endGameMenuUpdate(struct EndGameMenu* menu) {
     return 0;
 }
 
-void renderTimeString(unsigned short time, char* output) {
+void renderTimeString(int time, char* output) {
     unsigned subSeconds = time % 10;
     unsigned seconds = (time / 10) % 60;
     unsigned minutes = time / 600;

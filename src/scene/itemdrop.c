@@ -24,6 +24,7 @@
 #define ROTATION_FREQ   (0.5 * (2 * M_PI))
 #define FLICKER_AWAY_PERIOD   0.5f
 #define FLICKER_AWAY_TIME     5.0f
+#define FAVOR_PLAYER_RADIUS     (30.0f * SCENE_SCALE)
 
 struct CollisionCircle gItemDropCollider = {
     {CollisionShapeTypeCircle},
@@ -110,13 +111,32 @@ void itemDropBegin(struct ItemDrop* itemDrop) {
     }
 }
 
-void itemDropUpdate(struct ItemDrop* itemDrop) {
-    switch (itemDrop->state) {
-        case ItemDropStateFindingDrop:
-            if (staticSceneInInsideBoundary(
+int itemDropIsValidLocation(struct ItemDrop* itemDrop, int favorPlayer) {
+    if (!staticSceneInInsideBoundary(
                 &gCurrentLevel.definition->staticScene, 
                 &itemDrop->collision->center, 
                 DROP_COLLIDER_RADIUS)) {
+        return 0;
+    }
+
+    struct Vector3 pos3D;
+    pos3D.x = itemDrop->collision->center.x;
+    pos3D.y = 0.0f;
+    pos3D.z = itemDrop->collision->center.y;
+
+    if (favorPlayer && 
+        vector3DistSqrd(&pos3D, &gCurrentLevel.players[0].transform.position) >= FAVOR_PLAYER_RADIUS * FAVOR_PLAYER_RADIUS) {
+         return 0;   
+    }
+
+    return 1;
+}
+
+void itemDropUpdate(struct ItemDrop* itemDrop, int favorPlayer) {
+    switch (itemDrop->state) {
+        case ItemDropStateFindingDrop:
+        {
+            if (itemDropIsValidLocation(itemDrop, favorPlayer)) {
                 itemDrop->state = ItemDropStateCheckingDrop;
             } else {
                 struct Vector2 newPos;
@@ -124,6 +144,7 @@ void itemDropUpdate(struct ItemDrop* itemDrop) {
                 dynamicEntrySetPos(itemDrop->collision, &newPos);
             }
             break;
+        }
         case ItemDropStateCheckingDrop:
             itemDrop->state = ItemDropStateFalling;
             itemDrop->stateTimer = DROP_TIME;
@@ -299,7 +320,6 @@ float gNextDropTime[] = {
 };
 
 float itemDropsNextTime(unsigned currentDropCount) {   
-    return 1.0f;
     if (currentDropCount + 2 >= sizeof(gNextDropTime) / sizeof(*gNextDropTime)) {
         currentDropCount = sizeof(gNextDropTime) / sizeof(*gNextDropTime) - 2;
     }
@@ -307,7 +327,7 @@ float itemDropsNextTime(unsigned currentDropCount) {
     return randomInRangef(gNextDropTime[currentDropCount], gNextDropTime[currentDropCount+1]);
 };
 
-void itemDropsInit(struct ItemDrops* itemDrops) {
+void itemDropsInit(struct ItemDrops* itemDrops, int favorPlayer) {
     for (unsigned i = 0; i < MAX_ITEM_DROP; ++i) {
         itemDropInit(&itemDrops->drops[i]);
     }
@@ -315,6 +335,7 @@ void itemDropsInit(struct ItemDrops* itemDrops) {
         itemDropChaserInit(&itemDrops->chasers[i]);
     }
     itemDrops->nextDropTimer = itemDropsNextTime(0);
+    itemDrops->favorPlayer = favorPlayer;
 }
 
 void itemDropsUpdate(struct ItemDrops* itemDrops) {
@@ -325,7 +346,7 @@ void itemDropsUpdate(struct ItemDrops* itemDrops) {
     unsigned activeDrops = 0;
     struct ItemDrop* nextDrop = 0;
     for (unsigned i = 0; i < MAX_ITEM_DROP; ++i) {
-        itemDropUpdate(&itemDrops->drops[i]);
+        itemDropUpdate(&itemDrops->drops[i], itemDrops->favorPlayer);
 
         if (itemDrops->drops[i].state != ItemDropDisabled) {
             ++activeDrops;

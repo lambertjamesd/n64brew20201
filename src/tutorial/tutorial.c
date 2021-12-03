@@ -36,6 +36,18 @@ struct TutorialStep gTutorialStep[] = {
         0,
     },
     {
+        "Hold",
+        {16, 0, 16, 16},
+        0,
+        0,
+    },
+    {
+        "Release",
+        {16, 0, 16, 16},
+        0,
+        0,
+    },
+    {
         "Capture Base",
         {0, 0, 0, 0},
         TutorailStepFlagsMoveToBase,
@@ -44,6 +56,12 @@ struct TutorialStep gTutorialStep[] = {
     {
         "Base Orders",
         {0, 16, 16, 16},
+        TutorailStepFlagsMoveToBase,
+        TEAM(0),
+    },
+    {
+        "Attack",
+        {0, 64, 16, 16},
         TutorailStepFlagsMoveToBase,
         TEAM(0),
     },
@@ -66,6 +84,24 @@ struct TutorialStep gTutorialStep[] = {
         TEAM(1),
     },
     {
+        "Upgrade",
+        {0, 16, 16, 16},
+        TutorailStepFlagsMoveToBase,
+        TEAM(0),
+    },
+    {
+        "Upgrade",
+        {16, 64, 16, 16},
+        TutorailStepFlagsMoveToBase,
+        TEAM(0),
+    },
+    {
+        "Collect",
+        {0, 0, 0, 0},
+        TutorailStepFlagsMoveToItem,
+        0,
+    },
+    {
         "",
         {0, 0, 0, 0},
         0,
@@ -81,16 +117,22 @@ int tutorialIconRenderer(struct RenderState* renderState, void* data, int x, int
     }
 
     if (renderState) {
-        spriteDrawTile(renderState, LAYER_BUTTONS, x, y, tile->w, tile->h, *tile);
+        if (tile->y >= 64) {
+            struct SpriteTile tmp = *tile;
+            tmp.y -= 64;
+            spriteDrawTile(renderState, LAYER_COMMAND_BUTTONS, x, y, tile->w, tile->h, tmp);
+        } else {
+            spriteDrawTile(renderState, LAYER_BUTTONS, x, y, tile->w, tile->h, *tile);
+        }
     }
 
     return tile->w + 8;
 }
 
-void tutorialInit(struct LevelScene* level) {
+void tutorialInit(struct LevelScene* level, enum TutorialState startWith) {
     textBoxInitEmpty(&gTutorial.textBox);
-    gTutorial.currentState = TutorialStateMove;
-    gTutorial.nextState = TutorialStateMove;
+    gTutorial.currentState = startWith;
+    gTutorial.nextState = startWith;
     gTutorial.waitForActionTimer = WAIT_FOR_ACTION_TIME;
 }
 
@@ -128,6 +170,34 @@ struct Minion* tutorialGetMinion(struct LevelScene* level, unsigned team, int co
     return 0;
 }
 
+int tutorialGetItemDrop(struct LevelScene* level, struct Vector3* near, struct Vector3* output) {
+    struct ItemDrop* result = 0;
+    float distance = 0;
+
+    struct Vector2 near2D;
+    near2D.x = near->x;
+    near2D.y = near->z;
+
+    for (unsigned i = 0; i < MAX_ITEM_DROP; ++i) {
+        if (level->itemDrops.drops[i].state == ItemDropStateWaiting) {
+            float distanceCheck = vector2DistSqr(&near2D, &level->itemDrops.drops[i].collision->center);
+
+            if (!result || distanceCheck < distance) {
+                result = &level->itemDrops.drops[i];
+                distance = distanceCheck;
+            }
+        }
+    }
+
+    if (result && output) {
+        output->x = result->collision->center.x;
+        output->y = 0.0f;
+        output->z = result->collision->center.y;
+    }
+
+    return distance != 0;
+}
+
 void tutorialUpdate(struct LevelScene* level, struct PlayerInput* input) {
     if (gTutorial.currentState == TutorialStateDone) {
         textBoxHide(&gTutorial.textBox);
@@ -152,7 +222,8 @@ void tutorialUpdate(struct LevelScene* level, struct PlayerInput* input) {
 
     enum TutorialState nextState = gTutorial.nextState;
     float nextStateTime = WAIT_FOR_ACTION_TIME;
-    struct Vector3* playerPos = &level->players[0].transform.position;
+    struct Player* player = &level->players[0];
+    struct Vector3* playerPos = &player->transform.position;
 
     switch (gTutorial.currentState) {
         case TutorialStateMove:
@@ -165,9 +236,18 @@ void tutorialUpdate(struct LevelScene* level, struct PlayerInput* input) {
                 nextState = TutorialStateAttack;
             }
             break;
-            break;
         case TutorialStateAttack:
             if (playerInputGetDown(input, PlayerInputActionsAttack)) {
+                nextState = TutorialStateSpinAttack;
+            }
+            break;
+        case TutorialStateSpinAttack:
+            if (playerIsSpinAttackReady(player)) {
+                nextState = TutorialStateSpinAttackRelease;
+            }
+            break;
+        case TutorialStateSpinAttackRelease:
+            if (!playerIsSpinAttackReady(player)) {
                 nextState = TutorialStateCapture;
             }
             break;
@@ -185,18 +265,23 @@ void tutorialUpdate(struct LevelScene* level, struct PlayerInput* input) {
         case TutorialStateBaseMenu:
             {
                 if (level->baseCommandMenu[0].flags & BaseCommandMenuFlagsShowingMenu) {
-                    textBoxHide(&gTutorial.textBox);
-                } else {
-                    gTutorial.textBox.nextState = TextBoxStateShowing;
-                }
-
-                struct LevelBase* base = tutorialGetBaseForTeam(level, playerPos, TEAM(0));
-
-                if (base->defaultComand != MinionCommandDefend) {
-                    nextState = TutorialStateCollectMinions;
+                    nextState = TutorialStateBaseMenuAttack;
+                    nextStateTime = 0.0f;
                 }
             }
             break;
+        case TutorialStateBaseMenuAttack:
+            {
+                struct LevelBase* base = tutorialGetBaseForTeam(level, playerPos, TEAM(0));
+
+                if (base && base->defaultComand == MinionCommandAttack) {
+                    nextState = TutorialStateCollectMinions;
+                } else if (!(level->baseCommandMenu[0].flags & BaseCommandMenuFlagsShowingMenu)) {
+                    nextState = TutorialStateBaseMenu;
+                }
+
+                break;
+            }
         case TutorialStateCollectMinions:
             {
                 level->baseCommandMenu[0].flags &= ~BaseCommandMenuFlagsForceHideOpenCommand;
@@ -229,6 +314,31 @@ void tutorialUpdate(struct LevelScene* level, struct PlayerInput* input) {
                 }
             }
             break;
+        case TutorialStateUpgrade:
+            if (level->baseCommandMenu[0].flags & BaseCommandMenuFlagsShowingMenu) {
+                nextState = TutorialStateUpgradeBuild;
+                nextStateTime = 0.0f;
+            }
+            break;
+        case TutorialStateUpgradeBuild:
+            struct LevelBase* base = tutorialGetBaseForTeam(level, playerPos, TEAM(0));
+
+            if (base && levelBaseIsBeingUpgraded(base)) {
+                nextState = TutorialStateItemDrop;
+            } else if (!(level->baseCommandMenu[0].flags & BaseCommandMenuFlagsShowingMenu)) {
+                nextState = TutorialStateUpgrade;
+            }
+            
+            break;
+        case TutorialStateItemDrop:
+            if (!tutorialGetItemDrop(level, playerPos, 0)) {
+                gTutorial.waitForActionTimer = WAIT_FOR_ACTION_TIME;
+            }
+
+            if (itemDropChaserIsActive(&level->itemDrops.chasers[1])) {
+                nextState = TutorialStateDone;
+            }
+            break;
         case TutorialStateDone:
             break;
     }
@@ -250,6 +360,7 @@ void tutorialRender(struct LevelScene* level, struct RenderState* renderState) {
     }
 
     if (step->flags) {
+        struct Vector3 itemPosition;
         struct Vector3* target = 0;
         struct Vector3* playerPos = &level->players[0].transform.position;
         if (step->flags & TutorailStepFlagsMoveToBase) {
@@ -264,6 +375,10 @@ void tutorialRender(struct LevelScene* level, struct RenderState* renderState) {
             struct Minion* minion = tutorialGetMinion(level, step->team, -1);
             if (minion) {
                 target = &minion->transform.position;
+            }
+        } else if (step->flags & TutorailStepFlagsMoveToItem) {
+            if (tutorialGetItemDrop(level, playerPos, &itemPosition)) {
+                target = &itemPosition;
             }
         }
 

@@ -38,6 +38,6 @@ void endGameMenuInit(struct EndGameMenu* menu, unsigned winningTeam, unsigned te
 void endGameMenuRender(struct EndGameMenu* menu, struct RenderState* renderState);
 int endGameMenuUpdate(struct EndGameMenu* menu);
 
-void renderTimeString(unsigned short time, char* output);
+void renderTimeString(int time, char* output);
 
 #endif

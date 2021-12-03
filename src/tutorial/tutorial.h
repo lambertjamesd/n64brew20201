@@ -11,17 +11,24 @@ enum TutorialState {
     TutorialStateMove,
     TutorialStateJump,
     TutorialStateAttack,
+    TutorialStateSpinAttack,
+    TutorialStateSpinAttackRelease,
     TutorialStateCapture,
     TutorialStateBaseMenu,
+    TutorialStateBaseMenuAttack,
     TutorialStateCollectMinions,
     TutorialStateOrderMinions,
     TutorialStateWin,
+    TutorialStateUpgrade,
+    TutorialStateUpgradeBuild,
+    TutorialStateItemDrop,
     TutorialStateDone,
 };
 
 enum TutorailStepFlags {
     TutorailStepFlagsMoveToBase = (1 << 0),
     TutorailStepFlagsMoveToMinion = (1 << 1),
+    TutorailStepFlagsMoveToItem = (1 << 2),
 };
 
 struct TutorialStep {
@@ -39,7 +46,7 @@ struct Tutorial {
     float waitForActionTimer;
 };
 
-void tutorialInit(struct LevelScene* level);
+void tutorialInit(struct LevelScene* level, enum TutorialState startWith);
 void tutorialUpdate(struct LevelScene* level, struct PlayerInput* input);
 void tutorialRender(struct LevelScene* level, struct RenderState* renderState);
 

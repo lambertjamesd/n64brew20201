@@ -63,5 +63,6 @@ void playerUpdate(struct Player* player, struct PlayerInput* input);
 void playerRender(struct Player* player, struct RenderState* renderState);
 void playerApplyDamage(struct Player* player, float amount, struct Vector3* origin, float knockback);
 int playerIsAlive(struct Player* player);
+int playerIsSpinAttackReady(struct Player* player);
 
 #endif

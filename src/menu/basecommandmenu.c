@@ -27,7 +27,7 @@ char* gMenuPrompts[] = {
     "Follow",
     "Attack",
     "Defend",
-    "Build",
+    "Upgrade",
 };
 
 enum LevelBaseState gBaseUpgardeIndex[] = {
@@ -37,13 +37,13 @@ enum LevelBaseState gBaseUpgardeIndex[] = {
 };
 
 struct SpriteTile gBaseUpgradeTiles[MinionCommandCount] = {
-    {0, 16, 16, 16},// LevelBaseStateUpgradingSpawnRate,
-    {0, 0, 16, 16},// LevelBaseStateUpgradingCapacity,
-    {16, 0, 16, 16},// LevelBaseStateUpgradingDefence,
+    {0, 32, 16, 16},// LevelBaseStateUpgradingSpawnRate,
+    {0, 48, 16, 16},// LevelBaseStateUpgradingCapacity,
+    {16, 32, 16, 16},// LevelBaseStateUpgradingDefence,
 };
 
 char* gUpgradePrompts[] = {
-    "Wait",
+    "Speed",
     "Minion",
     "Defense",
 };
@@ -215,11 +215,11 @@ void baseCommandMenuRenderUpgradeSelect(struct BaseCommandMenu* menu, struct Ren
         unsigned canUpgrade = !levelBaseIsBeingUpgraded(menu->forBase) && levelBaseTimeForUpgrade(menu->forBase, gBaseUpgardeIndex[i]) >= 0.0f;
 
         spriteSetColor(renderState, LAYER_KICKFLIP_FONT, canUpgrade ? gColorWhite : gDisabledTextColor);
-        spriteSetColor(renderState, LAYER_UPGRADE_ICONS, canUpgrade ? gColorWhite : gColorBlack);
+        spriteSetColor(renderState, LAYER_COMMAND_BUTTONS, canUpgrade ? gColorWhite : gColorBlack);
         
         unsigned textX = x;
         if (menu->selectedUpgrade == i) {
-            spriteDrawTile(renderState, LAYER_UPGRADE_ICONS, x, y, 16, 16, gBaseUpgradeTiles[i]);
+            spriteDrawTile(renderState, LAYER_COMMAND_BUTTONS, x, y, 16, 16, gBaseUpgradeTiles[i]);
             textX += 16;
         }
         fontRenderText(renderState, &gKickflipFont, gUpgradePrompts[i], textX + 4, y + 4, -1);

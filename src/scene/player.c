@@ -636,3 +636,7 @@ void playerApplyDamage(struct Player* player, float amount, struct Vector3* orig
 int playerIsAlive(struct Player* player) {
     return player->damageHandler.hp > 0 && player->state != playerStateDead;
 }
+
+int playerIsSpinAttackReady(struct Player* player) {
+    return player->state == playerStateAttackCharge && player->stateTimer <= 0.0f;
+}

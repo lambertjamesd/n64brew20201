@@ -5,6 +5,7 @@
 
 struct Credits {
     float offset;
+    int totalTime;
 };
 
 void creditsInit(struct Credits* credits);
