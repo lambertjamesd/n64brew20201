@@ -29,6 +29,9 @@
 #define INVINCIBLE_JUMP_HEIGHT                     1.0f
 #define CHARGE_SPIN_ATTACK_TIME                    0.75f
 
+#define SPIN_ATTACK_MOVE_SPEED                     (PLAYER_BASE_MOVE_SPEED * 2.0f)
+#define SPIN_ATTACK_ACCELL                         (40.0f)
+
 struct CollisionCircle gPlayerCollider = {
     {CollisionShapeTypeCircle},
     PLAYER_COLLIDER_RADIOUS,
@@ -429,6 +432,7 @@ void playerStateAttackCharge(struct Player* player, struct PlayerInput* input) {
         if (player->stateTimer > 0.0f) {
             playerEnterAttackState(player, factionGetAttack(player->team.teamNumber, PlayerAttackPunch));
         } else {
+            vector3Scale(&input->targetWorldDirection, &player->velocity, SPIN_ATTACK_MOVE_SPEED * 0.25f);
             playerEnterAttackState(player, factionGetAttack(player->team.teamNumber, PlayerAttackSpinAttack));
         }
     }
@@ -442,7 +446,13 @@ void playerStateAttackCharge(struct Player* player, struct PlayerInput* input) {
 
 void playerStateAttack(struct Player* player, struct PlayerInput* input) {
     playerRotateTowardsInput(player, input, PLAYER_ATTACK_MAX_ROTATE_SEC);
-    playerAccelerateTowards(player, &gZeroVec, 0.0f, PLAYER_STOP_ACCELERATION, PLAYER_STOP_ACCELERATION);
+    playerAccelerateTowards(
+        player, 
+        &input->targetWorldDirection, 
+        (player->attackInfo->flags & PlayerAttackInfoFlagsCanMove) ? SPIN_ATTACK_MOVE_SPEED : 0.0f, 
+        SPIN_ATTACK_ACCELL, 
+        PLAYER_STOP_ACCELERATION
+    );
 
     if (playerInputGetDown(input, PlayerInputActionsAttack)) {
         if ((player->flags & (PlayerFlagsInAttackWindow | PlayerFlagsAttackEarly)) == PlayerFlagsInAttackWindow) {

@@ -12,9 +12,14 @@
 #include "math/mathf.h"
 #include "audio/soundplayer.h"
 
+enum PlayerAttackInfoFlags {
+    PlayerAttackInfoFlagsCanMove = (1 << 0),
+};
+
 struct PlayerAttackInfo {
     unsigned char boneIndex;
     unsigned char chainedTo;
+    unsigned char flags;
     float damage;
     float knockback;
     struct Vector3 localPosition;

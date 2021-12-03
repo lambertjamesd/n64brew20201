@@ -9,6 +9,7 @@ struct PlayerAttackInfo gDogAttacks[] = {
     [PlayerAttackPunch] = {
         DOGLOW_ARM1_BONE, 
         PlayerAttackPunchChain1,
+        0,
         1.5f,
         1.0f,
         {0.0f, 0.65f * SCENE_SCALE, 0.0f}, 
@@ -18,6 +19,7 @@ struct PlayerAttackInfo gDogAttacks[] = {
     [PlayerAttackPunchChain1] = {
         DOGLOW_ARM2_BONE, 
         PlayerAttackPunchChain2,
+        0,
         2.0f,
         3.0f,
         {0.0f, 0.65f * SCENE_SCALE, 0.0f}, 
@@ -26,6 +28,7 @@ struct PlayerAttackInfo gDogAttacks[] = {
     },
     [PlayerAttackPunchChain2] = {
         DOGLOW_ARM1_BONE, 
+        0,
         0,
         3.0f,
         10.0f,
@@ -36,6 +39,7 @@ struct PlayerAttackInfo gDogAttacks[] = {
     [PlayerAttackJumpAttack] = {
         DOGLOW_TAIL_BONE, 
         0,
+        0,
         0.8f,
         0.0f,
         {0.0f, 0.65f * SCENE_SCALE, 0.0f}, 
@@ -45,6 +49,7 @@ struct PlayerAttackInfo gDogAttacks[] = {
     [PlayerAttackSpinAttack] = {
         DOGLOW_TAIL_BONE, 
         0,
+        PlayerAttackInfoFlagsCanMove,
         1.5f,
         14.0f,
         {0.0f, 0, 0.0f}, 
@@ -90,7 +95,7 @@ struct SKAnimationEvent gDogAttack003Events[] = {
 
 struct SKAnimationEvent gDogSpinAttackEvents[] = {
     {8, PLAYER_ATTACK_START_ID},
-    {13, PLAYER_ATTACK_END_ID},
+    {16, PLAYER_ATTACK_END_ID},
 };
 
 
@@ -135,6 +140,7 @@ struct PlayerAttackInfo gCatAttacks[] = {
     [PlayerAttackPunch] = {
         CATLOW_ARM1_BONE, 
         PlayerAttackPunchChain1,
+        0,
         1.2f,
         1.0f,
         {0.0f, 0.65f * SCENE_SCALE, 0.0f}, 
@@ -144,6 +150,7 @@ struct PlayerAttackInfo gCatAttacks[] = {
     [PlayerAttackPunchChain1] = {
         CATLOW_ARM2_BONE, 
         PlayerAttackPunchChain2,
+        0,
         1.5f,
         1.5f,
         {0.0f, 0.65f * SCENE_SCALE, 0.0f}, 
@@ -152,6 +159,7 @@ struct PlayerAttackInfo gCatAttacks[] = {
     },
     [PlayerAttackPunchChain2] = {
         CATLOW_BOOT1_BONE, 
+        0,
         0,
         4.0f,
         14.0f,
@@ -162,6 +170,7 @@ struct PlayerAttackInfo gCatAttacks[] = {
     [PlayerAttackJumpAttack] = {
         CATLOW_BOOT1_BONE, 
         0,
+        0,
         0.7f,
         0.0f,
         {0.0f, 0.65f * SCENE_SCALE, 0.0f}, 
@@ -171,6 +180,7 @@ struct PlayerAttackInfo gCatAttacks[] = {
     [PlayerAttackSpinAttack] = {
         CATLOW_TAIL_BONE, 
         0,
+        PlayerAttackInfoFlagsCanMove,
         0.5f,
         14.0f,
         {0.0f, 0.0f, 0.0f}, 
