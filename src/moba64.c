@@ -135,7 +135,7 @@ static void gameproc(void *argv)
 
                 gUpdateTime = osGetTime() - updateTimeStart;
 
-                gdbHeartbeat();
+                //gdbHeartbeat();
 
                 break;
 
@@ -209,4 +209,3 @@ static void initGame(void)
     gdbInitDebugger(gPiHandle, &dmaMessageQ, debugThreads, 1);
 #endif
 }
-

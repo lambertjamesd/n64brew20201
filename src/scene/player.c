@@ -54,6 +54,9 @@ struct Vector3 gRecallOffset = {0.0f, 0.0f, -4.0 * SCENE_SCALE};
 #define PLAYER_JUMP_ATTACK_FALL_VELOICTY    -20.0f
 #define PLAYER_JUMP_ATTCK_DELAY             0.5f
 
+#define PLAYER_FOOTSTEP_LEN          1.f
+#define PLAYER_FOOTSTEP_TIMER_DECREAMENT    0.1f
+
 int aiAttackPriority(struct TeamEntity* target) {
     return target->entityType;
 }
@@ -69,6 +72,7 @@ void playerAttackOverlap(struct DynamicSceneOverlap* overlap) {
     if ((overlap->otherEntry->flags & DynamicSceneEntryHasTeam) != 0 && player->attackInfo) {
         struct TeamEntity* entityB = (struct TeamEntity*)overlap->otherEntry->data;
         teamEntityApplyDamage(entityB, player->attackInfo->damage, &player->transform.position, player->attackInfo->knockback);
+        soundPlayerPlay(SOUNDS_PUNCHIMPACT,0);
     }
 }
 
@@ -141,6 +145,7 @@ void playerEnterDeadState(struct Player* player) {
     levelSceneIssueMinionCommand(&gCurrentLevel, player->playerIndex, MinionCommandAttack);
     playerEndAttack(player);
     soundPlayerPlay(soundListRandom(&gTeamFactions[player->playerIndex]->playerSounds.deathSounds), 0);
+    //soundPlayerPlay(SOUNDS_DEATHSFX, 0);
     skAnimatorRunClip(&player->animator, factionGetAnimation(player->team.teamNumber, PlayerAnimationDie), 0);
     player->state = playerStateDead;
     player->stateTimer = PLAYER_MIN_RESPAWN_TIME + (player->controlledBases - 1) * PLAYER_RESPAWN_PER_BASE;
@@ -285,6 +290,7 @@ void playerInit(struct Player* player, unsigned playerIndex, unsigned team, stru
     player->walkSoundEffect = SOUND_ID_NONE;
     player->idleSoundEffect = SOUND_ID_NONE;
     player->animationSpeed = 1.0f;
+    player->footstepTimer = -1.f;
     player->controlledBases = 0;
     player->touchedBy = 0;
     player->aiTarget = 0;
@@ -574,10 +580,18 @@ void playerStateWalk(struct Player* player, struct PlayerInput* input) {
 
     int hasWalkingSound = player->walkSoundEffect != SOUND_ID_NONE;
 
-    if (isMoving != hasWalkingSound) {
+    if(player->footstepTimer > 0.f) {
+        player->footstepTimer -= PLAYER_FOOTSTEP_TIMER_DECREAMENT * player->animationSpeed;
+        if(player->footstepTimer <= 0.f){
+            player->footstepTimer = -1.f;
+            soundPlayerStop(&player->walkSoundEffect);
+        }
+    }
+    else if (isMoving != hasWalkingSound) {
         if (isMoving) {
-            player->walkSoundEffect = soundPlayerPlay(gTeamFactions[player->playerIndex]->playerSounds.walkSound, SoundPlayerFlagsLoop);
+            player->walkSoundEffect = soundPlayerPlay(soundListRandom(&gTeamFactions[player->playerIndex]->playerSounds.walkSounds), 0);
             soundPlayerSetVolume(player->walkSoundEffect, 0.25f);
+            player->footstepTimer = PLAYER_FOOTSTEP_LEN;
         } else {
             soundPlayerStop(&player->walkSoundEffect);
         }

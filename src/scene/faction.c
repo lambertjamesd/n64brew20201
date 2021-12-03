@@ -99,6 +99,7 @@ struct SKAnimationEvent gDogSpinAttackEvents[] = {
     {16, PLAYER_ATTACK_END_ID},
 };
 
+unsigned short gWalkSounds[] = {SOUNDS_FOOTSTEP0, SOUNDS_FOOTSTEP1, SOUNDS_FOOTSTEP2, SOUNDS_FOOTSTEP3, SOUNDS_FOOTSTEP4};
 
 unsigned short gDogDamageSounds[] = {SOUNDS_DOG_INJURED_GRUNT_1, SOUNDS_DOG_INJURED_GRUNT_2};
 unsigned short gDogAttackSounds[] = {SOUNDS_DOG_ATTACK1, SOUNDS_DOG_ATTACK2, SOUNDS_DOG_ATTACK3};
@@ -129,6 +130,7 @@ struct Faction gDogFaction = {
         .deathSounds = {.options = gDogDeathSounds, .count = sizeof(gDogDeathSounds)/sizeof(gDogDeathSounds[0])},
         .jumpSounds = {.options = gDogJumpSounds, .count = sizeof(gDogJumpSounds)/sizeof(gDogJumpSounds[0])},
         .idleSounds = {.options = gDogIdleSounds, .count = sizeof(gDogIdleSounds)/sizeof(gDogIdleSounds[0])},
+        .walkSounds = {.options = gWalkSounds, .count = sizeof(gWalkSounds)/sizeof(gWalkSounds[0])},
         .walkSound = SOUNDS_DOG_WALKING_LOOP_1,
     },
     .healthBarSourceY = 16,
@@ -251,6 +253,7 @@ struct Faction gCatFaction = {
         .deathSounds = {.options = gCatDeathSounds, .count = sizeof(gCatDeathSounds)/sizeof(gCatDeathSounds[0])},
         .jumpSounds = {.options = gCatJumpSounds, .count = sizeof(gCatJumpSounds)/sizeof(gCatJumpSounds[0])},
         .idleSounds = {.options = gCatIdlesSounds, .count = sizeof(gCatIdlesSounds)/sizeof(gCatIdlesSounds[0])},
+        .walkSounds = {.options = gWalkSounds, .count = sizeof(gWalkSounds)/sizeof(gWalkSounds[0])},
         .walkSound = SOUNDS_DOG_WALKING_LOOP_1,
     },
     .healthBarSourceY = 0,

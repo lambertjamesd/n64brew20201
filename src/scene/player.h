@@ -50,6 +50,7 @@ struct Player {
     SoundID walkSoundEffect;
     SoundID idleSoundEffect;
     struct DamageHandler damageHandler;
+    float footstepTimer;
     float stateTimer;
     float animationSpeed;
     float tilt;
