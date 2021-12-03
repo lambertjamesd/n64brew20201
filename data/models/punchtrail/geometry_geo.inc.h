@@ -71,7 +71,6 @@ Vtx punchtrail_Trail_normal_4[] = {
 Gfx punchtrail_model_gfx[] = {
 	gsDPPipeSync(),
 	gsSPClearGeometryMode(G_LIGHTING | G_CULL_BOTH),
-    gsDPSetPrimColor(255, 255, 200, 200, 200, 128),
 	gsDPSetCombineLERP(0, 0, 0, PRIMITIVE, PRIMITIVE, 0, SHADE, 0, 0, 0, 0, PRIMITIVE, PRIMITIVE, 0, SHADE, 0),
     // Bone.001
     gsSPMatrix((Mtx*)MATRIX_TRANSFORM_SEGMENT_ADDRESS + 1, G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH),

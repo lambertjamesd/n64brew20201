@@ -12,6 +12,7 @@ struct PunchTrail {
 
 void punchTrailInit(struct PunchTrail* punchTrail, struct Vector3* start, float scale);
 void punchTrailUpdate(struct PunchTrail* punchTrail, struct Vector3* next);
-void punchTrailRender(struct PunchTrail* punchTrail, struct RenderState* renderState);
+void punchTrailRender(struct PunchTrail* punchTrail, struct RenderState* renderState, struct Coloru8 color);
+struct Vector3* punchTrailHeadPosition(struct PunchTrail* punchTrail);
 
 #endif

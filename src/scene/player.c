@@ -588,6 +588,8 @@ void playerUpdate(struct Player* player, struct PlayerInput* input) {
 }
 
 void playerRender(struct Player* player, struct RenderState* renderState) {
+    static struct Coloru8 gPunchColor = {240, 120, 32, 128};
+
     Mtx* matrix = renderStateRequestMatrices(renderState, 1);
 
     if (!matrix) {
@@ -613,7 +615,7 @@ void playerRender(struct Player* player, struct RenderState* renderState) {
 
     recallCircleRender(&player->recallCircle, renderState, player->team.teamNumber);
     if (player->attackCollider) {
-        punchTrailRender(&player->punchTrail, renderState);
+        punchTrailRender(&player->punchTrail, renderState, gPunchColor);
     }
 }
 

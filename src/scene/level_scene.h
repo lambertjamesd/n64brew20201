@@ -76,6 +76,6 @@ void levelSceneIssueMinionCommand(struct LevelScene* levelScene, unsigned team, 
 struct Vector3* levelSceneFindRespawnPoint(struct LevelScene* levelScene, struct Vector3* closeTo, unsigned team);
 int levelSceneFindWinningTeam(struct LevelScene* levelScene);
 
-void levelSceneApplyScrambler(struct LevelScene* levelScene, unsigned fromTeam, enum ControlsScramblerType scambler);
+void levelSceneApplyScrambler(struct LevelScene* levelScene, unsigned toTeam, enum ControlsScramblerType scambler);
 
 #endif

@@ -658,11 +658,9 @@ int levelSceneFindWinningTeam(struct LevelScene* levelScene) {
     return result;
 }
 
-void levelSceneApplyScrambler(struct LevelScene* levelScene, unsigned fromTeam, enum ControlsScramblerType scambler) {
-    for (unsigned i = 0; i < levelScene->playerCount; ++i) {
-        if (levelScene->players[i].team.teamNumber != fromTeam) {
-            controlsScramblerTrigger(&levelScene->scramblers[i], scambler);
-        }
+void levelSceneApplyScrambler(struct LevelScene* levelScene, unsigned toTeam, enum ControlsScramblerType scambler) {
+    if (playerIsAlive(&levelScene->players[toTeam])) {
+        controlsScramblerTrigger(&levelScene->scramblers[toTeam], scambler);
     }
 }
 

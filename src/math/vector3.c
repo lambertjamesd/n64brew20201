@@ -100,15 +100,17 @@ void vector3ProjectPlane(struct Vector3* in, struct Vector3* normal, struct Vect
     out->z = in->z - normal->z * mag;
 }
 
-void vector3MoveTowards(struct Vector3* from, struct Vector3* towards, float maxDistance, struct Vector3* out) {
+int vector3MoveTowards(struct Vector3* from, struct Vector3* towards, float maxDistance, struct Vector3* out) {
     float distance = vector3DistSqrd(from, towards);
 
     if (distance < maxDistance * maxDistance) {
         *out = *towards;
+        return 1;
     } else {
         float scale = maxDistance / sqrtf(distance);
         out->x = (towards->x - from->x) * scale + from->x;
         out->y = (towards->y - from->y) * scale + from->y;
         out->z = (towards->z - from->z) * scale + from->z;
+        return 0;
     }
 }

@@ -11,6 +11,7 @@
 #include "../data/models/target/header.h"
 #include "../data/models/characters.h"
 #include "controlscrambler.h"
+#include "team_data.h"
 
 #define DROP_TIME       4.0f
 #define DROP_LIFETIME   60.0f
@@ -18,7 +19,8 @@
 #define DAMAGE_AMOUNT   3.0f
 #define DROP_COLLIDER_RADIUS    (SCENE_SCALE)
 #define FALL_VELOCITY (SCENE_SCALE * 40.0f)
-#define GFX_PER_DROP    4
+#define GFX_PER_DROP            4
+#define GFX_PER_CHASER_DROP     3
 #define ROTATION_FREQ   (0.5 * (2 * M_PI))
 #define FLICKER_AWAY_PERIOD   0.5f
 #define FLICKER_AWAY_TIME     5.0f
@@ -79,7 +81,11 @@ void itemDropCollide(struct DynamicSceneOverlap* overlap) {
 
             if (entity->entityType == TeamEntityTypePlayer && DROP_LIFETIME - drop->stateTimer > INTAGIBLE_TIME) {
                 drop->state = ItemDropStateCollected;
-                levelSceneApplyScrambler(&gCurrentLevel, entity->teamNumber, randomInRange(0, ControlsScramblerTypeCount));
+                struct Vector3 pos3D;
+                pos3D.x = drop->collision->center.x;
+                pos3D.y = SCENE_SCALE;
+                pos3D.z = drop->collision->center.y;
+                itemActivateScrambler(&gCurrentLevel, &pos3D, randomInRange(0, ControlsScramblerTypeCount), entity->teamNumber);
             }
 
             break;
@@ -220,6 +226,64 @@ void itemDropRender(struct ItemDrop* itemDrop, struct RenderState* renderState) 
     }
 }
 
+void itemDropChaserInit(struct ItemDropChaser* chaser) {
+    pathfinderReset(&chaser->pathfinder);
+    chaser->scrambleType = ControlsScramblerTypeCount;
+}
+
+int itemDropChaserIsActive(struct ItemDropChaser* chaser) {
+    return chaser->scrambleType != ControlsScramblerTypeCount;
+}
+
+void itemDropChaserActivate(struct ItemDropChaser* chaser, struct Vector3* from, enum ControlsScramblerType scramblerType, int index) {
+    // if a new pickup happens before the current animation finishes
+    // just apply the effect now and start the new animation
+    if (itemDropChaserIsActive(chaser)) {
+        levelSceneApplyScrambler(&gCurrentLevel, index, chaser->scrambleType);
+    }
+
+    chaser->scrambleType = scramblerType;
+    punchTrailInit(&chaser->punchTrail, from, 0.5f);
+    pathfinderSetTarget(&chaser->pathfinder, &gCurrentLevel.definition->pathfinding, from, &gCurrentLevel.players[index].transform.position);
+}
+
+void itemDropChaserUpdate(struct ItemDropChaser* chaser, int index) {
+    if (itemDropChaserIsActive(chaser)) {
+        pathfinderUpdate(
+            &chaser->pathfinder, 
+            &gCurrentLevel.definition->pathfinding,
+            punchTrailHeadPosition(&chaser->punchTrail),
+            0
+        );
+
+        struct Vector3* nextTarget;
+
+        if (chaser->pathfinder.currentNode != NODE_NONE) {
+            nextTarget = &gCurrentLevel.definition->pathfinding.nodePositions[chaser->pathfinder.currentNode];
+        } else {
+            nextTarget = &gCurrentLevel.players[index].transform.position;
+        }
+
+        struct Vector3 nextHeadPos;
+        if (vector3MoveTowards(punchTrailHeadPosition(&chaser->punchTrail), nextTarget, ITEM_CHASER_SPEED * gTimeDelta, &nextHeadPos) && 
+            chaser->pathfinder.currentNode == NODE_NONE) {
+            levelSceneApplyScrambler(&gCurrentLevel, index, chaser->scrambleType);
+            chaser->scrambleType = ControlsScramblerTypeCount;
+        } else {
+            nextHeadPos.x += randomInRangef(-SCENE_SCALE, SCENE_SCALE);
+            nextHeadPos.z += randomInRangef(-SCENE_SCALE, SCENE_SCALE);
+
+            punchTrailUpdate(&chaser->punchTrail, &nextHeadPos);
+        }
+    }
+}
+
+void itemDropChaserRender(struct ItemDropChaser* chaser, struct RenderState* renderState, unsigned index) {
+    if (itemDropChaserIsActive(chaser)) {
+        punchTrailRender(&chaser->punchTrail, renderState, gTeamColors[index]);
+    }
+}
+
 float gNextDropTime[] = {
     5.0f,
     10.0f,
@@ -235,6 +299,7 @@ float gNextDropTime[] = {
 };
 
 float itemDropsNextTime(unsigned currentDropCount) {   
+    return 1.0f;
     if (currentDropCount + 2 >= sizeof(gNextDropTime) / sizeof(*gNextDropTime)) {
         currentDropCount = sizeof(gNextDropTime) / sizeof(*gNextDropTime) - 2;
     }
@@ -246,10 +311,17 @@ void itemDropsInit(struct ItemDrops* itemDrops) {
     for (unsigned i = 0; i < MAX_ITEM_DROP; ++i) {
         itemDropInit(&itemDrops->drops[i]);
     }
+    for (unsigned i = 0; i < MAX_PLAYERS; ++i) {
+        itemDropChaserInit(&itemDrops->chasers[i]);
+    }
     itemDrops->nextDropTimer = itemDropsNextTime(0);
 }
 
 void itemDropsUpdate(struct ItemDrops* itemDrops) {
+    for (unsigned i = 0; i < gCurrentLevel.playerCount; ++i) {
+        itemDropChaserUpdate(&itemDrops->chasers[i], i);
+    }
+
     unsigned activeDrops = 0;
     struct ItemDrop* nextDrop = 0;
     for (unsigned i = 0; i < MAX_ITEM_DROP; ++i) {
@@ -273,8 +345,12 @@ void itemDropsUpdate(struct ItemDrops* itemDrops) {
 }
 
 Gfx* itemDropsRender(struct ItemDrops* itemDrops, struct RenderState* renderState) {
-    Gfx* result = renderStateAllocateDLChunk(renderState, GFX_PER_DROP * MAX_ITEM_DROP);
+    Gfx* result = renderStateAllocateDLChunk(renderState, GFX_PER_DROP * MAX_ITEM_DROP + MAX_PLAYERS * GFX_PER_CHASER_DROP + 2);
     Gfx* prevDL = renderStateReplaceDL(renderState, result);
+
+    for (unsigned i = 0; i < gCurrentLevel.playerCount; ++i) {
+        itemDropChaserRender(&itemDrops->chasers[i], renderState, i);
+    }
 
     gSPDisplayList(renderState->dl++, mat_ItemPickup_Drop_Platform);
 
@@ -287,4 +363,13 @@ Gfx* itemDropsRender(struct ItemDrops* itemDrops, struct RenderState* renderStat
     assert(resultEnd <= result + GFX_PER_DROP * MAX_ITEM_DROP + 1);
 
     return result;
+}
+
+
+void itemActivateScrambler(struct LevelScene* scene, struct Vector3* from, enum ControlsScramblerType scramblerType, int fromTeam) {
+    for (unsigned i = 0; i < scene->playerCount; ++i) {
+        if (i != fromTeam) {
+            itemDropChaserActivate(&scene->itemDrops.chasers[i], from, scramblerType, i);
+        }
+    }
 }
