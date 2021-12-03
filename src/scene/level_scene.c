@@ -418,6 +418,23 @@ void levelSceneCollectStats(struct LevelScene* levelScene) {
     }
 }
 
+void levelSceneDeathSFX_Trigger(struct LevelScene* levelScene){
+
+    for(unsigned i = 0; i < levelScene->playerCount; ++i){
+        if(levelScene->deadPlayers[i] == 1){
+            if(!playerIsAlive(&levelScene->players[i]))return;
+            else levelScene->deadPlayers[i] = 0;
+        }
+    }
+
+    for(unsigned i = 0; i < levelScene->playerCount; ++i){
+        if(!playerIsAlive(&levelScene->players[i])){
+            levelScene->deadPlayers[i] = 1;
+            soundPlayerPlay(SOUNDS_DEATHSFX, 0);
+        }
+    }
+}
+
 void levelSceneUpdate(struct LevelScene* levelScene) {
     if (levelScene->state == LevelSceneStatePaused) {
         unsigned togglePause = 0;
@@ -465,6 +482,8 @@ void levelSceneUpdate(struct LevelScene* levelScene) {
             ai_update(levelScene, &levelScene->bots[i]);
         }
     }
+
+    levelSceneDeathSFX_Trigger(levelScene);
 
     unsigned botIndex = 0;
 
@@ -669,47 +688,4 @@ void levelSceneApplyScrambler(struct LevelScene* levelScene, unsigned toTeam, en
     if (playerIsAlive(&levelScene->players[toTeam])) {
         controlsScramblerTrigger(&levelScene->scramblers[toTeam], scambler);
     }
-}
-
-struct Player* levelGetClosestEnemyPlayer(struct LevelScene* forScene, struct Vector3* closeTo, unsigned team, float* outDist){
-    struct Vector3* currPos = &forScene->players[0].transform.position;
-    float minDist = vector3DistSqrd(currPos, closeTo);
-    unsigned int minIndex = 0;
-
-        for(unsigned entInd = 1; entInd < forScene->playerCount; ++entInd){
-        if(forScene->players[entInd].team.teamNumber != team){
-            currPos = &forScene->players[entInd].transform.position;
-            float thisDist = vector3DistSqrd(currPos, closeTo);
-            if(thisDist < minDist){
-                minIndex = entInd;
-                minDist = thisDist;
-            }
-        }
-    }
-
-    *outDist = minDist;
-    return &forScene->players[minIndex];
-}
-
-struct Minion* levelGetClosestEnemyMinion(struct LevelScene* forScene, struct Vector3* closeTo, unsigned team, float* outDist){
-    float minDist = 100000000.0f;
-    unsigned int minIndex = ~0;
-
-    for(unsigned entInd = 0; entInd < forScene->minionCount; ++entInd){
-        if(minionIsAlive(&forScene->minions[entInd]) && forScene->minions[entInd].team.teamNumber != team){
-            struct Vector3* currPos = &forScene->minions[entInd].transform.position;
-            float thisDist = vector3DistSqrd(currPos, closeTo);
-            if(thisDist < minDist){
-                minIndex = entInd;
-                minDist = thisDist;
-            }
-        }
-    }
-
-    if (minIndex == ~0) {
-        return 0;
-    }
-
-    *outDist = minDist;
-    return &forScene->minions[minIndex];
 }
