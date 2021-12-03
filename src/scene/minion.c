@@ -22,8 +22,8 @@
 
 
 #define MINION_FOLLOW_DIST  3.0f
-#define MINION_MOVE_SPEED   (PLAYER_BASE_MOVE_SPEED * 10.0f)
-#define MINION_ACCELERATION (PLAYER_MOVE_ACCELERATION * 2.0f)
+#define MINION_MOVE_SPEED   (PLAYER_BASE_MOVE_SPEED * 1.1f)
+#define MINION_ACCELERATION PLAYER_MOVE_ACCELERATION
 #define MINION_HP           3.5
 #define DEFENDER_HEAL_RATE  0.2f
 #define ATTACK_RATE         0.8f
@@ -31,7 +31,6 @@
 #define INVINCIBILITY_TIME  0.5f
 #define INVINCIBLE_FLASH_FREQ                      0.1f
 #define ATTACK_RADIUS       (1.0f * SCENE_SCALE)
-#define RENDER_SCALE           0.6f
 
 struct CollisionCircle gMinionCollider = {
     {CollisionShapeTypeCircle},
@@ -66,7 +65,7 @@ void minionAnimationEvent(struct SKAnimator* animator, void* data, struct SKAnim
     if (event->id == MINION_ANIMATION_EVENT_ATTACK && minion->attackTarget) {
         float distSqr = vector3DistSqrd(teamEntityGetPosition(minion->attackTarget), &minion->transform.position);
         if (distSqr < ATTACK_RADIUS * ATTACK_RADIUS) {
-            teamEntityApplyDamage(minion->attackTarget, MINION_DPS * ATTACK_RATE);
+            teamEntityApplyDamage(minion->attackTarget, MINION_DPS * ATTACK_RATE, &minion->transform.position, 0.0f);
         } else {
             minion->attackTarget = 0;
         }
@@ -110,7 +109,7 @@ void minionInit(struct Minion* minion, enum MinionType type, struct Transform* a
     skAnimatorInit(&minion->animator, 1, minionAnimationEvent, minion);
     skAnimatorRunClip(&minion->animator, &minion_animations_animations[MINION_ANIMATIONS_MINION_ANIMATIONS_ARMATURE_IDLE_INDEX], SKAnimatorFlagsLoop);
     transformInitIdentity(&minion->animationTransform);
-    vector3Scale(&gOneVec, &minion->transform.scale, RENDER_SCALE);
+    vector3Scale(&gOneVec, &minion->transform.scale, MINION_RENDER_SCALE);
 }
 
 void minionRender(struct Minion* minion, struct RenderState* renderState) {
@@ -146,7 +145,7 @@ void minionIssueCommand(struct Minion* minion, enum MinionCommand command, unsig
     
 void minionUpdate(struct Minion* minion) {
     struct Vector3* target = 0;
-    float minDistance = 0.0f;
+    float minDistance = ATTACK_RADIUS * 0.5f;
 
     minion->attackTimer -= gTimeDelta;
 
@@ -244,12 +243,6 @@ void minionUpdate(struct Minion* minion) {
             vector3Scale(&offset, &targetVelocity, MINION_MOVE_SPEED / sqrtf(distSqr));
             useWalkAnimation = 1;
         }
-        else{
-           // if(minion->pathfinder.currentNode != NODE_NONE && minion->pathfinder.currentNode == minion->pathfinder.targetNode){
-               // minionIssueCommand(minion, MinionCommandDefend, minion->followingPlayer);
-               // pathfinderReset(&minion->pathfinder);
-            //}
-        }
     }
 
     if (useWalkAnimation) {
@@ -264,15 +257,21 @@ void minionUpdate(struct Minion* minion) {
         }
     }
 
+    minion->velocity.y += gTimeDelta * GRAVITY;
+
     vector3MoveTowards(&minion->velocity, &targetVelocity, MINION_ACCELERATION * gTimeDelta, &minion->velocity);
-    vector3Scale(&minion->velocity, &minion->velocity, 0.9f);
     vector3AddScaled(&minion->transform.position, &minion->velocity, SCENE_SCALE * gTimeDelta, &minion->transform.position);
+
+    if (minion->transform.position.y < 0.0f) {
+        minion->transform.position.y = 0.0f;
+        minion->velocity.y = 0.0f;
+    }
 
     struct Vector2 right;
     right.x = -minion->velocity.x;
     right.y = minion->velocity.z;
 
-    if (right.x != 0.0f || right.y != 0.0f) {
+    if (fabsf(right.x) > 0.0001f || fabsf(right.y) > 0.0001f) {
         vector2Normalize(&right, &right);
         quatAxisComplex(&gUp, &right, &minion->transform.rotation);
     }
@@ -300,9 +299,10 @@ void minionSetAttackTarget(struct Minion* minion, struct TeamEntity* target) {
     skAnimatorRunClip(&minion->animator, &minion_animations_animations[MINION_ANIMATIONS_MINION_ANIMATIONS_ARMATURE_ATTACK_INDEX], 0);
 }
 
-void minionApplyDamage(struct Minion* minion, float amount) {
+void minionApplyDamage(struct Minion* minion, float amount, struct Vector3* origin, float knockback) {
     if (minion->damageHandler.hp > 0.0f) {
         damageHandlerApplyDamage(&minion->damageHandler, amount, INVINCIBILITY_TIME);
+        teamEntityApplyKnockback(&minion->transform.position, &minion->velocity, origin, knockback * 1.2f);
 
         if (minion->damageHandler.hp <= 0.0f) {
             gLastDeathTime = gTimePassed;

@@ -87,7 +87,14 @@ void vector2Normalize(struct Vector2* a, struct Vector2* out) {
         return;
     }
 
-    float scale = 1.0f / sqrtf(a->x * a->x + a->y * a->y);
+    float denom = sqrtf(a->x * a->x + a->y * a->y);
+
+    if (denom < 0.0000001f) {
+        *out = *a;
+        return;
+    }
+
+    float scale = 1.0f / denom;
     out->x = a->x * scale;
     out->y = a->y * scale;
 }

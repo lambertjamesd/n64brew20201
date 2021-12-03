@@ -95,6 +95,10 @@ data/models/punchtrail/geometry.h build/data/models/punchtrail/geometry_anim.inc
 	@mkdir -p $(@D)
 	$(SKELATOOL64) -s 100 -n punchtrail -o data/models/punchtrail/geometry.h assets/models/punchtrail.fbx
 
+data/cutscenes/geometry.h build/data/cutscenes/geometry_anim.inc.h build/data/cutscenes/geometry_animdef.inc.h:	assets/models/CutsceneTest.fbx
+	@mkdir -p $(@D)
+	$(SKELATOOL64) -a -s 100 -n cutscene_animations -o data/cutscenes/geometry.h assets/models/CutsceneTest.fbx
+
 MUSIC = $(shell find assets/music/ -type f -name '*.mid')
 
 CLEAN_MUSIC = $(patsubst %.mid, build/%.mid, $(MUSIC))

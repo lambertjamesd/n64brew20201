@@ -16,6 +16,7 @@ struct PlayerAttackInfo {
     unsigned char boneIndex;
     unsigned char chainedTo;
     float damage;
+    float knockback;
     struct Vector3 localPosition;
     struct CollisionCircle collisionCircle;
     struct SKAnimationHeader* animation;
@@ -23,8 +24,10 @@ struct PlayerAttackInfo {
 
 enum PlayerAttack {
     PlayerAttackPunch,
-    PlayerAttackPunchChain,
+    PlayerAttackPunchChain1,
+    PlayerAttackPunchChain2,
     PlayerAttackJumpAttack,
+    PlayerAttackSpinAttack,
 };
 
 #define PLAYER_ATTACK_START_ID                     0x0
@@ -46,6 +49,8 @@ enum PlayerAnimation {
     PlayerAnimationSelectIdle,
     PlayerAnimationSelected,
     PlayerAnimationVictory,
+    PlayerAnimationCrouch,
+    PlayerAnimationStand,
 };
 
 struct PlayerFactionSounds {

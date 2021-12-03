@@ -50,16 +50,29 @@ void teamEntityCorrectOverlap(struct DynamicSceneOverlap* overlap) {
     }
 }
 
-void teamEntityApplyDamage(struct TeamEntity* entity, float amount) {
+void teamEntityApplyDamage(struct TeamEntity* entity, float amount, struct Vector3* origin, float knockback) {
     gLastDamageTime = gTimePassed;
 
     switch (entity->entityType) {
         case TeamEntityTypeMinion:
-            minionApplyDamage((struct Minion*)entity, amount);
+            minionApplyDamage((struct Minion*)entity, amount, origin, knockback);
             break;
         case TeamEntityTypePlayer:
-            playerApplyDamage((struct Player*)entity, amount);
+            playerApplyDamage((struct Player*)entity, amount, origin, knockback);
             break;
+    }
+}
+
+void teamEntityApplyKnockback(struct Vector3* pos, struct Vector3* velocity, struct Vector3* origin, float knockback) {
+    if (knockback > 0.0f) {
+        struct Vector3 offset;
+        vector3Sub(pos, origin, &offset);
+        offset.y = 0.0f;
+        vector3Normalize(&offset, &offset);
+        offset.y = 1.0f;
+        velocity->y = MAX(0.0f, velocity->y);
+        vector3Scale(&offset, &offset, knockback);
+        vector3MoveTowards(velocity, &offset, sqrtf(vector3MagSqrd(&offset)), velocity);
     }
 }
 

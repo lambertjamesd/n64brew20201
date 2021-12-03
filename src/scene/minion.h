@@ -14,6 +14,7 @@
 #define MINION_FOLLOW_RADIUS  (20.0f * SCENE_SCALE)
 #define MINION_GFX_PER_MINION  7
 #define MINION_COLLIDE_RADIUS (SCENE_SCALE * 0.4f)
+#define MINION_RENDER_SCALE           0.6f
 
 enum MinionFlags {
     MinionFlagsActive = (1 << 0),
@@ -61,7 +62,7 @@ void minionUpdate(struct Minion* minion);
 void minionCleanup(struct Minion* minion);
 void minionIssueCommand(struct Minion* minion, enum MinionCommand command, unsigned fromPlayer);
 void minionSetAttackTarget(struct Minion* minion, struct TeamEntity* target);
-void minionApplyDamage(struct Minion* minion, float amount);
+void minionApplyDamage(struct Minion* minion, float amount, struct Vector3* origin, float knockback);
 int minionIsAlive(struct Minion* minion);
 void minionSetTarget(struct Minion* minion, struct TeamEntity* value);
 

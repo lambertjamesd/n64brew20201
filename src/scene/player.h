@@ -61,7 +61,7 @@ int aiAttackPriority(struct TeamEntity* target);
 void playerInit(struct Player* player, unsigned playerIndex, unsigned team, struct Vector2* at);
 void playerUpdate(struct Player* player, struct PlayerInput* input);
 void playerRender(struct Player* player, struct RenderState* renderState);
-void playerApplyDamage(struct Player* player, float amount);
+void playerApplyDamage(struct Player* player, float amount, struct Vector3* origin, float knockback);
 int playerIsAlive(struct Player* player);
 
 #endif

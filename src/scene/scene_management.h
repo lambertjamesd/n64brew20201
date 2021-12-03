@@ -5,12 +5,14 @@
 #include "levels/levels.h"
 #include "menu/mainmenu.h"
 #include "graphics/render_state.h"
+#include "cutscene/cutscene.h"
 
 enum SceneState {
     SceneStateNone,
     SceneStateInLevel,
     SceneStateInMainMenu,
     SceneStateInCredits,
+    SceneStateInCutscene,
 };
 
 struct GameConfiguration {
@@ -31,6 +33,8 @@ void sceneQueueLoadLevel(struct GameConfiguration* gameConfig);
 void sceneQueueMainMenu();
 void sceneQueuePostGameScreen(unsigned winningTeam, unsigned teamCount, float time);
 void sceneQueueCredits();
+void sceneInsertCutscene(unsigned cutsceneIndex);
+void sceneEndCutscene();
 
 void sceneUpdate(int readyForSceneSwitch);
 void sceneRender(struct RenderState* renderState);

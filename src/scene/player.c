@@ -18,6 +18,8 @@
 #include "team_data.h"
 #include "events.h"
 #include "collision/staticscene.h"
+#include "graphics/spritefont.h"
+#include "menu/kickflipfont.h"
 #include <stdbool.h>
 
 #define PLAYER_MAX_HP                              6.0f
@@ -25,6 +27,7 @@
 #define PLAYER_RESPAWN_PER_BASE                    2.0f
 #define PLAYER_INVINCIBILITY_TIME                  0.5f
 #define INVINCIBLE_JUMP_HEIGHT                     1.0f
+#define CHARGE_SPIN_ATTACK_TIME                    0.75f
 
 struct CollisionCircle gPlayerCollider = {
     {CollisionShapeTypeCircle},
@@ -62,7 +65,7 @@ void playerAttackOverlap(struct DynamicSceneOverlap* overlap) {
 
     if ((overlap->otherEntry->flags & DynamicSceneEntryHasTeam) != 0 && player->attackInfo) {
         struct TeamEntity* entityB = (struct TeamEntity*)overlap->otherEntry->data;
-        teamEntityApplyDamage(entityB, player->attackInfo->damage);
+        teamEntityApplyDamage(entityB, player->attackInfo->damage, &player->transform.position, player->attackInfo->knockback);
     }
 }
 
@@ -95,7 +98,7 @@ void playerEndAttack(struct Player* player) {
 
 void playerStateAttack(struct Player* player, struct PlayerInput* input);
 void playerStateWalk(struct Player* player, struct PlayerInput* input);
-void playerStateAttack(struct Player* player, struct PlayerInput* input);
+void playerStateAttackCharge(struct Player* player, struct PlayerInput* input);
 void playerStateDead(struct Player* player, struct PlayerInput* input);
 void playerStateJump(struct Player* player, struct PlayerInput* input);
 void playerStateJumpAttackStart(struct Player* player, struct PlayerInput* input);
@@ -111,6 +114,13 @@ void playerEnterAttackState(struct Player* player, struct PlayerAttackInfo* atta
     skAnimatorRunClip(&player->animator, attackInfo->animation, 0);
     player->attackInfo = attackInfo;
     player->state = playerStateAttack;
+    player->animationSpeed = 1.0f;
+}
+
+void playerEnterAttackChargeState(struct Player* player) {
+    skAnimatorRunClip(&player->animator, factionGetAnimation(player->team.teamNumber, PlayerAnimationCrouch), 0);
+    player->stateTimer = CHARGE_SPIN_ATTACK_TIME;
+    player->state = playerStateAttackCharge;
     player->animationSpeed = 1.0f;
 }
 
@@ -412,6 +422,24 @@ void playerStateJump(struct Player* player, struct PlayerInput* input) {
     }
 }
 
+void playerStateAttackCharge(struct Player* player, struct PlayerInput* input) {
+    playerAccelerateTowards(player, &gZeroVec, 0.0f, PLAYER_STOP_ACCELERATION, PLAYER_STOP_ACCELERATION);
+
+    if (!(input->actionFlags & PlayerInputActionsAttack)) {
+        if (player->stateTimer > 0.0f) {
+            playerEnterAttackState(player, factionGetAttack(player->team.teamNumber, PlayerAttackPunch));
+        } else {
+            playerEnterAttackState(player, factionGetAttack(player->team.teamNumber, PlayerAttackSpinAttack));
+        }
+    }
+
+    if (player->stateTimer > 0.0f) {
+        player->stateTimer -= gTimeDelta;
+    }
+
+    playerUpdateOther(player, input);
+}
+
 void playerStateAttack(struct Player* player, struct PlayerInput* input) {
     playerRotateTowardsInput(player, input, PLAYER_ATTACK_MAX_ROTATE_SEC);
     playerAccelerateTowards(player, &gZeroVec, 0.0f, PLAYER_STOP_ACCELERATION, PLAYER_STOP_ACCELERATION);
@@ -486,8 +514,8 @@ void playerStateWalk(struct Player* player, struct PlayerInput* input) {
     if (input->actionFlags & PlayerInputActionsJump) {
         playerEnterJumpState(player);
         isMoving = 0;
-    } else if (playerInputGetDown(input, PlayerInputActionsAttack)) {
-        playerEnterAttackState(player, factionGetAttack(player->team.teamNumber, PlayerAttackPunch));
+    } else if (input->actionFlags & PlayerInputActionsAttack) {
+        playerEnterAttackChargeState(player);
         isMoving = 0;
     } else {
         if (isMoving) {
@@ -559,9 +587,17 @@ void playerRender(struct Player* player, struct RenderState* renderState) {
     transformToMatrixL(&player->transform, matrix);
     gSPMatrix(renderState->dl++, osVirtualToPhysical(matrix), G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
 
-    int isDamageFlash = damageHandlerIsFlashing(&player->damageHandler);
+    int usePallete = player->team.teamNumber;
+    
+    if (player->state == playerStateAttackCharge && player->stateTimer <= 0.0f && mathfMod(gTimePassed, 0.1f) > 0.05f) {
+        usePallete = SUPER_SAYAN_PALLETE_INDEX;
+    }
+    
+    if (damageHandlerIsFlashing(&player->damageHandler)) {
+        usePallete = DAMAGE_PALLETE_INDEX;
+    }
 
-    gDPUseTeamPallete(renderState->dl++, isDamageFlash ? DAMAGE_PALLETE_INDEX : player->team.teamNumber, 1);
+    gDPUseTeamPallete(renderState->dl++, usePallete, 2);
     skRenderObject(&player->armature, renderState);
     gSPPopMatrix(renderState->dl++, G_MTX_MODELVIEW);
 
@@ -571,10 +607,16 @@ void playerRender(struct Player* player, struct RenderState* renderState) {
     }
 }
 
-void playerApplyDamage(struct Player* player, float amount) {
+void playerApplyDamage(struct Player* player, float amount, struct Vector3* origin, float knockback) {
     if (player->transform.position.y < INVINCIBLE_JUMP_HEIGHT) {
+        teamEntityApplyKnockback(&player->transform.position, &player->velocity, origin, knockback);
         if (damageHandlerApplyDamage(&player->damageHandler, amount, PLAYER_INVINCIBILITY_TIME)) {
             soundPlayerPlay(soundListRandom(&gTeamFactions[player->playerIndex]->playerSounds.damageSounds), 0);
+
+            if (player->state == playerStateWalk) {
+                player->state = playerStateJump;
+                player->animationSpeed = 1.0f;
+            }
         }
     }
 }

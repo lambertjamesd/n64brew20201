@@ -290,6 +290,10 @@ void mainMenuUpdatePlayerCount(struct MainMenu* mainMenu) {
         soundPlayerPlay(SOUNDS_UI_SELECT, 0);
         mainMenuEnterFactionSelection(mainMenu);
     }
+
+    if (controllerGetButtonDown(0, START_BUTTON)) {
+        sceneInsertCutscene(CUTSCENE_ANIMATIONS_CUTSCENE_ANIMATIONS_CUTCENE_CUTSCENETEST_INDEX);
+    }
 }
 
 void mainMenuUpdateFaction(struct MainMenu* mainMenu) {
@@ -477,7 +481,7 @@ void mainMenuRenderFactions(struct MainMenu* mainMenu, struct RenderState* rende
         gSPMatrix(renderState->dl++, playerMatrix, G_MTX_MODELVIEW | G_MTX_PUSH | G_MTX_MUL);
         gDPSetTexturePersp(renderState->dl++, G_TP_PERSP);
         gSPDisplayList(renderState->dl++, gTeamTexture);
-        gDPUseTeamPallete(renderState->dl++, i, 1);
+        gDPUseTeamPallete(renderState->dl++, i, 2);
         gDPSetRenderMode(renderState->dl++, G_RM_AA_ZB_OPA_SURF, G_RM_AA_ZB_OPA_SURF2);
         skRenderObject(&mainMenu->factionSelection[i].armature, renderState);
         gSPPopMatrix(renderState->dl++, G_MTX_MODELVIEW);

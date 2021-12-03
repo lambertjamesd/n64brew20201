@@ -134,7 +134,7 @@ void endGameMenuRender(struct EndGameMenu* menu, struct RenderState* renderState
         transformToMatrixL(&menu->winnerTransform, matrix);
         gSPMatrix(renderState->dl++, matrix, G_MTX_PUSH | G_MTX_MUL | G_MTX_MODELVIEW);
         gSPDisplayList(renderState->dl++, gTeamTexture);
-        gDPUseTeamPallete(renderState->dl++, menu->winningTeam, 1);
+        gDPUseTeamPallete(renderState->dl++, menu->winningTeam, 2);
         skRenderObject(&menu->winnerArmature, renderState);
         gSPPopMatrix(renderState->dl++, G_MTX_MODELVIEW);
 

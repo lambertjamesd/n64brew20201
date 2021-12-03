@@ -8,27 +8,48 @@
 struct PlayerAttackInfo gDogAttacks[] = {
     [PlayerAttackPunch] = {
         DOGLOW_ARM1_BONE, 
-        1,
+        PlayerAttackPunchChain1,
         1.5f,
+        1.0f,
         {0.0f, 0.65f * SCENE_SCALE, 0.0f}, 
-        {{CollisionShapeTypeCircle}, 0.5f * SCENE_SCALE},
+        {{CollisionShapeTypeCircle}, 0.8f * SCENE_SCALE},
         &doglow_animations[DOGLOW_DOGLOW_ARMATURE_001_PUNCH_001_INDEX],
     },
-    [PlayerAttackPunchChain] = {
+    [PlayerAttackPunchChain1] = {
         DOGLOW_ARM2_BONE, 
-        0,
+        PlayerAttackPunchChain2,
         2.0f,
+        3.0f,
         {0.0f, 0.65f * SCENE_SCALE, 0.0f}, 
-        {{CollisionShapeTypeCircle}, 0.5f * SCENE_SCALE},
+        {{CollisionShapeTypeCircle}, 0.8f * SCENE_SCALE},
         &doglow_animations[DOGLOW_DOGLOW_ARMATURE_001_PUNCH_002_INDEX],
+    },
+    [PlayerAttackPunchChain2] = {
+        DOGLOW_ARM1_BONE, 
+        0,
+        3.0f,
+        10.0f,
+        {0.0f, 0.65f * SCENE_SCALE, 0.0f}, 
+        {{CollisionShapeTypeCircle}, 1.0f * SCENE_SCALE},
+        &doglow_animations[DOGLOW_DOGLOW_ARMATURE_001_PUNCH_003_INDEX],
     },
     [PlayerAttackJumpAttack] = {
         DOGLOW_TAIL_BONE, 
         0,
-        0.5f,
+        0.8f,
+        0.0f,
         {0.0f, 0.65f * SCENE_SCALE, 0.0f}, 
         {{CollisionShapeTypeCircle}, 1.5f * SCENE_SCALE},
         &doglow_animations[DOGLOW_DOGLOW_ARMATURE_001_JUMP_ATTACK_INDEX],
+    },
+    [PlayerAttackSpinAttack] = {
+        DOGLOW_TAIL_BONE, 
+        0,
+        1.5f,
+        14.0f,
+        {0.0f, 0, 0.0f}, 
+        {{CollisionShapeTypeCircle}, 2.0f * SCENE_SCALE},
+        &doglow_animations[DOGLOW_DOGLOW_ARMATURE_001_SPIN_ATTACK_INDEX],
     },
 };
 
@@ -43,18 +64,35 @@ struct SKAnimationHeader* gDogAnimations[] = {
     [PlayerAnimationSelectIdle] = &doglow_animations[DOGLOW_DOGLOW_ARMATURE_001_WALK_INDEX],
     [PlayerAnimationSelected] = &doglow_animations[DOGLOW_DOGLOW_ARMATURE_001_PUNCH_002_INDEX],
     [PlayerAnimationVictory] = &doglow_animations[DOGLOW_DOGLOW_ARMATURE_001_VICTORY_INDEX],
+    [PlayerAnimationSelected] = &doglow_animations[DOGLOW_DOGLOW_ARMATURE_001_PUNCH_002_INDEX],
+    [PlayerAnimationVictory] = &doglow_animations[DOGLOW_DOGLOW_ARMATURE_001_VICTORY_INDEX],
+    [PlayerAnimationCrouch] = &doglow_animations[DOGLOW_DOGLOW_ARMATURE_001_CROUCH_INDEX],
+    [PlayerAnimationStand] = &doglow_animations[DOGLOW_DOGLOW_ARMATURE_001_CROUCH_TO_STAND_INDEX],
 };
 
 struct SKAnimationEvent gDogAttack001Events[] = {
     {9, PLAYER_ATTACK_START_ID},
-    {14, PLAYER_ATTACK_WINDOW_ID},
-    {15, PLAYER_ATTACK_END_ID},
+    {15, PLAYER_ATTACK_WINDOW_ID},
+    {16, PLAYER_ATTACK_END_ID},
 };
 
 struct SKAnimationEvent gDogAttack002Events[] = {
-    {4, PLAYER_ATTACK_START_ID},
-    {8, PLAYER_ATTACK_END_ID},
+    {5, PLAYER_ATTACK_START_ID},
+    {9, PLAYER_ATTACK_END_ID},
+    {10, PLAYER_ATTACK_WINDOW_ID},
 };
+
+
+struct SKAnimationEvent gDogAttack003Events[] = {
+    {4, PLAYER_ATTACK_START_ID},
+    {10, PLAYER_ATTACK_END_ID},
+};
+
+struct SKAnimationEvent gDogSpinAttackEvents[] = {
+    {8, PLAYER_ATTACK_START_ID},
+    {13, PLAYER_ATTACK_END_ID},
+};
+
 
 unsigned short gDogDamageSounds[] = {SOUNDS_DOG_INJURED_GRUNT_1, SOUNDS_DOG_INJURED_GRUNT_2};
 unsigned short gDogAttackSounds[] = {SOUNDS_DOG_ATTACK1, SOUNDS_DOG_ATTACK2, SOUNDS_DOG_ATTACK3};
@@ -96,27 +134,48 @@ struct Faction gDogFaction = {
 struct PlayerAttackInfo gCatAttacks[] = {
     [PlayerAttackPunch] = {
         CATLOW_ARM1_BONE, 
-        1,
+        PlayerAttackPunchChain1,
         1.2f,
+        1.0f,
         {0.0f, 0.65f * SCENE_SCALE, 0.0f}, 
-        {{CollisionShapeTypeCircle}, 0.5f * SCENE_SCALE},
-        &catlow_animations[CATLOW_CATLOW_ARMATURE_001_PUNCH_004_INDEX],
+        {{CollisionShapeTypeCircle}, 0.7f * SCENE_SCALE},
+        &catlow_animations[CATLOW_CATLOW_ARMATURE_001_PUNCH_006_INDEX],
     },
-    [PlayerAttackPunchChain] = {
-        CATLOW_BOOT2_BONE, 
-        0,
+    [PlayerAttackPunchChain1] = {
+        CATLOW_ARM2_BONE, 
+        PlayerAttackPunchChain2,
+        1.5f,
         1.5f,
         {0.0f, 0.65f * SCENE_SCALE, 0.0f}, 
-        {{CollisionShapeTypeCircle}, 0.5f * SCENE_SCALE},
-        &catlow_animations[CATLOW_CATLOW_ARMATURE_001_PUNCH_003_INDEX],
+        {{CollisionShapeTypeCircle}, 0.7f * SCENE_SCALE},
+        &catlow_animations[CATLOW_CATLOW_ARMATURE_001_PUNCH_007_INDEX],
+    },
+    [PlayerAttackPunchChain2] = {
+        CATLOW_BOOT1_BONE, 
+        0,
+        4.0f,
+        14.0f,
+        {0.0f, 0.65f * SCENE_SCALE, 0.0f}, 
+        {{CollisionShapeTypeCircle}, 1.0f * SCENE_SCALE},
+        &catlow_animations[CATLOW_CATLOW_ARMATURE_001_PUNCH_008_INDEX],
     },
     [PlayerAttackJumpAttack] = {
         CATLOW_BOOT1_BONE, 
         0,
-        0.5f,
+        0.7f,
+        0.0f,
         {0.0f, 0.65f * SCENE_SCALE, 0.0f}, 
         {{CollisionShapeTypeCircle}, 1.5f * SCENE_SCALE},
         &catlow_animations[CATLOW_CATLOW_ARMATURE_001_JUMP_ATTACK_INDEX],
+    },
+    [PlayerAttackSpinAttack] = {
+        CATLOW_TAIL_BONE, 
+        0,
+        0.5f,
+        14.0f,
+        {0.0f, 0.0f, 0.0f}, 
+        {{CollisionShapeTypeCircle}, 2.0f * SCENE_SCALE},
+        &catlow_animations[CATLOW_CATLOW_ARMATURE_001_SPIN_ATTACK_INDEX],
     },
 };
 
@@ -129,19 +188,32 @@ struct SKAnimationHeader* gCatAnimations[] = {
     [PlayerAnimationJumpAttack] = &catlow_animations[CATLOW_CATLOW_ARMATURE_001_JUMP_ATTACK_INDEX],
     [PlayerAnimationJumpAttackLanding] = &catlow_animations[CATLOW_CATLOW_ARMATURE_001_JUMP_ATTACK_LANDING_INDEX],
     [PlayerAnimationSelectIdle] = &catlow_animations[CATLOW_CATLOW_ARMATURE_001_WALK_INDEX],
-    [PlayerAnimationSelected] = &catlow_animations[CATLOW_CATLOW_ARMATURE_001_PUNCH_003_INDEX],
+    [PlayerAnimationSelected] = &catlow_animations[CATLOW_CATLOW_ARMATURE_001_PUNCH_008_INDEX],
     [PlayerAnimationVictory] = &catlow_animations[CATLOW_CATLOW_ARMATURE_001_VICTORY_INDEX],
+    [PlayerAnimationCrouch] = &catlow_animations[CATLOW_CATLOW_ARMATURE_001_CROUCH_INDEX],
+    [PlayerAnimationStand] = &catlow_animations[CATLOW_CATLOW_ARMATURE_001_CROUCH_TO_STAND_INDEX],
 };
 
 struct SKAnimationEvent gCatAttack001Events[] = {
     {7, PLAYER_ATTACK_START_ID},
-    {12, PLAYER_ATTACK_END_ID},
+    {13, PLAYER_ATTACK_END_ID},
     {14, PLAYER_ATTACK_WINDOW_ID},
 };
 
 struct SKAnimationEvent gCatAttack002Events[] = {
-    {9, PLAYER_ATTACK_START_ID},
-    {12, PLAYER_ATTACK_END_ID},
+    {5, PLAYER_ATTACK_START_ID},
+    {10, PLAYER_ATTACK_WINDOW_ID},
+    {11, PLAYER_ATTACK_END_ID},
+};
+
+struct SKAnimationEvent gCatAttack003Events[] = {
+    {4, PLAYER_ATTACK_START_ID},
+    {9, PLAYER_ATTACK_END_ID},
+};
+
+struct SKAnimationEvent gCatSpinAttackEvents[] = {
+    {8, PLAYER_ATTACK_START_ID},
+    {13, PLAYER_ATTACK_END_ID},
 };
 
 unsigned short gCatDamageSounds[] = {SOUNDS_DOG_INJURED_GRUNT_1};
@@ -193,11 +265,23 @@ void factionGlobalInit() {
     doglow_animations[DOGLOW_DOGLOW_ARMATURE_001_PUNCH_002_INDEX].numEvents = COUNT_OF(gDogAttack002Events);
     doglow_animations[DOGLOW_DOGLOW_ARMATURE_001_PUNCH_002_INDEX].animationEvents = gDogAttack002Events;
 
-    catlow_animations[CATLOW_CATLOW_ARMATURE_001_PUNCH_004_INDEX].numEvents = COUNT_OF(gCatAttack001Events);
-    catlow_animations[CATLOW_CATLOW_ARMATURE_001_PUNCH_004_INDEX].animationEvents = gCatAttack001Events;
+    doglow_animations[DOGLOW_DOGLOW_ARMATURE_001_PUNCH_003_INDEX].numEvents = COUNT_OF(gDogAttack003Events);
+    doglow_animations[DOGLOW_DOGLOW_ARMATURE_001_PUNCH_003_INDEX].animationEvents = gDogAttack003Events;
 
-    catlow_animations[CATLOW_CATLOW_ARMATURE_001_PUNCH_003_INDEX].numEvents = COUNT_OF(gCatAttack002Events);
-    catlow_animations[CATLOW_CATLOW_ARMATURE_001_PUNCH_003_INDEX].animationEvents = gCatAttack002Events;
+    doglow_animations[DOGLOW_DOGLOW_ARMATURE_001_SPIN_ATTACK_INDEX].numEvents = COUNT_OF(gDogSpinAttackEvents);
+    doglow_animations[DOGLOW_DOGLOW_ARMATURE_001_SPIN_ATTACK_INDEX].animationEvents = gDogSpinAttackEvents;
+
+    catlow_animations[CATLOW_CATLOW_ARMATURE_001_PUNCH_006_INDEX].numEvents = COUNT_OF(gCatAttack001Events);
+    catlow_animations[CATLOW_CATLOW_ARMATURE_001_PUNCH_006_INDEX].animationEvents = gCatAttack001Events;
+
+    catlow_animations[CATLOW_CATLOW_ARMATURE_001_PUNCH_007_INDEX].numEvents = COUNT_OF(gCatAttack002Events);
+    catlow_animations[CATLOW_CATLOW_ARMATURE_001_PUNCH_007_INDEX].animationEvents = gCatAttack002Events;
+
+    catlow_animations[CATLOW_CATLOW_ARMATURE_001_PUNCH_008_INDEX].numEvents = COUNT_OF(gCatAttack003Events);
+    catlow_animations[CATLOW_CATLOW_ARMATURE_001_PUNCH_008_INDEX].animationEvents = gCatAttack003Events;
+
+    catlow_animations[CATLOW_CATLOW_ARMATURE_001_SPIN_ATTACK_INDEX].numEvents = COUNT_OF(gCatSpinAttackEvents);
+    catlow_animations[CATLOW_CATLOW_ARMATURE_001_SPIN_ATTACK_INDEX].animationEvents = gCatSpinAttackEvents;
 }
 
 struct SKAnimationHeader* factionGetAnimation(unsigned team, enum PlayerAnimation anim) {

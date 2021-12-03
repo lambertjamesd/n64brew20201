@@ -7,6 +7,7 @@
 #include "menu/endgamemenu.h"
 #include "savefile/savefile.h"
 #include "menu/credits.h"
+#include "levels/themedefinition.h"
 
 enum SceneState gSceneState;
 enum SceneState gNextSceneState;
@@ -14,6 +15,9 @@ struct LevelScene gCurrentLevel;
 struct MainMenu gMainMenu;
 struct Credits gCredits;
 struct GameConfiguration gNextLevel;
+
+enum SceneState gAfterCutscene;
+static unsigned gNextCutscene;
 
 struct LevelDefinition* gLevelsTmp[] = {
     &gLevelTest,
@@ -73,6 +77,12 @@ void sceneQueuePostGameScreen(unsigned winningTeam, unsigned teamCount, float ti
     }
 }
 
+void sceneInsertCutscene(unsigned cutsceneIndex) {
+    gAfterCutscene = gNextSceneState;
+    gNextCutscene = cutsceneIndex;
+    gNextSceneState = SceneStateInCutscene;
+}
+
 void sceneLoadMainMenu() {
     LOAD_SEGMENT(static, gStaticSegment);
     LOAD_SEGMENT(mainmenu, gMenuSegment);
@@ -89,6 +99,25 @@ void sceneLoadCredits() {
     LOAD_SEGMENT(fonts, gFontSegment);
     creditsInit(&gCredits);
     gSceneState = SceneStateInCredits;
+}
+
+extern char _MarsSegmentRomStart[], _MarsSegmentRomEnd[];
+
+void sceneLoadCutscene() {
+    LOAD_SEGMENT(static, gStaticSegment);
+    LOAD_SEGMENT(gameplaymenu, gMenuSegment);
+    LOAD_SEGMENT(characters, gCharacterSegment);
+    LOAD_SEGMENT(fonts, gFontSegment);
+
+    gThemeSegment = malloc(_MarsSegmentRomEnd - _MarsSegmentRomStart);
+    romCopy(_MarsSegmentRomStart, gThemeSegment, _MarsSegmentRomEnd - _MarsSegmentRomStart);
+
+    gSceneState = SceneStateInCutscene;
+    cutsceneInit(&gCutscene, gNextCutscene);
+}
+
+void sceneEndCutscene() {
+    gNextSceneState = gAfterCutscene;
 }
 
 void sceneCleanup() {
@@ -112,6 +141,9 @@ void sceneUpdate(int readyForSceneSwitch) {
                 case SceneStateInCredits:
                     sceneLoadCredits();
                     break;
+                case SceneStateInCutscene:
+                    sceneLoadCutscene();
+                    break;
                 default:
                     break;
             }
@@ -126,6 +158,9 @@ void sceneUpdate(int readyForSceneSwitch) {
                 break;
             case SceneStateInCredits:
                 creditsUpdate(&gCredits);
+                break;
+            case SceneStateInCutscene:
+                cutsceneUpdate(&gCutscene);
                 break;
             default:
                 break;
@@ -143,6 +178,9 @@ void sceneRender(struct RenderState* renderState) {
             break;
         case SceneStateInCredits:
             creditsRender(&gCredits, renderState);
+            break;
+        case SceneStateInCutscene:
+            cutsceneRender(&gCutscene, renderState);
             break;
         default:
             break;

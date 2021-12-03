@@ -14,6 +14,7 @@
 
 #define DROP_TIME       4.0f
 #define DROP_LIFETIME   60.0f
+#define INTAGIBLE_TIME  0.5f
 #define DAMAGE_AMOUNT   3.0f
 #define DROP_COLLIDER_RADIUS    (SCENE_SCALE)
 #define FALL_VELOCITY (SCENE_SCALE * 40.0f)
@@ -65,14 +66,18 @@ void itemDropCollide(struct DynamicSceneOverlap* overlap) {
         case ItemDropDamaging:
         {
             struct TeamEntity* entity = teamEntityGetFromCollision(overlap->otherEntry);
-            teamEntityApplyDamage(entity, DAMAGE_AMOUNT);
+            struct Vector3 pos3D;
+            pos3D.x = drop->collision->center.x;
+            pos3D.y = 0.0f;
+            pos3D.z = drop->collision->center.y;
+            teamEntityApplyDamage(entity, DAMAGE_AMOUNT, &pos3D, 10.f);
             break;
         }
         case ItemDropStateWaiting:
         {
             struct TeamEntity* entity = teamEntityGetFromCollision(overlap->otherEntry);
 
-            if (entity->entityType == TeamEntityTypePlayer) {
+            if (entity->entityType == TeamEntityTypePlayer && DROP_LIFETIME - drop->stateTimer > INTAGIBLE_TIME) {
                 drop->state = ItemDropStateCollected;
                 levelSceneApplyScrambler(&gCurrentLevel, entity->teamNumber, randomInRange(0, ControlsScramblerTypeCount));
             }
@@ -229,7 +234,7 @@ float gNextDropTime[] = {
     55.0f,
 };
 
-float itemDropsNextTime(unsigned currentDropCount) {    
+float itemDropsNextTime(unsigned currentDropCount) {   
     if (currentDropCount + 2 >= sizeof(gNextDropTime) / sizeof(*gNextDropTime)) {
         currentDropCount = sizeof(gNextDropTime) / sizeof(*gNextDropTime) - 2;
     }

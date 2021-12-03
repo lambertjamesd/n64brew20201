@@ -41,6 +41,8 @@ extern Gfx gTeamTexture[];
 	gDPSetTextureLUT(pkt, G_TT_RGBA16)
 
 #define NUETRAL_FACTION_INDEX   4
+
+#define SUPER_SAYAN_PALLETE_INDEX    4
 #define DAMAGE_PALLETE_INDEX    5
 
 #endif

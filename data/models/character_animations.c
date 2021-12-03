@@ -6,3 +6,4 @@
 
 #include "catlow/geometry_anim.inc.h"
 #include "doglow/geometry_anim.inc.h"
+#include "../cutscenes/geometry_anim.inc.h"
