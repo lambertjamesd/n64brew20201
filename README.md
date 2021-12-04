@@ -8,10 +8,8 @@ TODO
     ultrarare intro
     figure out culling on level geometry
     balance factions
-    spawn animations
     remove L to win. Fix save file progression
-    save file erasing
-    cat kick needs to swing around more
+    options menu sounds
 
     balance
         curiosity - enemies get stuck on obstacles

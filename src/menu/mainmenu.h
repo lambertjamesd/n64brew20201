@@ -8,10 +8,12 @@
 #include "game_defs.h"
 #include "endgamemenu.h"
 #include "titlescreen.h"
+#include "optionsmenu.h"
 
 enum MainMenuState {
     MainMenuStateSelectingTitleScreen,
     MainMenuStateSelectingPlayerCount,
+    MainMenuStateSelectingOptions,
     MainMenuStateSelectingFaction,
     MainMenuStateSelectingLevel,
     MainMenuStateStarting,
@@ -48,6 +50,7 @@ struct MainMenu {
     struct MainMenuFactionSelector factionSelection[MAX_PLAYERS];
     struct EndGameMenu endGameMenu;
     struct TitleScreen titleScreen;
+    struct OptionsMenu optionsMenu;
     Gfx* showingWireframe;
     unsigned showWireframeDelay;
 };

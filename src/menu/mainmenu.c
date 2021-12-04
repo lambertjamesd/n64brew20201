@@ -14,6 +14,7 @@
 #include "util/rom.h"
 #include "textbox.h"
 #include "savefile/savefile.h"
+#include "menucommon.h"
 
 #include "../data/mainmenu/menu.h"
 #include "../data/fonts/fonts.h"
@@ -22,13 +23,9 @@
 #define MARS_ROTATE_RATE    (2.0f * M_PI / 30.0f)
 #define MARS_TILT           (-10.0f * M_PI / 180.0f)
 
-#define CYCLE_TIME              2.0f
-
 #define SELECT_ANGLE            (M_PI * 1.2f)
 #define SELECT_SPIN_TIME        0.5f
 #define UNSELECTED_SPIN_FREQ    (0.2f * (M_PI * 2.0f))
-
-struct Coloru8 gDeselectedColor = {128, 128, 128, 255};
 
 struct ButtonLayoutInfo {
     unsigned short x;
@@ -39,10 +36,10 @@ struct ButtonLayoutInfo {
 };
 
 struct ButtonLayoutInfo gPlayerCountSelectButtons[] = {
-    {68, 34, 64, 77, players_1_img},
-    {177, 34, 64, 77, players_2_img},
-    {68, 131, 64, 77, players_3_img},
-    {177, 131, 64, 77, players_4_img},
+    {68, 22, 64, 77, players_1_img},
+    {177, 22, 64, 77, players_2_img},
+    {68, 107, 64, 77, players_3_img},
+    {177, 107, 64, 77, players_4_img},
 };
 
 int mainMenuGetPlayerCount(struct MainMenu* menu) {
@@ -256,6 +253,7 @@ void mainMenuInit(struct MainMenu* mainMenu) {
     mainMenu->showWireframeDelay = 0;
     initKickflipFont();
     titleScreenInit(&mainMenu->titleScreen);
+    optionsMenuInit(&mainMenu->optionsMenu);
 
     for (unsigned i = 0; i < MAX_PLAYERS; ++i) {
         mainMenuFactionInit(&mainMenu->factionSelection[i], i);
@@ -276,10 +274,10 @@ void mainMenuUpdatePlayerCount(struct MainMenu* mainMenu) {
     if ((direction & ControllerDirectionLeft) != 0 && mainMenu->selections.selectedPlayerCount > 0) {
         --mainMenu->selections.selectedPlayerCount;
     }
-    if ((direction & ControllerDirectionRight) != 0 && mainMenuGetPlayerCount(mainMenu) < MAX_PLAYERS) {
+    if ((direction & ControllerDirectionRight) != 0 && mainMenuGetPlayerCount(mainMenu) <= MAX_PLAYERS) {
         ++mainMenu->selections.selectedPlayerCount;
     }
-    if ((direction & ControllerDirectionDown) != 0 && mainMenu->selections.selectedPlayerCount + 2 < MAX_PLAYERS) {
+    if ((direction & ControllerDirectionDown) != 0 && mainMenu->selections.selectedPlayerCount + 2 <= MAX_PLAYERS) {
         mainMenu->selections.selectedPlayerCount += 2;
     }
     if ((direction & ControllerDirectionUp) != 0 && mainMenu->selections.selectedPlayerCount > 1) {
@@ -288,11 +286,18 @@ void mainMenuUpdatePlayerCount(struct MainMenu* mainMenu) {
 
     if (controllerGetButtonDown(0, A_BUTTON)) {
         soundPlayerPlay(SOUNDS_UI_SELECT, 0);
-        mainMenuEnterFactionSelection(mainMenu);
+
+        if (mainMenu->selections.selectedPlayerCount == MAX_PLAYERS) {
+            mainMenu->selections.menuState = MainMenuStateSelectingOptions;
+            mainMenu->selections.targetMenuState = MainMenuStateSelectingOptions;
+            optionsMenuInit(&mainMenu->optionsMenu);
+        } else {
+            mainMenuEnterFactionSelection(mainMenu);
+        }
     }
 
     if (controllerGetButtonDown(0, START_BUTTON)) {
-        sceneInsertCutscene(CUTSCENE_ANIMATIONS_CUTSCENE_ANIMATIONS_CUTCENE_CUTSCENETEST_INDEX);
+        sceneInsertCutscene(CUTSCENE_ANIMATIONS_CUTSCENE_ANIMATIONS_CUTCENE_001_CUTSCENE_INDEX);
     }
 }
 
@@ -387,6 +392,11 @@ void mainMenuUpdate(struct MainMenu* mainMenu) {
         case MainMenuStateSelectingPlayerCount:
             mainMenuUpdatePlayerCount(mainMenu);
             break;
+        case MainMenuStateSelectingOptions:
+            if (optionsMenuUpdate(&mainMenu->optionsMenu)) {
+                mainMenu->selections.menuState = MainMenuStateSelectingPlayerCount;
+            }
+            break;
         case MainMenuStateSelectingFaction:
             mainMenuUpdateFaction(mainMenu);
             break;
@@ -408,19 +418,11 @@ void mainMenuUpdate(struct MainMenu* mainMenu) {
     }
 }
 
-void mainMenuSelectionColor(struct Coloru8* result) {
-    float timeLerp = mathfMod(gTimePassed, CYCLE_TIME) * (MAX_PLAYERS / CYCLE_TIME);
-    int colorIndex = ((int)timeLerp) % MAX_PLAYERS;
-    int nextColor = (colorIndex + 1) % MAX_PLAYERS;
-    colorU8Lerp(&gTeamColors[colorIndex], &gTeamColors[nextColor], timeLerp - colorIndex, result);
-    colorU8Lerp(result, &gColorWhite, 0.5f, result);
-}
-
 void mainMenuRenderPlayerCount(struct MainMenu* mainMenu, struct RenderState* renderState) {
     for (unsigned i = 0; i < MAX_PLAYERS; ++i) {
         struct Coloru8 color;
         if (mainMenu->selections.selectedPlayerCount == i) {
-            mainMenuSelectionColor(&color);
+            menuSelectionColor(&color);
         } else {
             color = gDeselectedColor;
         }
@@ -440,6 +442,16 @@ void mainMenuRenderPlayerCount(struct MainMenu* mainMenu, struct RenderState* re
             color
         );
     }
+
+    if (mainMenu->selections.selectedPlayerCount == MAX_PLAYERS) {
+        struct Coloru8 color;
+        menuSelectionColor(&color);
+        spriteSetColor(renderState, LAYER_KICKFLIP_FONT, color);
+    } else {
+        spriteSetColor(renderState, LAYER_KICKFLIP_FONT, gDeselectedColor);
+    }
+
+    fontRenderText(renderState, &gKickflipFont, "Options", 68, 200, -1);
 }
 
 void mainMenuRenderFactions(struct MainMenu* mainMenu, struct RenderState* renderState) {
@@ -591,6 +603,9 @@ void mainMenuRender(struct MainMenu* mainMenu, struct RenderState* renderState) 
             break;
         case MainMenuStateSelectingPlayerCount:
             mainMenuRenderPlayerCount(mainMenu, renderState);
+            break;
+        case MainMenuStateSelectingOptions:
+            optionsMenuRender(&mainMenu->optionsMenu, renderState);
             break;
         case MainMenuStateSelectingFaction:
             mainMenuRenderFactions(mainMenu, renderState);
