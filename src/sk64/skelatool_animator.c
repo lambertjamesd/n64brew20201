@@ -156,7 +156,6 @@ void skApplyChunk(struct SKAnimator* animator, struct SKAnimationChunk* chunk) {
     animator->nextChunkSource += animator->nextSourceChunkSize;
     animator->nextSourceTick = chunk->nextChunkTick;
     animator->nextSourceChunkSize = chunk->nextChunkSize;
-    animator->flags &= ~SKAnimatorFlagsUnitialized;
 }
 
 void skProcess(OSIoMesg* message) {
@@ -348,7 +347,7 @@ void skFreezeBoneAnimation(struct SKBoneAnimationState* animatedBone, float tick
 }
 
 void skAnimatorInit(struct SKAnimator* animator, unsigned boneCount, SKAnimationEventCallback animtionCallback, void* callbackData) {
-    animator->flags = SKAnimatorFlagsUnitialized;
+    animator->flags = 0;
     animator->boneCount = boneCount;
     animator->currentTime = 0.0f;
     animator->currTick = TICK_UNDEFINED;
@@ -414,8 +413,12 @@ void skAnimationApply(struct SKAnimator* animator, struct Transform* transforms,
 }
 
 void skAnimatorUpdate(struct SKAnimator* animator, struct Transform* transforms, float timeScale) {
-    if (!(animator->flags & SKAnimatorFlagsActive) || !animator->currentAnimation || (animator->flags & SKAnimatorFlagsUnitialized)) {
+    if (!(animator->flags & SKAnimatorFlagsActive) || !animator->currentAnimation) {
         return;
+    }
+
+    while (animator->flags & SKAnimatorFlagsPendingRequest) {
+        skWaitForPendingRequest(animator);
     }
     
     animator->currTick = animator->nextTick;

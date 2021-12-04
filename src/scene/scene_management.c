@@ -18,6 +18,7 @@ struct GameConfiguration gNextLevel;
 
 enum SceneState gAfterCutscene;
 static unsigned gNextCutscene;
+unsigned frameSkip = 0;
 
 struct LevelDefinition* gLevelsTmp[] = {
     &gLevelTest,
@@ -27,6 +28,11 @@ extern char _staticSegmentRomStart[], _staticSegmentRomEnd[];
 
 
 int sceneIsLoading() {
+    if (frameSkip) {
+        --frameSkip;
+        return 1;
+    }
+
     return gSceneState != gNextSceneState;
 }
 
@@ -151,6 +157,7 @@ void sceneUpdate(int readyForSceneSwitch) {
                 default:
                     break;
             }
+            frameSkip = 1;
         }
     } else {
         switch (gSceneState) {

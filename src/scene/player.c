@@ -279,7 +279,7 @@ void playerInit(struct Player* player, unsigned playerIndex, unsigned team, stru
     player->attackCollider = 0;
     player->attackInfo = 0;
     player->playerIndex = playerIndex;
-    player->flags = PlayerFlagsUnitialized;
+    player->flags = 0;
     damageHandlerInit(&player->damageHandler, PLAYER_MAX_HP);
     player->walkSoundEffect = SOUND_ID_NONE;
     player->idleSoundEffect = SOUND_ID_NONE;
@@ -598,10 +598,6 @@ void playerStateWalk(struct Player* player, struct PlayerInput* input) {
 void playerUpdate(struct Player* player, struct PlayerInput* input) {
     player->state(player, input);
 
-    if (!(player->animator.flags & SKAnimatorFlagsUnitialized)) {
-        player->flags &= ~PlayerFlagsUnitialized;
-    }
-
     skAnimatorUpdate(&player->animator, player->armature.boneTransforms, player->animationSpeed);
     dynamicEntrySetPos3D(player->collider, &player->transform.position);
     struct Vector2 vel2D;
@@ -624,10 +620,6 @@ void playerUpdate(struct Player* player, struct PlayerInput* input) {
 }
 
 void playerRender(struct Player* player, struct RenderState* renderState) {
-    if (player->flags & PlayerFlagsUnitialized) {
-        return;
-    }
-
     static struct Coloru8 gPunchColor = {240, 120, 32, 128};
 
     Mtx* matrix = renderStateRequestMatrices(renderState, 1);
