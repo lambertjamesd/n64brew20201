@@ -88,7 +88,9 @@ void pathfinderUpdate(struct Pathfinder* pathfinder, struct PathfindingDefinitio
         // get distance to next line segment so if ai is already
         // between the current node and the node after the current node
         // it can skip the current node and go straight to the next one
-        unsigned int currDist = pathfinderGetDistanceNextSegment(pathfinder, pathfinding, currentPosition);
+        struct Vector3 posWithY0 = *currentPosition;
+        posWithY0.y = 0.0f;
+        unsigned int currDist = pathfinderGetDistanceNextSegment(pathfinder, pathfinding, &posWithY0);
         if(currDist <= NAV_ACCEPTANCE_RADIUS*NAV_ACCEPTANCE_RADIUS){
             if(pathfinder->currentNode == pathfinder->targetNode){
                 pathfinder->currentNode = NODE_NONE;

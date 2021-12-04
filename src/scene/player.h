@@ -52,6 +52,7 @@ struct Player {
     struct DamageHandler damageHandler;
     float stateTimer;
     float animationSpeed;
+    float tilt;
     struct TeamEntity *touchedBy;
     struct TeamEntity *aiTarget;
 };

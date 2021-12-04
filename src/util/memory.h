@@ -44,6 +44,7 @@ void *malloc(unsigned int size);
 void *realloc(void* target, unsigned int size);
 void free(void* target);
 int calculateBytesFree();
+int calculateHeapSize();
 int calculateLargestFreeChunk();
 extern void zeroMemory(void* memory, int size);
 extern void memCopy(void* target, const void* src, int size);

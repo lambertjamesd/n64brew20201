@@ -358,14 +358,6 @@ void mainMenuUpdateLevelSelect(struct MainMenu* mainMenu) {
         }
     }
 
-    if (mainMenu->showWireframeDelay) {
-        --mainMenu->showWireframeDelay;
-
-        if (mainMenu->showWireframeDelay == 0) {
-            mainMenuLoadWireframe(mainMenu, &mainMenu->filteredLevels[mainMenu->selections.selectedLevel]->wireframe);
-        }
-    }
-
     if (controllerGetButtonDown(0, A_BUTTON) && mainMenuIsLevelUnlocked(mainMenu)) {
         soundPlayerPlay(SOUNDS_UI_SELECT, 0);
         mainMenu->selections.targetMenuState = MainMenuStateStarting;
@@ -520,6 +512,14 @@ void mainMenuRenderFactions(struct MainMenu* mainMenu, struct RenderState* rende
 
 void mainMenuRenderLevels(struct MainMenu* mainMenu, struct RenderState* renderState) {
     textBoxRender(&gTextBox, renderState);
+
+    if (mainMenu->showWireframeDelay) {
+        --mainMenu->showWireframeDelay;
+
+        if (mainMenu->showWireframeDelay == 0) {
+            mainMenuLoadWireframe(mainMenu, &mainMenu->filteredLevels[mainMenu->selections.selectedLevel]->wireframe);
+        }
+    }
 
     if (mainMenu->showingWireframe) {
         Mtx* matrix = renderStateRequestMatrices(renderState, 1);

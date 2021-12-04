@@ -7,20 +7,17 @@ TODO
     polish up animations
     ultrarare intro
     figure out culling on level geometry
-    death animation is slow
-    bigger punch boxes
-    upgrade time indicator
     balance factions
     spawn animations
     check memory usage/dl usage
-    menu icons
+    health bars
 
     balance
         curiosity - enemies get stuck on obstacles
         Sojourner - inverted rocks
         Perseverance - hard
         Cygnus - easy of you capture base that is being upgraded
-        Triple Threat - needs level boundaries
+        Triple Threat - needs level boundaries texture coordinates
 
 
     level feedback

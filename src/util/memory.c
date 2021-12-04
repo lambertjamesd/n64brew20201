@@ -270,6 +270,10 @@ void free(void* target)
     insertHeapSegment(0, (struct HeapSegment*)segment);
 }
 
+int calculateHeapSize() {
+    return (char*)gHeapEnd - (char*)gHeapStart;
+}
+
 int calculateBytesFree()
 {
     int result;

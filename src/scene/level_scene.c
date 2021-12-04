@@ -559,7 +559,7 @@ void levelSceneSpawnMinion(struct LevelScene* levelScene, enum MinionType type, 
 
 void levelBaseDespawnMinions(struct LevelScene* levelScene, unsigned char baseId) {
     for (unsigned i = 0; i < levelScene->minionCount; ++i) {
-        if (levelScene->minions[i].sourceBaseId == baseId) {
+        if (minionIsAlive(&levelScene->minions[i]) && levelScene->minions[i].sourceBaseId == baseId) {
             minionApplyDamage(&levelScene->minions[i], 100.0f, &levelScene->bases[i].position, 0.0f);
         }
     }

@@ -56,6 +56,8 @@ void itemDropsInit(struct ItemDrops* itemDrops, int favorPlayer);
 void itemDropsUpdate(struct ItemDrops* itemDrops);
 Gfx* itemDropsRender(struct ItemDrops* itemDrops, struct RenderState* renderState);
 
+struct ItemDrop* itemDropsClosest(struct ItemDrops* itemDrops, struct Vector3* to, float maxDistance);
+
 
 struct LevelScene;
 

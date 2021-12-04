@@ -277,6 +277,7 @@ void playerInit(struct Player* player, unsigned playerIndex, unsigned team, stru
     player->controlledBases = 0;
     player->touchedBy = 0;
     player->aiTarget = 0;
+    player->tilt = 0;
 
     player->velocity = gZeroVec;
     player->rightDir = gRight2;
@@ -489,7 +490,14 @@ void playerStateWalk(struct Player* player, struct PlayerInput* input) {
 
     struct Vector3 forwardDir;
     quatMultVector(&player->transform.rotation, &gForward, &forwardDir);
-    vector3Project(&player->velocity, &forwardDir, &player->velocity);
+    struct Vector3 newVelocity;
+    vector3Project(&player->velocity, &forwardDir, &newVelocity);
+    struct Vector3 velocityCross;
+    vector3Cross(&player->velocity, &newVelocity, &velocityCross);
+    
+    player->tilt = mathfLerp(player->tilt, velocityCross.y * 0.015f, 0.1f);
+
+    player->velocity = newVelocity;
 
     float accelerateScale = vector3Dot(&forwardDir, &input->targetWorldDirection);
     float inputScale = vector3MagSqrd(&input->targetWorldDirection);
@@ -596,7 +604,14 @@ void playerRender(struct Player* player, struct RenderState* renderState) {
         return;
     }
 
-    transformToMatrixL(&player->transform, matrix);
+    struct Quaternion tilt;
+    quatAxisAngle(&gForward, player->tilt, &tilt);
+    struct Transform finalTranform;
+    finalTranform.position = player->transform.position;
+    quatMultiply(&player->transform.rotation, &tilt, &finalTranform.rotation);
+    finalTranform.scale = player->transform.scale;
+
+    transformToMatrixL(&finalTranform, matrix);
     gSPMatrix(renderState->dl++, osVirtualToPhysical(matrix), G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
 
     int usePallete = player->team.teamNumber;

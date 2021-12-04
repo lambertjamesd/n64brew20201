@@ -146,6 +146,9 @@ void ai_collectPlayerInput(struct LevelScene* levelScene, struct AIController* a
         attackTarget = player->aiTarget;
     }
 
+    struct Vector3 itemPos;
+    struct ItemDrop* itemDrop = itemDropsClosest(&levelScene->itemDrops, &player->transform.position, ATTACK_RADIUS);
+
     if(attackTarget != 0){
         targetPosition = teamEntityGetPosition(attackTarget);
 
@@ -158,6 +161,11 @@ void ai_collectPlayerInput(struct LevelScene* levelScene, struct AIController* a
                 ai->punchDelay = mathfLerp(PUNCH_DELAY_EASY, PUNCH_DELAY_HARD, ai->difficulty);
             }
         }
+    } else if (itemDrop != 0) {
+        itemPos.x = itemDrop->collision->center.x;
+        itemPos.y = 0.0f;
+        itemPos.z = itemDrop->collision->center.y;
+        targetPosition = &itemPos;
     } else if(ai->planner.currentPlan && ai->pathfinder.currentNode < levelScene->definition->pathfinding.nodeCount) {
         targetPosition = &levelScene->definition->pathfinding.nodePositions[ai->pathfinder.currentNode];
     }

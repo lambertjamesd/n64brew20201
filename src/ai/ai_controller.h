@@ -8,6 +8,7 @@
 #include "scene/teamentity.h"
 #include "ai_pathfinder.h"
 #include "ai_planner.h"
+#include "scene/itemdrop.h"
 
 #define BASE_ACCEPTANCE_RADIUS 300.f
 #define ATTACK_ACCEPTANCE_RADIUS 300.f

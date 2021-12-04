@@ -277,16 +277,18 @@ void itemDropChaserUpdate(struct ItemDropChaser* chaser, int index) {
             0
         );
 
-        struct Vector3* nextTarget;
+        struct Vector3 nextTarget;
 
         if (chaser->pathfinder.currentNode != NODE_NONE) {
-            nextTarget = &gCurrentLevel.definition->pathfinding.nodePositions[chaser->pathfinder.currentNode];
+            nextTarget = gCurrentLevel.definition->pathfinding.nodePositions[chaser->pathfinder.currentNode];
         } else {
-            nextTarget = &gCurrentLevel.players[index].transform.position;
+            nextTarget = gCurrentLevel.players[index].transform.position;
         }
 
+        nextTarget.y = SCENE_SCALE;
+
         struct Vector3 nextHeadPos;
-        if (vector3MoveTowards(punchTrailHeadPosition(&chaser->punchTrail), nextTarget, ITEM_CHASER_SPEED * gTimeDelta, &nextHeadPos) && 
+        if (vector3MoveTowards(punchTrailHeadPosition(&chaser->punchTrail), &nextTarget, ITEM_CHASER_SPEED * gTimeDelta, &nextHeadPos) && 
             chaser->pathfinder.currentNode == NODE_NONE) {
             levelSceneApplyScrambler(&gCurrentLevel, index, chaser->scrambleType);
             chaser->scrambleType = ControlsScramblerTypeCount;
@@ -393,4 +395,26 @@ void itemActivateScrambler(struct LevelScene* scene, struct Vector3* from, enum 
             itemDropChaserActivate(&scene->itemDrops.chasers[i], from, scramblerType, i);
         }
     }
+}
+
+struct ItemDrop* itemDropsClosest(struct ItemDrops* itemDrops, struct Vector3* to, float maxDistance) {
+    struct ItemDrop* result = 0;
+    float distance = maxDistance * maxDistance;
+
+    struct Vector2 posAs2D;
+    posAs2D.x = to->x;
+    posAs2D.y = to->z;
+
+    for (unsigned i = 0; i < MAX_ITEM_DROP; ++i) {
+        if (itemDrops->drops[i].state == ItemDropStateWaiting) {
+            float itemDistance = vector2DistSqr(&posAs2D, &itemDrops->drops[i].collision->center);
+
+            if (itemDistance < distance) {
+                result = &itemDrops->drops[i];
+                distance = itemDistance;
+            }
+        }
+    }
+
+    return result;
 }

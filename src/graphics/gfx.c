@@ -87,6 +87,10 @@ struct ViewportLayout gViewportPosition[] = {
 Vp gSplitScreenViewports[4];
 unsigned short gClippingRegions[4 * 4];
 
+unsigned short dlUsePercent;
+unsigned short transparentdlUsePercent;
+unsigned short transformUsePercent;
+
 unsigned short	__attribute__((aligned(64))) zbuffer[SCREEN_WD*SCREEN_HT];
 u64 __attribute__((aligned(16))) dram_stack[SP_DRAM_STACK_SIZE64];
 u64 __attribute__((aligned(16))) gfxYieldBuf2[OS_YIELD_DATA_SIZE/sizeof(u64)];
@@ -161,6 +165,10 @@ void createGfxTask(GFXInfo *i)
 
     /* Flush the dynamic segment */
     renderStateFlushCache(renderState);
+
+    dlUsePercent = 100 * (renderState->dl - renderState->glist + (MAX_DL_LENGTH - renderState->currentChunkEnd)) / MAX_DL_LENGTH;
+    transparentdlUsePercent = 100 * (renderState->transparentDL - renderState->transparentQueueStart) / TRANSPARENT_QUEUE_LEN;
+    transformUsePercent = 100 * renderState->currentMatrix / MAX_ACTIVE_TRANSFORMS;
 
     /* build graphics task */
 
@@ -247,6 +255,8 @@ void gfxDrawTimingInfo(struct RenderState* renderState) {
     unsigned updateWidth = BAR_W * OS_CYCLES_TO_USEC(gUpdateTime) / TARGET_FRAME_USECS;
     unsigned rspWidth = BAR_W * OS_CYCLES_TO_USEC(gGFXRSPTime) / TARGET_FRAME_USECS;
 
+    int bytesFree = calculateBytesFree();
+
     spriteSetColor(renderState, LAYER_SOLID_COLOR, gfxCreateColor);
     spriteSolid(renderState, LAYER_SOLID_COLOR, BAR_X, BAR_Y, createWidth, 4);
 
@@ -262,4 +272,11 @@ void gfxDrawTimingInfo(struct RenderState* renderState) {
     spriteSolid(renderState, LAYER_SOLID_COLOR, BAR_X + BAR_W * 30 / 60, BAR_Y, 2, 12);
     spriteSolid(renderState, LAYER_SOLID_COLOR, BAR_X + BAR_W * 30 / 20, BAR_Y, 2, 12);
     spriteSolid(renderState, LAYER_SOLID_COLOR, BAR_X + BAR_W * 30 / 15, BAR_Y, 2, 12);
+
+    spriteSetColor(renderState, LAYER_SOLID_COLOR, rspColor);
+    spriteSolid(renderState, LAYER_SOLID_COLOR, BAR_X, BAR_Y + 16, (osMemSize - bytesFree) * BAR_W / osMemSize, 4);
+
+    spriteSolid(renderState, LAYER_SOLID_COLOR, BAR_X, BAR_Y + 32, dlUsePercent * BAR_W / 100, 4);
+    spriteSolid(renderState, LAYER_SOLID_COLOR, BAR_X, BAR_Y + 36, transparentdlUsePercent * BAR_W / 100, 4);
+    spriteSolid(renderState, LAYER_SOLID_COLOR, BAR_X, BAR_Y + 40, transformUsePercent * BAR_W / 100, 4);
 }
