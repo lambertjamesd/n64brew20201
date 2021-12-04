@@ -9,8 +9,10 @@ TODO
     figure out culling on level geometry
     balance factions
     spawn animations
-    check memory usage/dl usage
     health bars
+    remove L to win. Fix save file progression
+    save file erasing
+    AI chain attacks
 
     balance
         curiosity - enemies get stuck on obstacles

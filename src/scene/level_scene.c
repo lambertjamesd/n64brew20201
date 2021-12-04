@@ -125,6 +125,7 @@ void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* defin
     levelScene->minionCount = definition->baseCount * MAX_MINIONS_PER_BASE;
     levelScene->lastMinion = 0;
     levelScene->minions = malloc(sizeof(struct Minion) * levelScene->minionCount);
+    zeroMemory(levelScene->minions, sizeof(struct Minion) * levelScene->minionCount);
     for (unsigned i = 0; i < levelScene->minionCount; ++i) {
         levelScene->minions[i].minionFlags = 0;
     }
@@ -161,7 +162,7 @@ void levelSceneRender(struct LevelScene* levelScene, struct RenderState* renderS
     spriteSetLayer(renderState, LAYER_COMMAND_BUTTONS, gUseCommandsTexture);
     spriteSetLayer(renderState, LAYER_KICKFLIP_NUMBERS_FONT, gUseKickflipNumbersFont);
     spriteSetLayer(renderState, LAYER_KICKFLIP_FONT, gUseKickflipFont);
-    spriteSetLayer(renderState, LAYER_UPGRADE_ICONS, gUseUpgradeIcons);
+    spriteSetLayer(renderState, LAYER_HEALTH_BAR, gUseHealthBar);
 
     // render minions
     Gfx* minionGfx = renderStateAllocateDLChunk(renderState, MINION_GFX_PER_MINION * levelScene->minionCount + 3);
@@ -506,20 +507,24 @@ void levelSceneUpdate(struct LevelScene* levelScene) {
         levelScene->stateTimer -= gTimeDelta;
 
         if (levelScene->stateTimer < 0.0f) {
+            levelScene->stateTimer = GO_SHOW_DURATION;
             levelScene->state = LevelSceneStatePlaying;
-            textBoxHide(&gTextBox);
-        } else if (levelScene->stateTimer < GO_SHOW_DURATION) {
-            if (!textBoxIsVisible(&gTextBox)) {
-                textBoxInit(&gTextBox, "GO!", 200, SCREEN_WD / 2, SCREEN_HT / 2);
-                gTextBox.currState = TextBoxStateShowing;
-                gTextBox.animateTimer = 0.0f;
-            }
+            textBoxInit(&gTextBox, "GO!", 200, SCREEN_WD / 2, SCREEN_HT / 2);
+            gTextBox.currState = TextBoxStateShowing;
+            gTextBox.animateTimer = 0.0f;
         } else if (levelScene->stateTimer < GAME_START_DELAY * 0.5f) {
             textBoxHide(&gTextBox);
         }
 
         textBoxUpdate(&gTextBox);
         return;
+    } else if (levelScene->state == LevelSceneStatePlaying && levelScene->stateTimer > 0) {
+        levelScene->stateTimer -= gTimeDelta;
+
+        if (levelScene->stateTimer <= 0.0f) {
+            levelScene->stateTimer = 0.0f;
+            textBoxHide(&gTextBox);
+        }
     }
 
     for (unsigned int baseIndex = 0; baseIndex < levelScene->baseCount; ++baseIndex) {
