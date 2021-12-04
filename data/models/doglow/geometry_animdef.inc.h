@@ -34,7 +34,7 @@ struct SKAnimationHeader doglow_animations[] = {
     {496, 30, 33, 0, (struct SKAnimationChunk*)doglow_Armature_001_Punch_001, 0},
     {496, 30, 23, 0, (struct SKAnimationChunk*)doglow_Armature_001_Punch_002, 0},
     {496, 30, 26, 0, (struct SKAnimationChunk*)doglow_Armature_001_Punch_003, 0},
-    {480, 30, 11, 0, (struct SKAnimationChunk*)doglow_Armature_001_Spawn, 0},
+    {496, 30, 26, 0, (struct SKAnimationChunk*)doglow_Armature_001_Spawn, 0},
     {480, 30, 18, 0, (struct SKAnimationChunk*)doglow_Armature_001_Spin_Attack, 0},
     {464, 30, 1, 0, (struct SKAnimationChunk*)doglow_Armature_001_T_pose, 0},
     {512, 30, 54, 0, (struct SKAnimationChunk*)doglow_Armature_001_Victory, 0},

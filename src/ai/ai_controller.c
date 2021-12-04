@@ -156,7 +156,8 @@ void ai_collectPlayerInput(struct LevelScene* levelScene, struct AIController* a
         attackRadius += 0.1f * SCENE_SCALE;
 
         if (player->aiTarget != 0 || vector3DistSqrd(&player->transform.position, targetPosition) < attackRadius * attackRadius) {
-            if (!(playerInput->prevActions & PlayerInputActionsAttack) && ai->punchDelay <= 0.0f) {
+            if (!(playerInput->prevActions & PlayerInputActionsAttack) && ai->punchDelay <= 0.0f && 
+                (!playerIsAttacking(player) || playerCanChainAttack(player))) {
                 playerInput->actionFlags |= PlayerInputActionsAttack;
                 ai->punchDelay = mathfLerp(PUNCH_DELAY_EASY, PUNCH_DELAY_HARD, ai->difficulty);
             }

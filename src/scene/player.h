@@ -30,6 +30,7 @@ typedef void (*PlayerState)(struct Player* player, struct PlayerInput* input);
 enum PlayerFlags {
     PlayerFlagsInAttackWindow = (1 << 0),
     PlayerFlagsAttackEarly = (1 << 1),
+    PlayerFlagsUnitialized = (1 << 2),
 };
 
 struct Player {
@@ -66,5 +67,7 @@ void playerRender(struct Player* player, struct RenderState* renderState);
 void playerApplyDamage(struct Player* player, float amount, struct Vector3* origin, float knockback);
 int playerIsAlive(struct Player* player);
 int playerIsSpinAttackReady(struct Player* player);
+int playerIsAttacking(struct Player* player);
+int playerCanChainAttack(struct Player* player);
 
 #endif

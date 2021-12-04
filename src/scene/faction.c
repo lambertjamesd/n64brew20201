@@ -73,6 +73,7 @@ struct SKAnimationHeader* gDogAnimations[] = {
     [PlayerAnimationVictory] = &doglow_animations[DOGLOW_DOGLOW_ARMATURE_001_VICTORY_INDEX],
     [PlayerAnimationCrouch] = &doglow_animations[DOGLOW_DOGLOW_ARMATURE_001_CROUCH_INDEX],
     [PlayerAnimationStand] = &doglow_animations[DOGLOW_DOGLOW_ARMATURE_001_CROUCH_TO_STAND_INDEX],
+    [PlayerAnimationSpawn] = &doglow_animations[DOGLOW_DOGLOW_ARMATURE_001_SPAWN_INDEX],
 };
 
 struct SKAnimationEvent gDogAttack001Events[] = {
@@ -130,6 +131,7 @@ struct Faction gDogFaction = {
         .idleSounds = {.options = gDogIdleSounds, .count = sizeof(gDogIdleSounds)/sizeof(gDogIdleSounds[0])},
         .walkSound = SOUNDS_DOG_WALKING_LOOP_1,
     },
+    .healthBarSourceY = 16,
     .moveSpeed = PLAYER_BASE_MOVE_SPEED,
     .accel = 20.0f,
 
@@ -202,6 +204,7 @@ struct SKAnimationHeader* gCatAnimations[] = {
     [PlayerAnimationVictory] = &catlow_animations[CATLOW_CATLOW_ARMATURE_001_VICTORY_INDEX],
     [PlayerAnimationCrouch] = &catlow_animations[CATLOW_CATLOW_ARMATURE_001_CROUCH_INDEX],
     [PlayerAnimationStand] = &catlow_animations[CATLOW_CATLOW_ARMATURE_001_CROUCH_TO_STAND_INDEX],
+    [PlayerAnimationSpawn] = &catlow_animations[CATLOW_CATLOW_ARMATURE_001_SPAWN_INDEX],
 };
 
 struct SKAnimationEvent gCatAttack001Events[] = {
@@ -249,6 +252,7 @@ struct Faction gCatFaction = {
         .idleSounds = {.options = gCatIdlesSounds, .count = sizeof(gCatIdlesSounds)/sizeof(gCatIdlesSounds[0])},
         .walkSound = SOUNDS_DOG_WALKING_LOOP_1,
     },
+    .healthBarSourceY = 0,
     .moveSpeed = PLAYER_BASE_MOVE_SPEED * 1.2f,
     .accel = 20.0f,
 

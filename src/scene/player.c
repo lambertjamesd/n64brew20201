@@ -105,10 +105,18 @@ void playerStateDead(struct Player* player, struct PlayerInput* input);
 void playerStateJump(struct Player* player, struct PlayerInput* input);
 void playerStateJumpAttackStart(struct Player* player, struct PlayerInput* input);
 void playerStateDelay(struct Player* player, struct PlayerInput* input);
+void playerStateSpawn(struct Player* player, struct PlayerInput* input);
 
 void playerEnterWalkState(struct Player* player) {
     player->state = playerStateWalk;
     playerEndAttack(player);
+    player->attackInfo = 0;
+}
+
+void playerEnterSpawnState(struct Player* player) {
+    player->state = playerStateSpawn;
+    skAnimatorRunClip(&player->animator, factionGetAnimation(player->team.teamNumber, PlayerAnimationSpawn), 0);
+    player->animationSpeed = 1.0f;
     player->attackInfo = 0;
 }
 
@@ -136,6 +144,9 @@ void playerEnterDeadState(struct Player* player) {
     player->state = playerStateDead;
     player->stateTimer = PLAYER_MIN_RESPAWN_TIME + (player->controlledBases - 1) * PLAYER_RESPAWN_PER_BASE;
     player->collider->collisionLayers = 0;
+    player->animationSpeed = 1.0f;
+    player->attackInfo = 0;
+    player->tilt = 0;
 }
 
 void playerEnterJumpState(struct Player* player) {
@@ -222,7 +233,7 @@ void playerAnimationEvent(struct SKAnimator* animator, void* data, struct SKAnim
             player->flags &= ~(PlayerFlagsInAttackWindow | PlayerFlagsAttackEarly);
             break;
         case SK_ANIMATION_EVENT_END:
-            if (player->state == playerStateAttack) {
+            if (player->state == playerStateAttack || player->state == playerStateSpawn) {
                 playerEnterWalkState(player);
             }
             break;
@@ -268,7 +279,7 @@ void playerInit(struct Player* player, unsigned playerIndex, unsigned team, stru
     player->attackCollider = 0;
     player->attackInfo = 0;
     player->playerIndex = playerIndex;
-    player->flags = 0;
+    player->flags = PlayerFlagsUnitialized;
     damageHandlerInit(&player->damageHandler, PLAYER_MAX_HP);
     player->walkSoundEffect = SOUND_ID_NONE;
     player->idleSoundEffect = SOUND_ID_NONE;
@@ -303,7 +314,6 @@ void playerInit(struct Player* player, unsigned playerIndex, unsigned team, stru
     );
 
     skAnimatorInit(&player->animator, gTeamFactions[player->team.teamNumber]->playerBoneCount, playerAnimationEvent, player);
-    skAnimatorRunClip(&player->animator, factionGetAnimation(player->team.teamNumber, PlayerAnimationIdle), SKAnimatorFlagsLoop);
 
     int closestBase = aiPlannerFindNearestBaseToPoint(&gCurrentLevel, &player->transform.position, player->team.teamNumber, EnemyTeam, 0);
 
@@ -313,6 +323,7 @@ void playerInit(struct Player* player, unsigned playerIndex, unsigned team, stru
         quatLook(&towardsBase, &gUp, &player->transform.rotation);
     }
 
+    playerEnterSpawnState(player);
 }
 
 void playerRotateTowardsInput(struct Player* player, struct PlayerInput* input, float rotationRate) {
@@ -359,6 +370,11 @@ void playerStateDelay(struct Player* player, struct PlayerInput* input) {
     if (player->stateTimer <= 0.0f) {
         playerEnterWalkState(player);
     }
+}
+
+void playerStateSpawn(struct Player* player, struct PlayerInput* input) {
+    // the animation event handler takes care of transitioning into 
+    // the walk state
 }
 
 void playerStateJumpAttack(struct Player* player, struct PlayerInput* input) {
@@ -410,6 +426,7 @@ void playerStateFreefall(struct Player* player, struct PlayerInput* input) {
     }
 
     playerUpdateOther(player, input);
+    player->tilt = mathfLerp(player->tilt, 0.0f, 0.1f);
 
     if (player->velocity.y <= 0.0f && wasGoingUp) {
         skAnimatorRunClip(&player->animator, factionGetAnimation(player->team.teamNumber, PlayerAnimationFall), 0);
@@ -437,6 +454,8 @@ void playerStateAttackCharge(struct Player* player, struct PlayerInput* input) {
         }
     }
 
+    player->tilt = mathfLerp(player->tilt, 0.0f, 0.1f);
+
     if (player->stateTimer > 0.0f) {
         player->stateTimer -= gTimeDelta;
     }
@@ -453,6 +472,7 @@ void playerStateAttack(struct Player* player, struct PlayerInput* input) {
         SPIN_ATTACK_ACCELL, 
         PLAYER_STOP_ACCELERATION
     );
+    player->tilt = mathfLerp(player->tilt, 0.0f, 0.1f);
 
     if (playerInputGetDown(input, PlayerInputActionsAttack)) {
         if ((player->flags & (PlayerFlagsInAttackWindow | PlayerFlagsAttackEarly)) == PlayerFlagsInAttackWindow) {
@@ -477,7 +497,7 @@ void playerStateDead(struct Player* player, struct PlayerInput* input) {
             player->collider->collisionLayers = CollisionLayersTangible | CollisionLayersBase | COLLISION_LAYER_FOR_TEAM(player->team.teamNumber);
             player->transform.position = *respawnPoint;
             damageHandlerInit(&player->damageHandler, PLAYER_MAX_HP);
-            playerEnterWalkState(player);
+            playerEnterSpawnState(player);
         }
     }
 
@@ -544,6 +564,10 @@ void playerStateWalk(struct Player* player, struct PlayerInput* input) {
             if (player->animator.currentAnimation != factionGetAnimation(player->team.teamNumber, PlayerAnimationIdle)) {
                 skAnimatorRunClip(&player->animator, factionGetAnimation(player->team.teamNumber, PlayerAnimationIdle), SKAnimatorFlagsLoop);
             }
+
+            if (player->armature.boneTransforms[0].position.y < 53) {
+                player->armature.boneTransforms[0].position.y = 53;
+            }
         }
     }
 
@@ -573,6 +597,11 @@ void playerStateWalk(struct Player* player, struct PlayerInput* input) {
 
 void playerUpdate(struct Player* player, struct PlayerInput* input) {
     player->state(player, input);
+
+    if (!(player->animator.flags & SKAnimatorFlagsUnitialized)) {
+        player->flags &= ~PlayerFlagsUnitialized;
+    }
+
     skAnimatorUpdate(&player->animator, player->armature.boneTransforms, player->animationSpeed);
     dynamicEntrySetPos3D(player->collider, &player->transform.position);
     struct Vector2 vel2D;
@@ -595,6 +624,10 @@ void playerUpdate(struct Player* player, struct PlayerInput* input) {
 }
 
 void playerRender(struct Player* player, struct RenderState* renderState) {
+    if (player->flags & PlayerFlagsUnitialized) {
+        return;
+    }
+
     static struct Coloru8 gPunchColor = {240, 120, 32, 128};
 
     Mtx* matrix = renderStateRequestMatrices(renderState, 1);
@@ -634,7 +667,7 @@ void playerRender(struct Player* player, struct RenderState* renderState) {
 }
 
 void playerApplyDamage(struct Player* player, float amount, struct Vector3* origin, float knockback) {
-    if (player->transform.position.y < INVINCIBLE_JUMP_HEIGHT) {
+    if (player->transform.position.y < INVINCIBLE_JUMP_HEIGHT || player->state == playerStateSpawn) {
         teamEntityApplyKnockback(&player->transform.position, &player->velocity, origin, knockback);
         if (damageHandlerApplyDamage(&player->damageHandler, amount, PLAYER_INVINCIBILITY_TIME)) {
             soundPlayerPlay(soundListRandom(&gTeamFactions[player->playerIndex]->playerSounds.damageSounds), 0);
@@ -653,4 +686,12 @@ int playerIsAlive(struct Player* player) {
 
 int playerIsSpinAttackReady(struct Player* player) {
     return player->state == playerStateAttackCharge && player->stateTimer <= 0.0f;
+}
+
+int playerIsAttacking(struct Player* player) {
+    return player->state == playerStateAttack;
+}
+
+int playerCanChainAttack(struct Player* player) {
+    return player->state == playerStateAttack && (player->flags & PlayerFlagsInAttackWindow) != 0;
 }

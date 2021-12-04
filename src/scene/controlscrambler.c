@@ -106,7 +106,7 @@ int controlsScramblerIsAnyActive(struct ControlsScrambler* scrambler) {
 #define ORBIT_PERIOD    (2.0f * M_PI / 0.75f)
 
 void controlsScramblerRender(struct ControlsScrambler* scrambler, struct Player* forPlayer, struct RenderState* renderState) {
-    if (!controlsScramblerIsAnyActive(scrambler)) {
+    if (!controlsScramblerIsAnyActive(scrambler) || !playerIsAlive(forPlayer)) {
         return;
     }
 

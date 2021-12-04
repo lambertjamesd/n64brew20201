@@ -156,6 +156,7 @@ void skApplyChunk(struct SKAnimator* animator, struct SKAnimationChunk* chunk) {
     animator->nextChunkSource += animator->nextSourceChunkSize;
     animator->nextSourceTick = chunk->nextChunkTick;
     animator->nextSourceChunkSize = chunk->nextChunkSize;
+    animator->flags &= ~SKAnimatorFlagsUnitialized;
 }
 
 void skProcess(OSIoMesg* message) {
@@ -321,8 +322,33 @@ void skApplyBoneAnimation(struct SKBoneAnimationState* animatedBone, struct Tran
     }
 }
 
+void skFreezeBoneAnimation(struct SKBoneAnimationState* animatedBone, float tick) {
+    struct Transform transform;
+    skApplyBoneAnimation(animatedBone, &transform, tick);
+
+    animatedBone->prevState.position.x = (short)transform.position.x;
+    animatedBone->prevState.position.y = (short)transform.position.y;
+    animatedBone->prevState.position.z = (short)transform.position.z;
+
+    animatedBone->prevState.rotation = transform.rotation;
+
+    animatedBone->prevState.scale.x = (short)(transform.scale.x * 256);
+    animatedBone->prevState.scale.y = (short)(transform.scale.y * 256);
+    animatedBone->prevState.scale.z = (short)(transform.scale.z * 256);
+
+    animatedBone->nextState.position.x = (short)transform.position.x;
+    animatedBone->nextState.position.y = (short)transform.position.y;
+    animatedBone->nextState.position.z = (short)transform.position.z;
+
+    animatedBone->nextState.rotation = transform.rotation;
+
+    animatedBone->nextState.scale.x = (short)(transform.scale.x * 256);
+    animatedBone->nextState.scale.y = (short)(transform.scale.y * 256);
+    animatedBone->nextState.scale.z = (short)(transform.scale.z * 256);
+}
+
 void skAnimatorInit(struct SKAnimator* animator, unsigned boneCount, SKAnimationEventCallback animtionCallback, void* callbackData) {
-    animator->flags = 0;
+    animator->flags = SKAnimatorFlagsUnitialized;
     animator->boneCount = boneCount;
     animator->currentTime = 0.0f;
     animator->currTick = TICK_UNDEFINED;
@@ -347,6 +373,14 @@ void skAnimatorCleanup(struct SKAnimator* animator) {
 
 void skAnimatorRunClip(struct SKAnimator* animator, struct SKAnimationHeader* animation, int flags) {
     skWaitForPendingRequest(animator);
+
+    if (animator->currTick != TICK_UNDEFINED && animator->currentAnimation) {
+        float currTick = animator->currentTime * animator->currentAnimation->ticksPerSecond;
+
+        for (unsigned i = 0; i < animator->boneCount; ++i) {
+            skFreezeBoneAnimation(&animator->boneState[i], currTick);
+        }
+    }
 
     animator->flags = (unsigned short)(flags | SKAnimatorFlagsActive);
     animator->currentTime = 0.0f;
@@ -380,7 +414,7 @@ void skAnimationApply(struct SKAnimator* animator, struct Transform* transforms,
 }
 
 void skAnimatorUpdate(struct SKAnimator* animator, struct Transform* transforms, float timeScale) {
-    if (!(animator->flags & SKAnimatorFlagsActive) || !animator->currentAnimation) {
+    if (!(animator->flags & SKAnimatorFlagsActive) || !animator->currentAnimation || (animator->flags & SKAnimatorFlagsUnitialized)) {
         return;
     }
     

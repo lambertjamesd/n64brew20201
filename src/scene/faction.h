@@ -56,6 +56,7 @@ enum PlayerAnimation {
     PlayerAnimationVictory,
     PlayerAnimationCrouch,
     PlayerAnimationStand,
+    PlayerAnimationSpawn,
 };
 
 struct PlayerFactionSounds {
@@ -77,6 +78,7 @@ struct Faction {
     Gfx* playerMesh;
     struct Vector2 playerRotationCorrection;
     struct PlayerFactionSounds playerSounds;
+    unsigned char healthBarSourceY;
     float moveSpeed;
     float accel;
 

@@ -36,7 +36,7 @@ struct SKAnimationHeader catlow_animations[] = {
     {480, 30, 23, 0, (struct SKAnimationChunk*)catlow_Armature_001_Punch_006, 0},
     {496, 30, 22, 0, (struct SKAnimationChunk*)catlow_Armature_001_Punch_007, 0},
     {496, 30, 19, 0, (struct SKAnimationChunk*)catlow_Armature_001_Punch_008, 0},
-    {496, 30, 17, 0, (struct SKAnimationChunk*)catlow_Armature_001_Spawn, 0},
+    {496, 30, 26, 0, (struct SKAnimationChunk*)catlow_Armature_001_Spawn, 0},
     {480, 30, 16, 0, (struct SKAnimationChunk*)catlow_Armature_001_Spin_Attack, 0},
     {464, 30, 1, 0, (struct SKAnimationChunk*)catlow_Armature_001_T_pose_001, 0},
     {496, 30, 46, 0, (struct SKAnimationChunk*)catlow_Armature_001_Victory, 0},
