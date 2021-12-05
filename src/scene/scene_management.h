@@ -9,6 +9,7 @@
 
 enum SceneState {
     SceneStateNone,
+    SceneStateIntro,
     SceneStateInLevel,
     SceneStateInMainMenu,
     SceneStateInCredits,
@@ -33,6 +34,7 @@ void sceneQueueLoadLevel(struct GameConfiguration* gameConfig);
 void sceneQueueMainMenu();
 void sceneQueuePostGameScreen(unsigned winningTeam, unsigned teamCount, float time);
 void sceneQueueCredits();
+void sceneQueueIntro();
 void sceneInsertCutscene(unsigned cutsceneIndex);
 void sceneEndCutscene();
 int sceneIsCampaign();

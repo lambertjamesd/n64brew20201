@@ -13,6 +13,8 @@
 #include "images/arrows.h"
 #include "images/title_screen.h"
 #include "images/discord_logo.h"
+#include "images/fresh_eaters.h"
+#include "models/spinninglogo.h"
 
 Gfx gMainMenuSolidColor[] = {
     gsDPPipeSync(),

@@ -8,6 +8,7 @@
 #include "savefile/savefile.h"
 #include "menu/credits.h"
 #include "levels/themedefinition.h"
+#include "menu/spinninglogo.h"
 
 enum SceneState gSceneState;
 enum SceneState gNextSceneState;
@@ -65,6 +66,10 @@ void sceneQueueCredits() {
     gNextSceneState = SceneStateInCredits;
 }
 
+void sceneQueueIntro() {
+    gNextSceneState = SceneStateIntro;
+}
+
 void sceneQueueMainMenu() {
     gNextSceneState = SceneStateInMainMenu;
     gMainMenu.selections.menuState = MainMenuStateSelectingTitleScreen;
@@ -107,6 +112,15 @@ void sceneLoadCredits() {
     gSceneState = SceneStateInCredits;
 }
 
+void sceneLoadIntro() {
+    LOAD_SEGMENT(static, gStaticSegment);
+    LOAD_SEGMENT(mainmenu, gMenuSegment);
+    LOAD_SEGMENT(characters, gCharacterSegment);
+    LOAD_SEGMENT(fonts, gFontSegment);
+    spinningLogoInit(&gSpinningLogo);
+    gSceneState = SceneStateIntro;
+}
+
 extern char _MarsSegmentRomStart[], _MarsSegmentRomEnd[];
 
 void sceneLoadCutscene() {
@@ -145,6 +159,9 @@ void sceneUpdate(int readyForSceneSwitch) {
                 case SceneStateInLevel:
                     sceneLoadLevel(&gNextLevel);
                     break;
+                case SceneStateIntro:
+                    sceneLoadIntro();
+                    break;
                 case SceneStateInMainMenu:
                     sceneLoadMainMenu();
                     break;
@@ -163,6 +180,9 @@ void sceneUpdate(int readyForSceneSwitch) {
         switch (gSceneState) {
             case SceneStateInLevel:
                 levelSceneUpdate(&gCurrentLevel);
+                break;
+            case SceneStateIntro:
+                spinningLogoUpdate(&gSpinningLogo);
                 break;
             case SceneStateInMainMenu:
                 mainMenuUpdate(&gMainMenu);
@@ -183,6 +203,9 @@ void sceneRender(struct RenderState* renderState) {
     switch (gSceneState) {
         case SceneStateInLevel:
             levelSceneRender(&gCurrentLevel, renderState);
+            break;
+        case SceneStateIntro:
+            spinningLogoRender(&gSpinningLogo, renderState);
             break;
         case SceneStateInMainMenu:
             mainMenuRender(&gMainMenu, renderState);

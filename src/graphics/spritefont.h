@@ -11,12 +11,12 @@ struct CharacterDefinition
     char character;
     char spriteLayer;
     struct SpriteTile data;
+    char kerning;
 };
 
 struct Font
 {
-    struct SpriteTile characters[ANSI_CHAR_COUNT];
-    char characterLayer[ANSI_CHAR_COUNT];
+    struct CharacterDefinition characters[ANSI_CHAR_COUNT];
     short spaceWidth; 
 };
 

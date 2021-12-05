@@ -8,13 +8,12 @@ void fontInit(struct Font* font, int spaceWidth, struct CharacterDefinition* cha
 
     for (int i = 0; i < ANSI_CHAR_COUNT; ++i)
     {
-        font->characters[i].w = 0;
+        font->characters[i].data.w = 0;
     }
 
     for (int i = 0; i < charCount; ++i)
     {
-        font->characters[(unsigned)chars[i].character] = chars[i].data;
-        font->characterLayer[(unsigned)chars[i].character] = chars[i].spriteLayer;
+        font->characters[(unsigned)chars[i].character] = chars[i];
     }
 }
 
@@ -25,20 +24,27 @@ void fontRenderText(struct RenderState* renderState, struct Font* font, const ch
     while (*str)
     {
         unsigned charValue = (unsigned)*str;
-        struct SpriteTile curr = font->characters[charValue];
-        if (curr.w)
+        struct CharacterDefinition* curr = &font->characters[charValue];
+        if (curr->data.w)
         {
-            spriteDraw(renderState, font->characterLayer[charValue], x, y, curr.w, curr.h, curr.x, curr.y, scaleShift, scaleShift);
+            spriteDraw(
+                renderState, 
+                curr->spriteLayer, 
+                x, y, 
+                curr->data.w, curr->data.h, 
+                curr->data.x, curr->data.y, 
+                scaleShift, scaleShift
+            );
             if (scaleShift >= 0) {
-                x += curr.w << scaleShift;
+                x += (curr->data.w + curr->kerning) << scaleShift;
             } else {
-                x += curr.w >> -scaleShift;
+                x += (curr->data.w + curr->kerning) >> -scaleShift;
             }
         }
         else if (*str == ' ')
         {
             if (scaleShift >= 0) {
-                x += font->spaceWidth << scaleShift;
+                x += (font->spaceWidth) << scaleShift;
             } else {
                 x += font->spaceWidth >> -scaleShift;
             }
@@ -58,7 +64,7 @@ int fontMeasure(struct Font* font, const char* str, int scaleShift) {
 
     while (*str)
     {
-        struct SpriteTile curr = font->characters[(unsigned)*str];
+        struct CharacterDefinition* curr = &font->characters[(unsigned)*str];
 
         if (*str == ' ') {
             if (scaleShift >= 0) {
@@ -68,9 +74,9 @@ int fontMeasure(struct Font* font, const char* str, int scaleShift) {
             }
         } else {
             if (scaleShift >= 0) {
-                result += curr.w << scaleShift;
+                result += (curr->data.w + curr->kerning) << scaleShift;
             } else {
-                result += curr.w >> -scaleShift;
+                result += (curr->data.w + curr->kerning) >> -scaleShift;
             }
         }
 

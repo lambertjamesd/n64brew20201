@@ -199,7 +199,7 @@ static void initGame(void)
     saveFileLoad();
     initAudio();
     soundPlayerInit();
-    sceneQueueMainMenu();
+    sceneQueueIntro();
 
 #ifdef WITH_DEBUGGER
     OSThread* debugThreads[2];

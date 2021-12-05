@@ -295,10 +295,6 @@ void mainMenuUpdatePlayerCount(struct MainMenu* mainMenu) {
             mainMenuEnterFactionSelection(mainMenu);
         }
     }
-
-    if (controllerGetButtonDown(0, START_BUTTON)) {
-        sceneInsertCutscene(CUTSCENE_ANIMATIONS_CUTSCENE_ANIMATIONS_CUTCENE_001_CUTSCENE_INDEX);
-    }
 }
 
 void mainMenuUpdateFaction(struct MainMenu* mainMenu) {

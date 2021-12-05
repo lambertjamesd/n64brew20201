@@ -10,7 +10,10 @@
 #define LAYER_MENU_BORDER       1
 #define LAYER_IMAGE_COPIES      2
 #define LAYER_BUTTONS           3
+
 #define LAYER_COMMAND_BUTTONS   4
+#define LAYER_FRESH_EATERS      4
+
 #define LAYER_HEALTH_BAR        5
 #define LAYER_KICKFLIP_NUMBERS_FONT     6
 #define LAYER_KICKFLIP_FONT     7
