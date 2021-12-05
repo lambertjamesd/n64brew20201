@@ -200,6 +200,7 @@ static void initGame(void)
     initAudio();
     soundPlayerInit();
     sceneQueueIntro();
+    // sceneQueueMainMenu();
 
 #ifdef WITH_DEBUGGER
     OSThread* debugThreads[2];

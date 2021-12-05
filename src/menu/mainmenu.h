@@ -47,6 +47,7 @@ struct MainMenu {
     struct MainMenuSelections selections;
     struct LevelMetadata** filteredLevels;
     unsigned short levelCount;
+    unsigned short unlockedLevelCount;
     struct MainMenuFactionSelector factionSelection[MAX_PLAYERS];
     struct EndGameMenu endGameMenu;
     struct TitleScreen titleScreen;
@@ -59,5 +60,7 @@ void mainMenuInitSelections(struct MainMenu* mainMenu);
 void mainMenuInit(struct MainMenu* mainMenu);
 void mainMenuUpdate(struct MainMenu* mainMenu);
 void mainMenuRender(struct MainMenu* mainMenu, struct RenderState* renderState);
+int mainMenuGetPlayerCount(struct MainMenu* menu);
+void mainMenuStartLevel(struct MainMenu* mainMenu);
 
 #endif

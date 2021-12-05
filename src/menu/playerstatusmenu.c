@@ -57,7 +57,7 @@ void playerStatusMenuRender(struct Player* player, struct RenderState* renderSta
         fontRenderText(renderState, &gKickflipFont, message, horizontalCenter - (messageWidth >> 1), verticalCenter - (4 << (scaleShift + 1)), scaleShift);        
     }
 
-    unsigned healthWidth = (unsigned)(26.f * player->damageHandler.hp / PLAYER_MAX_HP);
+    unsigned healthWidth = (unsigned)(26.f * player->damageHandler.hp / gTeamFactions[player->team.teamNumber]->maxHP);
     healthWidth = MIN(healthWidth, 26) + 4;
     unsigned srcY = gTeamFactions[player->playerIndex]->healthBarSourceY;
     spriteDraw(renderState, LAYER_HEALTH_BAR, screenPos[2] - 48 + healthWidth, screenPos[1] + 16, 32 - healthWidth, 16, healthWidth, srcY, 0, 0);

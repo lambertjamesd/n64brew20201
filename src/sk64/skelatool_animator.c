@@ -3,6 +3,7 @@
 #include "skelatool_animator.h"
 #include "util/memory.h"
 #include "util/time.h"
+#include "math/mathf.h"
 
 #define TICK_UNDEFINED      ~((u16)(0))
 
@@ -146,14 +147,14 @@ struct SKAnimationKeyframe* skApplyKeyframe(struct SKAnimator* animator, struct 
 }
 
 
-void skApplyChunk(struct SKAnimator* animator, struct SKAnimationChunk* chunk) {
+void skApplyChunk(struct SKAnimator* animator, struct SKAnimationChunk* chunk, unsigned sourceChunkStart, unsigned chunkSize) {
     struct SKAnimationKeyframe* nextFrame = &chunk->keyframes[0];
 
     for (unsigned i = 0; i < chunk->keyframeCount; ++i) {
         nextFrame = skApplyKeyframe(animator, nextFrame);
     }
 
-    animator->nextChunkSource += animator->nextSourceChunkSize;
+    animator->nextChunkSource = sourceChunkStart + chunkSize;
     animator->nextSourceTick = chunk->nextChunkTick;
     animator->nextSourceChunkSize = chunk->nextChunkSize;
 }
@@ -167,10 +168,9 @@ void skProcess(OSIoMesg* message) {
         gSKAnimationPool.animatorsForMessages[messageIndex] = 0;
 
         struct SKAnimationChunk* nextChunk = (struct SKAnimationChunk*)message->dramAddr;
-        unsigned nextChunkSize = animator->nextSourceChunkSize;
-        skApplyChunk(animator, nextChunk);
+        skApplyChunk(animator, nextChunk, message->devAddr, message->size);
         animator->flags &= ~SKAnimatorFlagsPendingRequest;
-        skRingMemoryFree(&gSKAnimationPool.memoryPool, nextChunkSize);
+        skRingMemoryFree(&gSKAnimationPool.memoryPool, message->size);
     }
 }
 
@@ -225,10 +225,7 @@ void skWaitForPendingRequest(struct SKAnimator* animator) {
     }
 }
 
-
-
-void skRequestChunk(struct SKAnimator* animator) {
-    unsigned short chunkSize = animator->nextSourceChunkSize;
+void skRequestChunk(struct SKAnimator* animator, unsigned chunkSize) {
 
     if (chunkSize == 0) {
         return;
@@ -236,7 +233,7 @@ void skRequestChunk(struct SKAnimator* animator) {
 
     if (IS_KSEG0(animator->nextChunkSource)) {
         // if the animation is in RAM apply it right away
-        skApplyChunk(animator, (struct SKAnimationChunk*)animator->nextChunkSource);
+        skApplyChunk(animator, (struct SKAnimationChunk*)animator->nextChunkSource, animator->nextChunkSource, chunkSize);
         return;
     }
 
@@ -301,11 +298,19 @@ void skApplyBoneAnimation(struct SKBoneAnimationState* animatedBone, struct Tran
         skFixedVector3ToFloat(&animatedBone->prevState.position, &output->position);
     }
 
+    if (isnan(output->position.x)) output->position.x = 0.0f;
+    if (isnan(output->position.y)) output->position.y = 0.0f;
+    if (isnan(output->position.x)) output->position.z = 0.0f;
+
     if (animatedBone->nextState.rotationTick != animatedBone->prevState.rotationTick && (animatedBone->prevState.flags & SKBoneAttrMaskRotationConst) == 0) {
         float rotationLerp = (tick - (float)animatedBone->prevState.rotationTick) / ((float)animatedBone->nextState.rotationTick - (float)animatedBone->prevState.rotationTick);
         quatLerp(&animatedBone->prevState.rotation, &animatedBone->nextState.rotation, rotationLerp, &output->rotation);
     } else {
         output->rotation = animatedBone->prevState.rotation;
+    }
+
+    if (isnan(output->rotation.x) || isnan(output->rotation.y) || isnan(output->rotation.z) || isnan(output->rotation.w)) {
+        quatIdent(&output->rotation);
     }
 
     if (animatedBone->nextState.scaleTick != animatedBone->prevState.scaleTick && (animatedBone->prevState.flags & SKBoneAttrMaskScaleConst) == 0) {
@@ -319,6 +324,10 @@ void skApplyBoneAnimation(struct SKBoneAnimationState* animatedBone, struct Tran
         skFixedVector3ToFloat(&animatedBone->prevState.scale, &output->scale);
         vector3Scale(&output->scale, &output->scale, 1.0f / 256.0f);
     }
+
+    if (isnan(output->scale.x)) output->scale.x = 1.0f;
+    if (isnan(output->scale.y)) output->scale.y = 1.0f;
+    if (isnan(output->scale.x)) output->scale.z = 1.0f;
 }
 
 void skFreezeBoneAnimation(struct SKBoneAnimationState* animatedBone, float tick) {
@@ -403,7 +412,7 @@ void skAnimatorRunClip(struct SKAnimator* animator, struct SKAnimationHeader* an
         animator->eventCallback(animator, animator->eventCallbackData, &event);
     }
 
-    skRequestChunk(animator);
+    skRequestChunk(animator, animation->firstChunkSize);
 }
 
 void skAnimationApply(struct SKAnimator* animator, struct Transform* transforms, float tick) {
@@ -458,7 +467,7 @@ void skAnimatorUpdate(struct SKAnimator* animator, struct Transform* transforms,
     // queue up next keyframes if they are needed
     if (animator->nextTick >= animator->nextSourceTick) {
         animator->nextSourceTick = TICK_UNDEFINED;
-        skRequestChunk(animator);
+        skRequestChunk(animator, animator->nextSourceChunkSize);
     }
 }
 

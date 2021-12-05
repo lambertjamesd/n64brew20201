@@ -16,7 +16,6 @@
 #include "damagehandler.h"
 #include "faction.h"
 
-#define PLAYER_MAX_HP                              6.0f
 #define PLAYER_GFX_PER_PLAYER   8
 
 #define PLAYER_DEFENSE_RADIUS  10.0f

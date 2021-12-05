@@ -43,6 +43,7 @@ void soundPlayerStop(SoundID* soundId);
 void soundPlayerSetPitch(SoundID soundId, float speed);
 void soundPlayerSetVolume(SoundID soundId, float volume);
 int soundPlayerIsPlaying(SoundID soundId);
+void soundPlayerReset();
 
 unsigned soundListRandom(struct SoundList* list);
 

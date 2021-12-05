@@ -5,7 +5,6 @@
 
 extern Gfx Mars_Crate[];
 extern Gfx Mars_Ground[];
-extern Gfx Mars_Metal[];
 extern Gfx Mars_Rock[];
 extern Gfx Mars_SSSkybox[];
 extern Gfx Mars_SetTextures1[];

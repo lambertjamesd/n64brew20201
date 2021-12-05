@@ -177,3 +177,10 @@ int soundPlayerIsPlaying(SoundID soundId) {
 unsigned soundListRandom(struct SoundList* list) {
     return list->options[randomInRange(0, list->count)];
 }
+
+void soundPlayerReset() {
+    for (unsigned i = 0; i < MAX_SOUNDS; ++i) {
+        SoundID soundId = i;
+        soundPlayerStop(&soundId);
+    }
+}

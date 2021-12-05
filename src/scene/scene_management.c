@@ -9,6 +9,7 @@
 #include "menu/credits.h"
 #include "levels/themedefinition.h"
 #include "menu/spinninglogo.h"
+#include "audio/soundplayer.h"
 
 enum SceneState gSceneState;
 enum SceneState gNextSceneState;
@@ -149,6 +150,7 @@ void sceneCleanup() {
     gThemeSegment = 0;
     heapReset();
     skResetDataPool();
+    soundPlayerReset();
 }
 
 void sceneUpdate(int readyForSceneSwitch) {

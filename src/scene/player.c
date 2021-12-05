@@ -21,6 +21,7 @@
 #include "graphics/spritefont.h"
 #include "menu/kickflipfont.h"
 #include <stdbool.h>
+#include "math.h"
 
 #define PLAYER_MIN_RESPAWN_TIME                    5.0f
 #define PLAYER_RESPAWN_PER_BASE                    2.0f
@@ -280,7 +281,7 @@ void playerInit(struct Player* player, unsigned playerIndex, unsigned team, stru
     player->attackInfo = 0;
     player->playerIndex = playerIndex;
     player->flags = 0;
-    damageHandlerInit(&player->damageHandler, PLAYER_MAX_HP);
+    damageHandlerInit(&player->damageHandler, gTeamFactions[player->team.teamNumber]->maxHP);
     player->walkSoundEffect = SOUND_ID_NONE;
     player->idleSoundEffect = SOUND_ID_NONE;
     player->animationSpeed = 1.0f;
@@ -496,7 +497,7 @@ void playerStateDead(struct Player* player, struct PlayerInput* input) {
         if (respawnPoint) {
             player->collider->collisionLayers = CollisionLayersTangible | CollisionLayersBase | COLLISION_LAYER_FOR_TEAM(player->team.teamNumber);
             player->transform.position = *respawnPoint;
-            damageHandlerInit(&player->damageHandler, PLAYER_MAX_HP);
+            damageHandlerInit(&player->damageHandler, gTeamFactions[player->team.teamNumber]->maxHP);
             playerEnterSpawnState(player);
         }
     }

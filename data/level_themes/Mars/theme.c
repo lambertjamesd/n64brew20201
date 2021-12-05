@@ -3,8 +3,6 @@
 u64 Mars_Bigock_ci4_pal_rgba16[] = {
     0xa255d31769cf0000
 };
-Lights1 Mars_Metal_lights =     gdSPDefLights1(0x55, 0x61, 0x67, 0xAB, 0xC3, 0xCF, 0x28, 0x28, 0x28);
-
 Lights1 Mars_Crate_lights =     gdSPDefLights1(0x4A, 0x33, 0xF, 0x95, 0x66, 0x1F, 0x28, 0x28, 0x28);
 
 u64 Mars_Set_Textures1_ci8[] = {
@@ -139,14 +137,6 @@ Gfx Mars_Ground[] = {
     gsDPSetTileSize(0, 0, 0, 124, 124),
     gsSPEndDisplayList(),
 };
-Gfx Mars_Metal[] = {
-    gsDPPipeSync(),
-    gsSPSetGeometryMode(G_LIGHTING),
-    gsDPSetCombineLERP(0, 0, 0, SHADE, 0, 0, 0, ENVIRONMENT, 0, 0, 0, SHADE, 0, 0, 0, ENVIRONMENT),
-    gsSPTexture(65535, 65535, 0, 0, 1),
-    gsSPSetLights1(Mars_Metal_lights),
-    gsSPEndDisplayList(),
-};
 Gfx Mars_Rock[] = {
     gsDPPipeSync(),
     gsDPSetCombineLERP(0, 0, 0, TEXEL0, 0, 0, 0, ENVIRONMENT, 0, 0, 0, TEXEL0, 0, 0, 0, ENVIRONMENT),
@@ -214,7 +204,7 @@ Gfx* Mars_DecorMaterials[] = {
     Mars_SetTextures1,
     Mars_SetTextures1,
     Mars_SetTextures1,
-    Mars_Metal,
+    Mars_SetTextures1,
     Mars_SetTextures1,
     Mars_SSSkybox,
 };

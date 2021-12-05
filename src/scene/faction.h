@@ -81,6 +81,7 @@ struct Faction {
     unsigned char healthBarSourceY;
     float moveSpeed;
     float accel;
+    float maxHP;
 
     Gfx* minionMesh;
 };

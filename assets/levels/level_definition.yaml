@@ -62,13 +62,15 @@ Themes:
           MaxPlayers: 2
           Campaign: True
           Multiplayer: True
-          AIDifficulty: 1
+          AIDifficulty: 0.6
 
         - Name: Spirit
           Filename: Campaign_Spirit.fbx
           Output: ../../data/levels/Spirit/level.h
           MaxPlayers: 4
           Campaign: True
+          Multiplayer: True
+          AIDifficulty: 0.8
 
         - Name: Triangle
           Filename: Triangle.fbx
@@ -76,7 +78,7 @@ Themes:
           MaxPlayers: 3
           Campaign: True
           Multiplayer: True
-          AIDifficulty: 0.7
+          AIDifficulty: 0.6
 
         - Name: Orion
           Filename: Orion.fbx
@@ -91,12 +93,16 @@ Themes:
           Output: ../../data/levels/Curiosity/level.h
           MaxPlayers: 4
           Campaign: True
+          Multiplayer: True
+          AIDifficulty: 0.7
 
         - Name: Sojourner
           Filename: Campaign_Sojourner.fbx
           Output: ../../data/levels/Sojourner/level.h
           MaxPlayers: 4
           Campaign: True
+          Multiplayer: True
+          AIDifficulty: 0.7
 
         - Name: Cluster
           Filename: Cluster.fbx
@@ -110,6 +116,8 @@ Themes:
           Output: ../../data/levels/Perseverance/level.h
           MaxPlayers: 4
           Campaign: True
+          Multiplayer: True
+          AIDifficulty: 0.8
   
     - Name: Snow
       Output: ../../data/level_themes/Snow/theme.h
@@ -125,6 +133,7 @@ Themes:
           Output: ../../data/levels/Sagittarius/level.h
           MaxPlayers: 3
           Campaign: True
+          Multiplayer: True
           AIDifficulty: 1
 
         - Name: Cygnus
