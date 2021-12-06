@@ -120,12 +120,12 @@ SECTIONS
    }
    END_SEG(characters)
 
-   BEGIN_SEG(level_test, 0x04000000)
+   BEGIN_SEG(cutscene_set, 0x04000000)
    {
-      build/data/levels/test/test.o(.data);
-      build/data/levels/test/test.o(.bss);
+      build/data/cutscenes/set.o(.data);
+      build/data/cutscenes/set.o(.bss);
    }
-   END_SEG(level_test)
+   END_SEG(cutscene_set)
 
 #include "src/levels/level_list.h"
 #include "src/levels/theme_list.h"

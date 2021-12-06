@@ -97,7 +97,11 @@ data/models/punchtrail/geometry.h build/data/models/punchtrail/geometry_anim.inc
 
 data/cutscenes/geometry.h build/data/cutscenes/geometry_anim.inc.h build/data/cutscenes/geometry_animdef.inc.h:	assets/models/CutsceneTest.fbx
 	@mkdir -p $(@D)
-	$(SKELATOOL64) -a -s 100 -n cutscene_animations -o data/cutscenes/geometry.h assets/models/CutsceneTest.fbx
+	$(SKELATOOL64) -a -s 100 -r 0,0,0 -n cutscene_animations -o data/cutscenes/geometry.h assets/models/CutsceneTest.fbx
+
+data/cutscenes/geometry_set.h build/data/cutscenes/geometry_set_anim.inc.h build/data/cutscenes/geometry_set_animdef.inc.h:	assets/models/Cutscene_Open_Set.fbx assets/materials/levels.yaml
+	@mkdir -p $(@D)
+	$(SKELATOOL64) -s 100 -r 0,0,0 -n cutscene_set -m assets/materials/levels.yaml -o data/cutscenes/geometry_set.h assets/models/Cutscene_Open_Set.fbx
 
 MUSIC = $(shell find assets/music/ -type f -name '*.mid')
 

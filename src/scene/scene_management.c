@@ -1,5 +1,4 @@
 #include "scene_management.h"
-#include "levels/level_test.h"
 #include "levels/levels.h"
 #include "graphics/gfx.h"
 #include "util/rom.h"
@@ -21,10 +20,6 @@ struct GameConfiguration gNextLevel;
 enum SceneState gAfterCutscene;
 static unsigned gNextCutscene;
 unsigned frameSkip = 0;
-
-struct LevelDefinition* gLevelsTmp[] = {
-    &gLevelTest,
-};
 
 extern char _staticSegmentRomStart[], _staticSegmentRomEnd[];
 
@@ -123,12 +118,14 @@ void sceneLoadIntro() {
 }
 
 extern char _MarsSegmentRomStart[], _MarsSegmentRomEnd[];
+extern char _cutscene_setSegmentRomStart[], _cutscene_setSegmentRomEnd[];
 
 void sceneLoadCutscene() {
     LOAD_SEGMENT(static, gStaticSegment);
     LOAD_SEGMENT(gameplaymenu, gMenuSegment);
     LOAD_SEGMENT(characters, gCharacterSegment);
     LOAD_SEGMENT(fonts, gFontSegment);
+    LOAD_SEGMENT(cutscene_set, gLevelSegment);
 
     gThemeSegment = malloc(_MarsSegmentRomEnd - _MarsSegmentRomStart);
     romCopy(_MarsSegmentRomStart, gThemeSegment, _MarsSegmentRomEnd - _MarsSegmentRomStart);

@@ -481,10 +481,60 @@ Resources:
     IsArray: True
     Content: 0xe77de73de73fdefd, 0xce79d6bbc637c635, 0xbdf5defbdf3dc677, 0xd6b9d6fb00000000
 
+  Mars_ci8:
+    Type: u64
+    IsArray: True
+    Content: |-
+      0x0000000102030303, 0x0303030303030303, 0x0303030303030303, 0x0303030303030303, 0x0000000405030303, 0x0303030303030303, 0x0303030303030303, 0x0303030303030303, 
+      0x0000000607050303, 0x0303030303030303, 0x0303030303030303, 0x0303030303030303, 0x0000000008090303, 0x0303030303030303, 0x0303030303030303, 0x0303030303030303, 
+      0x00000000080a0303, 0x0303030303030303, 0x0303030303030303, 0x0303030303030305, 0x00000000000b0c03, 0x0303030303030303, 0x0303030303030303, 0x0303030303030303, 
+      0x0000000000000d0e, 0x0f03030303030303, 0x0303030303030303, 0x0303030303030303, 0x0000000000001011, 0x12130c0203030303, 0x0303030303030303, 0x0303030303030303, 
+      0x0000000000000000, 0x0014150816090502, 0x0303030303030303, 0x0303030303031718, 0x0000000000000000, 0x0019111a1b001c1d, 0x011e0a090c050f0f, 0x0f1717170c1f1d00, 
+      0x0000000000000000, 0x0000001020000000, 0x0000001a00002122, 0x0812121208230000, 0x0000000000000000, 0x0000000000000000, 0x0000242500000000, 0x0000000000000000, 
+      0x0000000000000000, 0x0000000000000000, 0x0000002600000000, 0x0000000000000000, 0x0000000000002619, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 
+      0x0000000000001420, 0x2600000000000000, 0x0000000000000000, 0x1410000000000000, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x1b25000000000000, 
+      0x00262710101b2600, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x1428292a2a2b2519, 0x140000000000261a, 0x0000000000000000, 0x0000000000000000, 
+      0x112c2d2d2c2a2d2d, 0x2a2a2b2b25202e2f, 0x0000000000000000, 0x0000000000000000, 0x25302a2d2c312d2a, 0x292a2d2d2d2d2d2a, 0x2b19260000000000, 0x0000000000000000, 
+      0x2b2a2d2d2d2d2d2d, 0x2c2d2d2d2d2d2d2d, 0x2d2d2a1126000000, 0x0000000000000000, 0x112b2a2a2a2b2b2b, 0x2b2a2a2a2d2d2d2d, 0x2d2d2d2d2b100000, 0x0000000000000000, 
+      0x14102020112f3200, 0x0026141a1b11252a, 0x2d2d2d2d2a2a251b, 0x0000000000000000, 0x0000262623333306, 0x0606000000000026, 0x112a2d2a302a2d2a, 0x2026000000000000, 
+      0x001218090c0c0909, 0x09090a0a1f160704, 0x3435362a2a2d2d2d, 0x2d2a111400000000, 0x0903030303030303, 0x030303030303020f, 0x373809393a3b3c2d, 0x2d2a2d2927000000, 
+      0x0303030303030303, 0x0303030303030303, 0x03030303033d3e3f, 0x40302a2c2e140000, 0x0303030303030303, 0x0303030303030303, 0x0303030303030303, 0x374142432e440000, 
+      0x0303030303030303, 0x0303030303030303, 0x0303030303030303, 0x03033d4546000000, 0x0303030303030303, 0x0303030303030303, 0x0303030303030303, 0x030303030f180000, 
+      0x0303030303030303, 0x0303030303030303, 0x0303030303030303, 0x0303030303030f0a, 0x0303030303030303, 0x0303030303030303, 0x0303030303030303, 0x0303030303030303, 
+  
+  Mars_ci8_pal_rgba16:
+    Type: u64
+    IsArray: True
+    Content: |-
+      0xfb11ece3e6f5def7, 0xf4a1e6b3fb53ed25, 0xf3d9e62fe5edf49f, 0xe671e3d9dda9e6b5, 0xd353c353f41bed27, 0xeb11e353ed67e673, 0xeda9cb53e311db11, 0xf397f45ded69edab, 
+      0xbb53fb55f3d7fb13, 0xd311b353f311cb51, 0xbb51b351a353ab53, 0xab519b53c351c34f, 0xb34fa351d351f353, 0xec1bdbd9bb95deb3, 0xde71ddedcd67b4e1, 0xac1bdeb5d671cdab, 
+      0xb45dcdebb4a1ab55, 0xd34fde2deca10000
+
+  LevelBase_ia8:
+    Type: u64
+    IsArray: True
+    Content: |-
+      0xf0f0f0f0f0f0f0f0, 0xf0f0f0f0f0f0f0f0, 0xf0f0f0f0f0f0f0f0, 0xf0f0f0f0f05f5f5f, 0xf0f0f0f0f0f0f0f0, 0xf0f0f0f0f0f0f0f0, 0xf0f0f0f0f0f0f0f0, 0xf0f0f05f5f5f3f5f, 
+      0xf0f0f0f0f0f0f0f0, 0xf0f0f0f0f0f0f0f0, 0xf0f0f0f0f0f0f0f0, 0x5f5f5f5f3f5f5f5f, 0xf0f0f0f0f0f0f0f0, 0xf0f0f0f0f0f0f0f0, 0xf0f0f0f0f0f05f5f, 0x5f3f3f5f5f5f5f5f, 
+      0xf0f0f0f0f0f0f0f0, 0xf0f0f0f0f0f0f0f0, 0xf0f0f0f05f5f5f3f, 0x5f5f5f5f5f5f3f5f, 0xf0f0f0f0f0f0f0f0, 0xf0f0f0f0f0f0f0f0, 0xf05f5f5f5f3f5f5f, 0x5f5f5f3f3f5f5f5f, 
+      0xf0f0f0f0f0f0f0f0, 0xf0f0f0f0f0f0f05f, 0x5f5f3f3f5f5f5f5f, 0x5f3f5f5f5f5f5f5f, 0xf0f0f0f0f0f0f0f0, 0xf0f0f0f0f05f5f5f, 0x3f5f5f5f5f5f5f3f, 0x5f5f5f5f5f3f3f5f, 
+      0xf0f0f0f0f0f0f0f0, 0xf0f0f05f5f5f3f5f, 0x5f5f5f5f3f3f5f5f, 0x5f5f5f3f5f5f5f5f, 0xf0f0f0f0f0f0f0f0, 0xf03f5f5f3f5f5f5f, 0x5f5f3f5f5f5f5f5f, 0x5f3f5f5f5f5f5f5f, 
+      0xf0f0f0f0f0f0f0f0, 0xf05f3f5f5f5f5f5f, 0x3f5f5f5f5f5f3f3f, 0x5f5f5f5f5f5f8f8f, 0xf0f0f0f0f0f0f0f0, 0x5f5f5f3f5f5f3f5f, 0x5f5f5f5f3f5f5f5f, 0x5f5f5f5f8f8f8f8f, 
+      0xf0f0f0f0f0f0f0f0, 0x5f3f5f5f3f5f5f5f, 0x5f5f3f5f5f5f5f5f, 0x5f8f8f8f8f8f8f8f, 0xf0f0f0f0f0f0f05f, 0x5f5f5f5f5f3f5f5f, 0x3f5f5f5f5f5f5f8f, 0x8f8f8f8f8f5f8f8f, 
+      0xf0f0f0f0f0f0f05f, 0x3f5f5f3f5f5f3f5f, 0x5f5f5f5f5f8f8f8f, 0x8f8f5f5f8f8f8f8f, 0xf0f0f0f0f0f05f5f, 0x5f5f5f5f5f5f5f3f, 0x5f5f8f8f8f8f8f8f, 0x5f8f8f8f8f8f8f8f, 
+      0xf0f0f0f0f0f05f3f, 0x5f5f3f5f5f3f5f5f, 0x3f8f8f8f8f8f5f8f, 0x8f8f8f8f8f8f8f8f, 0xf0f0f0f0f05f5f5f, 0x5f5f5f5f5f5f5f5f, 0x8f3f8f8f5f8f8f8f, 0x8f8f8f8f8f5f5f8f, 
+      0xf0f0f0f0f05f3f5f, 0x5f3f5f5f3f5f5f8f, 0x8f8f3f8f8f8f8f8f, 0x8f8f8f5f8f8f8f8f, 0xf0f0f0f0f05f3f5f, 0x5f5f5f5f5f5f5f8f, 0x8f8f8f3f8f8f8f8f, 0x8f5f8f8f8f8f8f8f, 
+      0xf0f0f0f05f5f5f5f, 0x3f5f5f3f5f5f5f8f, 0x8f5f8f8f3f8f8f5f, 0x8f8f8f8f8f8fbfbf, 0xf0f0f0f05f3f5f5f, 0x3f5f5f5f5f5f8f8f, 0x8f8f8f8f8f3f8f8f, 0x8f8f8f8fbfbfbfbf, 
+      0xf0f0f05f5f5f5f5f, 0x5f5f3f5f5f5f8f8f, 0x5f8f8f8f8f8f3f8f, 0x8fbfbfbfbfbfbfbf, 0xf0f0f05f3f5f5f3f, 0x5f5f3f5f5f8f8f8f, 0x8f8f8f8f5f8f8f3f, 0xbfbfbfbfbfbfbfbf, 
+      0xf0f05f5f5f5f5f5f, 0x5f5f5f5f5f8f8f5f, 0x8f8f8f8f8f8f8fbf, 0xbfbfbfbfbfbfbfbf, 0xf0f05f3f5f5f3f5f, 0x5f3f5f5f8f8f8f8f, 0x8f8f8f5f8f8fbfbf, 0xbfbfbfbfbfbfbfbf, 
+      0xf05f5f3f5f5f5f5f, 0x5f5f5f5f8f8f5f8f, 0x8f8f8f8f8f8fbfbf, 0xbfbfbfbfbfbfbfbf, 0xf05f5f5f5f3f5f5f, 0x3f5f5f5f8f8f5f8f, 0x8f8f5f8f8f8fbfbf, 0xbfbfbfbfbfbfbfbf, 
+      0xf05f5f5f5f3f5f5f, 0x5f5f5f8f8f8f8f8f, 0x8f8f8f8f8fbfbfbf, 0xbfbfbfbfbfbfbfbf, 0x5f5f3f5f5f5f5f3f, 0x5f5f5f8f8f5f8f8f, 0x8f5f8f8f8fbfbfbf, 0xbfbfbfbfbfbfbfbf, 
+      0x5f5f3f5f5f5f5f3f, 0x5f5f8f8f8f8f8f8f, 0x8f5f8f8fbfbfbfbf, 0xbfbfbfbfbfbfbfbf, 0x5f5f5f5f5f5f5f5f, 0x5f5f8f8f8f8f8f8f, 0x8f8f8f8fbfbfbfbf, 0xbfbfbfbfbfbfbfbf, 
 
 Materials:
   Ground:
     UsedResources: ["Ground_TextureGreyscale_i8"]
+    VertexType: Color
     Content: |-
       gsDPPipeSync(),
       gsSPClearGeometryMode(G_LIGHTING),
@@ -826,4 +876,45 @@ Materials:
       gsDPLoadBlock(7, 0, 0, 255, 1024),
       gsDPPipeSync(),
       gsDPSetTile(G_IM_FMT_CI, G_IM_SIZ_4b, 2, 0, 0, 0, G_TX_WRAP | G_TX_NOMIRROR, 5, 0, G_TX_WRAP | G_TX_NOMIRROR, 5, 0),
+      gsDPSetTileSize(0, 0, 0, 124, 124),
+
+  Mars:
+    UsedResources: ["Mars_ci8", "Mars_ci8_pal_rgba16"]
+    VertexType: Color
+    Content: |-
+      gsDPPipeSync(),
+      gsDPSetCombineLERP(0, 0, 0, TEXEL0, 0, 0, 0, ENVIRONMENT, 0, 0, 0, TEXEL0, 0, 0, 0, ENVIRONMENT),
+      gsSPTexture(65535 >> 1, 65535 >> 1, 0, 0, 1),
+      gsDPSetTextureLUT(G_TT_RGBA16),
+      gsDPSetTextureImage(G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, Mars_ci8_pal_rgba16),
+      gsDPTileSync(),
+      gsDPSetTile(0, 0, 0, 256, 7, 0, G_TX_WRAP | G_TX_NOMIRROR, 0, 0, G_TX_WRAP | G_TX_NOMIRROR, 0, 0),
+      gsDPLoadSync(),
+      gsDPLoadTLUTCmd(7, 70),
+      gsDPPipeSync(),
+      gsDPTileSync(),
+      gsDPSetTextureImage(G_IM_FMT_CI, G_IM_SIZ_8b_LOAD_BLOCK, 1, Mars_ci8),
+      gsDPSetTile(G_IM_FMT_CI, G_IM_SIZ_8b_LOAD_BLOCK, 0, 0, 7, 0, G_TX_WRAP | G_TX_NOMIRROR, 5, 0, G_TX_WRAP | G_TX_NOMIRROR, 5, 0),
+      gsDPLoadSync(),
+      gsDPLoadBlock(7, 0, 0, 511, 512),
+      gsDPPipeSync(),
+      gsDPSetTile(G_IM_FMT_CI, G_IM_SIZ_8b, 4, 0, 0, 0, G_TX_WRAP | G_TX_NOMIRROR, 5, 0, G_TX_WRAP | G_TX_NOMIRROR, 5, 0),
+      gsDPSetTileSize(0, 0, 0, 124, 124),
+
+  LevelBase:
+    UsedResources: ["LevelBase_ia8"]
+    VertexType: Color
+    Content: |-
+      gsDPPipeSync(),
+      gsDPSetPrimColor(255, 255, 200, 200, 200, 255),
+      gsDPSetCombineLERP(PRIMITIVE, 0, TEXEL0, 0, 0, 0, 0, ENVIRONMENT, PRIMITIVE, 0, TEXEL0, 0, 0, 0, 0, ENVIRONMENT),
+      gsSPTexture(65535 >> 1, 65535 >> 1, 0, 0, 1),
+      gsDPSetTextureLUT(G_TT_NONE),
+      gsDPTileSync(),
+      gsDPSetTextureImage(G_IM_FMT_IA, G_IM_SIZ_8b_LOAD_BLOCK, 1, LevelBase_ia8),
+      gsDPSetTile(G_IM_FMT_IA, G_IM_SIZ_8b_LOAD_BLOCK, 0, 0, 7, 0, G_TX_WRAP | G_TX_NOMIRROR, 5, 0, G_TX_WRAP | G_TX_NOMIRROR, 5, 0),
+      gsDPLoadSync(),
+      gsDPLoadBlock(7, 0, 0, 511, 512),
+      gsDPPipeSync(),
+      gsDPSetTile(G_IM_FMT_IA, G_IM_SIZ_8b, 4, 0, 0, 0, G_TX_WRAP | G_TX_NOMIRROR, 5, 0, G_TX_WRAP | G_TX_NOMIRROR, 5, 0),
       gsDPSetTileSize(0, 0, 0, 124, 124),

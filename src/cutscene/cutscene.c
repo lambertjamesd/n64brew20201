@@ -8,10 +8,26 @@
 #include "scene/scene_management.h"
 #include "controls/controller.h"
 
+#include "../data/cutscenes/geometry_set.h"
 #include "../data/level_themes/Mars/theme.h"
 #include "../data/cutscenes/geometry_animdef.inc.h"
 
 struct Cutscene gCutscene;
+
+struct Transform gCameraPos = {
+    {-66.6263f * SCENE_SCALE, -6.69764f * SCENE_SCALE, 1.71001f * SCENE_SCALE},
+    {0.577695f, 0.276208f, 0.314765f, 0.700643f},
+    // {0.0f, 0.0f, 100 * SCENE_SCALE},
+    {1.0f, 1.0f, 1.0f},
+};
+
+struct Quaternion gCameraRotation = {0.707107f, 0.0f, 0.0f, 0.707107f};
+
+struct Transform gRelativeCamera = {
+    {638.493652f, -897.510986f, 564.948242f},
+    {-0.051174067, 0.238761738, 0.0129388198, 0.96964246},
+    {1.0f, 1.0f, 1.0f},
+};
 
 Lights1 gCutsceneLights = gdSPDefLights1(
 	0x55, 0x61, 0x67,
@@ -57,7 +73,7 @@ void cutsceneUpdate(struct Cutscene* cutscene) {
 }
 
 void cutsceneRender(struct Cutscene* cutscene, struct RenderState* renderState) {
-    cutscene->camera.transform = cutscene->rootTransforms[CUTSCENE_ANIMATIONS_CAMERA_BONE];
+    transformConcat(&cutscene->rootTransforms[CUTSCENE_ANIMATIONS_CAMERA_BONE], &gRelativeCamera, &cutscene->camera.transform);
 
     gDPPipeSync(renderState->dl++);
     Vp* viewport = &gFullScreenVP;
@@ -97,6 +113,8 @@ void cutsceneRender(struct Cutscene* cutscene, struct RenderState* renderState) 
     gDPSetRenderMode(renderState->dl++, G_RM_ZB_OPA_SURF, G_RM_ZB_OPA_SURF2);
     gSPSetLights1(renderState->dl++, gCutsceneLights);
 
+    gSPDisplayList(renderState->dl++, cutscene_set_model_gfx);
+
     Mtx* boneMatrices = renderStateRequestMatrices(renderState, CUTSCENE_ANIMATIONS_DEFAULT_BONES_COUNT);
     Mtx* minonScale = renderStateRequestMatrices(renderState, 1);
     guScale(minonScale, MINION_RENDER_SCALE, MINION_RENDER_SCALE, MINION_RENDER_SCALE);
@@ -113,7 +131,9 @@ void cutsceneRender(struct Cutscene* cutscene, struct RenderState* renderState) 
         MATRIX_TRANSFORM_SEGMENT,  
         osVirtualToPhysical(&boneMatrices[CUTSCENE_ANIMATIONS_ROOT_BONE])
     );
-    gSPDisplayList(renderState->dl++, doglow_DogLow_mesh);
+    gSPSetGeometryMode(renderState->dl++, G_LIGHTING);
+    // + 4 to skip culling
+    gSPDisplayList(renderState->dl++, doglow_DogLow_mesh + 4);
 
     for (unsigned i = 0; i < sizeof(gDogMinionBones)/sizeof(gDogMinionBones[0]); ++i) {
         gDPPipeSync(renderState->dl++);
@@ -131,7 +151,9 @@ void cutsceneRender(struct Cutscene* cutscene, struct RenderState* renderState) 
         MATRIX_TRANSFORM_SEGMENT,  
         osVirtualToPhysical(&boneMatrices[CUTSCENE_ANIMATIONS_ROOTC_BONE])
     );
-    gSPDisplayList(renderState->dl++, catlow_CatLow_mesh);
+    // + 4 to skip culling
+    gSPDisplayList(renderState->dl++, catlow_CatLow_mesh + 4
+    );
     gDPPipeSync(renderState->dl++);
 
     for (unsigned i = 0; i < sizeof(gCatMinionBones)/sizeof(gCatMinionBones[0]); ++i) {
