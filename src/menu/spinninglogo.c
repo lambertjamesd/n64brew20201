@@ -13,8 +13,8 @@
 
 #define WHITE_CLEAR_TIME        0.5f
 #define DELAY_TIME              2.0f
-#define SPINNING_LOGO_TIME      (DELAY_TIME + 7.0f)
-// #define SPINNING_LOGO_TIME      2.5f
+// #define SPINNING_LOGO_TIME      (DELAY_TIME + 7.0f)
+#define SPINNING_LOGO_TIME      2.5f
 #define FADE_TIME               2.0f
 #define JINGLE_PLAY_TIME        (DELAY_TIME)
 #define LAUGH_PLAY_TIME         (DELAY_TIME + 3.0f)

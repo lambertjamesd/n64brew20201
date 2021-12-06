@@ -47,6 +47,7 @@ struct LevelDefinition {
     struct Vector2* playerStartLocations;
     unsigned short baseCount;
     unsigned short decorCount;
+    unsigned short song;
     struct BaseDefinition* bases;
     struct DecorDefinition* decor;
     struct Box2D levelBoundaries;

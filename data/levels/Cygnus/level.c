@@ -284,6 +284,7 @@ struct LevelDefinition Cygnus_Definition = {
     .playerStartLocations = Cygnus_StartingPositions,
     .baseCount = 6,
     .decorCount = 15,
+    .song = SOUNDS_LEVELMUSIC_PLANUM_BOREUM_XMAS,
     .bases = Cygnus_Bases,
     .decor = Cygnus_Decor,
     .levelBoundaries = {{-3641.39, -3376.37}, {5369.26, 3187.95}},

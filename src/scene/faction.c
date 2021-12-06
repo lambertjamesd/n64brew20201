@@ -99,7 +99,7 @@ struct SKAnimationEvent gDogSpinAttackEvents[] = {
     {16, PLAYER_ATTACK_END_ID},
 };
 
-unsigned short gWalkSounds[] = {SOUNDS_FOOTSTEP0, SOUNDS_FOOTSTEP1, SOUNDS_FOOTSTEP2, SOUNDS_FOOTSTEP3, SOUNDS_FOOTSTEP4};
+unsigned short gWalkSounds[] = {SOUNDS_FOOTSTEPSWALKCYCLE};
 
 unsigned short gDogDamageSounds[] = {SOUNDS_DOG_INJURED_GRUNT_1, SOUNDS_DOG_INJURED_GRUNT_2};
 unsigned short gDogAttackSounds[] = {SOUNDS_DOG_ATTACK1, SOUNDS_DOG_ATTACK2, SOUNDS_DOG_ATTACK3};

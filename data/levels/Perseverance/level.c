@@ -665,6 +665,7 @@ struct LevelDefinition Perseverance_Definition = {
     .playerStartLocations = Perseverance_StartingPositions,
     .baseCount = 16,
     .decorCount = 75,
+    .song = SOUNDS_LEVELMUSIC_DANAIDES,
     .bases = Perseverance_Bases,
     .decor = Perseverance_Decor,
     .levelBoundaries = {{-13243.7, -7617.45}, {13135.9, 9453.98}},

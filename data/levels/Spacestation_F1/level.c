@@ -1291,6 +1291,7 @@ struct LevelDefinition Spacestation_F1_Definition = {
     .playerStartLocations = Spacestation_F1_StartingPositions,
     .baseCount = 13,
     .decorCount = 92,
+    .song = SOUNDS_LEVEL_MUSICTANGERINEVAMP,
     .bases = Spacestation_F1_Bases,
     .decor = Spacestation_F1_Decor,
     .levelBoundaries = {{-5671.76, -4822.91}, {6949.38, 6268.42}},

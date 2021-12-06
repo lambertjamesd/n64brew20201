@@ -164,6 +164,7 @@ struct LevelDefinition Cluster_Definition = {
     .playerStartLocations = Cluster_StartingPositions,
     .baseCount = 7,
     .decorCount = 0,
+    .song = SOUNDS_LEVELMUSIC_FERMIPARADOX_MASTERED,
     .bases = Cluster_Bases,
     .decor = Cluster_Decor,
     .levelBoundaries = {{-4046.9, -4046.9}, {4046.9, 4046.9}},

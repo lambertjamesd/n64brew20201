@@ -434,6 +434,7 @@ struct LevelDefinition Sojourner_Definition = {
     .playerStartLocations = Sojourner_StartingPositions,
     .baseCount = 10,
     .decorCount = 39,
+    .song = SOUNDS_LEVELMUSIC_DANAIDES,
     .bases = Sojourner_Bases,
     .decor = Sojourner_Decor,
     .levelBoundaries = {{-8980.92, -7743.49}, {9448.1, 7743.49}},

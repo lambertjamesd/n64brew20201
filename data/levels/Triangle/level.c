@@ -230,6 +230,7 @@ struct LevelDefinition Triangle_Definition = {
     .playerStartLocations = Triangle_StartingPositions,
     .baseCount = 9,
     .decorCount = 8,
+    .song = SOUNDS_LEVELMUSIC_FERMIPARADOX_MASTERED,
     .bases = Triangle_Bases,
     .decor = Triangle_Decor,
     .levelBoundaries = {{-4410.91, -5149.82}, {4470.08, 3730.95}},

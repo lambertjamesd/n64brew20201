@@ -3,18 +3,85 @@
 #include "soundarray.h"
 #include "util/rom.h"
 #include "math/mathf.h"
+#include "game_defs.h"
 
 struct SoundArray* gSoundClipArray;
 ALSndPlayer gSoundPlayer;
 ALSndId gSoundIds[MAX_SOUNDS];
 struct ActiveSoundInfo gActiveSounds[MAX_SOUNDS];
+struct SoundListener gListeners[MAX_PLAYERS];
+unsigned gListenerCount;
+
+#define FULL_VOLUME_RADIUS   (SCENE_SCALE * 10.0f)
+
+float gSoundVolume = 1.0f;
+float gMusicVolume = 1.0f;
 
 enum SoundMatchScore {
     SoundMatchScoreNone,
     SoundMatchScoreDifferentClip,
+    SoundMatchScoreClipMatchPlaying,
     SoundMatchScoreNoClip,
     SoundMatchScoreClipMatch,
 };
+
+short soundVolume(float floatValue) {
+    float result = floatValue * 0x7fff;
+
+    if (result > 0x7fff) {
+        return 0x7fff;
+    } else if (result < 0.0f) {
+        return 0;
+    } else {
+        return (short)result;
+    }
+}
+
+void soundDetermine3DVolumePan(struct Vector3* position, float volumeIn, short* volume, short* pan) {
+    struct SoundListener* nearestListener = 0;
+    float bestDistance = 0;
+
+    for (unsigned i = 0; i < gListenerCount; ++i) {
+        float distance = vector3DistSqrd(&gListeners[i].position, position);
+        if (!nearestListener || distance < bestDistance) {
+            bestDistance = distance;
+            nearestListener = &gListeners[i];
+        }
+    }
+
+    if (!nearestListener) {
+        *volume = soundVolume(volumeIn);
+        *pan = 64;
+        return;
+    }
+
+    *volume *= soundVolume(volumeIn * FULL_VOLUME_RADIUS * FULL_VOLUME_RADIUS / bestDistance);
+
+    struct Vector3 offset;
+    vector3Sub(position, &nearestListener->position, &offset);
+    struct Vector3 right;
+    quatMultVector(&nearestListener->rotation, &gRight, &right);
+    vector3Normalize(&offset, &offset);
+
+    float leftRight = vector3Dot(&offset, &right) * 64.0f + 64.0f;
+
+    if (leftRight > 127.0f) {
+        *pan = 127;
+    } else if (leftRight < 0) {
+        *pan = 0;
+    } else {
+        *pan = (short)leftRight;
+    }
+}
+
+void soundPlayerUpdateListener(unsigned index, struct Vector3* position, struct Quaternion* rotation) {
+    gListeners[index].position = *position;
+    gListeners[index].rotation = *rotation;
+}
+
+void soundPlayerSetListenerCount(unsigned count) {
+    gListenerCount = count;
+}
 
 int soundMatchScore(ALSound* forSound, struct ActiveSoundInfo* against) {
     if (!against->forSound) {
@@ -24,6 +91,10 @@ int soundMatchScore(ALSound* forSound, struct ActiveSoundInfo* against) {
     alSndpSetSound(&gSoundPlayer, against->soundId);
 
     if (alSndpGetState(&gSoundPlayer) != AL_STOPPED || (against->flags & SoundPlayerFlagsLoop) != 0) {
+        if (against->forSound == forSound) {
+            return SoundMatchScoreClipMatchPlaying;
+        }
+
         return SoundMatchScoreNone;
     }
 
@@ -55,12 +126,16 @@ void initActiveSoundForSound(ALSound* sound, struct ActiveSoundInfo* info) {
 
 struct ActiveSoundInfo* findSoundInfo(ALSound* forSound) {
     struct ActiveSoundInfo* fallback = 0;
+    enum SoundMatchScore fallbackScore = SoundMatchScoreNone;
 
     for (unsigned i = 0; i < MAX_SOUNDS; ++i) {
         enum SoundMatchScore score = soundMatchScore(forSound, &gActiveSounds[i]);
 
-        if (!fallback && score == SoundMatchScoreDifferentClip) {
-            fallback = &gActiveSounds[i];
+        if (!fallback && (score == SoundMatchScoreDifferentClip || score == SoundMatchScoreClipMatchPlaying)) {
+            if (score > fallbackScore) {
+                fallback = &gActiveSounds[i];
+                fallbackScore = score;
+            }
         } else if (score >= SoundMatchScoreNoClip) {
             return &gActiveSounds[i];
         }
@@ -79,9 +154,13 @@ void soundPlayerInit() {
     sndConfig.maxSounds = MAX_SOUNDS;
     sndConfig.heap = &gAudioHeap;
     alSndpNew(&gSoundPlayer, &sndConfig);
+
+    for (unsigned i = 0; i < MAX_SOUNDS; ++i) {
+        gActiveSounds[i].soundId = -1;
+    }
 }
 
-SoundID soundPlayerPlay(unsigned clipId, enum SoundPlayerFlags flags) {
+SoundID soundPlayerPlay(unsigned clipId, enum SoundPlayerFlags flags, struct Vector3* pos) {
     if (clipId >= gSoundClipArray->soundCount) {
         return SOUND_ID_NONE;
     }
@@ -95,9 +174,31 @@ SoundID soundPlayerPlay(unsigned clipId, enum SoundPlayerFlags flags) {
     initActiveSoundForSound(gSoundClipArray->sounds[clipId], soundInfo);
 
     soundInfo->flags = flags;
+    soundInfo->volume = 1.0f;
+
+    if (pos) {
+        soundInfo->position = *pos;
+        soundInfo->flags |= SoundPlayerFlags3D;
+    } else {
+        soundInfo->flags &= ~SoundPlayerFlags3D;
+    }
+
     alSndpSetSound(&gSoundPlayer, soundInfo->soundId);
-    alSndpPlay(&gSoundPlayer);
     alSndpSetPitch(&gSoundPlayer, (float)SOUND_SAMPLE_RATE / (float)OUTPUT_RATE);
+    if (flags & SoundPlayerFlags3D) {
+        short vol;
+        short pan;
+        soundDetermine3DVolumePan(&soundInfo->position, gSoundVolume, &vol, &pan);
+        if (vol < 0) {
+            soundDetermine3DVolumePan(&soundInfo->position, gSoundVolume, &vol, &pan);
+        }
+        alSndpSetVol(&gSoundPlayer, vol);
+        alSndpSetPan(&gSoundPlayer, pan);
+    } else {
+        alSndpSetVol(&gSoundPlayer, soundVolume((flags & SoundPlayerFlagsIsMusic) ? gMusicVolume : gSoundVolume));
+        alSndpSetPan(&gSoundPlayer, 64);
+    }
+    alSndpPlay(&gSoundPlayer);
 
     return soundInfo - gActiveSounds;
 }
@@ -108,16 +209,35 @@ void soundPlayerUpdatePosition(SoundID soundId, struct Vector3* position) {
     }
 
     gActiveSounds[soundId].position = *position;
+    gActiveSounds[soundId].flags |= SoundPlayerFlags3D;
 }
 
 void soundPlayerUpdate() {
     for (unsigned i = 0; i < MAX_SOUNDS; ++i) {
         struct ActiveSoundInfo* activeSound = &gActiveSounds[i];
+
+        if (!activeSound->forSound) {
+            continue;
+        }
         
         if (activeSound->flags & SoundPlayerFlagsLoop) {
             alSndpSetSound(&gSoundPlayer, activeSound->soundId);
-            if (alSndpGetState(&gSoundPlayer) == AL_STOPPED) {
+            s32 soundState = alSndpGetState(&gSoundPlayer);
+            if (soundState == AL_STOPPED) {
                 alSndpPlay(&gSoundPlayer);
+            }
+        }
+
+        if (activeSound->flags & SoundPlayerFlags3D) {
+            alSndpSetSound(&gSoundPlayer, activeSound->soundId);
+            s32 soundState = alSndpGetState(&gSoundPlayer);
+
+            if (soundState == AL_PLAYING) {
+                short vol;
+                short pan;
+                soundDetermine3DVolumePan(&activeSound->position, gSoundVolume, &vol, &pan);
+                alSndpSetVol(&gSoundPlayer, vol);
+                alSndpSetPan(&gSoundPlayer, pan);
             }
         }
     }
@@ -151,18 +271,20 @@ void soundPlayerSetVolume(SoundID soundId, float volume) {
         return;
     }
 
-    int volumeAsInt = volume * 32767;
+    struct ActiveSoundInfo* soundInfo = &gActiveSounds[soundId];
 
-    if (volumeAsInt > 32767) {
-        volumeAsInt = 32767;
+    soundInfo->volume = volume;
+    alSndpSetSound(&gSoundPlayer, soundInfo->soundId);
+
+    if (gActiveSounds[soundId].flags & SoundPlayerFlags3D) {
+        short vol;
+        short pan;
+        soundDetermine3DVolumePan(&soundInfo->position, gSoundVolume * soundInfo->volume, &vol, &pan);
+        alSndpSetVol(&gSoundPlayer, vol);
+        alSndpSetPan(&gSoundPlayer, pan);
+    } else {
+        alSndpSetVol(&gSoundPlayer, soundVolume(volume * ((gActiveSounds[soundId].flags & SoundPlayerFlagsIsMusic) ? gMusicVolume : gSoundVolume)));
     }
-
-    if (volumeAsInt < 0) {
-        volumeAsInt = 0;
-    }
-
-    alSndpSetSound(&gSoundPlayer, gActiveSounds[soundId].soundId);
-    alSndpSetVol(&gSoundPlayer, volumeAsInt);
 }
 
 int soundPlayerIsPlaying(SoundID soundId) {
@@ -182,5 +304,29 @@ void soundPlayerReset() {
     for (unsigned i = 0; i < MAX_SOUNDS; ++i) {
         SoundID soundId = i;
         soundPlayerStop(&soundId);
+    }
+}
+
+float soundPlayerGetSoundVolume() {
+    return gSoundVolume;
+}
+
+float soundPlayerGetMusicVolume() {
+    return gMusicVolume;
+}
+
+void soundPlayerSetSoundVolume(float value) {
+    gSoundVolume = MAX(0.0f, MIN(1.0f, value));
+}
+
+void soundPlayerSetMusicVolume(float value) {
+    gMusicVolume = MAX(0.0f, MIN(1.0f, value));
+
+    for (unsigned i = 0; i < MAX_SOUNDS; ++i) {
+        struct ActiveSoundInfo* activeSound = &gActiveSounds[i];
+        
+        if (activeSound->flags & SoundPlayerFlagsIsMusic) {
+            soundPlayerSetVolume(i, 1.0f);
+        }
     }
 }

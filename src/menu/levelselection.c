@@ -104,13 +104,13 @@ void mainMenuUpdateLevelSelect(struct MainMenu* mainMenu) {
     }
 
     if (controllerGetButtonDown(0, A_BUTTON) && mainMenuIsLevelUnlocked(mainMenu)) {
-        soundPlayerPlay(SOUNDS_UI_SELECT2, 0);
+        soundPlayerPlay(SOUNDS_UI_SELECT2, 0, 0);
         mainMenu->selections.targetMenuState = MainMenuStateStarting;
         textBoxHide(&gTextBox);
     }
 
     if (controllerGetButtonDown(0, B_BUTTON)) {
-        soundPlayerPlay(SOUNDS_UI_SELECT3, 0);
+        soundPlayerPlay(SOUNDS_UI_SELECT3, 0, 0);
         mainMenu->selections.targetMenuState = MainMenuStateSelectingFaction;
         textBoxHide(&gTextBox);
     }

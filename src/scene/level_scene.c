@@ -140,6 +140,7 @@ void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* defin
     levelScene->aiPlayerMask = aiPlayerMask;
 
     gfxInitSplitscreenViewport(levelScene->humanPlayerCount);
+    soundPlayerSetListenerCount(levelScene->humanPlayerCount);
 
     levelScene->state = LevelSceneStateIntro;
     textBoxInit(&gTextBox, "Ready?", 200, SCREEN_WD / 2, SCREEN_HT / 2);
@@ -152,7 +153,7 @@ void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* defin
         tutorialInit(levelScene, (flags & LevelMetadataFlagsTutorial) ? TutorialStateMove : TutorialStateUpgrade);
     }
 
-    soundPlayerPlay(SOUNDS_LEVELMUSIC_FERMIPARADOX, SoundPlayerFlagsLoop);
+    soundPlayerPlay(definition->song, SoundPlayerFlagsIsMusic, 0);
 }
 
 void levelSceneRender(struct LevelScene* levelScene, struct RenderState* renderState) {
@@ -430,7 +431,7 @@ void levelSceneDeathSFX_Trigger(struct LevelScene* levelScene){
     for(unsigned i = 0; i < levelScene->playerCount; ++i){
         if(!playerIsAlive(&levelScene->players[i])){
             levelScene->deadPlayers[i] = 1;
-            soundPlayerPlay(SOUNDS_DEATHSFX, 0);
+            soundPlayerPlay(SOUNDS_DEATHSFX, 0, 0);
         }
     }
 }
@@ -486,7 +487,7 @@ void levelSceneUpdate(struct LevelScene* levelScene) {
     levelSceneDeathSFX_Trigger(levelScene);
 
     unsigned botIndex = 0;
-
+    unsigned humanIndex = 0;
     unsigned togglePause = 0;
 
     for (unsigned playerIndex = 0; playerIndex < levelScene->playerCount; ++playerIndex) {
@@ -496,10 +497,15 @@ void levelSceneUpdate(struct LevelScene* levelScene) {
 
         levelSceneCollectPlayerInput(levelScene, playerIndex, botIndex, playerInput);
 
+        soundPlayerUpdateListener(humanIndex, &levelScene->cameras[playerIndex].transform.position, &levelScene->cameras[playerIndex].transform.rotation);
+
         if (IS_PLAYER_AI(levelScene, playerIndex)) {
             ++botIndex;
-        } else if (controllerGetButtonDown(playerIndex, START_BUTTON)) {
-            togglePause = 1;
+        } else {
+            ++humanIndex;
+            if (controllerGetButtonDown(playerIndex, START_BUTTON)) {
+                togglePause = 1;
+            }
         }
 
         if (!playerIsAlive(&levelScene->players[playerIndex])) {
@@ -581,9 +587,9 @@ void levelSceneSpawnMinion(struct LevelScene* levelScene, enum MinionType type, 
     
 }
 
-void levelBaseDespawnMinions(struct LevelScene* levelScene, unsigned char baseId) {
+void levelBaseDespawnMinions(struct LevelScene* levelScene, unsigned char baseId, unsigned newTeam) {
     for (unsigned i = 0; i < levelScene->minionCount; ++i) {
-        if (minionIsAlive(&levelScene->minions[i]) && levelScene->minions[i].sourceBaseId == baseId) {
+        if (minionIsAlive(&levelScene->minions[i]) && levelScene->minions[i].sourceBaseId == baseId && levelScene->minions[i].team.teamNumber != newTeam) {
             minionApplyDamage(&levelScene->minions[i], 100.0f, &levelScene->bases[i].position, 0.0f);
         }
     }

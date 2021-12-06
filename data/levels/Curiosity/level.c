@@ -590,6 +590,7 @@ struct LevelDefinition Curiosity_Definition = {
     .playerStartLocations = Curiosity_StartingPositions,
     .baseCount = 12,
     .decorCount = 57,
+    .song = SOUNDS_LEVELMUSIC_COLDORBITFASTER,
     .bases = Curiosity_Bases,
     .decor = Curiosity_Decor,
     .levelBoundaries = {{-5465.91, -6957.46}, {5522.59, 6019.55}},

@@ -12,6 +12,7 @@
 #include "../data/models/characters.h"
 #include "controlscrambler.h"
 #include "team_data.h"
+#include "audio/soundplayer.h"
 
 #define DROP_TIME       4.0f
 #define DROP_LIFETIME   60.0f
@@ -35,6 +36,7 @@ void itemDropInit(struct ItemDrop* itemDrop) {
     itemDrop->state = ItemDropDisabled;
     itemDrop->stateTimer = 0.0f;
     itemDrop->collision = 0;
+    itemDrop->soundId = SOUND_ID_NONE;
 }
 
 void itemDropRandomLocation(struct Vector2* output) {
@@ -50,6 +52,7 @@ void itemDropRandomLocation(struct Vector2* output) {
 
 void itemDropCleanup(struct ItemDrop* itemDrop) {
     dynamicSceneDeleteEntry(itemDrop->collision);
+    soundPlayerStop(&itemDrop->soundId);
     itemDrop->collision = 0;
     itemDrop->state = ItemDropDisabled;
 }
@@ -159,8 +162,16 @@ void itemDropUpdate(struct ItemDrop* itemDrop, int favorPlayer) {
             }
             break;
         case ItemDropDamaging:
+        {
+            struct Vector3 pos3D;
+            pos3D.x = itemDrop->collision->center.x;
+            pos3D.y = 0.0f;
+            pos3D.z = itemDrop->collision->center.y;
+            soundPlayerPlay(SOUNDS_ITEMSPAWN, 0, &pos3D);
+            itemDrop->soundId = soundPlayerPlay(SOUNDS_ITEMWAIT, 0, &pos3D);
             itemDrop->state = ItemDropStateWaiting;
             break;
+        }
         case ItemDropStateWaiting:
             itemDrop->stateTimer -= gTimeDelta;
             if (itemDrop->stateTimer < 0.0f) {
@@ -290,6 +301,7 @@ void itemDropChaserUpdate(struct ItemDropChaser* chaser, int index) {
         struct Vector3 nextHeadPos;
         if (vector3MoveTowards(punchTrailHeadPosition(&chaser->punchTrail), &nextTarget, ITEM_CHASER_SPEED * gTimeDelta, &nextHeadPos) && 
             chaser->pathfinder.currentNode == NODE_NONE) {
+            soundPlayerPlay(SOUNDS_CONTROLSCRAMBLE, 0, &nextHeadPos);
             levelSceneApplyScrambler(&gCurrentLevel, index, chaser->scrambleType);
             chaser->scrambleType = ControlsScramblerTypeCount;
         } else {
@@ -390,6 +402,7 @@ Gfx* itemDropsRender(struct ItemDrops* itemDrops, struct RenderState* renderStat
 
 
 void itemActivateScrambler(struct LevelScene* scene, struct Vector3* from, enum ControlsScramblerType scramblerType, int fromTeam) {
+    soundPlayerPlay(SOUNDS_POWERUP_PICKUP, 0, from);
     for (unsigned i = 0; i < scene->playerCount; ++i) {
         if (i != fromTeam) {
             itemDropChaserActivate(&scene->itemDrops.chasers[i], from, scramblerType, i);

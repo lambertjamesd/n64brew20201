@@ -54,6 +54,7 @@ struct MainMenu {
     struct OptionsMenu optionsMenu;
     Gfx* showingWireframe;
     unsigned showWireframeDelay;
+    SoundID musicSoundID;
 };
 
 void mainMenuInitSelections(struct MainMenu* mainMenu);

@@ -2,6 +2,7 @@
 #define _Spirit_H
 
 #include "scene/leveldefinition.h"
+#include "audio/clips.h"
 
 extern struct LevelDefinition Spirit_Definition;
 extern Gfx Spirit_wireframe_model_gfx[];

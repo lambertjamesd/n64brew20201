@@ -699,6 +699,7 @@ struct LevelDefinition Sagittarius_Definition = {
     .playerStartLocations = Sagittarius_StartingPositions,
     .baseCount = 11,
     .decorCount = 67,
+    .song = SOUNDS_LEVELMUSIC_PLANUM_BOREUM_XMAS,
     .bases = Sagittarius_Bases,
     .decor = Sagittarius_Decor,
     .levelBoundaries = {{-9989.6, -11678.6}, {10948.9, 5521.71}},

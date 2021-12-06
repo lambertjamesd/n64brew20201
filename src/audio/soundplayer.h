@@ -3,6 +3,7 @@
 
 #include <ultra64.h>
 #include "math/vector3.h"
+#include "math/quaternion.h"
 
 #define MAX_SOUNDS 32
 
@@ -18,6 +19,7 @@ extern char _soundsTblSegmentRomEnd[];
 enum SoundPlayerFlags {
     SoundPlayerFlagsLoop = (1 << 0),
     SoundPlayerFlags3D = (1 << 1),
+    SoundPlayerFlagsIsMusic = (1 << 2),
 };
 
 struct ActiveSoundInfo {
@@ -25,6 +27,7 @@ struct ActiveSoundInfo {
     ALSound* forSound;
     unsigned short flags;
     struct Vector3 position;
+    float volume;
 };
 
 struct SoundList {
@@ -32,18 +35,32 @@ struct SoundList {
     unsigned short count;
 };
 
+struct SoundListener {
+    struct Vector3 position;
+    struct Quaternion rotation;
+};
+
 typedef short SoundID;
 
 void soundPlayerInit();
 void soundPlayerUpdate();
 
-SoundID soundPlayerPlay(unsigned clipId, enum SoundPlayerFlags flags);
+void soundPlayerUpdateListener(unsigned index, struct Vector3* position, struct Quaternion* rotation);
+void soundPlayerSetListenerCount(unsigned count);
+
+SoundID soundPlayerPlay(unsigned clipId, enum SoundPlayerFlags flags, struct Vector3* pos);
 void soundPlayerUpdatePosition(SoundID soundId, struct Vector3* position);
 void soundPlayerStop(SoundID* soundId);
 void soundPlayerSetPitch(SoundID soundId, float speed);
 void soundPlayerSetVolume(SoundID soundId, float volume);
 int soundPlayerIsPlaying(SoundID soundId);
 void soundPlayerReset();
+
+float soundPlayerGetSoundVolume();
+float soundPlayerGetMusicVolume();
+
+void soundPlayerSetSoundVolume(float value);
+void soundPlayerSetMusicVolume(float value);
 
 unsigned soundListRandom(struct SoundList* list);
 

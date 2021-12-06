@@ -43,7 +43,7 @@ static OSMesg           dmaMessageBuf;
 
 /**** Graphics variables used in this file ****/
 OSMesgQueue     gfxFrameMsgQ;
-OSMesg          gfxFrameMsgBuf[MAX_MESGS];
+OSMesg          gfxFrameMsgBuf[MAX_FRAME_BUFFER_MESGS];
 GFXInfo         gInfo[2];
 
 /**** Scheduler globals ****/
@@ -176,7 +176,7 @@ static void initGame(void)
 {   
     /**** set up a needed message q's ****/
     osCreateMesgQueue(&dmaMessageQ, &dmaMessageBuf, 1);
-    osCreateMesgQueue(&gfxFrameMsgQ, gfxFrameMsgBuf, MAX_MESGS);
+    osCreateMesgQueue(&gfxFrameMsgQ, gfxFrameMsgBuf, MAX_FRAME_BUFFER_MESGS);
 
     /**** Initialize the RCP task scheduler ****/
     osCreateScheduler(&sc, (void *)(scheduleStack + OS_SC_STACKSIZE/8),

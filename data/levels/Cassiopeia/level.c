@@ -264,6 +264,7 @@ struct LevelDefinition Cassiopeia_Definition = {
     .playerStartLocations = Cassiopeia_StartingPositions,
     .baseCount = 5,
     .decorCount = 22,
+    .song = SOUNDS_LEVEL_MUSICTANGERINEVAMP,
     .bases = Cassiopeia_Bases,
     .decor = Cassiopeia_Decor,
     .levelBoundaries = {{-4434.68, -3405.02}, {4765.32, 4155.54}},

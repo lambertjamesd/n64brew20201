@@ -2,6 +2,7 @@
 #define _Galaxy_H
 
 #include "scene/leveldefinition.h"
+#include "audio/clips.h"
 
 extern struct LevelDefinition Galaxy_Definition;
 extern Gfx Galaxy_wireframe_model_gfx[];

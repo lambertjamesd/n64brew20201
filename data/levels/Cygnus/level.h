@@ -2,6 +2,7 @@
 #define _Cygnus_H
 
 #include "scene/leveldefinition.h"
+#include "audio/clips.h"
 
 extern struct LevelDefinition Cygnus_Definition;
 extern Gfx Cygnus_wireframe_model_gfx[];

@@ -12,7 +12,7 @@
 #include <ultra64.h>
 #include "graphics/gfx.h"
 
-#define MAX_MESGS	8
+#define MAX_FRAME_BUFFER_MESGS	8
 #define DMA_QUEUE_SIZE  200
 #define NUM_FIELDS      1       /* 1 = 60 Hz video interrupts, 2 = 30 Hz, etc */
 
@@ -33,7 +33,7 @@
 #define PRINTF(a) 
 
 extern OSMesgQueue      gfxFrameMsgQ;
-extern OSMesg           gfxFrameMsgBuf[MAX_MESGS];
+extern OSMesg           gfxFrameMsgBuf[MAX_FRAME_BUFFER_MESGS];
 extern OSPiHandle	*gPiHandle;
 
 extern char _tableSegmentRomStart[], _tableSegmentRomEnd[];

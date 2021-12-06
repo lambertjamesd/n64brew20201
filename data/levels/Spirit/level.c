@@ -483,6 +483,7 @@ struct LevelDefinition Spirit_Definition = {
     .playerStartLocations = Spirit_StartingPositions,
     .baseCount = 11,
     .decorCount = 34,
+    .song = SOUNDS_LEVELMUSIC_COLDORBIT,
     .bases = Spirit_Bases,
     .decor = Spirit_Decor,
     .levelBoundaries = {{-11836.2, -6978.78}, {11623.5, 7223.06}},

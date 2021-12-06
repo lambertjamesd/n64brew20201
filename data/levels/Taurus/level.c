@@ -243,6 +243,7 @@ struct LevelDefinition Taurus_Definition = {
     .playerStartLocations = Taurus_StartingPositions,
     .baseCount = 7,
     .decorCount = 22,
+    .song = SOUNDS_LEVELMUSIC_HUNTERSEEKER_MASTERED,
     .bases = Taurus_Bases,
     .decor = Taurus_Decor,
     .levelBoundaries = {{-7216.18, -3217.98}, {8381.84, 2382.02}},

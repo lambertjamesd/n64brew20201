@@ -114,8 +114,7 @@ build/assets/music/%.mid: assets/music/%.mid
 
 RAW_SOUND_CLIPS = $(shell find assets/sounds/ -type f -name '*.aiff') $(shell find assets/sounds/ -type f -name '*.wav') $(shell find assets/sounds/ -type f -name '*.aifc')
 
-# INS_CLIPS = $(shell find assets/sounds/ -type f -name '*.ins')
-INS_CLIPS =
+INS_CLIPS = $(shell find assets/sounds/ -type f -name '*.ins')
 
 SOUND_CLIPS = $(filter-out $(patsubst %.ins, %.wav, $(INS_CLIPS)) $(patsubst %.ins, %.aiff, $(INS_CLIPS)), $(RAW_SOUND_CLIPS)) $(INS_CLIPS)
 

@@ -239,8 +239,7 @@ void levelBaseUpdate(struct LevelBase* base) {
                     base->state = LevelBaseStateSpawning;
                     base->stateTimeLeft = SPAWN_TIME;
                     base->collider->collisionLayers = DynamicSceneEntryIsTrigger | DynamicSceneEntryHasTeam | COLLISION_LAYER_FOR_TEAM(controllingTeam);
-                    // TODO don't despawn minions if recaptured by same player
-                    levelBaseDespawnMinions(&gCurrentLevel, base->baseId);
+                    levelBaseDespawnMinions(&gCurrentLevel, base->baseId, base->team.teamNumber);
                 }
             } else {
                 gLastCaptureTime = gTimePassed;
@@ -256,7 +255,9 @@ void levelBaseUpdate(struct LevelBase* base) {
     }
 
     if (!soundPlayerIsPlaying(base->captureSound) && isCapturing) {
-        base->captureSound = soundPlayerPlay(SOUNDS_FLAGCAP, 0);
+        base->captureSound = soundPlayerPlay(SOUNDS_FLAGCAP, 0, &base->position);
+    } else if (soundPlayerIsPlaying(base->captureSound) && !isCapturing) {
+        soundPlayerStop(&base->captureSound);
     }
 
     if (isCapturing) {

@@ -7,6 +7,7 @@
 #include "ai/ai_pathfinder.h"
 #include "game_defs.h"
 #include "controlscrambler.h"
+#include "audio/soundplayer.h"
 
 #define MAX_ITEM_DROP       10
 
@@ -24,6 +25,7 @@ enum ItemDropState {
 
 struct ItemDrop {
     unsigned short state;
+    SoundID soundId;
     float stateTimer;
     struct DynamicSceneEntry* collision;
 };

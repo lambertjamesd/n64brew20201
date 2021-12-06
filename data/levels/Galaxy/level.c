@@ -320,6 +320,7 @@ struct LevelDefinition Galaxy_Definition = {
     .playerStartLocations = Galaxy_StartingPositions,
     .baseCount = 9,
     .decorCount = 10,
+    .song = SOUNDS_LEVELMUSIC_FERMIPARADOX_MASTERED,
     .bases = Galaxy_Bases,
     .decor = Galaxy_Decor,
     .levelBoundaries = {{-5971.16, -4658.42}, {5449.5, 4302.31}},

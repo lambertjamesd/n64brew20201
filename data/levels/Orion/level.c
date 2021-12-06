@@ -272,6 +272,7 @@ struct LevelDefinition Orion_Definition = {
     .playerStartLocations = Orion_StartingPositions,
     .baseCount = 7,
     .decorCount = 14,
+    .song = SOUNDS_LEVELMUSIC_DANAIDES,
     .bases = Orion_Bases,
     .decor = Orion_Decor,
     .levelBoundaries = {{-5622.22, -8754.14}, {4472.39, 6466.2}},

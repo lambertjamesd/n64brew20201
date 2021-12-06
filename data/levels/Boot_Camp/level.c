@@ -170,6 +170,7 @@ struct LevelDefinition Boot_Camp_Definition = {
     .playerStartLocations = Boot_Camp_StartingPositions,
     .baseCount = 3,
     .decorCount = 11,
+    .song = SOUNDS_LEVELMUSIC_HUNTERSEEKER_MASTERED,
     .bases = Boot_Camp_Bases,
     .decor = Boot_Camp_Decor,
     .levelBoundaries = {{-4916.18, -1084.36}, {3681.84, 3482.02}},

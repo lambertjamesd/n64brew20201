@@ -20,6 +20,7 @@ Themes:
           DisallowUpgrade: True
           AIDifficulty: 0
           DisableItems: True
+          Song: SOUNDS_LEVELMUSIC_HUNTERSEEKER_MASTERED
 
         - Name: Taurus
           Filename: Taurus.fbx
@@ -29,6 +30,7 @@ Themes:
           DisallowUpgrade: True
           AIDifficulty: 0.1
           DisableItems: True
+          Song: SOUNDS_LEVELMUSIC_HUNTERSEEKER_MASTERED
 
         - Name: Cassiopeia
           Filename: Cassiopeia.fbx
@@ -39,6 +41,7 @@ Themes:
           DisallowUpgrade: True
           Tutorial2: True
           AIDifficulty: 0.3
+          Song: SOUNDS_LEVEL_MUSICTANGERINEVAMP
 
         - Name: Spacestation F1
           Filename: Spaceship_Lowest_Level.fbx
@@ -46,6 +49,7 @@ Themes:
           MaxPlayers: 4
           Campaign: True
           AIDifficulty: 0.3
+          Song: SOUNDS_LEVEL_MUSICTANGERINEVAMP
 
     - Name: Mars
       Output: ../../data/level_themes/Mars/theme.h
@@ -63,6 +67,7 @@ Themes:
           Campaign: True
           Multiplayer: True
           AIDifficulty: 0.6
+          Song: SOUNDS_LEVELMUSIC_FERMIPARADOX_MASTERED
 
         - Name: Spirit
           Filename: Campaign_Spirit.fbx
@@ -71,6 +76,7 @@ Themes:
           Campaign: True
           Multiplayer: True
           AIDifficulty: 0.8
+          Song: SOUNDS_LEVELMUSIC_COLDORBIT
 
         - Name: Triangle
           Filename: Triangle.fbx
@@ -79,6 +85,7 @@ Themes:
           Campaign: True
           Multiplayer: True
           AIDifficulty: 0.6
+          Song: SOUNDS_LEVELMUSIC_FERMIPARADOX_MASTERED
 
         - Name: Orion
           Filename: Orion.fbx
@@ -87,6 +94,7 @@ Themes:
           Campaign: True
           Multiplayer: True
           AIDifficulty: 0.7
+          Song: SOUNDS_LEVELMUSIC_DANAIDES
 
         - Name: Curiosity
           Filename: Campaign_Curiosity.fbx
@@ -95,6 +103,7 @@ Themes:
           Campaign: True
           Multiplayer: True
           AIDifficulty: 0.7
+          Song: SOUNDS_LEVELMUSIC_COLDORBITFASTER
 
         - Name: Sojourner
           Filename: Campaign_Sojourner.fbx
@@ -103,6 +112,7 @@ Themes:
           Campaign: True
           Multiplayer: True
           AIDifficulty: 0.7
+          Song: SOUNDS_LEVELMUSIC_DANAIDES
 
         - Name: Cluster
           Filename: Cluster.fbx
@@ -110,6 +120,7 @@ Themes:
           MaxPlayers: 3
           Campaign: True
           AIDifficulty: 0.7
+          Song: SOUNDS_LEVELMUSIC_FERMIPARADOX_MASTERED
 
         - Name: Perseverance
           Filename: Campaign_Perseverance.fbx
@@ -118,6 +129,7 @@ Themes:
           Campaign: True
           Multiplayer: True
           AIDifficulty: 0.8
+          Song: SOUNDS_LEVELMUSIC_DANAIDES
   
     - Name: Snow
       Output: ../../data/level_themes/Snow/theme.h
@@ -135,6 +147,7 @@ Themes:
           Campaign: True
           Multiplayer: True
           AIDifficulty: 1
+          Song: SOUNDS_LEVELMUSIC_PLANUM_BOREUM_XMAS
 
         - Name: Cygnus
           Filename: Cygnus.fbx
@@ -142,6 +155,7 @@ Themes:
           MaxPlayers: 2
           Campaign: True
           AIDifficulty: 1
+          Song: SOUNDS_LEVELMUSIC_PLANUM_BOREUM_XMAS
 
         - Name: Triple Threat
           Filename: TripleThreat.fbx
@@ -149,3 +163,4 @@ Themes:
           MaxPlayers: 4
           Campaign: True
           AIDifficulty: 1
+          Song: SOUNDS_LEVELMUSIC_PLANUM_BOREUM_XMAS

@@ -305,6 +305,7 @@ struct LevelDefinition Triple_Threat_Definition = {
     .playerStartLocations = Triple_Threat_StartingPositions,
     .baseCount = 7,
     .decorCount = 9,
+    .song = SOUNDS_LEVELMUSIC_PLANUM_BOREUM_XMAS,
     .bases = Triple_Threat_Bases,
     .decor = Triple_Threat_Decor,
     .levelBoundaries = {{-5564.35, -6761.11}, {5267.76, 3466.84}},
