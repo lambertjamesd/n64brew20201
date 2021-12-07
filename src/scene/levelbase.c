@@ -255,7 +255,7 @@ void levelBaseUpdate(struct LevelBase* base) {
     }
 
     if (!soundPlayerIsPlaying(base->captureSound) && isCapturing) {
-        base->captureSound = soundPlayerPlay(SOUNDS_FLAGCAP, 0, &base->position);
+        base->captureSound = soundPlayerPlay(SOUNDS_FLAGCAP, 1.0f, 0, &base->position);
     } else if (soundPlayerIsPlaying(base->captureSound) && !isCapturing) {
         soundPlayerStop(&base->captureSound);
     }

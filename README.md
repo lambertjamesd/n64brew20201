@@ -6,8 +6,6 @@ TODO
     balance factions
     nerf defense upgrade
     death animation is sometimes wrong
-    minion spawn animation
-    minion spawn sound
     skinned joints
     cutscene polish
     darken c arrows

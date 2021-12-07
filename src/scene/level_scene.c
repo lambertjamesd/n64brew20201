@@ -34,6 +34,13 @@
 #define WIN_BY_PRESSING_L   1
 
 void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* definition, unsigned int playercount, unsigned aiPlayerMask, enum LevelMetadataFlags flags, float aiDifficulty) {
+    struct Quaternion noRotation;
+    quatIdent(&noRotation);
+    for (unsigned i = 0; i < playercount; ++i) {
+        soundPlayerUpdateListener(i, &definition->playerStartLocations[i], &noRotation);
+    }
+
+
     levelScene->definition = definition;
     dynamicSceneInit(
         &gDynamicScene, 
@@ -153,7 +160,7 @@ void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* defin
         tutorialInit(levelScene, (flags & LevelMetadataFlagsTutorial) ? TutorialStateMove : TutorialStateUpgrade);
     }
 
-    soundPlayerPlay(definition->song, SoundPlayerFlagsIsMusic, 0);
+    soundPlayerPlay(definition->song, 1.0f, SoundPlayerFlagsIsMusic, 0);
 }
 
 void levelSceneRender(struct LevelScene* levelScene, struct RenderState* renderState) {
@@ -431,7 +438,7 @@ void levelSceneDeathSFX_Trigger(struct LevelScene* levelScene){
     for(unsigned i = 0; i < levelScene->playerCount; ++i){
         if(!playerIsAlive(&levelScene->players[i]) && !IS_PLAYER_AI(levelScene, i)){
             levelScene->deadPlayers[i] = 1;
-            soundPlayerPlay(SOUNDS_DEATHSFX, 0, 0);
+            soundPlayerPlay(SOUNDS_DEATHSFX, 1.0f, 0, 0);
         }
     }
 }

@@ -145,10 +145,10 @@ void cutsceneAnimationEvent(struct SKAnimator* animator, void* data, struct SKAn
             cutscene->currentSetMask = GET_SCENE_EVENT_DATA(event->id);
             break;
         case PLAY_SOUND_EVENT:
-            soundPlayerPlay(GET_SCENE_EVENT_DATA(event->id), 0, 0);
+            soundPlayerPlay(GET_SCENE_EVENT_DATA(event->id), 1.0f, 0, 0);
             break;
         case PLAY_TRANSITION_SOUND_EVENT:
-            soundPlayerPlay(GET_SCENE_EVENT_DATA(event->id), SoundPlayerFlagsTransition, 0);
+            soundPlayerPlay(GET_SCENE_EVENT_DATA(event->id), 1.0f, SoundPlayerFlagsTransition, 0);
             break;
         case STOP_SOUND_EVENT:
             soundPlayerStopWithClipId(GET_SCENE_EVENT_DATA(event->id));

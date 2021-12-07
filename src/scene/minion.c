@@ -19,6 +19,7 @@
 #include "target_finder.h"
 #include "faction.h"
 #include "levelbase.h"
+#include "audio/soundplayer.h"
 
 
 #define MINION_FOLLOW_DIST  3.0f
@@ -107,9 +108,10 @@ void minionInit(struct Minion* minion, enum MinionType type, struct Transform* a
     minionIssueCommand(minion, defualtCommand, followPlayer);
 
     skAnimatorInit(&minion->animator, 1, minionAnimationEvent, minion);
-    skAnimatorRunClip(&minion->animator, &minion_animations_animations[MINION_ANIMATIONS_MINION_ANIMATIONS_ARMATURE_IDLE_INDEX], SKAnimatorFlagsLoop);
+    skAnimatorRunClip(&minion->animator, &minion_animations_animations[MINION_ANIMATIONS_MINION_ANIMATIONS_ARMATURE_SPAWN_INDEX], 0);
     transformInitIdentity(&minion->animationTransform);
     vector3Scale(&gOneVec, &minion->transform.scale, MINION_RENDER_SCALE);
+    soundPlayerPlay(SOUNDS_UI_SELECT2, 0.3f, 0, &minion->transform.position);
 }
 
 void minionRender(struct Minion* minion, struct RenderState* renderState) {
@@ -141,6 +143,24 @@ void minionIssueCommand(struct Minion* minion, enum MinionCommand command, unsig
     minion->currentCommand = command;
     minion->attackTarget = 0;
     minion->followingPlayer = fromPlayer;
+}
+
+void minionUpdateAnimation(struct Minion* minion, int useWalkAnimation) {
+    if (minion->animator.currentAnimation == &minion_animations_animations[MINION_ANIMATIONS_MINION_ANIMATIONS_ARMATURE_SPAWN_INDEX]) {
+        return;
+    }
+
+    if (useWalkAnimation) {
+        if (minion->animator.currentAnimation == 0 ||
+            minion->animator.currentAnimation == &minion_animations_animations[MINION_ANIMATIONS_MINION_ANIMATIONS_ARMATURE_IDLE_INDEX]) {
+            skAnimatorRunClip(&minion->animator, &minion_animations_animations[MINION_ANIMATIONS_MINION_ANIMATIONS_ARMATURE_MOVEFORWARD_INDEX], SKAnimatorFlagsLoop);
+        }
+    } else {
+        if (minion->animator.currentAnimation == 0 ||
+            minion->animator.currentAnimation == &minion_animations_animations[MINION_ANIMATIONS_MINION_ANIMATIONS_ARMATURE_MOVEFORWARD_INDEX]) {
+            skAnimatorRunClip(&minion->animator, &minion_animations_animations[MINION_ANIMATIONS_MINION_ANIMATIONS_ARMATURE_IDLE_INDEX], SKAnimatorFlagsLoop);
+        }
+    }
 }
     
 void minionUpdate(struct Minion* minion) {
@@ -245,17 +265,7 @@ void minionUpdate(struct Minion* minion) {
         }
     }
 
-    if (useWalkAnimation) {
-        if (minion->animator.currentAnimation == 0 ||
-            minion->animator.currentAnimation == &minion_animations_animations[MINION_ANIMATIONS_MINION_ANIMATIONS_ARMATURE_IDLE_INDEX]) {
-            skAnimatorRunClip(&minion->animator, &minion_animations_animations[MINION_ANIMATIONS_MINION_ANIMATIONS_ARMATURE_MOVEFORWARD_INDEX], SKAnimatorFlagsLoop);
-        }
-    } else {
-        if (minion->animator.currentAnimation == 0 ||
-            minion->animator.currentAnimation == &minion_animations_animations[MINION_ANIMATIONS_MINION_ANIMATIONS_ARMATURE_MOVEFORWARD_INDEX]) {
-            skAnimatorRunClip(&minion->animator, &minion_animations_animations[MINION_ANIMATIONS_MINION_ANIMATIONS_ARMATURE_IDLE_INDEX], SKAnimatorFlagsLoop);
-        }
-    }
+    minionUpdateAnimation(minion, useWalkAnimation);
 
     minion->velocity.y += gTimeDelta * GRAVITY;
 
@@ -268,8 +278,8 @@ void minionUpdate(struct Minion* minion) {
     }
 
     struct Vector2 right;
-    right.x = -minion->velocity.x;
-    right.y = minion->velocity.z;
+    right.x = minion->velocity.z;
+    right.y = minion->velocity.x;
 
     if (fabsf(right.x) > 0.0001f || fabsf(right.y) > 0.0001f) {
         vector2Normalize(&right, &right);

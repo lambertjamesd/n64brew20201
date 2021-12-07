@@ -52,8 +52,7 @@ void spinningLogoUpdate(struct SpinningLogo* spinningLogo) {
         }
 
         if (nextTime >= LAUGH_PLAY_TIME && spinningLogo->timer < LAUGH_PLAY_TIME) {
-            SoundID laughSound = soundPlayerPlay(SOUNDS_LOGOLAUGHING, 0, 0);
-            soundPlayerSetVolume(laughSound, 0.7f);
+            soundPlayerPlay(SOUNDS_LOGOLAUGHING, 0.7f, 0, 0);
         }
 
         spinningLogo->timer = nextTime;

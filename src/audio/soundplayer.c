@@ -159,7 +159,7 @@ void soundPlayerInit() {
     }
 }
 
-SoundID soundPlayerPlay(unsigned clipId, enum SoundPlayerFlags flags, struct Vector3* pos) {
+SoundID soundPlayerPlay(unsigned clipId, float volume, enum SoundPlayerFlags flags, struct Vector3* pos) {
     if (clipId >= gSoundClipArray->soundCount) {
         return SOUND_ID_NONE;
     }
@@ -173,7 +173,7 @@ SoundID soundPlayerPlay(unsigned clipId, enum SoundPlayerFlags flags, struct Vec
     initActiveSoundForSound(gSoundClipArray->sounds[clipId], soundInfo);
 
     soundInfo->flags = flags;
-    soundInfo->volume = 1.0f;
+    soundInfo->volume = volume;
 
     if (pos) {
         soundInfo->position = *pos;
@@ -187,11 +187,11 @@ SoundID soundPlayerPlay(unsigned clipId, enum SoundPlayerFlags flags, struct Vec
     if (flags & SoundPlayerFlags3D) {
         short vol;
         short pan;
-        soundDetermine3DVolumePan(&soundInfo->position, gSoundVolume, &vol, &pan);
+        soundDetermine3DVolumePan(&soundInfo->position, gSoundVolume * volume, &vol, &pan);
         alSndpSetVol(&gSoundPlayer, vol);
         alSndpSetPan(&gSoundPlayer, pan);
     } else {
-        alSndpSetVol(&gSoundPlayer, soundVolume((flags & SoundPlayerFlagsIsMusic) ? gMusicVolume : gSoundVolume));
+        alSndpSetVol(&gSoundPlayer, soundVolume(volume * ((flags & SoundPlayerFlagsIsMusic) ? gMusicVolume : gSoundVolume)));
         alSndpSetPan(&gSoundPlayer, 64);
     }
     alSndpPlay(&gSoundPlayer);
