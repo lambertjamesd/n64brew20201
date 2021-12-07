@@ -139,6 +139,7 @@ struct Faction gDogFaction = {
     .maxHP = 10.0f,
 
     .minionMesh = Minion_DogMinion_mesh,
+    .endingCutsceneIndex = CutsceneIndexEnding,
 };
 
 struct PlayerAttackInfo gCatAttacks[] = {
@@ -262,6 +263,7 @@ struct Faction gCatFaction = {
     .maxHP = 8.0f,
 
     .minionMesh = Minion_CatMinion_mesh,
+    .endingCutsceneIndex = CutsceneIndexEndingCat,
 };
 
 // can't have a null pointer exception if gTeamFactions never point to null

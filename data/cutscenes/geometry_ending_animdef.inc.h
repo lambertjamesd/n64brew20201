@@ -1,12 +1,10 @@
 extern unsigned short cutscene_ending_Cutcene_001_CutsceneTest[];
-extern unsigned short cutscene_ending_Cutcene_001_Ending_1_Shot_1[];
-extern unsigned short cutscene_ending_Cutcene_001_Ending_1_Shot_2[];
 extern unsigned short cutscene_ending_Cutcene_001_EndingCutscene[];
+extern unsigned short cutscene_ending_Cutcene_001_EndingCutsceneCat[];
 struct SKAnimationHeader cutscene_ending_animations[] = {
     {1216, 30, 146, 0, (struct SKAnimationChunk*)cutscene_ending_Cutcene_001_CutsceneTest, 0},
-    {1216, 30, 74, 0, (struct SKAnimationChunk*)cutscene_ending_Cutcene_001_Ending_1_Shot_1, 0},
-    {1248, 30, 62, 0, (struct SKAnimationChunk*)cutscene_ending_Cutcene_001_Ending_1_Shot_2, 0},
     {1280, 30, 681, 0, (struct SKAnimationChunk*)cutscene_ending_Cutcene_001_EndingCutscene, 0},
+    {1296, 30, 638, 0, (struct SKAnimationChunk*)cutscene_ending_Cutcene_001_EndingCutsceneCat, 0},
 };
 unsigned short cutscene_ending_bone_parent[] = {
     0xFFFF,

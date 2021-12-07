@@ -72,11 +72,14 @@ int controllerHasPendingMessage() {
     return cntrlReadInProg;
 }
 
+#define CONTROLLER_READ_SKIP_NUMBER 10
+
 void controllersTriggerRead(void) {
-    if (validcontrollers && !cntrlReadInProg)
-    {
-        cntrlReadInProg = 1;
+    if (validcontrollers && !cntrlReadInProg) {
+        cntrlReadInProg = CONTROLLER_READ_SKIP_NUMBER;
         osContStartReadData(&gfxFrameMsgQ);
+    } else if (cntrlReadInProg) {
+        --cntrlReadInProg;
     }
 }
 

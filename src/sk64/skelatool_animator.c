@@ -443,10 +443,18 @@ void skAnimatorUpdate(struct SKAnimator* animator, struct Transform* transforms,
         return;
     }
 
+    animator->flags |= SKAnimatorFlagsUpdating;
+
     while (animator->eventCallback && animator->nextEvent < animator->currentAnimation->numEvents && 
         animator->currTick >= animator->currentAnimation->animationEvents[animator->nextEvent].tick &&
         animator->nextSourceTick >= animator->currentAnimation->animationEvents[animator->nextEvent].tick) {
         animator->eventCallback(animator, animator->eventCallbackData, &animator->currentAnimation->animationEvents[animator->nextEvent]);
+
+        // if the event callback started a new animation exit early
+        if (!(animator->flags & SKAnimatorFlagsUpdating)) {
+            return;
+        }
+        
         ++animator->nextEvent;
     }
 
@@ -459,11 +467,18 @@ void skAnimatorUpdate(struct SKAnimator* animator, struct Transform* transforms,
             animator->eventCallback(animator, animator->eventCallbackData, &event);
         }
 
+        // if the event callback started a new animation exit early
+        if (!(animator->flags & SKAnimatorFlagsUpdating)) {
+            return;
+        }
+
         if (animator->flags & SKAnimatorFlagsLoop) {
             skAnimatorRunClip(animator, animator->currentAnimation, animator->flags);
             return;
         }
     }
+
+    animator->flags &= ~SKAnimatorFlagsUpdating;
     
     // queue up next keyframes if they are needed
     if (animator->nextTick >= animator->nextSourceTick) {

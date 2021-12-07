@@ -38,6 +38,7 @@ struct Cutscene gCutscene;
 struct SKAnimationHeader* gCutsceneAnimations[] = {
     [CutsceneIndexIntro] = &cutscene_animations_animations[CUTSCENE_ANIMATIONS_CUTSCENE_ANIMATIONS_CUTCENE_001_INTROCUTSCENE_INDEX],
     [CutsceneIndexEnding] = &cutscene_ending_animations[CUTSCENE_ENDING_CUTSCENE_ENDING_CUTCENE_001_ENDINGCUTSCENE_INDEX],
+    [CutsceneIndexEndingCat] = &cutscene_ending_animations[CUTSCENE_ENDING_CUTSCENE_ENDING_CUTCENE_001_ENDINGCUTSCENECAT_INDEX],
 };
 
 struct Transform gRelativeCamera[] = {
@@ -51,6 +52,15 @@ struct Transform gRelativeCamera[] = {
         {0.107586406, -0.243552148, -0.117358007, 0.956730902},
         {1.0f, 1.0f, 1.0f},
     },
+    [CutsceneIndexEndingCat] = {
+        {-10.3515625, -2.70001221, 18.1567993},
+        {0.107586406, -0.243552148, -0.117358007, 0.956730902},
+        {1.0f, 1.0f, 1.0f},
+    },
+};
+
+char gPalleteSwap[] = {
+    0, 0, 1,
 };
 
 struct Transform gCameraPos = {
@@ -89,6 +99,11 @@ struct SKAnimationEvent gEndingEvents[] = {
     {506, CREATE_SCENE_EVENT(FADE_TO_BLACK, 0)},
 };
 
+struct SKAnimationEvent gEndingCatEvents[] = {
+    {0, CREATE_SCENE_EVENT(PLAY_TRANSITION_SOUND_EVENT, SOUNDS_LEVELMUSIC_FERMIPARADOX_MASTERED)},
+    {506, CREATE_SCENE_EVENT(FADE_TO_BLACK, 0)},
+};
+
 Gfx* gCutsceneSets[] = {
     cutscene_ss_set_model_gfx,
     cutscene_surface_set_model_gfx,
@@ -97,6 +112,7 @@ Gfx* gCutsceneSets[] = {
 unsigned short gStartingSceneMask[] = {
     [CutsceneIndexIntro] = 0x1,
     [CutsceneIndexEnding] = 0x2,
+    [CutsceneIndexEndingCat] = 0x2,
 };
 
 Lights1 gCutsceneLights = gdSPDefLights1(
@@ -145,11 +161,14 @@ void cutsceneAnimationEvent(struct SKAnimator* animator, void* data, struct SKAn
 
 void cutsceneInit(struct Cutscene* cutscene, enum CutsceneIndex index) {
     cutscene->cutsceneIndex = index;
-    gCutsceneAnimations[0]->animationEvents = gIntroEvents;
-    gCutsceneAnimations[0]->numEvents = sizeof(gIntroEvents) / sizeof(*gIntroEvents);
+    gCutsceneAnimations[CutsceneIndexIntro]->animationEvents = gIntroEvents;
+    gCutsceneAnimations[CutsceneIndexIntro]->numEvents = sizeof(gIntroEvents) / sizeof(*gIntroEvents);
 
-    gCutsceneAnimations[1]->animationEvents = gEndingEvents;
-    gCutsceneAnimations[1]->numEvents = sizeof(gEndingEvents) / sizeof(*gEndingEvents);
+    gCutsceneAnimations[CutsceneIndexEnding]->animationEvents = gEndingEvents;
+    gCutsceneAnimations[CutsceneIndexEnding]->numEvents = sizeof(gEndingEvents) / sizeof(*gEndingEvents);
+
+    gCutsceneAnimations[CutsceneIndexEndingCat]->animationEvents = gEndingCatEvents;
+    gCutsceneAnimations[CutsceneIndexEndingCat]->numEvents = sizeof(gEndingCatEvents) / sizeof(*gEndingCatEvents);
 
     skAnimatorInit(&cutscene->animator, CUTSCENE_ANIMATIONS_DEFAULT_BONES_COUNT, cutsceneAnimationEvent, cutscene);
 
@@ -193,13 +212,6 @@ void cutsceneUpdate(struct Cutscene* cutscene) {
 
 void cutsceneRender(struct Cutscene* cutscene, struct RenderState* renderState) {
     transformConcat(&cutscene->rootTransforms[CUTSCENE_ANIMATIONS_CAMERA_BONE], &gRelativeCamera[cutscene->cutsceneIndex], &cutscene->camera.transform);
-
-    // cutscene->camera.transform = gCameraPos;
-
-    // struct Transform inverse;
-    // transformInvert(&cutscene->rootTransforms[CUTSCENE_ANIMATIONS_CAMERA_BONE], &inverse);
-    // struct Transform relative;
-    // transformConcat(&inverse, &gCameraPos, &relative);
 
     gDPPipeSync(renderState->dl++);
     Vp* viewport = &gFullScreenVP;
@@ -255,7 +267,7 @@ void cutsceneRender(struct Cutscene* cutscene, struct RenderState* renderState) 
 
     gDPPipeSync(renderState->dl++);
     gSPDisplayList(renderState->dl++, gTeamTexture);
-    gDPUseTeamPallete(renderState->dl++, 0, 2);
+    gDPUseTeamPallete(renderState->dl++, gPalleteSwap[cutscene->cutsceneIndex], 2);
     gSPSegment(
         renderState->dl++, 
         MATRIX_TRANSFORM_SEGMENT,  
@@ -270,21 +282,20 @@ void cutsceneRender(struct Cutscene* cutscene, struct RenderState* renderState) 
         gDPPipeSync(renderState->dl++);
         gSPMatrix(renderState->dl++, &boneMatrices[(unsigned)gDogMinionBones[i]], G_MTX_MODELVIEW | G_MTX_PUSH | G_MTX_MUL);
         gSPMatrix(renderState->dl++, minonScale, G_MTX_MODELVIEW | G_MTX_NOPUSH | G_MTX_MUL);
-        gDPUseTeamPallete(renderState->dl++, 0, 0);
+        gDPUseTeamPallete(renderState->dl++, gPalleteSwap[cutscene->cutsceneIndex], 0);
         gSPDisplayList(renderState->dl++, Minion_DogMinion_mesh);
         gSPPopMatrix(renderState->dl++, G_MTX_MODELVIEW);
     }
 
     gDPPipeSync(renderState->dl++);
-    gDPUseTeamPallete(renderState->dl++, 1, 2);
+    gDPUseTeamPallete(renderState->dl++, 1 ^ gPalleteSwap[cutscene->cutsceneIndex], 2);
     gSPSegment(
         renderState->dl++, 
         MATRIX_TRANSFORM_SEGMENT,  
         osVirtualToPhysical(&boneMatrices[CUTSCENE_ANIMATIONS_ROOTC_BONE])
     );
     // + 4 to skip culling
-    gSPDisplayList(renderState->dl++, catlow_CatLow_mesh + 4
-    );
+    gSPDisplayList(renderState->dl++, catlow_CatLow_mesh + 4);
     gDPPipeSync(renderState->dl++);
 
     gSPDisplayList(renderState->dl++, gTeamTexture);
@@ -292,7 +303,7 @@ void cutsceneRender(struct Cutscene* cutscene, struct RenderState* renderState) 
         gDPPipeSync(renderState->dl++);
         gSPMatrix(renderState->dl++, &boneMatrices[(unsigned)gCatMinionBones[i]], G_MTX_MODELVIEW | G_MTX_PUSH | G_MTX_MUL);
         gSPMatrix(renderState->dl++, minonScale, G_MTX_MODELVIEW | G_MTX_NOPUSH | G_MTX_MUL);
-        gDPUseTeamPallete(renderState->dl++, 1, 0);
+        gDPUseTeamPallete(renderState->dl++, 1 ^ gPalleteSwap[cutscene->cutsceneIndex], 0);
         gSPDisplayList(renderState->dl++, Minion_CatMinion_mesh);
         gSPPopMatrix(renderState->dl++, G_MTX_MODELVIEW);
     }
@@ -310,6 +321,7 @@ void cutsceneRender(struct Cutscene* cutscene, struct RenderState* renderState) 
         alpha = 0;
     }
 
+    gDPPipeSync(renderState->dl++);
     gDPSetRenderMode(renderState->dl++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
     gDPPipeSync(renderState->dl++);
     gDPSetCombineLERP(renderState->dl++, 0, 0, 0, ENVIRONMENT, 0, 0, 0, ENVIRONMENT, 0, 0, 0, ENVIRONMENT, 0, 0, 0, ENVIRONMENT);

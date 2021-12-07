@@ -21,6 +21,7 @@ extern struct Cutscene gCutscene;
 enum CutsceneIndex {
     CutsceneIndexIntro,
     CutsceneIndexEnding,
+    CutsceneIndexEndingCat,
 };
 
 void cutsceneInit(struct Cutscene* cutscene, enum CutsceneIndex index);

@@ -31,6 +31,7 @@ enum SKAnimatorFlags {
     SKAnimatorFlagsActive = (1 << 0),
     SKAnimatorFlagsLoop = (1 << 1),
     SKAnimatorFlagsPendingRequest = (1 << 2),
+    SKAnimatorFlagsUpdating = (1 << 3),
 };
 
 struct SKAnimator;

@@ -11,6 +11,7 @@
 #include "math/vector2.h"
 #include "math/mathf.h"
 #include "audio/soundplayer.h"
+#include "cutscene/cutscene.h"
 
 enum PlayerAttackInfoFlags {
     PlayerAttackInfoFlagsCanMove = (1 << 0),
@@ -85,6 +86,8 @@ struct Faction {
     float maxHP;
 
     Gfx* minionMesh;
+
+    enum CutsceneIndex endingCutsceneIndex;
 };
 
 extern struct Faction* gTeamFactions[MAX_PLAYERS];
