@@ -12,6 +12,8 @@ struct Cutscene {
     struct Camera camera;
     unsigned short currentSetMask;
     unsigned short cutsceneIndex;
+    float currentFade;
+    float targetFade;
 };
 
 extern struct Cutscene gCutscene;

@@ -10,11 +10,12 @@
 #include "util/time.h"
 #include "menu/fresheater.h"
 #include "scene/scene_management.h"
+#include "audio/audio.h"
 
 #define WHITE_CLEAR_TIME        0.5f
 #define DELAY_TIME              2.0f
-// #define SPINNING_LOGO_TIME      (DELAY_TIME + 7.0f)
-#define SPINNING_LOGO_TIME      2.5f
+#define SPINNING_LOGO_TIME      (DELAY_TIME + 7.0f)
+// #define SPINNING_LOGO_TIME      2.5f
 #define FADE_TIME               2.0f
 #define JINGLE_PLAY_TIME        (DELAY_TIME)
 #define LAUGH_PLAY_TIME         (DELAY_TIME + 3.0f)
@@ -40,11 +41,22 @@ void spinningLogoInit(struct SpinningLogo* spinningLogo) {
 }
 
 void spinningLogoUpdate(struct SpinningLogo* spinningLogo) {
-    spinningLogo->timer += gTimeDelta;
-
     if (spinningLogo->timer > SPINNING_LOGO_TIME) {
         sceneQueueMainMenu();
         sceneInsertCutscene(CutsceneIndexIntro);
+    } else {
+        float nextTime = spinningLogo->timer + gTimeDelta;
+
+        if (nextTime >= JINGLE_PLAY_TIME && spinningLogo->timer < JINGLE_PLAY_TIME) {
+            playJingle();
+        }
+
+        if (nextTime >= LAUGH_PLAY_TIME && spinningLogo->timer < LAUGH_PLAY_TIME) {
+            SoundID laughSound = soundPlayerPlay(SOUNDS_LOGOLAUGHING, 0, 0);
+            soundPlayerSetVolume(laughSound, 0.7f);
+        }
+
+        spinningLogo->timer = nextTime;
     }
 }
 

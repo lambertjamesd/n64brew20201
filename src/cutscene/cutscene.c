@@ -8,15 +8,24 @@
 #include "scene/scene_management.h"
 #include "controls/controller.h"
 #include "audio/soundplayer.h"
+#include "util/time.h"
+
+#include "../data/cutscenes/geometry_ending.h"
 
 #include "../data/cutscenes/geometry_ss_set.h"
 #include "../data/cutscenes/geometry_surface_set.h"
 #include "../data/level_themes/Space/theme.h"
 #include "../data/cutscenes/geometry_animdef.inc.h"
+#include "../data/cutscenes/geometry_ending_animdef.inc.h"
 
 #define SET_SET_EVENT               0x1000
 #define PLAY_SOUND_EVENT            0x2000
 #define STOP_SOUND_EVENT            0x3000
+#define PLAY_TRANSITION_SOUND_EVENT 0x4000
+#define FADE_TO_BLACK               0x5000
+
+#define FADE_IN_TIME            0.5f
+#define FADE_OUT_TIME           2.0f
 
 #define CREATE_SCENE_EVENT(event, sceneId)     ((event) | ((0xfff) & (sceneId)))
 #define GET_SCENE_EVENT_TYPE(event)             (0xf000 & (event))
@@ -28,6 +37,7 @@ struct Cutscene gCutscene;
 
 struct SKAnimationHeader* gCutsceneAnimations[] = {
     [CutsceneIndexIntro] = &cutscene_animations_animations[CUTSCENE_ANIMATIONS_CUTSCENE_ANIMATIONS_CUTCENE_001_INTROCUTSCENE_INDEX],
+    [CutsceneIndexEnding] = &cutscene_ending_animations[CUTSCENE_ENDING_CUTSCENE_ENDING_CUTCENE_001_ENDINGCUTSCENE_INDEX],
 };
 
 struct Transform gRelativeCamera[] = {
@@ -35,7 +45,18 @@ struct Transform gRelativeCamera[] = {
         {622.375, -897.390747, 541.383057},
         {-0.0511746705, 0.238762602, 0.0129380375, 0.969641984},
         {1.0f, 1.0f, 1.0f},
-    }
+    },
+    [CutsceneIndexEnding] = {
+        {-10.3515625, -2.70001221, 18.1567993},
+        {0.107586406, -0.243552148, -0.117358007, 0.956730902},
+        {1.0f, 1.0f, 1.0f},
+    },
+};
+
+struct Transform gCameraPos = {
+    {-6.07838f * SCENE_SCALE, -2.41124f * SCENE_SCALE, 6.18475f * SCENE_SCALE},
+    {0.607257, -0.326321, -0.357687, 0.629931},
+    {1.0f, 1.0f, 1.0f},
 };
 
 struct Quaternion gSkyboxRotation = {
@@ -63,6 +84,11 @@ struct SKAnimationEvent gIntroEvents[] = {
     {430, CREATE_SCENE_EVENT(PLAY_SOUND_EVENT, SOUNDS_FOOTSTEP0)},
 };
 
+struct SKAnimationEvent gEndingEvents[] = {
+    {0, CREATE_SCENE_EVENT(PLAY_TRANSITION_SOUND_EVENT, SOUNDS_LEVELMUSIC_FERMIPARADOX_MASTERED)},
+    {506, CREATE_SCENE_EVENT(FADE_TO_BLACK, 0)},
+};
+
 Gfx* gCutsceneSets[] = {
     cutscene_ss_set_model_gfx,
     cutscene_surface_set_model_gfx,
@@ -70,6 +96,7 @@ Gfx* gCutsceneSets[] = {
 
 unsigned short gStartingSceneMask[] = {
     [CutsceneIndexIntro] = 0x1,
+    [CutsceneIndexEnding] = 0x2,
 };
 
 Lights1 gCutsceneLights = gdSPDefLights1(
@@ -104,8 +131,14 @@ void cutsceneAnimationEvent(struct SKAnimator* animator, void* data, struct SKAn
         case PLAY_SOUND_EVENT:
             soundPlayerPlay(GET_SCENE_EVENT_DATA(event->id), 0, 0);
             break;
+        case PLAY_TRANSITION_SOUND_EVENT:
+            soundPlayerPlay(GET_SCENE_EVENT_DATA(event->id), SoundPlayerFlagsTransition, 0);
+            break;
         case STOP_SOUND_EVENT:
             soundPlayerStopWithClipId(GET_SCENE_EVENT_DATA(event->id));
+            break;
+        case FADE_TO_BLACK:
+            cutscene->targetFade = 0.0f;
             break;
     }
 }
@@ -114,6 +147,9 @@ void cutsceneInit(struct Cutscene* cutscene, enum CutsceneIndex index) {
     cutscene->cutsceneIndex = index;
     gCutsceneAnimations[0]->animationEvents = gIntroEvents;
     gCutsceneAnimations[0]->numEvents = sizeof(gIntroEvents) / sizeof(*gIntroEvents);
+
+    gCutsceneAnimations[1]->animationEvents = gEndingEvents;
+    gCutsceneAnimations[1]->numEvents = sizeof(gEndingEvents) / sizeof(*gEndingEvents);
 
     skAnimatorInit(&cutscene->animator, CUTSCENE_ANIMATIONS_DEFAULT_BONES_COUNT, cutsceneAnimationEvent, cutscene);
 
@@ -127,6 +163,8 @@ void cutsceneInit(struct Cutscene* cutscene, enum CutsceneIndex index) {
     skAnimatorRunClip(&cutscene->animator, gCutsceneAnimations[index], 0);
     
     cutscene->currentSetMask = gStartingSceneMask[index];
+    cutscene->currentFade = 0.0f;
+    cutscene->targetFade = 1.0f;
 }
 
 void cutsceneUpdate(struct Cutscene* cutscene) {
@@ -135,10 +173,33 @@ void cutsceneUpdate(struct Cutscene* cutscene) {
     if (controllerGetButtonDown(0, START_BUTTON)) {
         sceneEndCutscene();
     }
+
+    if (cutscene->currentFade < cutscene->targetFade) {
+        cutscene->currentFade += gTimeDelta * (1.0f / FADE_IN_TIME);
+
+        if (cutscene->currentFade > cutscene->targetFade) {
+            cutscene->currentFade = cutscene->targetFade;
+        }
+    }
+
+    if (cutscene->currentFade > cutscene->targetFade) {
+        cutscene->currentFade -= gTimeDelta * (1.0f / FADE_OUT_TIME);
+
+        if (cutscene->currentFade < cutscene->targetFade) {
+            cutscene->currentFade = cutscene->targetFade;
+        }
+    }
 }
 
 void cutsceneRender(struct Cutscene* cutscene, struct RenderState* renderState) {
     transformConcat(&cutscene->rootTransforms[CUTSCENE_ANIMATIONS_CAMERA_BONE], &gRelativeCamera[cutscene->cutsceneIndex], &cutscene->camera.transform);
+
+    // cutscene->camera.transform = gCameraPos;
+
+    // struct Transform inverse;
+    // transformInvert(&cutscene->rootTransforms[CUTSCENE_ANIMATIONS_CAMERA_BONE], &inverse);
+    // struct Transform relative;
+    // transformConcat(&inverse, &gCameraPos, &relative);
 
     gDPPipeSync(renderState->dl++);
     Vp* viewport = &gFullScreenVP;
@@ -240,4 +301,19 @@ void cutsceneRender(struct Cutscene* cutscene, struct RenderState* renderState) 
     gSPDisplayList(renderState->dl++, Space_SetTextures2);
     gSPDisplayList(renderState->dl++, cutscene_console_model_gfx);
     gSPPopMatrix(renderState->dl++, G_MTX_MODELVIEW);
+
+    int alpha = (int)(cutscene->currentFade * 255.0f);
+
+    if (alpha > 255) {
+        alpha = 255;
+    } else if (alpha < 0) {
+        alpha = 0;
+    }
+
+    gDPSetRenderMode(renderState->dl++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
+    gDPPipeSync(renderState->dl++);
+    gDPSetCombineLERP(renderState->dl++, 0, 0, 0, ENVIRONMENT, 0, 0, 0, ENVIRONMENT, 0, 0, 0, ENVIRONMENT, 0, 0, 0, ENVIRONMENT);
+    gDPSetEnvColor(renderState->dl++, 0, 0, 0, 255 - alpha);
+    gDPFillRectangle(renderState->dl++, 0, 0, SCREEN_WD-1, SCREEN_HT-1);
+    gDPPipeSync(renderState->dl++);
 }

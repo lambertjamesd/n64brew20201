@@ -319,6 +319,7 @@ void mainMenuUpdate(struct MainMenu* mainMenu) {
             if (endGameMenuUpdate(&mainMenu->endGameMenu)) {
                 if (mainMenu->selections.selectedPlayerCount == 0 && mainMenu->selections.selectedLevel == mainMenu->levelCount) {
                     sceneQueueCredits();
+                    sceneInsertCutscene(CutsceneIndexEnding);
                 } else {
                     if (mainMenu->musicSoundID != SOUND_ID_NONE) {
                         soundPlayerStop(&mainMenu->musicSoundID);

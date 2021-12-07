@@ -20,6 +20,8 @@ enum SoundPlayerFlags {
     SoundPlayerFlagsLoop = (1 << 0),
     SoundPlayerFlags3D = (1 << 1),
     SoundPlayerFlagsIsMusic = (1 << 2),
+    // survives a single soundPlayerReset
+    SoundPlayerFlagsTransition = (1 << 3),
 };
 
 struct ActiveSoundInfo {

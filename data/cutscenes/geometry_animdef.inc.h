@@ -1,7 +1,7 @@
 extern unsigned short cutscene_animations_Cutcene_001_CutsceneTest[];
 extern unsigned short cutscene_animations_Cutcene_001_IntroCutscene[];
 struct SKAnimationHeader cutscene_animations_animations[] = {
-    {1248, 30, 146, 0, (struct SKAnimationChunk*)cutscene_animations_Cutcene_001_CutsceneTest, 0},
+    {1264, 30, 146, 0, (struct SKAnimationChunk*)cutscene_animations_Cutcene_001_CutsceneTest, 0},
     {1344, 30, 456, 0, (struct SKAnimationChunk*)cutscene_animations_Cutcene_001_IntroCutscene, 0},
 };
 unsigned short cutscene_animations_bone_parent[] = {

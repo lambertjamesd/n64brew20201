@@ -1,461 +1,72 @@
 
-envelope _027Electric_Guitar_cleanSoundEnv
+
+envelope _100FX_5_brightnessSoundEnv
 {
-    attackTime = 10000;
+    attackTime = 0;
     attackVolume = 127;
-    decayTime = 2000000;
-    decayVolume = 50;
-    releaseTime = 500000;
+    decayTime = 2300240;
+    decayVolume = 0;
+    releaseTime = 1905428;
 }
 
-keymap _027Electric_Guitar_cleanSoundKeymap
+keymap _100FX_5_brightnessSoundKeymap
 {
     velocityMin = 0;
     velocityMax = 127;
     keyMin = 0;
-    keyMax = 59;
-    keyBase = 67;
-    detune = 0;
+    keyMax = 78;
+    keyBase = 80;
+    detune = -9;
 }
 
-sound _027Electric_Guitar_cleanSound
+sound _100FX_5_brightnessSound
 {
-    use("./samples/_025Acoustic_Guitar_steelSoundSnd.aifc");
-    pan = 0;
-    volume = 42;
-    keymap = _027Electric_Guitar_cleanSoundKeymap;
-    envelope = _027Electric_Guitar_cleanSoundEnv;
-}
-
-keymap _027Electric_Guitar_cleanSoundKeymap2
-{
-    velocityMin = 0;
-    velocityMax = 127;
-    keyMin = 60;
-    keyMax = 68;
-    keyBase = 76;
-    detune = 0;
-}
-
-sound _027Electric_Guitar_cleanSound2
-{
-    use("./samples/_025Acoustic_Guitar_steelSoundSnd2.aifc");
+    use("./samples/_100FX_5_brightnessSoundSnd.aifc");
     pan = 64;
-    volume = 42;
-    keymap = _027Electric_Guitar_cleanSoundKeymap2;
-    envelope = _027Electric_Guitar_cleanSoundEnv;
+    volume = 127;
+    keymap = _100FX_5_brightnessSoundKeymap;
+    envelope = _100FX_5_brightnessSoundEnv;
 }
 
-keymap _027Electric_Guitar_cleanSoundKeymap3
-{
-    velocityMin = 0;
-    velocityMax = 127;
-    keyMin = 69;
-    keyMax = 97;
-    keyBase = 85;
-    detune = 0;
-}
-
-sound _027Electric_Guitar_cleanSound3
-{
-    use("./samples/_025Acoustic_Guitar_steelSoundSnd3.aifc");
-    pan = 64;
-    volume = 42;
-    keymap = _027Electric_Guitar_cleanSoundKeymap3;
-    envelope = _027Electric_Guitar_cleanSoundEnv;
-}
-
-instrument _027Electric_Guitar_clean
-{
-    volume = 42;
-    pan = 0;
-    priority = 5;
-    bendRange = 200;
-    sound = _027Electric_Guitar_cleanSound;
-    sound = _027Electric_Guitar_cleanSound2;
-    sound = _027Electric_Guitar_cleanSound3;
-}
-
-
-envelope Neutron_Synth_Bass_C3Env
+envelope _100FX_5_brightnessSoundEnv2
 {
     attackTime = 0;
     attackVolume = 127;
-    decayTime = 500000;
-    decayVolume = 100;
-    releaseTime = 200000;
+    decayTime = 2300240;
+    decayVolume = 0;
+    releaseTime = 1905428;
 }
 
-
-keymap Neutron_Synth_Bass_C3SoundKeymap
+keymap _100FX_5_brightnessSoundKeymap2
 {
     velocityMin = 0;
     velocityMax = 127;
-    keyMin = 0;
-    keyMax = 60;
-    keyBase = 45;
-    detune = 0;
+    keyMin = 79;
+    keyMax = 90;
+    keyBase = 92;
+    detune = -13;
 }
 
-sound Neutron_Synth_Bass_C3Sound
+sound _100FX_5_brightnessSound2
 {
-    use("./samples/Neutron_Synth_Bass_C3.aiff");
+    use("./samples/_100FX_5_brightnessSoundSnd2.aifc");
     pan = 64;
-    volume = 127;
-    keymap = Neutron_Synth_Bass_C3SoundKeymap;
-    envelope = Neutron_Synth_Bass_C3Env;
+    volume = 0;
+    keymap = _100FX_5_brightnessSoundKeymap2;
+    envelope = _100FX_5_brightnessSoundEnv2;
 }
 
-instrument Neutron_Synth_Bass_C3
-{
-    volume = 127;
-    pan = 64;
-    priority = 5;
-    bendRange = 200;
-    sound = Neutron_Synth_Bass_C3Sound;
-}
-
-envelope PolyDBassEnv
-{
-    attackTime = 0;
-    attackVolume = 127;
-    decayTime = 221000;
-    decayVolume = 100;
-    releaseTime = 221000;
-}
-
-keymap PolyDBassSoundKeymap
-{
-    velocityMin = 0;
-    velocityMax = 127;
-    keyMin = 23;
-    keyMax = 25;
-    keyBase = 24;
-    detune = 0;
-}
-
-sound PolyDBassSound
-{
-    use("./samples/PolyDBassC1.aiff");
-    pan = 64;
-    volume = 127;
-    keymap = PolyDBassSoundKeymap;
-    envelope = PolyDBassEnv;
-}
-
-keymap PolyDBassSoundKeymap2
-{
-    velocityMin = 0;
-    velocityMax = 127;
-    keyMin = 26;
-    keyMax = 28;
-    keyBase = 27;
-    detune = 0;
-}
-
-sound PolyDBassSound2
-{
-    use("./samples/PolyDBassEb1.aiff");
-    pan = 64;
-    volume = 127;
-    keymap = PolyDBassSoundKeymap2;
-    envelope = PolyDBassEnv;
-}
-
-keymap PolyDBassSoundKeymap3
-{
-    velocityMin = 0;
-    velocityMax = 127;
-    keyMin = 29;
-    keyMax = 31;
-    keyBase = 30;
-    detune = 0;
-}
-
-sound PolyDBassSound3
-{
-    use("./samples/PolyDBassGb1.aiff");
-    pan = 64;
-    volume = 127;
-    keymap = PolyDBassSoundKeymap3;
-    envelope = PolyDBassEnv;
-}
-
-keymap PolyDBassSoundKeymap4
-{
-    velocityMin = 0;
-    velocityMax = 127;
-    keyMin = 32;
-    keyMax = 34;
-    keyBase = 33;
-    detune = 0;
-}
-
-sound PolyDBassSound4
-{
-    use("./samples/PolyDBassA1.aiff");
-    pan = 64;
-    volume = 127;
-    keymap = PolyDBassSoundKeymap4;
-    envelope = PolyDBassEnv;
-}
-
-keymap PolyDBassSoundKeymap5
-{
-    velocityMin = 0;
-    velocityMax = 127;
-    keyMin = 35;
-    keyMax = 3;
-    keyBase = 36;
-    detune = 0;
-}
-
-sound PolyDBassSound5
-{
-    use("./samples/PolyDBassC2.aiff");
-    pan = 64;
-    volume = 127;
-    keymap = PolyDBassSoundKeymap5;
-    envelope = PolyDBassEnv;
-}
-
-keymap PolyDBassSoundKeymap6
-{
-    velocityMin = 0;
-    velocityMax = 127;
-    keyMin = 38;
-    keyMax = 40;
-    keyBase = 39;
-    detune = 0;
-}
-
-sound PolyDBassSound6
-{
-    use("./samples/PolyDBassEb2.aiff");
-    pan = 64;
-    volume = 127;
-    keymap = PolyDBassSoundKeymap6;
-    envelope = PolyDBassEnv;
-}
-
-keymap PolyDBassSoundKeymap7
-{
-    velocityMin = 0;
-    velocityMax = 127;
-    keyMin = 41;
-    keyMax = 43;
-    keyBase = 42;
-    detune = 0;
-}
-
-sound PolyDBassSound7
-{
-    use("./samples/PolyDBassGb2.aiff");
-    pan = 64;
-    volume = 127;
-    keymap = PolyDBassSoundKeymap7;
-    envelope = PolyDBassEnv;
-}
-
-keymap PolyDBassSoundKeymap8
-{
-    velocityMin = 0;
-    velocityMax = 127;
-    keyMin = 44;
-    keyMax = 46;
-    keyBase = 45;
-    detune = 0;
-}
-
-sound PolyDBassSound8
-{
-    use("./samples/PolyDBassA2.aiff");
-    pan = 64;
-    volume = 127;
-    keymap = PolyDBassSoundKeymap8;
-    envelope = PolyDBassEnv;
-}
-
-keymap PolyDBassSoundKeymap9
-{
-    velocityMin = 0;
-    velocityMax = 127;
-    keyMin = 47;
-    keyMax = 49;
-    keyBase = 48;
-    detune = 0;
-}
-
-sound PolyDBassSound9
-{
-    use("./samples/PolyDBassC3.aiff");
-    pan = 64;
-    volume = 127;
-    keymap = PolyDBassSoundKeymap9;
-    envelope = PolyDBassEnv;
-}
-
-keymap PolyDBassSoundKeymap10
-{
-    velocityMin = 0;
-    velocityMax = 127;
-    keyMin = 50;
-    keyMax = 52;
-    keyBase = 51;
-    detune = 0;
-}
-
-sound PolyDBassSound10
-{
-    use("./samples/PolyDBassEb3.aiff");
-    pan = 64;
-    volume = 127;
-    keymap = PolyDBassSoundKeymap10;
-    envelope = PolyDBassEnv;
-}
-
-keymap PolyDBassSoundKeymap11
-{
-    velocityMin = 0;
-    velocityMax = 127;
-    keyMin = 53;
-    keyMax = 55;
-    keyBase = 54;
-    detune = 0;
-}
-
-sound PolyDBassSound11
-{
-    use("./samples/PolyDBassGb3.aiff");
-    pan = 64;
-    volume = 127;
-    keymap = PolyDBassSoundKeymap11;
-    envelope = PolyDBassEnv;
-}
-
-keymap PolyDBassSoundKeymap12
-{
-    velocityMin = 0;
-    velocityMax = 127;
-    keyMin = 56;
-    keyMax = 58;
-    keyBase = 57;
-    detune = 0;
-}
-
-sound PolyDBassSound12
-{
-    use("./samples/PolyDBassA3.aiff");
-    pan = 64;
-    volume = 127;
-    keymap = PolyDBassSoundKeymap12;
-    envelope = PolyDBassEnv;
-}
-
-keymap PolyDBassSoundKeymap13
-{
-    velocityMin = 0;
-    velocityMax = 127;
-    keyMin = 59;
-    keyMax = 61;
-    keyBase = 60;
-    detune = 0;
-}
-
-sound PolyDBassSound13
-{
-    use("./samples/PolyDBassC4.aiff");
-    pan = 64;
-    volume = 127;
-    keymap = PolyDBassSoundKeymap13;
-    envelope = PolyDBassEnv;
-}
-
-keymap PolyDBassSoundKeymap14
-{
-    velocityMin = 0;
-    velocityMax = 127;
-    keyMin = 62;
-    keyMax = 64;
-    keyBase = 63;
-    detune = 0;
-}
-
-sound PolyDBassSound14
-{
-    use("./samples/PolyDBassEb4.aiff");
-    pan = 64;
-    volume = 127;
-    keymap = PolyDBassSoundKeymap14;
-    envelope = PolyDBassEnv;
-}
-
-keymap PolyDBassSoundKeymap15
-{
-    velocityMin = 0;
-    velocityMax = 127;
-    keyMin = 65;
-    keyMax = 67;
-    keyBase = 66;
-    detune = 0;
-}
-
-sound PolyDBassSound15
-{
-    use("./samples/PolyDBassGb4.aiff");
-    pan = 64;
-    volume = 127;
-    keymap = PolyDBassSoundKeymap15;
-    envelope = PolyDBassEnv;
-}
-
-keymap PolyDBassSoundKeymap16
-{
-    velocityMin = 0;
-    velocityMax = 127;
-    keyMin = 68;
-    keyMax = 70;
-    keyBase = 69;
-    detune = 0;
-}
-
-sound PolyDBassSound16
-{
-    use("./samples/PolyDBassA4.aiff");
-    pan = 64;
-    volume = 127;
-    keymap = PolyDBassSoundKeymap16;
-    envelope = PolyDBassEnv;
-}
-
-instrument PolyDBass
+instrument _100FX_5_brightness
 {
     volume = 127;
     pan = 64;
-    priority = 5;
-    bendRange = 200;
-    sound = PolyDBassSound;
-    sound = PolyDBassSound2;
-    sound = PolyDBassSound3;
-    sound = PolyDBassSound4;
-    sound = PolyDBassSound5;
-    sound = PolyDBassSound6;
-    sound = PolyDBassSound7;
-    sound = PolyDBassSound8;
-    sound = PolyDBassSound9;
-    sound = PolyDBassSound10;
-    sound = PolyDBassSound11;
-    sound = PolyDBassSound12;
-    sound = PolyDBassSound13;
-    sound = PolyDBassSound14;
-    sound = PolyDBassSound15;
-    sound = PolyDBassSound16;
+    priority = 0;
+    sound = _100FX_5_brightnessSound;
+    sound = _100FX_5_brightnessSound2;
 }
 
 bank midi
 {
     sampleRate = 44100;
-    instrument [27] = _027Electric_Guitar_clean;
-    instrument [37] = Neutron_Synth_Bass_C3;
-    instrument [39] = PolyDBass;
+    instrument [100] = _100FX_5_brightness;
 }

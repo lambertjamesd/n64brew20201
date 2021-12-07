@@ -99,6 +99,11 @@ data/cutscenes/geometry.h build/data/cutscenes/geometry_anim.inc.h build/data/cu
 	@mkdir -p $(@D)
 	$(SKELATOOL64) -a -s 100 -r 0,0,0 -n cutscene_animations -o data/cutscenes/geometry.h assets/models/CutsceneTest.fbx
 
+data/cutscenes/geometry_ending.h build/data/cutscenes/geometry_ending_anim.inc.h build/data/cutscenes/geometry_ending_animdef.inc.h:	assets/models/CutsceneEnd.fbx
+	@mkdir -p $(@D)
+	$(SKELATOOL64) -a -s 100 -r 0,0,0 -n cutscene_ending -o data/cutscenes/geometry_ending.h assets/models/CutsceneEnd.fbx
+
+
 data/cutscenes/geometry_ss_set.h build/data/cutscenes/geometry_ss_set_anim.inc.h build/data/cutscenes/geometry_ss_set_animdef.inc.h: assets/models/Cutscene_SS_Set.fbx assets/materials/levels.yaml
 	@mkdir -p $(@D)
 	$(SKELATOOL64) -s 100 -r 0,0,0 -n cutscene_ss_set -m assets/materials/levels.yaml -o data/cutscenes/geometry_ss_set.h assets/models/Cutscene_SS_Set.fbx
@@ -111,10 +116,9 @@ MUSIC = $(shell find assets/music/ -type f -name '*.mid')
 
 CLEAN_MUSIC = $(patsubst %.mid, build/%.mid, $(MUSIC))
 
-build/assets/music/%.mid: assets/music/%.mid
+build/assets/music/%.mid: assets/music/%.mid assets/music/%.meta
 	@mkdir -p $(@D)
-	$(MIDICVT) $< $@
-	# truncate $@ --size 32KB
+	$(MIDICVT) $< $@ --metadata $(word 2,$^)
 
 RAW_SOUND_CLIPS = $(shell find assets/sounds/ -type f -name '*.aiff') $(shell find assets/sounds/ -type f -name '*.wav') $(shell find assets/sounds/ -type f -name '*.aifc')
 
@@ -131,8 +135,7 @@ build/assets/sounds/sounds.sounds build/assets/sounds/sounds.sounds.tbl: $(SOUND
 	# truncate build/assets/sounds/sounds.sounds --size 32KB
 	# truncate build/assets/sounds/sounds.sounds.tbl --size 1MB
 
-asm/sound_data.s: build/assets/music/multilayer_midi_demo.mid \
-	build/assets/music/n64_2021_march.mid \
+asm/sound_data.s: build/assets/music/TeamUltraRareLogoJingleWIP1.mid \
 	build/assets/sounds/sounds.sounds \
 	build/assets/sounds/sounds.sounds.tbl \
 	build/assets/soundbanks/banks.ctl \

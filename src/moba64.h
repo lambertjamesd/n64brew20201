@@ -37,7 +37,7 @@ extern OSMesg           gfxFrameMsgBuf[MAX_FRAME_BUFFER_MESGS];
 extern OSPiHandle	*gPiHandle;
 
 extern char _tableSegmentRomStart[], _tableSegmentRomEnd[];
-extern char _seqSegmentRomStart[], _seqSegmentRomEnd[];
+extern char _logoJingleSegmentRomStart[], _logoJingleSegmentRomEnd[];
 extern char _bankSegmentRomStart[], _bankSegmentRomEnd[];
 
 

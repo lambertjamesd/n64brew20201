@@ -12,6 +12,8 @@ TODO
     death animation is sometimes wrong
     dark sattelite dish decor
     minion spawn animation
+    minion spawn sound
+    skinned joints
 
     balance
         Galaxy, subdivide mesh more

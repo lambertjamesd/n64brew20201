@@ -40,9 +40,9 @@ void initAudio(void)
     /*
      * Load the sequence file from ROM
      */
-    seqLen = _seqSegmentRomEnd - _seqSegmentRomStart;
+    seqLen = _logoJingleSegmentRomEnd - _logoJingleSegmentRomStart;
     seqPtr = alHeapAlloc(&gAudioHeap, 1, seqLen);
-    romCopy(_seqSegmentRomStart, (char *) seqPtr, seqLen);
+    romCopy(_logoJingleSegmentRomStart, (char *) seqPtr, seqLen);
 
     /*
      * Create the Audio Manager
@@ -82,9 +82,13 @@ void initAudio(void)
     alSeqNewMarker(seq, &seqStart, 0);
     alSeqNewMarker(seq, &seqEnd, -1);
 
-    alSeqpLoop(gSequencePlayer, &seqStart, &seqEnd, -1);
+    // alSeqpLoop(gSequencePlayer, &seqStart, &seqEnd, -1);
     alSeqpSetSeq(gSequencePlayer, seq);
     alSeqpSetBank(gSequencePlayer, bankPtr->bankArray[0]);
-    // alSeqpPlay(gSequencePlayer);
+}
+
+
+void playJingle() {
+    alSeqpPlay(gSequencePlayer);
 }
 

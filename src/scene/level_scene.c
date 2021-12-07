@@ -31,7 +31,7 @@
 #define GAME_END_DELAY  5.0f
 #define LOSE_BY_KNOCKOUT_TIME   15.0f
 
-#define WIN_BY_PRESSING_L   0
+#define WIN_BY_PRESSING_L   1
 
 void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* definition, unsigned int playercount, unsigned aiPlayerMask, enum LevelMetadataFlags flags, float aiDifficulty) {
     levelScene->definition = definition;

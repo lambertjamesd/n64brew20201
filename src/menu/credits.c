@@ -42,7 +42,7 @@ void creditsInit(struct Credits* credits) {
 }
 
 void creditsUpdate(struct Credits* credits) {
-    if(controllerGetButtonDown(0, B_BUTTON)) sceneQueueMainMenu();
+    if(controllerGetButtonDown(0, B_BUTTON | START_BUTTON)) sceneQueueIntro();
 
     if(!(controllerGetLastButton(0) & A_BUTTON)){
         if(credits->offset >= CREDITS_END) credits->offset = -SCREEN_HT;

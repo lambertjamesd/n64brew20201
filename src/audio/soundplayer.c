@@ -312,6 +312,10 @@ unsigned soundListRandom(struct SoundList* list) {
 
 void soundPlayerReset() {
     for (unsigned i = 0; i < MAX_SOUNDS; ++i) {
+        if (gActiveSounds[i].flags & SoundPlayerFlagsTransition) {
+            gActiveSounds[i].flags &= ~SoundPlayerFlagsTransition;
+            continue;
+        }
         SoundID soundId = i;
         soundPlayerStop(&soundId);
     }

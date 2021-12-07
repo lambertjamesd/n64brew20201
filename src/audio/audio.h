@@ -55,5 +55,7 @@ extern u64        audYieldBuf[];
 extern u8*        gAudioHeapBuffer;
 extern ALHeap     gAudioHeap;
 
+void playJingle();
+
 #endif
 
