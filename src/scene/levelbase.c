@@ -240,6 +240,7 @@ void levelBaseUpdate(struct LevelBase* base) {
                     base->stateTimeLeft = SPAWN_TIME;
                     base->collider->collisionLayers = DynamicSceneEntryIsTrigger | DynamicSceneEntryHasTeam | COLLISION_LAYER_FOR_TEAM(controllingTeam);
                     levelBaseDespawnMinions(&gCurrentLevel, base->baseId, base->team.teamNumber);
+                    soundPlayerStop(&base->captureSound);
                 }
             } else {
                 gLastCaptureTime = gTimePassed;

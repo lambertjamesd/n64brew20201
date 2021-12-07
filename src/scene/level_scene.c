@@ -37,7 +37,11 @@ void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* defin
     struct Quaternion noRotation;
     quatIdent(&noRotation);
     for (unsigned i = 0; i < playercount; ++i) {
-        soundPlayerUpdateListener(i, &definition->playerStartLocations[i], &noRotation);
+        struct Vector3 pos3D;
+        pos3D.x = definition->playerStartLocations[i].x;
+        pos3D.y = 0.0f;
+        pos3D.z = definition->playerStartLocations[i].y;
+        soundPlayerUpdateListener(i, &pos3D, &noRotation);
     }
 
 

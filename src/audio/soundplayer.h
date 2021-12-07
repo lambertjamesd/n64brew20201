@@ -22,6 +22,8 @@ enum SoundPlayerFlags {
     SoundPlayerFlagsIsMusic = (1 << 2),
     // survives a single soundPlayerReset
     SoundPlayerFlagsTransition = (1 << 3),
+    // to avoid reusing a sound effect that was just used
+    SoundPlayerFlagsFresh = (1 << 4),
 };
 
 struct ActiveSoundInfo {

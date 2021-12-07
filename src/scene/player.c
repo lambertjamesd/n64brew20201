@@ -120,7 +120,7 @@ void playerEnterWalkState(struct Player* player) {
 
 void playerEnterSpawnState(struct Player* player) {
     player->state = playerStateSpawn;
-    soundPlayerPlay(SOUNDS_SPAWN, 1.0f, 0, &player->transform.position);
+    player->idleSoundEffect = soundPlayerPlay(SOUNDS_SPAWN, 1.0f, 0, &player->transform.position);
     skAnimatorRunClip(&player->animator, factionGetAnimation(player->team.teamNumber, PlayerAnimationSpawn), 0);
     player->animationSpeed = 1.0f;
     player->attackInfo = 0;

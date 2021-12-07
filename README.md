@@ -11,7 +11,6 @@ TODO
     darken c arrows
     base stuck playing capture sound
     indicate upgrade progress
-    b button stuck down
     rom header
     fade into credits
 
