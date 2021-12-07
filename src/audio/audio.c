@@ -89,6 +89,7 @@ void initAudio(void)
 
 
 void playJingle() {
+    alSeqSetLoc(seq, &seqStart);
     alSeqpPlay(gSequencePlayer);
 }
 

@@ -15,6 +15,7 @@ TODO
     indicate upgrade progress
     b button stuck down
     rom header
+    fade into credits
 
     debuffs
         indicate which debuff
