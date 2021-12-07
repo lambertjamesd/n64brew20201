@@ -14,5 +14,5 @@
 #include "itemdrop/model.inc.h"
 #include "itemdropbase/model.inc.h"
 #include "target/model.inc.h"
-#include "dizzy/model.inc.h"
+#include "scramblers/model.inc.h"
 #include "fireball/model.inc.h"

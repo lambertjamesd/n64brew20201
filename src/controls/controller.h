@@ -20,6 +20,7 @@ int controllerHasPendingMessage();
 int controllerIsConnected(int index);
 OSContPad* controllersGetControllerData(int index);
 u16 controllerGetLastButton(int index);
+u16 controllerGetButton(int index, u16 button);
 u16 controllerGetButtonDown(int index, u16 button);
 u16 controllerGetButtonUp(int index, u16 button);
 enum ControllerDirection controllerGetDirection(int index);

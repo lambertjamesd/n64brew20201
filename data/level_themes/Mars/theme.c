@@ -1724,6 +1724,10 @@ Vtx Mars_Skybox_color[] = {
     {{{1000, 1000, 1000}, 0, {1024, -366}, {0, 0, 0, 255}}},
     {{{-1000, 1000, 1000}, 0, {1024, -366}, {0, 0, 0, 255}}},
     {{{-1000, 1000, -1000}, 0, {1024, -366}, {0, 0, 0, 255}}},
+    {{{-1000, -1000, -1000}, 0, {-947, -4}, {0, 0, 0, 255}}},
+    {{{-1000, -1000, 1000}, 0, {-947, 2132}, {0, 0, 0, 255}}},
+    {{{1000, -1000, 1000}, 0, {3325, 2132}, {0, 0, 0, 255}}},
+    {{{1000, -1000, -1000}, 0, {3325, -4}, {0, 0, 0, 255}}},
 };
 
 
@@ -2181,12 +2185,13 @@ Gfx Mars_SkyboxDisplayList[] = {
     gsSPGeometryMode(G_LIGHTING, 0),
     gsSPVertex(&Mars_SkyboxCulling_color[0], 8, 0),
     gsSPCullDisplayList(0, 7),
-    gsSPVertex(&Mars_Skybox_color[0], 20, 0),
+    gsSPVertex(&Mars_Skybox_color[0], 24, 0),
     gsSP2Triangles(0, 1, 2, 0, 0, 2, 3, 0),
     gsSP2Triangles(4, 5, 6, 0, 4, 6, 7, 0),
     gsSP2Triangles(8, 9, 10, 0, 8, 10, 11, 0),
     gsSP2Triangles(12, 13, 14, 0, 12, 14, 15, 0),
     gsSP2Triangles(16, 17, 18, 0, 16, 18, 19, 0),
+    gsSP2Triangles(20, 21, 22, 0, 20, 22, 23, 0),
     gsSPEndDisplayList(),
 };
 

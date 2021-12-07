@@ -44,7 +44,7 @@ short soundVolume(float floatValue) {
     if (result > (float)32767.0f) {
         return 32767.0f;
     } else if (result < 0.0f) {
-        return 0;
+        return 1;
     } else {
         return floorf(result);
     }

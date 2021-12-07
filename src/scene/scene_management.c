@@ -12,7 +12,6 @@
 
 enum SceneState gSceneState;
 enum SceneState gNextSceneState;
-struct LevelScene gCurrentLevel;
 struct MainMenu gMainMenu;
 struct Credits gCredits;
 struct GameConfiguration gNextLevel;

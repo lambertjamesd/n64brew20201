@@ -23,7 +23,6 @@ struct GameConfiguration {
 };
 
 extern enum SceneState gSceneState;
-extern struct LevelScene gCurrentLevel;
 extern struct MainMenu gMainMenu;
 extern char     _heapStart[];
 

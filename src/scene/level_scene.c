@@ -33,6 +33,8 @@
 
 #define WIN_BY_PRESSING_L   1
 
+struct LevelScene gCurrentLevel;
+
 void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* definition, unsigned int playercount, unsigned aiPlayerMask, enum LevelMetadataFlags flags, float aiDifficulty) {
     struct Quaternion noRotation;
     quatIdent(&noRotation);
@@ -277,11 +279,11 @@ void levelSceneRender(struct LevelScene* levelScene, struct RenderState* renderS
         gSPDisplayList(renderState->dl++, itemDropsGfx);
         gSPDisplayList(renderState->dl++, renderState->transparentQueueStart);
 
-        gSPDisplayList(renderState->dl++, mat_Dizzy_Dizzy);
+        gSPDisplayList(renderState->dl++, mat_Scramblers_f3d_material);
         for (unsigned playerIndexB = 0; playerIndexB < levelScene->playerCount; ++playerIndexB) {
             controlsScramblerRender(&levelScene->scramblers[playerIndexB], &levelScene->players[playerIndexB], renderState);
         }
-        gSPDisplayList(renderState->dl++, mat_revert_Dizzy_Dizzy);
+        gSPDisplayList(renderState->dl++, mat_revert_Scramblers_f3d_material);
 
         baseCommandMenuRender(
             &levelScene->baseCommandMenu[playerIndex], 
@@ -322,7 +324,7 @@ void leveSceneUpdateCamera(struct LevelScene* levelScene, unsigned playerIndex) 
     struct Vector3 target = levelScene->players[playerIndex].transform.position;
     vector3AddScaled(&target, &gUp, 2.0f * SCENE_SCALE, &target);
 
-    if (levelScene->cameras[playerIndex].mode == CameraModeFollow) {
+    if (levelScene->cameras[playerIndex].mode == 0) {
         struct Vector3 velocityLeader;
         vector3Scale(&levelScene->players[playerIndex].velocity, &velocityLeader, SCENE_SCALE * 0.5f);
         velocityLeader.y = 0.0f;
@@ -335,7 +337,12 @@ void leveSceneUpdateCamera(struct LevelScene* levelScene, unsigned playerIndex) 
         cameraSetFollowMode(&levelScene->cameras[playerIndex]);
     }
 
-    cameraUpdate(&levelScene->cameras[playerIndex], &target, 15.0f * SCENE_SCALE, 5.0f * SCENE_SCALE);
+    cameraSetIsMapView(&levelScene->cameras[playerIndex], controllerGetButton(playerIndex, R_TRIG));
+
+    Vp* viewport = &gSplitScreenViewports[0];
+    float aspectRatio = (float)viewport->vp.vscale[0] / (float)viewport->vp.vscale[1];
+
+    cameraUpdate(&levelScene->cameras[playerIndex], &target, 15.0f * SCENE_SCALE, 5.0f * SCENE_SCALE, aspectRatio);
 
     struct Vector2 camPos2d;
     camPos2d.x = levelScene->cameras[playerIndex].transform.position.x;
@@ -523,7 +530,7 @@ void levelSceneUpdate(struct LevelScene* levelScene) {
             baseCommandMenuHide(&levelScene->baseCommandMenu[playerIndex]);
         }
 
-        controlsScramblerApply(&levelScene->scramblers[playerIndex]);
+        controlsScramblerApply(&levelScene->scramblers[playerIndex], IS_PLAYER_AI(levelScene, playerIndex));
 
         baseCommandMenuUpdate(&levelScene->baseCommandMenu[playerIndex], playerIndex);
         playerUpdate(&levelScene->players[playerIndex], playerInput);

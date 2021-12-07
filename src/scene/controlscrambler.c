@@ -8,11 +8,11 @@
 #define CAMERA_ROTATE_DURATION 0.5f
 
 float gDebuffTime[ControlsScramblerTypeCount] = {
-    12.0f,
-    8.0f,
     5.0f,
-    9.0f,
-    8.0f,
+    6.0f,
+    4.0f,
+    7.0f,
+    6.0f,
 };
 
 void controlsScramblerInit(struct ControlsScrambler* scrambler) {
@@ -59,7 +59,7 @@ void controlsScramblerTrigger(struct ControlsScrambler* scrambler, enum Controls
     }
 }
 
-void controlsScramblerApply(struct ControlsScrambler* scrambler) {
+void controlsScramblerApply(struct ControlsScrambler* scrambler, int isAI) {
     if (scrambler->timers[ControlsScramblerTypeJoystickFipped]) {
         vector3Negate(&scrambler->playerInput.targetWorldDirection, &scrambler->playerInput.targetWorldDirection);
     }
@@ -68,11 +68,6 @@ void controlsScramblerApply(struct ControlsScrambler* scrambler) {
         scrambler->playerInput.actionFlags = controlsScramblerSwapFlags(scrambler->playerInput.actionFlags, PlayerInputActionsJump, PlayerInputActionsAttack);
         scrambler->playerInput.prevActions = controlsScramblerSwapFlags(scrambler->playerInput.prevActions, PlayerInputActionsJump, PlayerInputActionsAttack);
     }
-
-    // if (scrambler->timers[ControlsScramblerTypeAttackTurbo]) {
-    //     int newFlagValue = (scrambler->playerInput.actionFlags ^ scrambler->playerInput.prevActions ^ PlayerInputActionsAttack) & PlayerInputActionsAttack;
-    //     scrambler->playerInput.actionFlags = (scrambler->playerInput.actionFlags & ~PlayerInputActionsAttack) | newFlagValue;
-    // }
 
     if (scrambler->timers[ControlsScramblerTypeJumpTurbo]) {
         int newFlagValue = (scrambler->playerInput.actionFlags ^ scrambler->playerInput.prevActions ^ PlayerInputActionsJump) & PlayerInputActionsJump;
@@ -90,42 +85,62 @@ void controlsScramblerApply(struct ControlsScrambler* scrambler) {
             vector3Normalize(&scrambler->playerInput.targetWorldDirection, &scrambler->playerInput.targetWorldDirection);
         }
     }
+
+    if (isAI && scrambler->timers[ControlsScramblerViewFlipped]) {
+        scrambler->playerInput.targetWorldDirection.x = -scrambler->playerInput.targetWorldDirection.x;
+    }
 }
 
-int controlsScramblerIsAnyActive(struct ControlsScrambler* scrambler) {
+unsigned controlsScramblerActiveCount(struct ControlsScrambler* scrambler) {
+    unsigned result = 0;
     for (unsigned i = 0; i < ControlsScramblerTypeCount; ++i) {
         if (scrambler->timers[i] > 0.0f) {
-            return 1;
+            ++result;
         }
     }
 
-    return 0;
+    return result;
 }
 
-#define ORBIT_RADIUS    (SCENE_SCALE * 0.5f)
+#define ORBIT_RADIUS    (SCENE_SCALE * 0.75f)
 #define ORBIT_PERIOD    (2.0f * M_PI / 0.75f)
 
 void controlsScramblerRender(struct ControlsScrambler* scrambler, struct Player* forPlayer, struct RenderState* renderState) {
-    if (!controlsScramblerIsAnyActive(scrambler) || !playerIsAlive(forPlayer)) {
+    if (!playerIsAlive(forPlayer)) {
         return;
     }
 
-    Mtx* matrix = renderStateRequestMatrices(renderState, 1);
+    int count = controlsScramblerActiveCount(scrambler);
+
+    if (count == 0) {
+        return;
+    }
+
+    Mtx* matrix = renderStateRequestMatrices(renderState, count);
 
     if (!matrix) {
         return;
     }
 
-    struct Transform transform;
-    vector3AddScaled(&forPlayer->transform.position, &gUp, 3.0f * SCENE_SCALE, &transform.position);
-    vector3AddScaled(&transform.position, &gRight, sinf(gTimePassed * ORBIT_PERIOD) * ORBIT_RADIUS, &transform.position);
-    vector3AddScaled(&transform.position, &gForward, cosf(gTimePassed * ORBIT_PERIOD) * ORBIT_RADIUS, &transform.position);
-    transform.rotation = *renderState->cameraRotation;
-    vector3Scale(&gOneVec, &transform.scale, 3.0f);
-    transformToMatrixL(&transform, matrix);
-    gSPMatrix(renderState->dl++, matrix, G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
-    gSPDisplayList(renderState->dl++, Dizzy_Dizzy_mesh_tri_0);
-    gSPPopMatrix(renderState->dl++, G_MTX_MODELVIEW);
+    for (unsigned i = 0; i < ControlsScramblerTypeCount; ++i) {
+        if (scrambler->timers[i] <= 0.0f) {
+            continue;
+        }
+
+        struct Transform transform;
+        vector3AddScaled(&forPlayer->transform.position, &gUp, 3.0f * SCENE_SCALE, &transform.position);
+        float angle = gTimePassed * ORBIT_PERIOD + i * M_PI * 2.0f / ControlsScramblerTypeCount;
+        vector3AddScaled(&transform.position, &gRight, sinf(angle) * ORBIT_RADIUS, &transform.position);
+        vector3AddScaled(&transform.position, &gForward, cosf(angle) * ORBIT_RADIUS, &transform.position);
+        transform.rotation = *renderState->cameraRotation;
+        vector3Scale(&gOneVec, &transform.scale, 0.5f);
+        transformToMatrixL(&transform, matrix);
+        gSPMatrix(renderState->dl++, matrix, G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
+        gDPSetTileSize(renderState->dl++, 0, 320 - i * 80, 0, 380, 60);
+        gSPDisplayList(renderState->dl++, Scramblers_Plane_mesh_tri_0);
+        gSPPopMatrix(renderState->dl++, G_MTX_MODELVIEW);
+        ++matrix;
+    }
 }
 
 int controlsScramblerIsActive(struct ControlsScrambler* scrambler, enum ControlsScramblerType type) {

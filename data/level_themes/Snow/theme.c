@@ -1783,6 +1783,10 @@ Vtx Snow_Skybox_color[] = {
     {{{1000, 1000, 1000}, 0, {1024, -366}, {0, 0, 0, 255}}},
     {{{-1000, 1000, 1000}, 0, {1024, -366}, {0, 0, 0, 255}}},
     {{{-1000, 1000, -1000}, 0, {1024, -366}, {0, 0, 0, 255}}},
+    {{{-1000, -1000, -1000}, 0, {0, 0}, {0, 0, 0, 255}}},
+    {{{-1000, -1000, 1000}, 0, {0, 2048}, {0, 0, 0, 255}}},
+    {{{1000, -1000, 1000}, 0, {2047, 2048}, {0, 0, 0, 255}}},
+    {{{1000, -1000, -1000}, 0, {2047, 0}, {0, 0, 0, 255}}},
 };
 
 
@@ -2271,12 +2275,13 @@ Gfx Snow_SkyboxDisplayList[] = {
     gsSPGeometryMode(G_LIGHTING, 0),
     gsSPVertex(&Snow_SkyboxCulling_color[0], 8, 0),
     gsSPCullDisplayList(0, 7),
-    gsSPVertex(&Snow_Skybox_color[0], 20, 0),
+    gsSPVertex(&Snow_Skybox_color[0], 24, 0),
     gsSP2Triangles(0, 1, 2, 0, 0, 2, 3, 0),
     gsSP2Triangles(4, 5, 6, 0, 4, 6, 7, 0),
     gsSP2Triangles(8, 9, 10, 0, 8, 10, 11, 0),
     gsSP2Triangles(12, 13, 14, 0, 12, 14, 15, 0),
     gsSP2Triangles(16, 17, 18, 0, 16, 18, 19, 0),
+    gsSP2Triangles(20, 21, 22, 0, 20, 22, 23, 0),
     gsSPEndDisplayList(),
 };
 
@@ -2370,10 +2375,6 @@ struct CollisionPolygon Snow_HouseShape = {
     .edges = Snow_HouseShapeEdges,
     .edgeCount = 4,
 };
-struct CollisionCircle Snow_PoleShape = {
-    .shapeCommon = {CollisionShapeTypeCircle},
-    .radius = 11.951,
-};
 struct CollisionCircle Snow_SackShape = {
     .shapeCommon = {CollisionShapeTypeCircle},
     .radius = 107.62,
@@ -2385,7 +2386,7 @@ struct CollisionShape* Snow_DecorShapes[] = {
     (struct CollisionShape*)&Snow_Rock004Shape,
     (struct CollisionShape*)&Snow_GiftShape,
     (struct CollisionShape*)&Snow_HouseShape,
-    (struct CollisionShape*)&Snow_PoleShape,
+    0,
     (struct CollisionShape*)&Snow_SackShape,
     0,
     0,

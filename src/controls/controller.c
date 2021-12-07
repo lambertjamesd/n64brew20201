@@ -91,6 +91,10 @@ u16 controllerGetLastButton(int index) {
     return gControllerLastButton[REMAP_PLAYER_INDEX(index)];
 }
 
+u16 controllerGetButton(int index, u16 button) {
+    return gControllerData[REMAP_PLAYER_INDEX(index)].button & button;
+}
+
 u16 controllerGetButtonDown(int index, u16 button) {
     return gControllerData[REMAP_PLAYER_INDEX(index)].button & ~gControllerLastButton[REMAP_PLAYER_INDEX(index)] & button;
 }

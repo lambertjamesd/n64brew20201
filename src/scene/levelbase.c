@@ -129,6 +129,7 @@ void levelBaseStartUpgrade(struct LevelBase* base, enum LevelBaseState nextState
     }
 
     base->stateTimeLeft = time;
+    base->stateTotalTime = time;
     base->state = nextState;
 }
 
@@ -148,7 +149,7 @@ void levelBaseInit(struct LevelBase* base, struct BaseDefinition* definition, un
     base->issueCommandTimer = 0;
     base->followPlayer = TEAM_NONE;
     base->stateTimeLeft = SPAWN_TIME;
-    base->captureSound = SOUND_ID_NONE;
+    base->stateTotalTime = 0.0f;
 
     for (unsigned i = 0; i < MAX_PLAYERS; ++i) {
         base->baseControlCount[i] = 0;
@@ -257,8 +258,6 @@ void levelBaseUpdate(struct LevelBase* base) {
 
     if (!soundPlayerIsPlaying(base->captureSound) && isCapturing) {
         base->captureSound = soundPlayerPlay(SOUNDS_FLAGCAP, 1.0f, 0, &base->position);
-    } else if (soundPlayerIsPlaying(base->captureSound) && !isCapturing) {
-        soundPlayerStop(&base->captureSound);
     }
 
     if (isCapturing) {
@@ -310,6 +309,8 @@ void levelBaseUpdate(struct LevelBase* base) {
     }
 }
 
+#define UPGRADE_FLASH_COUNT     (1.0f / 30.0f)
+
 void levelBaseRender(struct LevelBase* base, struct RenderState* renderState) {
     Mtx* matrix = renderStateRequestMatrices(renderState, 3);
 
@@ -334,7 +335,13 @@ void levelBaseRender(struct LevelBase* base, struct RenderState* renderState) {
     } else if (base->state == LevelBaseStateNeutral) {
         color = gTeamColors[TEAM_NONE];
     } else {
-        color = gTeamDarkColors[base->team.teamNumber];
+        float progress = 1.0f - base->stateTimeLeft / base->stateTotalTime;
+        progress *= progress;
+        if (mathfMod(progress, UPGRADE_FLASH_COUNT) < UPGRADE_FLASH_COUNT * 0.8f) {
+            color = gTeamDarkColors[base->team.teamNumber];
+        } else {
+            color = gColorWhite;
+        }
     }
 
     gDPPipeSync(renderState->dl++);

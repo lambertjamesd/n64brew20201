@@ -9,8 +9,8 @@
 #include "graphics/render_state.h"
 
 enum CameraMode {
-    CameraModeFollow,
-    CameraModeLocked,
+    CameraModeLocked = (1 << 0),
+    CameraModeMapView = (1 << 1),
 };
 
 struct Camera {
@@ -27,9 +27,10 @@ void cameraBuildViewMatrix(struct Camera* camera, Mtx* matrix, float rotateView)
 void cameraBuildProjectionMatrix(struct Camera* camera, Mtx* matrix, u16* perspectiveNorm, float aspectRatio);
 void cameraSetupMatrices(struct Camera* camera, struct RenderState* renderState, float aspectRatio, float rotateView);
 
-void cameraUpdate(struct Camera* camera, struct Vector3* target, float followDistance, float cameraHeight);
+void cameraUpdate(struct Camera* camera, struct Vector3* target, float followDistance, float cameraHeight, float aspectRatio);
 
 void cameraSetLockedMode(struct Camera* camera, struct Quaternion* rotation);
 void cameraSetFollowMode(struct Camera* camera);
+void cameraSetIsMapView(struct Camera* camera, int value);
 
 #endif

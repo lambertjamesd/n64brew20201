@@ -102,7 +102,7 @@ void initGFX()
     gInfo[0].msg.gen.type = OS_SC_DONE_MSG;
     gInfo[1].msg.gen.type = OS_SC_DONE_MSG;
     /* The Vi manager was started by scheduler by this point in time */
-    osViSetSpecialFeatures(OS_VI_DITHER_FILTER_ON);
+    osViSetSpecialFeatures(OS_VI_DITHER_FILTER_ON | OS_VI_GAMMA_OFF);
 }
 
 void createGfxTask(GFXInfo *i) 

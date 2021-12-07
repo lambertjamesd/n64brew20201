@@ -2,20 +2,20 @@
 Ultrarares' entry to the 2021 N64Brew jam
 
 TODO
-    figure out culling on level geometry
     balance factions
-    nerf defense upgrade
     death animation is sometimes wrong
     cutscene polish
-    darken c arrows
     base stuck playing capture sound
-    indicate upgrade progress
     rom header
-    fade into credits
+    read go sounds
+    crop level floors
+    lighter dark colorssoundPlayer
+    upgrade menu moves too much - on slow framerates
 
-    debuffs
-        indicate which debuff
-        backwards movement too long
+    triangle music?
+    triangle too hard
+    orion texture is off
+    R for camera view
 
 essential
     remove L to win. Fix save file progression

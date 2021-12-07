@@ -62,6 +62,8 @@ struct LevelScene {
     float gameTimer;
 };
 
+extern struct LevelScene gCurrentLevel;
+
 #define IS_PLAYER_AI(levelScene, playerIndex) ((1 << (playerIndex)) & (levelScene)->aiPlayerMask)
 
 void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* definition, unsigned int playercount, unsigned aiPlayerMask, enum LevelMetadataFlags flags, float aiDifficulty);

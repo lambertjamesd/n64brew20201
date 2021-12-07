@@ -25,6 +25,7 @@ struct LevelBase {
     struct Vector3 position;
     struct DynamicSceneEntry* collider;
     float stateTimeLeft;
+    float stateTotalTime;
     float captureProgress;
     float lastCaptureProgress;
     SoundID captureSound;
