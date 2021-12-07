@@ -6,7 +6,6 @@ TODO
     balance factions
     nerf defense upgrade
     death animation is sometimes wrong
-    skinned joints
     cutscene polish
     darken c arrows
     base stuck playing capture sound

@@ -5,6 +5,7 @@
 
 struct Credits {
     float offset;
+    float fadeTimer;
     int totalTime;
 };
 

@@ -326,6 +326,6 @@ void cutsceneRender(struct Cutscene* cutscene, struct RenderState* renderState) 
     gDPPipeSync(renderState->dl++);
     gDPSetCombineLERP(renderState->dl++, 0, 0, 0, ENVIRONMENT, 0, 0, 0, ENVIRONMENT, 0, 0, 0, ENVIRONMENT, 0, 0, 0, ENVIRONMENT);
     gDPSetEnvColor(renderState->dl++, 0, 0, 0, 255 - alpha);
-    gDPFillRectangle(renderState->dl++, 0, 0, SCREEN_WD-1, SCREEN_HT-1);
+    gDPFillRectangle(renderState->dl++, 0, 0, SCREEN_WD, SCREEN_HT);
     gDPPipeSync(renderState->dl++);
 }

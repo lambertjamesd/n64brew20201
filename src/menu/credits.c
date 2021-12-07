@@ -16,6 +16,7 @@
 
 #define TEXT_START  85
 #define LOGO_START  410
+#define FADE_TIME   2.0f
 
 
 #define CREDITS_END 560
@@ -32,6 +33,8 @@ Gfx gCreditsSolidColor[] = {
 
 void creditsInit(struct Credits* credits) {
     credits->offset = -SCREEN_HT;
+    credits->fadeTimer = FADE_TIME;
+    
     initKickflipFont();
 
     credits->totalTime = 0;
@@ -48,6 +51,8 @@ void creditsUpdate(struct Credits* credits) {
         if(credits->offset >= CREDITS_END) credits->offset = -SCREEN_HT;
         else credits->offset += SCROLL_SPEED * gTimeDelta;
     }
+
+    credits->fadeTimer -= gTimeDelta;
 }
 
 void drawTitle(struct RenderState* renderState, unsigned offset){
@@ -131,4 +136,22 @@ void creditsRender(struct Credits* credits, struct RenderState* renderState) {
     drawTime(renderState, credits->offset, credits->totalTime);
 
     spriteFinish(renderState);
+
+    if (credits->fadeTimer) {
+        int alpha = (int)(credits->fadeTimer * 255.0f / FADE_TIME);
+
+        if (alpha > 255) {
+            alpha = 255;
+        } else if (alpha < 0) {
+            alpha = 0;
+        }
+
+        gDPPipeSync(renderState->dl++);
+        gDPSetRenderMode(renderState->dl++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
+        gDPPipeSync(renderState->dl++);
+        gDPSetCombineLERP(renderState->dl++, 0, 0, 0, ENVIRONMENT, 0, 0, 0, ENVIRONMENT, 0, 0, 0, ENVIRONMENT, 0, 0, 0, ENVIRONMENT);
+        gDPSetEnvColor(renderState->dl++, 0, 0, 0, alpha);
+        gDPFillRectangle(renderState->dl++, 0, 0, SCREEN_WD, SCREEN_HT);
+        gDPPipeSync(renderState->dl++);
+    }
 }

@@ -185,6 +185,22 @@ static void initGame(void)
     /**** Add ourselves to the scheduler to receive retrace messages ****/
     osScAddClient(&sc, &gfxClient, &gfxFrameMsgQ);  
 
+    OSViMode *mode;
+    switch (osTvType) {
+        case OS_TV_PAL:
+            mode = &osViModePalLpn1;
+        break;
+        default:
+        case OS_TV_NTSC:
+            mode = &osViModeNtscLpn1;
+        break;
+        case OS_TV_MPAL:
+            mode = &osViModeMpalLpn1;
+        break;
+    }
+    osViSetMode(mode);
+    osViBlack(1);
+
     sched_cmdQ = osScGetCmdQ(&sc);
 
 
