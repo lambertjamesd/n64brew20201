@@ -12,7 +12,7 @@ struct ActiveSoundInfo gActiveSounds[MAX_SOUNDS];
 struct SoundListener gListeners[MAX_PLAYERS];
 unsigned gListenerCount;
 
-#define FULL_VOLUME_RADIUS   (SCENE_SCALE * 10.0f)
+#define FULL_VOLUME_RADIUS   (SCENE_SCALE * 20.0f)
 
 float gSoundVolume = 1.0f;
 float gMusicVolume = 1.0f;
@@ -26,14 +26,14 @@ enum SoundMatchScore {
 };
 
 short soundVolume(float floatValue) {
-    float result = floatValue * 0x7fff;
+    float result = floatValue * (float)32767.0f;
 
-    if (result > 0x7fff) {
-        return 0x7fff;
+    if (result > (float)32767.0f) {
+        return 32767.0f;
     } else if (result < 0.0f) {
         return 0;
     } else {
-        return (short)result;
+        return floorf(result);
     }
 }
 
@@ -55,15 +55,12 @@ void soundDetermine3DVolumePan(struct Vector3* position, float volumeIn, short* 
         return;
     }
 
-    *volume *= soundVolume(volumeIn * FULL_VOLUME_RADIUS * FULL_VOLUME_RADIUS / bestDistance);
+    *volume = soundVolume(volumeIn * FULL_VOLUME_RADIUS * FULL_VOLUME_RADIUS / bestDistance);
 
     struct Vector3 offset;
     vector3Sub(position, &nearestListener->position, &offset);
-    struct Vector3 right;
-    quatMultVector(&nearestListener->rotation, &gRight, &right);
     vector3Normalize(&offset, &offset);
-
-    float leftRight = vector3Dot(&offset, &right) * 64.0f + 64.0f;
+    float leftRight = vector3Dot(&offset, &nearestListener->right) * 64.0f + 64.0f;
 
     if (leftRight > 127.0f) {
         *pan = 127;
@@ -76,7 +73,7 @@ void soundDetermine3DVolumePan(struct Vector3* position, float volumeIn, short* 
 
 void soundPlayerUpdateListener(unsigned index, struct Vector3* position, struct Quaternion* rotation) {
     gListeners[index].position = *position;
-    gListeners[index].rotation = *rotation;
+    quatMultVector(rotation, &gRight, &gListeners[index].right);
 }
 
 void soundPlayerSetListenerCount(unsigned count) {
@@ -155,6 +152,8 @@ void soundPlayerInit() {
     sndConfig.heap = &gAudioHeap;
     alSndpNew(&gSoundPlayer, &sndConfig);
 
+    zeroMemory(gActiveSounds, sizeof(gActiveSounds));
+
     for (unsigned i = 0; i < MAX_SOUNDS; ++i) {
         gActiveSounds[i].soundId = -1;
     }
@@ -189,9 +188,6 @@ SoundID soundPlayerPlay(unsigned clipId, enum SoundPlayerFlags flags, struct Vec
         short vol;
         short pan;
         soundDetermine3DVolumePan(&soundInfo->position, gSoundVolume, &vol, &pan);
-        if (vol < 0) {
-            soundDetermine3DVolumePan(&soundInfo->position, gSoundVolume, &vol, &pan);
-        }
         alSndpSetVol(&gSoundPlayer, vol);
         alSndpSetPan(&gSoundPlayer, pan);
     } else {
@@ -199,7 +195,7 @@ SoundID soundPlayerPlay(unsigned clipId, enum SoundPlayerFlags flags, struct Vec
         alSndpSetPan(&gSoundPlayer, 64);
     }
     alSndpPlay(&gSoundPlayer);
-
+    
     return soundInfo - gActiveSounds;
 }
 
@@ -235,7 +231,7 @@ void soundPlayerUpdate() {
             if (soundState == AL_PLAYING) {
                 short vol;
                 short pan;
-                soundDetermine3DVolumePan(&activeSound->position, gSoundVolume, &vol, &pan);
+                soundDetermine3DVolumePan(&activeSound->position, gSoundVolume * activeSound->volume, &vol, &pan);
                 alSndpSetVol(&gSoundPlayer, vol);
                 alSndpSetPan(&gSoundPlayer, pan);
             }
@@ -255,6 +251,20 @@ void soundPlayerStop(SoundID* soundId) {
         alSndpStop(&gSoundPlayer);
     }
     *soundId = SOUND_ID_NONE;
+}
+
+void soundPlayerStopWithClipId(unsigned clipId) {
+    for (unsigned i = 0; i < MAX_SOUNDS; ++i) {
+        struct ActiveSoundInfo* activeSound = &gActiveSounds[i];
+
+        if (activeSound->forSound == gSoundClipArray->sounds[clipId]) {
+            alSndpSetSound(&gSoundPlayer, activeSound->soundId);
+            if (alSndpGetState(&gSoundPlayer) == AL_PLAYING) {
+                SoundID id = i;
+                soundPlayerStop(&id);
+            }
+        }
+    }
 }
 
 void soundPlayerSetPitch(SoundID soundId, float speed) {

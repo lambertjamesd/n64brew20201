@@ -10,11 +10,18 @@ struct Cutscene {
     struct SKAnimator animator;
     struct Transform* rootTransforms;
     struct Camera camera;
+    unsigned short currentSetMask;
+    unsigned short cutsceneIndex;
 };
 
 extern struct Cutscene gCutscene;
 
-void cutsceneInit(struct Cutscene* cutscene, unsigned animationIndex);
+enum CutsceneIndex {
+    CutsceneIndexIntro,
+    CutsceneIndexEnding,
+};
+
+void cutsceneInit(struct Cutscene* cutscene, enum CutsceneIndex index);
 void cutsceneUpdate(struct Cutscene* cutscene);
 void cutsceneRender(struct Cutscene* cutscene, struct RenderState* renderState);
 

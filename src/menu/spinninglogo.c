@@ -44,7 +44,7 @@ void spinningLogoUpdate(struct SpinningLogo* spinningLogo) {
 
     if (spinningLogo->timer > SPINNING_LOGO_TIME) {
         sceneQueueMainMenu();
-        sceneInsertCutscene(CUTSCENE_ANIMATIONS_CUTSCENE_ANIMATIONS_CUTCENE_001_CUTSCENE_INDEX);
+        sceneInsertCutscene(CutsceneIndexIntro);
     }
 }
 

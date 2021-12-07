@@ -35,7 +35,7 @@ void sceneQueueMainMenu();
 void sceneQueuePostGameScreen(unsigned winningTeam, unsigned teamCount, float time);
 void sceneQueueCredits();
 void sceneQueueIntro();
-void sceneInsertCutscene(unsigned cutsceneIndex);
+void sceneInsertCutscene(enum CutsceneIndex cutsceneIndex);
 void sceneEndCutscene();
 int sceneIsCampaign();
 

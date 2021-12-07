@@ -429,7 +429,7 @@ void levelSceneDeathSFX_Trigger(struct LevelScene* levelScene){
     }
 
     for(unsigned i = 0; i < levelScene->playerCount; ++i){
-        if(!playerIsAlive(&levelScene->players[i])){
+        if(!playerIsAlive(&levelScene->players[i]) && !IS_PLAYER_AI(levelScene, i)){
             levelScene->deadPlayers[i] = 1;
             soundPlayerPlay(SOUNDS_DEATHSFX, 0, 0);
         }

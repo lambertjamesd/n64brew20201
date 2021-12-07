@@ -33,7 +33,7 @@ void transformInvert(struct Transform* in, struct Transform* out) {
     float uniformScale = 1.0f;
 
     if (in->scale.x != 1.0f || in->scale.y != 1.0f || in->scale.z != 1.0f) {
-        uniformScale = 1.0f / sqrtf(vector3MagSqrd(&in->scale));
+        uniformScale = 3.0f / (in->scale.x + in->scale.y + in->scale.z);
     }
 
     // order of transforms forward scale -> rotate -> translate

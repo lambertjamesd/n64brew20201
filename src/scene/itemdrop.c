@@ -169,6 +169,7 @@ void itemDropUpdate(struct ItemDrop* itemDrop, int favorPlayer) {
             pos3D.z = itemDrop->collision->center.y;
             soundPlayerPlay(SOUNDS_ITEMSPAWN, 0, &pos3D);
             itemDrop->soundId = soundPlayerPlay(SOUNDS_ITEMWAIT, 0, &pos3D);
+            soundPlayerSetVolume(itemDrop->soundId, 0.25f);
             itemDrop->state = ItemDropStateWaiting;
             break;
         }

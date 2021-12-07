@@ -11,6 +11,7 @@ TODO
     nerf defense upgrade
     death animation is sometimes wrong
     dark sattelite dish decor
+    minion spawn animation
 
     balance
         Galaxy, subdivide mesh more

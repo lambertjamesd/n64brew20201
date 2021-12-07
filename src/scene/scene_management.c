@@ -18,7 +18,7 @@ struct Credits gCredits;
 struct GameConfiguration gNextLevel;
 
 enum SceneState gAfterCutscene;
-static unsigned gNextCutscene;
+static enum CutsceneIndex gNextCutscene;
 unsigned frameSkip = 0;
 
 extern char _staticSegmentRomStart[], _staticSegmentRomEnd[];
@@ -84,7 +84,7 @@ void sceneQueuePostGameScreen(unsigned winningTeam, unsigned teamCount, float ti
     }
 }
 
-void sceneInsertCutscene(unsigned cutsceneIndex) {
+void sceneInsertCutscene(enum CutsceneIndex cutsceneIndex) {
     gAfterCutscene = gNextSceneState;
     gNextCutscene = cutsceneIndex;
     gNextSceneState = SceneStateInCutscene;
@@ -117,7 +117,7 @@ void sceneLoadIntro() {
     gSceneState = SceneStateIntro;
 }
 
-extern char _MarsSegmentRomStart[], _MarsSegmentRomEnd[];
+extern char _SpaceSegmentRomStart[], _SpaceSegmentRomEnd[];
 extern char _cutscene_setSegmentRomStart[], _cutscene_setSegmentRomEnd[];
 
 void sceneLoadCutscene() {
@@ -127,8 +127,8 @@ void sceneLoadCutscene() {
     LOAD_SEGMENT(fonts, gFontSegment);
     LOAD_SEGMENT(cutscene_set, gLevelSegment);
 
-    gThemeSegment = malloc(_MarsSegmentRomEnd - _MarsSegmentRomStart);
-    romCopy(_MarsSegmentRomStart, gThemeSegment, _MarsSegmentRomEnd - _MarsSegmentRomStart);
+    gThemeSegment = malloc(_SpaceSegmentRomEnd - _SpaceSegmentRomStart);
+    romCopy(_SpaceSegmentRomStart, gThemeSegment, _SpaceSegmentRomEnd - _SpaceSegmentRomStart);
 
     gSceneState = SceneStateInCutscene;
     cutsceneInit(&gCutscene, gNextCutscene);

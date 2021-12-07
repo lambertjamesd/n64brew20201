@@ -37,7 +37,7 @@ struct SoundList {
 
 struct SoundListener {
     struct Vector3 position;
-    struct Quaternion rotation;
+    struct Vector3 right;
 };
 
 typedef short SoundID;
@@ -49,6 +49,7 @@ void soundPlayerUpdateListener(unsigned index, struct Vector3* position, struct 
 void soundPlayerSetListenerCount(unsigned count);
 
 SoundID soundPlayerPlay(unsigned clipId, enum SoundPlayerFlags flags, struct Vector3* pos);
+void soundPlayerStopWithClipId(unsigned clipId);
 void soundPlayerUpdatePosition(SoundID soundId, struct Vector3* position);
 void soundPlayerStop(SoundID* soundId);
 void soundPlayerSetPitch(SoundID soundId, float speed);

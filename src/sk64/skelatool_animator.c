@@ -444,7 +444,8 @@ void skAnimatorUpdate(struct SKAnimator* animator, struct Transform* transforms,
     }
 
     while (animator->eventCallback && animator->nextEvent < animator->currentAnimation->numEvents && 
-        animator->currTick >= animator->currentAnimation->animationEvents[animator->nextEvent].tick) {
+        animator->currTick >= animator->currentAnimation->animationEvents[animator->nextEvent].tick &&
+        animator->nextSourceTick >= animator->currentAnimation->animationEvents[animator->nextEvent].tick) {
         animator->eventCallback(animator, animator->eventCallbackData, &animator->currentAnimation->animationEvents[animator->nextEvent]);
         ++animator->nextEvent;
     }

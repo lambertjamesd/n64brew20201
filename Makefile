@@ -99,9 +99,13 @@ data/cutscenes/geometry.h build/data/cutscenes/geometry_anim.inc.h build/data/cu
 	@mkdir -p $(@D)
 	$(SKELATOOL64) -a -s 100 -r 0,0,0 -n cutscene_animations -o data/cutscenes/geometry.h assets/models/CutsceneTest.fbx
 
-data/cutscenes/geometry_set.h build/data/cutscenes/geometry_set_anim.inc.h build/data/cutscenes/geometry_set_animdef.inc.h:	assets/models/Cutscene_Open_Set.fbx assets/materials/levels.yaml
+data/cutscenes/geometry_ss_set.h build/data/cutscenes/geometry_ss_set_anim.inc.h build/data/cutscenes/geometry_ss_set_animdef.inc.h: assets/models/Cutscene_SS_Set.fbx assets/materials/levels.yaml
 	@mkdir -p $(@D)
-	$(SKELATOOL64) -s 100 -r 0,0,0 -n cutscene_set -m assets/materials/levels.yaml -o data/cutscenes/geometry_set.h assets/models/Cutscene_Open_Set.fbx
+	$(SKELATOOL64) -s 100 -r 0,0,0 -n cutscene_ss_set -m assets/materials/levels.yaml -o data/cutscenes/geometry_ss_set.h assets/models/Cutscene_SS_Set.fbx
+
+data/cutscenes/geometry_surface_set.h build/data/cutscenes/geometry_surface_set_anim.inc.h build/data/cutscenes/geometry_surface_set_animdef.inc.h: assets/models/Cutscene_Surface_Set.fbx assets/materials/levels.yaml
+	@mkdir -p $(@D)
+	$(SKELATOOL64) -s 100 -r 0,0,0 -n cutscene_surface_set -m assets/materials/levels.yaml -o data/cutscenes/geometry_surface_set.h assets/models/Cutscene_Surface_Set.fbx
 
 MUSIC = $(shell find assets/music/ -type f -name '*.mid')
 

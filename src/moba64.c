@@ -200,8 +200,6 @@ static void initGame(void)
     initAudio();
     soundPlayerInit();
     sceneQueueIntro();
-    // sceneInsertCutscene(CUTSCENE_ANIMATIONS_CUTSCENE_ANIMATIONS_CUTCENE_001_CUTSCENE_INDEX);
-    // sceneQueueMainMenu();
 
 #ifdef WITH_DEBUGGER
     OSThread* debugThreads[2];
