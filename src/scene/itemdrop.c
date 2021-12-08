@@ -36,7 +36,7 @@ void itemDropInit(struct ItemDrop* itemDrop) {
     itemDrop->state = ItemDropDisabled;
     itemDrop->stateTimer = 0.0f;
     itemDrop->collision = 0;
-    itemDrop->soundId = SOUND_ID_NONE;
+    itemDrop->soundId = SoundIDNone;
 }
 
 void itemDropRandomLocation(struct Vector2* output) {
@@ -168,11 +168,17 @@ void itemDropUpdate(struct ItemDrop* itemDrop, int favorPlayer) {
             pos3D.y = 0.0f;
             pos3D.z = itemDrop->collision->center.y;
             soundPlayerPlay(SOUNDS_ITEMSPAWN, 1.0f, SoundPlayerPriorityNonPlayer, 0, &pos3D);
-            itemDrop->soundId = soundPlayerPlay(SOUNDS_ITEMWAIT, 0.25f, SoundPlayerPriorityBackground, 0, &pos3D);
             itemDrop->state = ItemDropStateWaiting;
             break;
         }
         case ItemDropStateWaiting:
+            if (!soundPlayerIsPlaying(itemDrop->soundId)) {
+                struct Vector3 pos3D;
+                pos3D.x = itemDrop->collision->center.x;
+                pos3D.y = 0.0f;
+                pos3D.z = itemDrop->collision->center.y;
+                itemDrop->soundId = soundPlayerPlay(SOUNDS_ITEMWAIT, 0.25f, SoundPlayerPriorityBackground, SoundPlayerFlagsLooping, &pos3D);
+            }
             itemDrop->stateTimer -= gTimeDelta;
             if (itemDrop->stateTimer < 0.0f) {
                 itemDropCleanup(itemDrop);
@@ -394,8 +400,13 @@ Gfx* itemDropsRender(struct ItemDrops* itemDrops, struct RenderState* renderStat
     }
 
     gSPEndDisplayList(renderState->dl++);
-    Gfx* resultEnd = renderStateReplaceDL(renderState, prevDL);
+    #ifdef DEBUG
+    Gfx* resultEnd =
+    #endif 
+    renderStateReplaceDL(renderState, prevDL);
+    #ifdef DEBUG
     assert(resultEnd <= result + GFX_PER_DROP * MAX_ITEM_DROP + 1);
+    #endif
 
     return result;
 }

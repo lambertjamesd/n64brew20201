@@ -321,7 +321,7 @@ void mainMenuUpdate(struct MainMenu* mainMenu) {
                     sceneQueueCredits();
                     sceneInsertCutscene(gTeamFactions[0]->endingCutsceneIndex);
                 } else {
-                    if (mainMenu->musicSoundID != SOUND_ID_NONE) {
+                    if (soundPlayerIsPlaying(mainMenu->musicSoundID)) {
                         soundPlayerStop(&mainMenu->musicSoundID);
                     }
 

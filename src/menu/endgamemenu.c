@@ -36,7 +36,7 @@ void endGameMenuInit(struct EndGameMenu* menu, unsigned winningTeam, unsigned te
     menu->drawAnimationTimer = 0.0f;
     menu->maxBases = 0.0f;
     menu->state = EndGameStateLoading;
-    menu->captureSound = SOUND_ID_NONE;
+    menu->captureSound = SoundIDNone;
     menu->gameTime = (unsigned short)(gameTime * 10.0f);
     
     for (unsigned teamIndex = 0; teamIndex < teamCount; ++teamIndex) {

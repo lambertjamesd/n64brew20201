@@ -8,7 +8,11 @@ struct SaveData gSaveData;
 int gEepromProbe;
 int gShouldSave = 0;
 
+#ifdef DEBUG
 #define UNLOCK_ALL  1
+#else
+#define UNLOCK_ALL  0
+#endif
 
 void saveFileNew() {
     zeroMemory(&gSaveData, sizeof(gSaveData));

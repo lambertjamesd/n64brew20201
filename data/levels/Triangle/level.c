@@ -238,6 +238,6 @@ struct LevelDefinition Triangle_Definition = {
     .theme = &MarsTheme,
     .staticScene = {Triangle_Boundary, 6},
     .pathfinding = {.nodeCount = 9, .baseNodes = Triangle_BasesPathNodes, .nodeDistances = Triangle_NodeDistances, .nodePositions = Triangle_PathingNodes, .nextNode = Triangle_NextNode},
-    .aiDifficulty = 0.6,
+    .aiDifficulty = 0.5,
 };
 

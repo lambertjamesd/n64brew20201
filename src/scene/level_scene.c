@@ -31,7 +31,9 @@
 #define GAME_END_DELAY  5.0f
 #define LOSE_BY_KNOCKOUT_TIME   15.0f
 
+#ifdef DEBUG
 #define WIN_BY_PRESSING_L   1
+#endif
 
 struct LevelScene gCurrentLevel;
 
@@ -188,8 +190,13 @@ void levelSceneRender(struct LevelScene* levelScene, struct RenderState* renderS
         }
     }
     gSPEndDisplayList(renderState->dl++);
-    Gfx* minionEnd = renderStateReplaceDL(renderState, prevDL);
+    #ifdef DEBUG
+    Gfx* minionEnd = 
+    #endif
+    renderStateReplaceDL(renderState, prevDL);
+    #ifdef DEBUG
     assert(minionEnd <= minionGfx + MINION_GFX_PER_MINION * levelScene->minionCount + 1);
+    #endif
 
     // render bases
     Gfx* baseGfx = renderStateAllocateDLChunk(renderState, BASE_GFX_PER_BASE * levelScene->baseCount + 1);
@@ -198,8 +205,13 @@ void levelSceneRender(struct LevelScene* levelScene, struct RenderState* renderS
         levelBaseRender(&levelScene->bases[i], renderState);
     }
     gSPEndDisplayList(renderState->dl++);
-    Gfx* baseEnd = renderStateReplaceDL(renderState, prevDL);
+    #ifdef DEBUG
+    Gfx* baseEnd = 
+    #endif
+    renderStateReplaceDL(renderState, prevDL);
+    #ifdef DEBUG
     assert(baseEnd <= baseGfx + MINION_GFX_PER_MINION * levelScene->baseCount + 1);
+    #endif
 
     // render players
     Gfx* playerGfx = renderStateAllocateDLChunk(renderState, PLAYER_GFX_PER_PLAYER * levelScene->playerCount + 4);
@@ -211,8 +223,13 @@ void levelSceneRender(struct LevelScene* levelScene, struct RenderState* renderS
     gDPPipeSync(renderState->dl++);
 	gDPSetTextureLUT(renderState->dl++, G_TT_NONE);
     gSPEndDisplayList(renderState->dl++);
-    Gfx* playerEnd = renderStateReplaceDL(renderState, prevDL);
+    #ifdef DEBUG
+    Gfx* playerEnd = 
+    #endif
+    renderStateReplaceDL(renderState, prevDL);
+    #ifdef DEBUG
     assert(playerEnd <= playerGfx + PLAYER_GFX_PER_PLAYER * levelScene->playerCount + 1);
+    #endif
 
     Gfx* itemDropsGfx = itemDropsRender(&levelScene->itemDrops, renderState);
 

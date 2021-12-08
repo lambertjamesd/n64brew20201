@@ -84,13 +84,13 @@ struct TutorialStep gTutorialStep[] = {
         TEAM(1),
     },
     {
-        "Upgrade",
+        "Upgrade Base",
         {0, 16, 16, 16},
         TutorailStepFlagsMoveToBase,
         TEAM(0),
     },
     {
-        "Upgrade",
+        "Upgrade Base",
         {16, 64, 16, 16},
         TutorailStepFlagsMoveToBase,
         TEAM(0),

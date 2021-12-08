@@ -183,8 +183,8 @@ void levelBaseInit(struct LevelBase* base, struct BaseDefinition* definition, un
         base, 
         &definition->position,
         levelBaseTrigger,
-        DynamicSceneEntryIsTrigger | DynamicSceneEntryHasTeam | COLLISION_LAYER_FOR_TEAM(base->team.teamNumber),
-        CollisionLayersBase
+        DynamicSceneEntryIsTrigger | DynamicSceneEntryHasTeam,
+        CollisionLayersBase | COLLISION_LAYER_FOR_TEAM(base->team.teamNumber)
     );
 
     base->defaultComand = MinionCommandDefend;
@@ -237,7 +237,7 @@ void levelBaseUpdate(struct LevelBase* base) {
                 base->team.teamNumber = TEAM_NONE;
                 base->state = LevelBaseStateNeutral;
                 base->defaultComand = MinionCommandDefend;
-                base->collider->collisionLayers = DynamicSceneEntryIsTrigger | DynamicSceneEntryHasTeam | COLLISION_LAYER_FOR_TEAM(TEAM_NONE);
+                base->collider->collisionLayers = CollisionLayersBase | COLLISION_LAYER_FOR_TEAM(TEAM_NONE);
             }
         } else {
             base->captureProgress += gTimeDelta;
@@ -249,7 +249,7 @@ void levelBaseUpdate(struct LevelBase* base) {
                 if (base->state == LevelBaseStateNeutral) {
                     base->state = LevelBaseStateSpawning;
                     base->stateTimeLeft = SPAWN_TIME;
-                    base->collider->collisionLayers = DynamicSceneEntryIsTrigger | DynamicSceneEntryHasTeam | COLLISION_LAYER_FOR_TEAM(controllingTeam);
+                    base->collider->collisionLayers = CollisionLayersBase | COLLISION_LAYER_FOR_TEAM(controllingTeam);
                     levelBaseDespawnMinions(&gCurrentLevel, base->baseId, base->team.teamNumber);
                     soundPlayerStop(&base->captureSound);
                 }

@@ -6,6 +6,8 @@
 #include "../data/models/characters.h"
 
 #define CAMERA_ROTATE_DURATION 0.5f
+#define LARGE_SCALE_TIME       0.25f
+#define LARGE_SCALE_FACTOR     4.0f
 
 float gDebuffTime[ControlsScramblerTypeCount] = {
     5.0f,
@@ -133,7 +135,18 @@ void controlsScramblerRender(struct ControlsScrambler* scrambler, struct Player*
         vector3AddScaled(&transform.position, &gRight, sinf(angle) * ORBIT_RADIUS, &transform.position);
         vector3AddScaled(&transform.position, &gForward, cosf(angle) * ORBIT_RADIUS, &transform.position);
         transform.rotation = *renderState->cameraRotation;
-        vector3Scale(&gOneVec, &transform.scale, 0.5f);
+
+        float scale = 0.5f;
+
+        float timeElapsed = gDebuffTime[i] - scrambler->timers[i];
+
+        if (timeElapsed < LARGE_SCALE_TIME) {
+            scale *= mathfLerp(1.0f, LARGE_SCALE_FACTOR, timeElapsed);
+        } else {
+            scale *= mathfLerp(1.0f, 0.1f, (timeElapsed - LARGE_SCALE_TIME) / gDebuffTime[i]);
+        }
+
+        vector3Scale(&gOneVec, &transform.scale, scale);
         transformToMatrixL(&transform, matrix);
         gSPMatrix(renderState->dl++, matrix, G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
         gDPSetTileSize(renderState->dl++, 0, 320 - i * 80, 0, 380, 60);

@@ -288,8 +288,8 @@ void playerInit(struct Player* player, unsigned playerIndex, unsigned team, stru
     player->playerIndex = playerIndex;
     player->flags = 0;
     damageHandlerInit(&player->damageHandler, gTeamFactions[player->team.teamNumber]->maxHP);
-    player->walkSoundEffect = SOUND_ID_NONE;
-    player->idleSoundEffect = SOUND_ID_NONE;
+    player->walkSoundEffect = SoundIDNone;
+    player->idleSoundEffect = SoundIDNone;
     player->animationSpeed = 1.0f;
     player->footstepTimer = -1.f;
     player->controlledBases = 0;
@@ -579,7 +579,7 @@ void playerStateWalk(struct Player* player, struct PlayerInput* input) {
         }
     }
 
-    int hasWalkingSound = player->walkSoundEffect != SOUND_ID_NONE;
+    int hasWalkingSound = soundPlayerIsPlaying(player->walkSoundEffect);
 
     if (isMoving != hasWalkingSound) {
         if (isMoving) {

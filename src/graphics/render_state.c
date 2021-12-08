@@ -10,7 +10,7 @@ void renderStateInit(struct RenderState* renderState) {
     renderState->transparentQueueStart = renderStateAllocateDLChunk(renderState, TRANSPARENT_QUEUE_LEN);
     renderState->transparentDL = renderState->transparentQueueStart;
     renderState->cameraRotation = 0;
-    
+    gDPPipeSync(renderState->transparentDL++);
     gDPSetRenderMode(renderState->transparentDL++, G_RM_ZB_XLU_SURF, G_RM_ZB_XLU_SURF2);
     spriteInit(renderState);
 }

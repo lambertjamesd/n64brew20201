@@ -5,13 +5,21 @@
 #include "util/time.h"
 #include "math/mathf.h"
 #include "game_defs.h"
+#include "clips.h"
 
 struct SoundArray* gSoundClipArray;
 ALSndPlayer gSoundPlayer;
-ALSndId gSoundIds[MAX_SOUNDS];
-struct ActiveSoundInfo gActiveSounds[MAX_SOUNDS];
+struct SoundSource gSoundSources[MAX_SOUNDS];
+struct SoundSource* gSoundSourceById[SOUNDS_TOTAL_COUNT];
+char gSoundSourceCount[SOUNDS_TOTAL_COUNT] = {
+    [SOUNDS_FLAGCAP] = 3,
+    [SOUNDS_ITEMSPAWN] = 2,
+    [SOUNDS_SPAWN] = 2,
+};
 struct SoundListener gListeners[MAX_PLAYERS];
 unsigned gListenerCount;
+
+SoundID SoundIDNone = {0, 0};
 
 #define FULL_VOLUME_RADIUS   (SCENE_SCALE * 20.0f)
 
@@ -26,26 +34,13 @@ enum SoundMatchScore {
     SoundMatchScoreClipMatch,
 };
 
-int soundIsPlaying(struct ActiveSoundInfo* sound) {
-    if (!sound->forSound || sound->soundId == SOUND_ID_NONE) {
-        return 0;
-    }
-
-    if (sound->flags & SoundPlayerFlagsFresh) {
-        return 1;
-    }
-
-    alSndpSetSound(&gSoundPlayer, sound->soundId);
-    return alSndpGetState(&gSoundPlayer) == AL_PLAYING;
-}
-
 short soundVolume(float floatValue) {
     float result = floatValue * (float)32767.0f;
 
     if (result > (float)32767.0f) {
         return 32767.0f;
     } else if (result < 0.0f) {
-        return 1;
+        return 0;
     } else {
         return floorf(result);
     }
@@ -94,90 +89,20 @@ void soundPlayerSetListenerCount(unsigned count) {
     gListenerCount = count;
 }
 
-int soundMatchScore(ALSound* forSound, struct ActiveSoundInfo* against) {
-    if (!against->forSound) {
-        return SoundMatchScoreNoClip;
-    }
-
-    alSndpSetSound(&gSoundPlayer, against->soundId);
-
-    if (alSndpGetState(&gSoundPlayer) == AL_PLAYING || (against->flags & (SoundPlayerFlagsLoop | SoundPlayerFlagsFresh)) != 0) {
-        if (against->forSound == forSound) {
-            return SoundMatchScoreClipMatchPlaying;
-        }
-
-        return SoundMatchScoreNone;
-    }
-
-    if (against->forSound == forSound) {
-        return SoundMatchScoreClipMatch;
-    } 
-
-    return SoundMatchScoreDifferentClip;
-}
-
-// 0 means indefinite
-float soundDeterminedEndtime(struct ActiveSoundInfo* info) {
-    if ((info->flags & SoundPlayerFlagsLoop) != 0 || !info->forSound) {
-        return 0.0f;
-    }
-
-    int sampleCount;
+struct SoundSource* soundGetFromID(SoundID id) {
+    unsigned soundIndex = id.soundId - 1;
     
-    if (info->forSound->wavetable->type == AL_ADPCM_WAVE) {
-        if (info->forSound->wavetable->waveInfo.adpcmWave.loop) {
-            return 0.0f;
-        }
-
-        sampleCount = info->forSound->wavetable->len * 16 / 9;
-    } else {
-        if (info->forSound->wavetable->waveInfo.rawWave.loop) {
-            return 0.0f;
-        }
-
-        sampleCount = info->forSound->wavetable->len / 2;
+    if (soundIndex >= MAX_SOUNDS) {
+        return 0;
     }
 
-    return gTimePassed + (float)(sampleCount + 100) / SOUND_SAMPLE_RATE;
-}
+    struct SoundSource* result = &gSoundSources[soundIndex];
 
-void initActiveSoundForSound(ALSound* sound, struct ActiveSoundInfo* info) {
-    if (info->forSound == sound) {
-        return;
+    if (result->soundId == SOUND_ID_NONE || result->playbackId != id.playbackId) {
+        return 0;
     }
 
-    if (info->forSound) {
-        alSndpDeallocate(&gSoundPlayer, info->soundId);
-    }
-
-    info->soundId = alSndpAllocate(&gSoundPlayer, sound);
-
-    if (info->soundId == -1) {
-        info->forSound = 0;
-        return;
-    }
-
-    info->forSound = sound;
-}
-
-struct ActiveSoundInfo* findSoundInfo(ALSound* forSound) {
-    struct ActiveSoundInfo* fallback = 0;
-    enum SoundMatchScore fallbackScore = SoundMatchScoreNone;
-
-    for (unsigned i = 0; i < MAX_SOUNDS; ++i) {
-        enum SoundMatchScore score = soundMatchScore(forSound, &gActiveSounds[i]);
-
-        if (!fallback && (score == SoundMatchScoreDifferentClip || score == SoundMatchScoreClipMatchPlaying)) {
-            if (score > fallbackScore) {
-                fallback = &gActiveSounds[i];
-                fallbackScore = score;
-            }
-        } else if (score >= SoundMatchScoreNoClip) {
-            return &gActiveSounds[i];
-        }
-    }
-
-    return fallback;
+    return result;
 }
 
 void soundPlayerInit() {
@@ -191,168 +116,248 @@ void soundPlayerInit() {
     sndConfig.heap = &gAudioHeap;
     alSndpNew(&gSoundPlayer, &sndConfig);
 
-    zeroMemory(gActiveSounds, sizeof(gActiveSounds));
+    unsigned currentSoundId = 0;
 
-    for (unsigned i = 0; i < MAX_SOUNDS; ++i) {
-        gActiveSounds[i].soundId = -1;
+    for (unsigned clipId = 0; clipId < SOUNDS_TOTAL_COUNT; ++clipId) {
+        if (gSoundSourceCount[clipId] == 0) {
+            gSoundSourceCount[clipId] = 1;
+        }
+
+        gSoundSourceById[clipId] = &gSoundSources[currentSoundId];
+
+        for (unsigned i = 0; i < gSoundSourceCount[clipId]; ++i) {
+            struct SoundSource* currSource = &gSoundSources[currentSoundId];
+            currSource->soundId = alSndpAllocate(&gSoundPlayer, gSoundClipArray->sounds[clipId]);
+            currSource->currentVolume = 0;
+            currSource->flags = 0;
+            currSource->playbackId = 0;
+            currSource->clipId = clipId;
+            currSource->absoluteVolume = 0.0f;
+            currSource->position = gZeroVec;
+            // currSource->endTime = 0.0f;
+
+            ++currentSoundId;
+        }
     }
+
+    for (;currentSoundId < MAX_SOUNDS; ++currentSoundId) {
+        struct SoundSource* currSource = &gSoundSources[currentSoundId];
+        currSource->soundId = SOUND_ID_NONE;
+    }
+}
+
+int soundSourceIsStopped(struct SoundSource* source) {
+    if (source->flags & SoundPlayerFlagsFresh) {
+        return 0;
+    }
+
+    alSndpSetSound(&gSoundPlayer, source->soundId);
+    return alSndpGetState(&gSoundPlayer) == AL_STOPPED;
+}
+
+struct SoundSource* findSoundSource(unsigned clipId, short vol) {
+    struct SoundSource* curr = gSoundSourceById[clipId];
+    struct SoundSource* end = curr + gSoundSourceCount[clipId];
+
+    struct SoundSource* backup = 0;
+
+    for (; curr < end; ++curr) {
+        if (soundSourceIsStopped(curr)) {
+            return curr;
+        }
+
+        if (curr->currentVolume >= vol) {
+            continue;
+        }
+
+        if (!backup || curr->currentVolume < backup->currentVolume) {
+            backup = curr;
+        }
+    }
+
+    return backup;
+}
+
+SoundID soundPlayerCreateID(struct SoundSource* source) {
+    SoundID result;
+    result.soundId = (source - gSoundSources) + 1;
+    result.playbackId = source->playbackId;
+    return result;
 }
 
 SoundID soundPlayerPlay(unsigned clipId, float volume, enum SoundPlayerPriority priority, enum SoundPlayerFlags flags, struct Vector3* pos) {
     if (clipId >= gSoundClipArray->soundCount) {
-        return SOUND_ID_NONE;
+        return SoundIDNone;
     }
 
-    struct ActiveSoundInfo* soundInfo = findSoundInfo(gSoundClipArray->sounds[clipId]);
-
-    if (!soundInfo) {
-        return SOUND_ID_NONE;
+    short vol;
+    short pan;
+    if (pos) {
+        soundDetermine3DVolumePan(pos, gSoundVolume * volume, &vol, &pan);
+    } else {
+        vol = soundVolume(volume * ((flags & SoundPlayerFlagsIsMusic) ? gMusicVolume : gSoundVolume));
+        pan = 64;
     }
 
-    if (soundInfo->flags & SoundPlayerFlagsIsMusic) {
-        return SOUND_ID_NONE;
+    if (vol == 0) {
+        return SoundIDNone;
     }
 
-    initActiveSoundForSound(gSoundClipArray->sounds[clipId], soundInfo);
+    struct SoundSource* soundSource = findSoundSource(clipId, vol);
 
-    soundInfo->flags = flags;
-    soundInfo->volume = volume;
+    if (!soundSource) {
+        return SoundIDNone;
+    }
+
+    soundSource->flags = flags;
+    soundSource->absoluteVolume = volume;
 
     if (pos) {
-        soundInfo->position = *pos;
-        soundInfo->flags |= SoundPlayerFlags3D;
+        soundSource->position = *pos;
+        soundSource->flags |= SoundPlayerFlags3D;
     } else {
-        soundInfo->flags &= ~SoundPlayerFlags3D;
+        soundSource->flags &= ~SoundPlayerFlags3D;
     }
 
-    soundInfo->flags |= SoundPlayerFlagsFresh;
+    soundSource->flags |= SoundPlayerFlagsFresh;
 
-    alSndpSetSound(&gSoundPlayer, soundInfo->soundId);
+    alSndpSetSound(&gSoundPlayer, soundSource->soundId);
+    int isStopped = alSndpGetState(&gSoundPlayer) == AL_STOPPED;
+    if (!isStopped && !(flags & SoundPlayerFlagsLooping)) {
+        alSndpStop(&gSoundPlayer);
+    }
     alSndpSetPitch(&gSoundPlayer, (float)SOUND_SAMPLE_RATE / (float)OUTPUT_RATE);
-    if (flags & SoundPlayerFlags3D) {
-        short vol;
-        short pan;
-        soundDetermine3DVolumePan(&soundInfo->position, gSoundVolume * volume, &vol, &pan);
-        alSndpSetVol(&gSoundPlayer, vol);
-        alSndpSetPan(&gSoundPlayer, pan);
-    } else {
-        alSndpSetVol(&gSoundPlayer, soundVolume(volume * ((flags & SoundPlayerFlagsIsMusic) ? gMusicVolume : gSoundVolume)));
-        alSndpSetPan(&gSoundPlayer, 64);
-    }
-    alSndpSetPriority(&gSoundPlayer, soundInfo->soundId, priority);
-    alSndpPlay(&gSoundPlayer);
+    alSndpSetVol(&gSoundPlayer, vol);
+    alSndpSetPan(&gSoundPlayer, pan);
+    alSndpSetPriority(&gSoundPlayer, soundSource->soundId, priority);
 
-    soundInfo->endTime = soundDeterminedEndtime(soundInfo);
+    if (isStopped) {
+        alSndpPlay(&gSoundPlayer);
+    } else if (!(flags & SoundPlayerFlagsLooping)) {
+        soundSource->flags |= SoundPlayerFlagsPending;
+    }
+
+    // soundSource->endTime = soundDetermineEndtime(soundSource);
     
-    return soundInfo - gActiveSounds;
+    soundSource->playbackId++;
+    return soundPlayerCreateID(soundSource);
 }
 
 void soundPlayerUpdatePosition(SoundID soundId, struct Vector3* position) {
-    if (soundId == SOUND_ID_NONE) {
+    struct SoundSource* source = soundGetFromID(soundId);
+    if (!source) {
         return;
     }
 
-    gActiveSounds[soundId].position = *position;
-    gActiveSounds[soundId].flags |= SoundPlayerFlags3D;
+    source->position = *position;
+    source->flags |= SoundPlayerFlags3D;
 }
 
 void soundPlayerUpdate() {
     for (unsigned i = 0; i < MAX_SOUNDS; ++i) {
-        struct ActiveSoundInfo* activeSound = &gActiveSounds[i];
-
-        if (!activeSound->forSound) {
-            continue;
-        }
-        
-        if (activeSound->flags & SoundPlayerFlagsLoop) {
-            if (!soundIsPlaying(activeSound)) {
-                alSndpPlay(&gSoundPlayer);
-            }
-        }
+        struct SoundSource* activeSound = &gSoundSources[i];
 
         if (activeSound->flags & SoundPlayerFlags3D) {
-            if (soundIsPlaying(activeSound)) {
+            if (!soundSourceIsStopped(activeSound)) {
                 short vol;
                 short pan;
-                soundDetermine3DVolumePan(&activeSound->position, gSoundVolume * activeSound->volume, &vol, &pan);
+                soundDetermine3DVolumePan(&activeSound->position, gSoundVolume * activeSound->absoluteVolume, &vol, &pan);
+                activeSound->currentVolume = vol;
+                alSndpSetSound(&gSoundPlayer, activeSound->soundId);
                 alSndpSetVol(&gSoundPlayer, vol);
                 alSndpSetPan(&gSoundPlayer, pan);
             }
         }
 
-        if (activeSound->endTime && activeSound->endTime < gTimePassed) {
-            SoundID id = i;
-            soundPlayerStop(&id);
+        activeSound->flags &= ~SoundPlayerFlagsFresh;
+
+        if (activeSound->flags & SoundPlayerFlagsPending) {
+            if (soundSourceIsStopped(activeSound)) {
+                alSndpSetSound(&gSoundPlayer, activeSound->soundId);
+                alSndpPlay(&gSoundPlayer);
+                activeSound->flags &= ~SoundPlayerFlagsPending;
+            }
         }
 
-        activeSound->flags &= ~SoundPlayerFlagsFresh;
+        // if (activeSound->endTime && activeSound->endTime < gTimePassed) {
+        //     SoundID id;
+        //     id.soundId = i + 1;
+        //     id.playbackId = activeSound->playbackId;
+        //     soundPlayerStop(&id);
+        // }
     }
 }
 
 void soundPlayerStop(SoundID* soundId) {
-    if (!soundId || *soundId == SOUND_ID_NONE) {
+    if (!soundId) {
         return;
     }
 
-    struct ActiveSoundInfo* soundInfo = &gActiveSounds[*soundId];
-    soundInfo->flags = 0;
-    alSndpSetSound(&gSoundPlayer, soundInfo->soundId);
-    if (soundIsPlaying(soundInfo)) {
-        alSndpStop(&gSoundPlayer);
+    struct SoundSource* source = soundGetFromID(*soundId);
+
+    if (!source) {
+        return;
     }
-    *soundId = SOUND_ID_NONE;
+
+    source->flags = 0;
+    alSndpSetSound(&gSoundPlayer, source->soundId);
+    alSndpStop(&gSoundPlayer);
+    *soundId = SoundIDNone;
 }
 
 void soundPlayerStopWithClipId(unsigned clipId) {
     for (unsigned i = 0; i < MAX_SOUNDS; ++i) {
-        struct ActiveSoundInfo* activeSound = &gActiveSounds[i];
+        struct SoundSource* soundSource = &gSoundSources[i];
 
-        if (activeSound->forSound == gSoundClipArray->sounds[clipId]) {
-            alSndpSetSound(&gSoundPlayer, activeSound->soundId);
-            if (soundIsPlaying(activeSound)) {
-                SoundID id = i;
-                soundPlayerStop(&id);
-            }
+        if (soundSource->clipId == clipId) {
+            alSndpSetSound(&gSoundPlayer, soundSource->soundId);
+            SoundID id = soundPlayerCreateID(soundSource);
+            soundPlayerStop(&id);
         }
     }
 }
 
 void soundPlayerSetPitch(SoundID soundId, float speed) {
-    if (soundId < 0 || soundId >= MAX_SOUNDS) {
+    struct SoundSource* source = soundGetFromID(soundId);
+
+    if (!source) {
         return;
     }
 
-    alSndpSetSound(&gSoundPlayer, gActiveSounds[soundId].soundId);
+    alSndpSetSound(&gSoundPlayer, source->soundId);
     alSndpSetPitch(&gSoundPlayer, speed * ((float)SOUND_SAMPLE_RATE / (float)OUTPUT_RATE));
 }
 
 void soundPlayerSetVolume(SoundID soundId, float volume) {
-    if (soundId < 0 || soundId >= MAX_SOUNDS) {
+    struct SoundSource* source = soundGetFromID(soundId);
+
+    if (!source) {
         return;
     }
 
-    struct ActiveSoundInfo* soundInfo = &gActiveSounds[soundId];
+    source->absoluteVolume = volume;
+    alSndpSetSound(&gSoundPlayer, source->soundId);
 
-    soundInfo->volume = volume;
-    alSndpSetSound(&gSoundPlayer, soundInfo->soundId);
-
-    if (gActiveSounds[soundId].flags & SoundPlayerFlags3D) {
+    if (source->flags & SoundPlayerFlags3D) {
         short vol;
         short pan;
-        soundDetermine3DVolumePan(&soundInfo->position, gSoundVolume * soundInfo->volume, &vol, &pan);
+        soundDetermine3DVolumePan(&source->position, gSoundVolume * source->absoluteVolume, &vol, &pan);
+        source->currentVolume = vol;
         alSndpSetVol(&gSoundPlayer, vol);
         alSndpSetPan(&gSoundPlayer, pan);
     } else {
-        alSndpSetVol(&gSoundPlayer, soundVolume(volume * ((gActiveSounds[soundId].flags & SoundPlayerFlagsIsMusic) ? gMusicVolume : gSoundVolume)));
+        alSndpSetVol(&gSoundPlayer, soundVolume(volume * ((source->flags & SoundPlayerFlagsIsMusic) ? gMusicVolume : gSoundVolume)));
     }
 }
 
 int soundPlayerIsPlaying(SoundID soundId) {
-    if (soundId < 0 || soundId >= MAX_SOUNDS) {
+    struct SoundSource* source = soundGetFromID(soundId);
+
+    if (!source) {
         return 0;
     }
 
-    return soundIsPlaying(&gActiveSounds[soundId]);
+    return !soundSourceIsStopped(source);
 }
 
 unsigned soundListRandom(struct SoundList* list) {
@@ -361,11 +366,14 @@ unsigned soundListRandom(struct SoundList* list) {
 
 void soundPlayerReset() {
     for (unsigned i = 0; i < MAX_SOUNDS; ++i) {
-        if (gActiveSounds[i].flags & SoundPlayerFlagsTransition) {
-            gActiveSounds[i].flags &= ~SoundPlayerFlagsTransition;
+        if (gSoundSources[i].flags & SoundPlayerFlagsTransition) {
+            gSoundSources[i].flags &= ~SoundPlayerFlagsTransition;
             continue;
         }
-        SoundID soundId = i;
+        if (gSoundSources[i].soundId == SOUND_ID_NONE) {
+            continue;
+        }
+        SoundID soundId = soundPlayerCreateID(&gSoundSources[i]);
         soundPlayerStop(&soundId);
     }
 }
@@ -386,10 +394,10 @@ void soundPlayerSetMusicVolume(float value) {
     gMusicVolume = MAX(0.0f, MIN(1.0f, value));
 
     for (unsigned i = 0; i < MAX_SOUNDS; ++i) {
-        struct ActiveSoundInfo* activeSound = &gActiveSounds[i];
+        struct SoundSource* activeSound = &gSoundSources[i];
         
         if (activeSound->flags & SoundPlayerFlagsIsMusic) {
-            soundPlayerSetVolume(i, 1.0f);
+            soundPlayerSetVolume(soundPlayerCreateID(activeSound), 1.0f);
         }
     }
 }

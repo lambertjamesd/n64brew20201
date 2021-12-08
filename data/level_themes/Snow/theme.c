@@ -2375,6 +2375,10 @@ struct CollisionPolygon Snow_HouseShape = {
     .edges = Snow_HouseShapeEdges,
     .edgeCount = 4,
 };
+struct CollisionCircle Snow_PoleShape = {
+    .shapeCommon = {CollisionShapeTypeCircle},
+    .radius = 11.951,
+};
 struct CollisionCircle Snow_SackShape = {
     .shapeCommon = {CollisionShapeTypeCircle},
     .radius = 107.62,
@@ -2386,7 +2390,7 @@ struct CollisionShape* Snow_DecorShapes[] = {
     (struct CollisionShape*)&Snow_Rock004Shape,
     (struct CollisionShape*)&Snow_GiftShape,
     (struct CollisionShape*)&Snow_HouseShape,
-    0,
+    (struct CollisionShape*)&Snow_PoleShape,
     (struct CollisionShape*)&Snow_SackShape,
     0,
     0,

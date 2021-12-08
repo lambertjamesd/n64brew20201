@@ -75,17 +75,8 @@ Themes:
           MaxPlayers: 4
           Campaign: True
           Multiplayer: True
-          AIDifficulty: 0.8
-          Song: SOUNDS_LEVELMUSIC_COLDORBIT
-
-        - Name: Triangle
-          Filename: Triangle.fbx
-          Output: ../../data/levels/Triangle/level.h
-          MaxPlayers: 3
-          Campaign: True
-          Multiplayer: True
           AIDifficulty: 0.6
-          Song: SOUNDS_LEVELMUSIC_FERMIPARADOX_MASTERED
+          Song: SOUNDS_LEVELMUSIC_COLDORBIT
 
         - Name: Orion
           Filename: Orion.fbx
@@ -93,7 +84,7 @@ Themes:
           MaxPlayers: 4
           Campaign: True
           Multiplayer: True
-          AIDifficulty: 0.7
+          AIDifficulty: 0.6
           Song: SOUNDS_LEVELMUSIC_DANAIDES
 
         - Name: Curiosity
@@ -102,8 +93,17 @@ Themes:
           MaxPlayers: 4
           Campaign: True
           Multiplayer: True
-          AIDifficulty: 0.7
+          AIDifficulty: 0.6
           Song: SOUNDS_LEVELMUSIC_COLDORBITFASTER
+
+        - Name: Triangle
+          Filename: Triangle.fbx
+          Output: ../../data/levels/Triangle/level.h
+          MaxPlayers: 3
+          Campaign: True
+          Multiplayer: True
+          AIDifficulty: 0.5
+          Song: SOUNDS_LEVELMUSIC_FERMIPARADOX_MASTERED
 
         - Name: Sojourner
           Filename: Campaign_Sojourner.fbx
@@ -122,7 +122,7 @@ Themes:
           AIDifficulty: 0.7
           Song: SOUNDS_LEVELMUSIC_FERMIPARADOX_MASTERED
 
-        - Name: Perseverance
+45        - Name: Perseverance
           Filename: Campaign_Perseverance.fbx
           Output: ../../data/levels/Perseverance/level.h
           MaxPlayers: 4
@@ -160,6 +160,14 @@ Themes:
         - Name: Triple Threat
           Filename: TripleThreat.fbx
           Output: ../../data/levels/Triple_Threat/level.h
+          MaxPlayers: 4
+          Campaign: True
+          AIDifficulty: 1
+          Song: SOUNDS_LEVELMUSIC_PLANUM_BOREUM_XMAS
+
+        - Name: Leo
+          Filename: Leo.fbx
+          Output: ../../data/levels/Leo/level.h
           MaxPlayers: 4
           Campaign: True
           AIDifficulty: 1

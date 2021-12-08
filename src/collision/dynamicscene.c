@@ -149,8 +149,15 @@ void dynamicSceneCheckCollision(struct DynamicSceneEntry* a, struct DynamicScene
         shouldRotate = 1;
     }
 
-    if (collisionCollidePair(a->forShape, b->forShape, &offset, ((a->flags | b->flags) & DynamicSceneEntryIsTrigger) ? 0 : &overlap.shapeOverlap)) {
-        if (shouldRotate) {
+    int ignoreOverlap = ((a->flags | b->flags) & DynamicSceneEntryIsTrigger) != 0;
+
+    if (ignoreOverlap) {
+        overlap.shapeOverlap.normal = gZeroVec2;
+        overlap.shapeOverlap.depth = 0.0f;
+    }
+
+    if (collisionCollidePair(a->forShape, b->forShape, &offset, ignoreOverlap ? 0 : &overlap.shapeOverlap)) {
+        if (shouldRotate && !ignoreOverlap) {
             if (a->forShape->type == CollisionShapeTypePolygon) {
                 vector2ComplexMul(&overlap.shapeOverlap.normal, &a->rotation, &overlap.shapeOverlap.normal);
             } else {
@@ -158,7 +165,7 @@ void dynamicSceneCheckCollision(struct DynamicSceneEntry* a, struct DynamicScene
             }
         }
 
-        if (shouldScale) {
+        if (shouldScale && !ignoreOverlap) {
             if (a->forShape->type == CollisionShapeTypePolygon) {
                 overlap.shapeOverlap.depth *= a->scale;
             } else {
@@ -173,7 +180,9 @@ void dynamicSceneCheckCollision(struct DynamicSceneEntry* a, struct DynamicScene
         }
 
         if (b->onCollide && !(a->flags & DynamicSceneEntryIsTrigger)) {
-            overlap.shapeOverlap.depth = -overlap.shapeOverlap.depth;
+            if (!ignoreOverlap) {
+                overlap.shapeOverlap.depth = -overlap.shapeOverlap.depth;
+            }
             overlap.thisEntry = b;
             overlap.otherEntry = a;
             b->onCollide(&overlap);

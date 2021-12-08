@@ -250,7 +250,7 @@ struct Coloru8 rspColor = {0, 0, 255, 255};
 #define TARGET_FRAME_USECS  33333
 
 void gfxDrawTimingInfo(struct RenderState* renderState) {
-
+#ifdef DEBUG
     unsigned createWidth = BAR_W * OS_CYCLES_TO_USEC(gGFXCreateTime) / TARGET_FRAME_USECS;
     unsigned updateWidth = BAR_W * OS_CYCLES_TO_USEC(gUpdateTime) / TARGET_FRAME_USECS;
     unsigned rspWidth = BAR_W * OS_CYCLES_TO_USEC(gGFXRSPTime) / TARGET_FRAME_USECS;
@@ -279,4 +279,5 @@ void gfxDrawTimingInfo(struct RenderState* renderState) {
     spriteSolid(renderState, LAYER_SOLID_COLOR, BAR_X, BAR_Y + 32, dlUsePercent * BAR_W / 100, 4);
     spriteSolid(renderState, LAYER_SOLID_COLOR, BAR_X, BAR_Y + 36, transparentdlUsePercent * BAR_W / 100, 4);
     spriteSolid(renderState, LAYER_SOLID_COLOR, BAR_X, BAR_Y + 40, transformUsePercent * BAR_W / 100, 4);
+#endif
 }

@@ -1,0 +1,11 @@
+Time your B presses to chain combos
+The speed upgrade decreases how long a base takes to create minions
+The capacity upgrade increases how many minions a base can spawn
+The defense upgrade make a base harder to capture
+An upgrading base does not respawn minions
+If a base is captured it enters defense mode
+Minions defending a base will heal slowly
+Hold B to do a spin spin attack that knocks enemies back
+You take no damage while jumping
+Hold Z to swing camera beind player
+Hold R to view from above

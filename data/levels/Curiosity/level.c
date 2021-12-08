@@ -598,6 +598,6 @@ struct LevelDefinition Curiosity_Definition = {
     .theme = &MarsTheme,
     .staticScene = {Curiosity_Boundary, 16},
     .pathfinding = {.nodeCount = 21, .baseNodes = Curiosity_BasesPathNodes, .nodeDistances = Curiosity_NodeDistances, .nodePositions = Curiosity_PathingNodes, .nextNode = Curiosity_NextNode},
-    .aiDifficulty = 0.7,
+    .aiDifficulty = 0.6,
 };
 

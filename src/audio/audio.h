@@ -7,7 +7,7 @@
 #include <sched.h>
 
 #define MAX_UPDATES             64
-#define MAX_EVENTS              128
+#define MAX_EVENTS              64
 #define AUDIO_HEAP_SIZE         300000
 
 #define MAX_VOICES              64

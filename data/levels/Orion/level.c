@@ -280,6 +280,6 @@ struct LevelDefinition Orion_Definition = {
     .theme = &MarsTheme,
     .staticScene = {Orion_Boundary, 8},
     .pathfinding = {.nodeCount = 10, .baseNodes = Orion_BasesPathNodes, .nodeDistances = Orion_NodeDistances, .nodePositions = Orion_PathingNodes, .nextNode = Orion_NextNode},
-    .aiDifficulty = 0.7,
+    .aiDifficulty = 0.6,
 };
 

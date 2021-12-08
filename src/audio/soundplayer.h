@@ -5,7 +5,7 @@
 #include "math/vector3.h"
 #include "math/quaternion.h"
 
-#define MAX_SOUNDS 32
+#define MAX_SOUNDS 128
 
 #define SOUND_SAMPLE_RATE 22500
 
@@ -17,13 +17,15 @@ extern char _soundsTblSegmentRomStart[];
 extern char _soundsTblSegmentRomEnd[];
 
 enum SoundPlayerFlags {
-    SoundPlayerFlagsLoop = (1 << 0),
     SoundPlayerFlags3D = (1 << 1),
     SoundPlayerFlagsIsMusic = (1 << 2),
     // survives a single soundPlayerReset
     SoundPlayerFlagsTransition = (1 << 3),
     // to avoid reusing a sound effect that was just used
     SoundPlayerFlagsFresh = (1 << 4),
+    SoundPlayerFlagsPending = (1 << 5),
+    // Use if sound contains loop information
+    SoundPlayerFlagsLooping = (1 << 6),
 };
 
 enum SoundPlayerPriority {
@@ -33,27 +35,15 @@ enum SoundPlayerPriority {
     SoundPlayerPriorityMusic,
 };
 
-struct SoundPlayer {
+struct SoundSource {
     ALSndId soundId;
     short currentVolume;
-    short playbackId;
-};
-
-struct SoundSource {
-    struct SoundPlayer* player;
-    short playbackId;
-    float volume;
     unsigned short flags;
+    short playbackId;
+    short clipId;
+    float absoluteVolume;
+    // float endTime;
     struct Vector3 position;
-};
-
-struct ActiveSoundInfo {
-    ALSndId soundId;
-    ALSound* forSound;
-    unsigned short flags;
-    struct Vector3 position;
-    float volume;
-    float endTime;
 };
 
 struct SoundList {
@@ -66,7 +56,12 @@ struct SoundListener {
     struct Vector3 right;
 };
 
-typedef short SoundID;
+typedef struct {
+    unsigned short soundId;
+    unsigned short playbackId;
+} SoundID;
+
+extern SoundID SoundIDNone;
 
 void soundPlayerInit();
 void soundPlayerUpdate();
