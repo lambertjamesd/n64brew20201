@@ -71,7 +71,7 @@ void soundPlayerSetListenerCount(unsigned count);
 
 SoundID soundPlayerPlay(unsigned clipId, float volume, enum SoundPlayerPriority priority, enum SoundPlayerFlags flags, struct Vector3* pos);
 void soundPlayerStopWithClipId(unsigned clipId);
-void soundPlayerUpdatePosition(SoundID soundId, struct Vector3* position);
+void soundPlayerSetPosition(SoundID soundId, struct Vector3* position);
 void soundPlayerStop(SoundID* soundId);
 void soundPlayerSetPitch(SoundID soundId, float speed);
 void soundPlayerSetVolume(SoundID soundId, float volume);

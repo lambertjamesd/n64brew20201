@@ -243,7 +243,7 @@ SoundID soundPlayerPlay(unsigned clipId, float volume, enum SoundPlayerPriority 
     return soundPlayerCreateID(soundSource);
 }
 
-void soundPlayerUpdatePosition(SoundID soundId, struct Vector3* position) {
+void soundPlayerSetPosition(SoundID soundId, struct Vector3* position) {
     struct SoundSource* source = soundGetFromID(soundId);
     if (!source) {
         return;

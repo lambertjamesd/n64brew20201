@@ -21,15 +21,10 @@ polish
     erase sound effect
     map view polish
     ai effected by joystick debuff
-    double footsteps sample rate
     make combo attack easier
-    loop walk sound
 
 bugs
     save file erasing doesn't work
-    death animation is sometimes wrong - I think it is becuase the player enters the knockback state
-    should not able to jump attack after knockback
-    upgrade menu problems with 'A' button when framerate is slow
 
 balance
     balance factions
@@ -46,3 +41,8 @@ level polish
     crop level floors
     orion texture is off
 essential
+
+
+fixed maybe
+    death animation is sometimes wrong - I think it is becuase the player enters the knockback state
+    should not able to jump attack after knockback

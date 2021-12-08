@@ -586,12 +586,17 @@ void playerStateWalk(struct Player* player, struct PlayerInput* input) {
 
     if (isMoving != hasWalkingSound) {
         if (isMoving) {
-            player->walkSoundEffect = soundPlayerPlay(soundListRandom(&gTeamFactions[player->playerIndex]->playerSounds.walkSounds), 1.0f, SoundPlayerPriorityBackground, 0, &player->transform.position);
-            soundPlayerSetVolume(player->walkSoundEffect, 0.3f * player->animationSpeed);
+            player->walkSoundEffect = soundPlayerPlay(soundListRandom(&gTeamFactions[player->playerIndex]->playerSounds.walkSounds), 1.0f, SoundPlayerPriorityBackground, SoundPlayerFlagsLooping, &player->transform.position);
+            soundPlayerSetVolume(player->walkSoundEffect, mathfLerp(0.125f, 0.35f, player->animationSpeed));
+            soundPlayerSetPitch(player->walkSoundEffect, 2.0f);
             player->footstepTimer = PLAYER_FOOTSTEP_LEN;
         } else {
             soundPlayerStop(&player->walkSoundEffect);
         }
+    }
+
+    if (isMoving) {
+        soundPlayerSetPosition(player->walkSoundEffect, &player->transform.position);
     }
 
     // int hasIdleSound = player->idleSoundEffect != SOUND_ID_NONE;

@@ -174,7 +174,7 @@ void baseCommandMenuUpdate(struct BaseCommandMenu* menu, unsigned team) {
 
             unsigned canUpgrade = !levelBaseIsBeingUpgraded(menu->forBase) && levelBaseTimeForUpgrade(menu->forBase, gBaseUpgardeIndex[(unsigned)menu->selectedUpgrade]) >= 0.0f;
 
-            if (canUpgrade && (team & A_BUTTON) != 0) {
+            if (canUpgrade && (buttonUp & A_BUTTON) != 0) {
                 levelBaseStartUpgrade(menu->forBase, gBaseUpgardeIndex[(unsigned)menu->selectedUpgrade]);
                 baseCommandMenuHide(menu);
                 return;

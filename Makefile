@@ -15,7 +15,7 @@ SKELATOOL64:=tools/skeletool64
 # OPTIMIZER		:= -O0
 # LCDEFS			:= -DDEBUG -g -Isrc/ -I/usr/include/n64/nustd -Werror -Wall
 
-OPTIMIZER		:= -O2
+OPTIMIZER		:= -O0
 LCDEFS			:= -DNDEBUG -g -Isrc/ -I/usr/include/n64/nustd -Werror -Wall
 N64LIB			:= -lultra_rom -lnustd
 
