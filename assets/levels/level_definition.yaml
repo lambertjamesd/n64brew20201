@@ -122,7 +122,7 @@ Themes:
           AIDifficulty: 0.7
           Song: SOUNDS_LEVELMUSIC_FERMIPARADOX_MASTERED
 
-45        - Name: Perseverance
+        - Name: Perseverance
           Filename: Campaign_Perseverance.fbx
           Output: ../../data/levels/Perseverance/level.h
           MaxPlayers: 4

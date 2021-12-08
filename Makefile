@@ -167,7 +167,7 @@ $(BOOT_OBJ): $(BOOT)
 CODEOBJECTS_NO_DEBUG = $(CODEOBJECTS)
 
 ifeq ($(WITH_DEBUGGER),1)
-CODEOBJECTS_NO_DEBUG += build/debugger/debugger_stub.o
+CODEOBJECTS_NO_DEBUG += build/debugger/debugger_stub.o build/debugger/serial.o 
 endif
 
 $(CODESEGMENT)_no_debug.o:	$(CODEOBJECTS_NO_DEBUG)

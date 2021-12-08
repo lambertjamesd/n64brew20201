@@ -219,14 +219,14 @@ void skWaitForNextMessage() {
 }
 
 void skWaitForPendingRequest(struct SKAnimator* animator) {
+    volatile struct SKAnimator* animatorVol = animator;
     // if this animator already has an open request wait for it to finish before starting a new one
-    while ((animator->flags & SKAnimatorFlagsPendingRequest) != 0 && gSKAnimationPool.mesgQueue.validCount > 0) {
+    while ((animatorVol->flags & SKAnimatorFlagsPendingRequest) != 0 && gSKAnimationPool.mesgQueue.validCount > 0) {
         skWaitForNextMessage();
     }
 }
 
 void skRequestChunk(struct SKAnimator* animator, unsigned chunkSize) {
-
     if (chunkSize == 0) {
         return;
     }

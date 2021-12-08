@@ -57,6 +57,8 @@ struct Vector3 gRecallOffset = {0.0f, 0.0f, -4.0 * SCENE_SCALE};
 #define PLAYER_FOOTSTEP_LEN          1.f
 #define PLAYER_FOOTSTEP_TIMER_DECREAMENT    0.1f
 
+void playerEnterAttackState(struct Player* player, struct PlayerAttackInfo* attackInfo);
+
 int aiAttackPriority(struct TeamEntity* target) {
     return target->entityType;
 }
@@ -100,6 +102,10 @@ void playerEndAttack(struct Player* player) {
     if (player->attackCollider) {
         dynamicSceneDeleteEntry(player->attackCollider);
         player->attackCollider = 0;
+
+        if (player->flags & PlayerFlagsAttackSuccess) {
+            playerEnterAttackState(player, factionGetAttack(player->team.teamNumber, player->attackInfo->chainedTo));
+        }
     }
 }
 
@@ -130,6 +136,7 @@ void playerEnterAttackState(struct Player* player, struct PlayerAttackInfo* atta
     skAnimatorRunClip(&player->animator, attackInfo->animation, 0);
     player->attackInfo = attackInfo;
     player->state = playerStateAttack;
+    player->flags &= ~PlayerFlagsAttackSuccess;
     player->animationSpeed = 1.0f;
 }
 
@@ -487,7 +494,13 @@ void playerStateAttack(struct Player* player, struct PlayerInput* input) {
 
     if (playerInputGetDown(input, PlayerInputActionsAttack)) {
         if ((player->flags & (PlayerFlagsInAttackWindow | PlayerFlagsAttackEarly)) == PlayerFlagsInAttackWindow) {
-            playerEnterAttackState(player, factionGetAttack(player->team.teamNumber, player->attackInfo->chainedTo));
+            if (player->attackCollider) {
+                // wait until after the current attack is finished
+                // before chaining to next attack
+                player->flags |= PlayerFlagsAttackSuccess;
+            } else {
+                playerEnterAttackState(player, factionGetAttack(player->team.teamNumber, player->attackInfo->chainedTo));
+            }
         } else {
             player->flags |= PlayerFlagsAttackEarly;
         }
@@ -637,7 +650,9 @@ void playerUpdate(struct Player* player, struct PlayerInput* input) {
 }
 
 void playerRender(struct Player* player, struct RenderState* renderState) {
-    static struct Coloru8 gPunchColor = {240, 120, 32, 128};
+    static struct Coloru8 gPunchColor = {200, 200, 32, 128};
+    static struct Coloru8 gTimingWindowColor = {240, 32, 32, 128};
+    static struct Coloru8 gKnockbackColor = {240, 120, 32, 128};
 
     Mtx* matrix = renderStateRequestMatrices(renderState, 1);
 
@@ -671,7 +686,15 @@ void playerRender(struct Player* player, struct RenderState* renderState) {
 
     recallCircleRender(&player->recallCircle, renderState, player->team.teamNumber);
     if (player->attackCollider) {
-        punchTrailRender(&player->punchTrail, renderState, gPunchColor);
+        struct Coloru8 punchColor = gPunchColor;
+
+        if ((player->flags & (PlayerFlagsInAttackWindow | PlayerFlagsAttackEarly)) == PlayerFlagsInAttackWindow) {
+            punchColor = gTimingWindowColor;
+        } else if (player->attackInfo && player->attackInfo->knockback > 0) {
+            punchColor = gKnockbackColor;
+        }
+
+        punchTrailRender(&player->punchTrail, renderState, punchColor);
     }
 }
 

@@ -6,22 +6,15 @@ TODO
     game start sounds
     upgrade flash 
 
-tutorial
-    change "minion" to "capacity"
-    tutorial text in single player mode
-    lose screen tips
-    show c buttons on upgrade menu
-    attack color change when combo is ready
-
 polish
     locker new color
-    wireframe colors
-    jump to latest unlocked level
+    
     skip cutscene prompt
     erase sound effect
+    wireframe colors
     map view polish
     ai effected by joystick debuff
-    make combo attack easier
+    jump to latest unlocked level
 
 bugs
     save file erasing doesn't work
@@ -31,14 +24,13 @@ balance
     cat one shot kick
 
 level polish
-    spacestation add some view blocking walls
-    spirit has inverted rock
-    Triangle map uv map
-    triangle is too hard
     inverted rock on sagitarious
+    spirit has inverted rock
+
+    spacestation add some view blocking walls
+    Triangle map uv map
     persaverance has a wonky dish
 
-    crop level floors
     orion texture is off
 essential
 

@@ -11,7 +11,7 @@ struct PlayerAttackInfo gDogAttacks[] = {
         PlayerAttackPunchChain1,
         0,
         1.5f,
-        1.0f,
+        0.0f,
         {0.0f, 0.65f * SCENE_SCALE, 0.0f}, 
         {{CollisionShapeTypeCircle}, 0.8f * SCENE_SCALE},
         &doglow_animations[DOGLOW_DOGLOW_ARMATURE_001_PUNCH_001_INDEX],
@@ -21,7 +21,7 @@ struct PlayerAttackInfo gDogAttacks[] = {
         PlayerAttackPunchChain2,
         0,
         2.0f,
-        3.0f,
+        0.0f,
         {0.0f, 0.65f * SCENE_SCALE, 0.0f}, 
         {{CollisionShapeTypeCircle}, 0.8f * SCENE_SCALE},
         &doglow_animations[DOGLOW_DOGLOW_ARMATURE_001_PUNCH_002_INDEX],
@@ -78,20 +78,19 @@ struct SKAnimationHeader* gDogAnimations[] = {
 
 struct SKAnimationEvent gDogAttack001Events[] = {
     {9, PLAYER_ATTACK_START_ID},
-    {15, PLAYER_ATTACK_WINDOW_ID},
+    {13, PLAYER_ATTACK_WINDOW_ID},
     {16, PLAYER_ATTACK_END_ID},
 };
 
 struct SKAnimationEvent gDogAttack002Events[] = {
     {5, PLAYER_ATTACK_START_ID},
+    {8, PLAYER_ATTACK_WINDOW_ID},
     {9, PLAYER_ATTACK_END_ID},
-    {10, PLAYER_ATTACK_WINDOW_ID},
 };
-
 
 struct SKAnimationEvent gDogAttack003Events[] = {
     {4, PLAYER_ATTACK_START_ID},
-    {10, PLAYER_ATTACK_END_ID},
+    {12, PLAYER_ATTACK_END_ID},
 };
 
 struct SKAnimationEvent gDogSpinAttackEvents[] = {
@@ -148,7 +147,7 @@ struct PlayerAttackInfo gCatAttacks[] = {
         PlayerAttackPunchChain1,
         0,
         1.2f,
-        1.0f,
+        0.0f,
         {0.0f, 0.65f * SCENE_SCALE, 0.0f}, 
         {{CollisionShapeTypeCircle}, 0.7f * SCENE_SCALE},
         &catlow_animations[CATLOW_CATLOW_ARMATURE_001_PUNCH_006_INDEX],
@@ -158,7 +157,7 @@ struct PlayerAttackInfo gCatAttacks[] = {
         PlayerAttackPunchChain2,
         0,
         1.5f,
-        1.5f,
+        0.0f,
         {0.0f, 0.65f * SCENE_SCALE, 0.0f}, 
         {{CollisionShapeTypeCircle}, 0.7f * SCENE_SCALE},
         &catlow_animations[CATLOW_CATLOW_ARMATURE_001_PUNCH_007_INDEX],
@@ -213,8 +212,8 @@ struct SKAnimationHeader* gCatAnimations[] = {
 
 struct SKAnimationEvent gCatAttack001Events[] = {
     {7, PLAYER_ATTACK_START_ID},
+    {11, PLAYER_ATTACK_WINDOW_ID},
     {13, PLAYER_ATTACK_END_ID},
-    {14, PLAYER_ATTACK_WINDOW_ID},
 };
 
 struct SKAnimationEvent gCatAttack002Events[] = {
