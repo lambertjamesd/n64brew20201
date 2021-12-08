@@ -12,7 +12,7 @@
 
 #define UPGRADE_EASY_SCALAR     2.0f
 
-#define EASY_THINKING_TIME      5.0f
+#define EASY_THINKING_TIME      10.0f
 #define HARD_THINKING_TIME      0.75f
 
 #define HARD_PLANS_PER_FRAME    12

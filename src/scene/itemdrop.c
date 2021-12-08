@@ -167,8 +167,8 @@ void itemDropUpdate(struct ItemDrop* itemDrop, int favorPlayer) {
             pos3D.x = itemDrop->collision->center.x;
             pos3D.y = 0.0f;
             pos3D.z = itemDrop->collision->center.y;
-            soundPlayerPlay(SOUNDS_ITEMSPAWN, 1.0f, 0, &pos3D);
-            itemDrop->soundId = soundPlayerPlay(SOUNDS_ITEMWAIT, 0.25f, 0, &pos3D);
+            soundPlayerPlay(SOUNDS_ITEMSPAWN, 1.0f, SoundPlayerPriorityNonPlayer, 0, &pos3D);
+            itemDrop->soundId = soundPlayerPlay(SOUNDS_ITEMWAIT, 0.25f, SoundPlayerPriorityBackground, 0, &pos3D);
             itemDrop->state = ItemDropStateWaiting;
             break;
         }
@@ -301,7 +301,7 @@ void itemDropChaserUpdate(struct ItemDropChaser* chaser, int index) {
         struct Vector3 nextHeadPos;
         if (vector3MoveTowards(punchTrailHeadPosition(&chaser->punchTrail), &nextTarget, ITEM_CHASER_SPEED * gTimeDelta, &nextHeadPos) && 
             chaser->pathfinder.currentNode == NODE_NONE) {
-            soundPlayerPlay(SOUNDS_CONTROLSCRAMBLE, 1.0f, 0, &nextHeadPos);
+            soundPlayerPlay(SOUNDS_CONTROLSCRAMBLE, 1.0f, SoundPlayerPriorityPlayer, 0, &nextHeadPos);
             levelSceneApplyScrambler(&gCurrentLevel, index, chaser->scrambleType);
             chaser->scrambleType = ControlsScramblerTypeCount;
         } else {
@@ -402,7 +402,7 @@ Gfx* itemDropsRender(struct ItemDrops* itemDrops, struct RenderState* renderStat
 
 
 void itemActivateScrambler(struct LevelScene* scene, struct Vector3* from, enum ControlsScramblerType scramblerType, int fromTeam) {
-    soundPlayerPlay(SOUNDS_POWERUP_PICKUP, 1.0f, 0, from);
+    soundPlayerPlay(SOUNDS_POWERUP_PICKUP, 1.0f, SoundPlayerPriorityNonPlayer, 0, from);
     for (unsigned i = 0; i < scene->playerCount; ++i) {
         if (i != fromTeam) {
             itemDropChaserActivate(&scene->itemDrops.chasers[i], from, scramblerType, i);

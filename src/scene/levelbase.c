@@ -72,9 +72,19 @@ struct Vector3 gSpawnOffset[MAX_MINIONS_PER_BASE] = {
 
 struct Vector3 gFlagOffset = {2.0f * SCENE_SCALE, 0.0f, 2.0f * SCENE_SCALE};
 
-struct CollisionCircle gBaseCollider = {
-    {CollisionShapeTypeCircle},
-    2.0f * SCENE_SCALE,
+struct CollisionCircle gBaseCollider[] = {
+    {
+        {CollisionShapeTypeCircle},
+        2.0f * SCENE_SCALE,
+    },
+    {
+        {CollisionShapeTypeCircle},
+        1.4f * 2.0f * SCENE_SCALE,
+    },
+    {
+        {CollisionShapeTypeCircle},
+        4.0f * SCENE_SCALE,
+    },
 };
 
 struct LevelBase* gPlayerAtBase[MAX_PLAYERS];
@@ -169,7 +179,7 @@ void levelBaseInit(struct LevelBase* base, struct BaseDefinition* definition, un
     base->lastCaptureProgress = base->captureProgress;
 
     base->collider = dynamicSceneNewEntry(
-        &gBaseCollider.shapeCommon, 
+        &gBaseCollider[0].shapeCommon, 
         base, 
         &definition->position,
         levelBaseTrigger,
@@ -257,7 +267,7 @@ void levelBaseUpdate(struct LevelBase* base) {
     }
 
     if (!soundPlayerIsPlaying(base->captureSound) && isCapturing) {
-        base->captureSound = soundPlayerPlay(SOUNDS_FLAGCAP, 1.0f, 0, &base->position);
+        base->captureSound = soundPlayerPlay(SOUNDS_FLAGCAP, 1.0f, SoundPlayerPriorityNonPlayer, 0, &base->position);
     }
 
     if (isCapturing) {
@@ -292,6 +302,8 @@ void levelBaseUpdate(struct LevelBase* base) {
                         break;
                     case LevelBaseStateUpgradingCapacity:
                         ++base->capacityUpgrade;
+                        base->collider->forShape = &gBaseCollider[base->capacityUpgrade].shapeCommon;
+                        base->collider->flags |= DynamicSceneEntryDirtyBox;
                         break;
                     case LevelBaseStateUpgradingDefence:
                         ++base->defenseUpgrade;

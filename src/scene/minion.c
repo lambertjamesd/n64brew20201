@@ -111,7 +111,7 @@ void minionInit(struct Minion* minion, enum MinionType type, struct Transform* a
     skAnimatorRunClip(&minion->animator, &minion_animations_animations[MINION_ANIMATIONS_MINION_ANIMATIONS_ARMATURE_SPAWN_INDEX], 0);
     transformInitIdentity(&minion->animationTransform);
     vector3Scale(&gOneVec, &minion->transform.scale, MINION_RENDER_SCALE);
-    soundPlayerPlay(SOUNDS_UI_SELECT2, 0.3f, 0, &minion->transform.position);
+    soundPlayerPlay(SOUNDS_UI_SELECT2, 0.4f, SoundPlayerPriorityNonPlayer, 0, &minion->transform.position);
 }
 
 void minionRender(struct Minion* minion, struct RenderState* renderState) {

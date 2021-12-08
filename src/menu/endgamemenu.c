@@ -183,8 +183,8 @@ int endGameMenuUpdate(struct EndGameMenu* menu) {
 
     switch (menu->state) {
         case EndGameStateLoading:
-            if (menu->captureSound == SOUND_ID_NONE) {
-                menu->captureSound = soundPlayerPlay(SOUNDS_FLAGCAP, 1.0f, 0, 0);
+            if (!soundPlayerIsPlaying(menu->captureSound)) {
+                menu->captureSound = soundPlayerPlay(SOUNDS_FLAGCAP, 1.0f, SoundPlayerPriorityBackground, 0, 0);
             }
 
             menu->drawAnimationTimer += gTimeDelta;

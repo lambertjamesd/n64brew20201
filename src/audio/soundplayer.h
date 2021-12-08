@@ -26,12 +26,34 @@ enum SoundPlayerFlags {
     SoundPlayerFlagsFresh = (1 << 4),
 };
 
+enum SoundPlayerPriority {
+    SoundPlayerPriorityBackground,
+    SoundPlayerPriorityNonPlayer,
+    SoundPlayerPriorityPlayer,
+    SoundPlayerPriorityMusic,
+};
+
+struct SoundPlayer {
+    ALSndId soundId;
+    short currentVolume;
+    short playbackId;
+};
+
+struct SoundSource {
+    struct SoundPlayer* player;
+    short playbackId;
+    float volume;
+    unsigned short flags;
+    struct Vector3 position;
+};
+
 struct ActiveSoundInfo {
     ALSndId soundId;
     ALSound* forSound;
     unsigned short flags;
     struct Vector3 position;
     float volume;
+    float endTime;
 };
 
 struct SoundList {
@@ -52,7 +74,7 @@ void soundPlayerUpdate();
 void soundPlayerUpdateListener(unsigned index, struct Vector3* position, struct Quaternion* rotation);
 void soundPlayerSetListenerCount(unsigned count);
 
-SoundID soundPlayerPlay(unsigned clipId, float volume, enum SoundPlayerFlags flags, struct Vector3* pos);
+SoundID soundPlayerPlay(unsigned clipId, float volume, enum SoundPlayerPriority priority, enum SoundPlayerFlags flags, struct Vector3* pos);
 void soundPlayerStopWithClipId(unsigned clipId);
 void soundPlayerUpdatePosition(SoundID soundId, struct Vector3* position);
 void soundPlayerStop(SoundID* soundId);

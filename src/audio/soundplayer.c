@@ -2,6 +2,7 @@
 #include "soundplayer.h"
 #include "soundarray.h"
 #include "util/rom.h"
+#include "util/time.h"
 #include "math/mathf.h"
 #include "game_defs.h"
 
@@ -100,7 +101,7 @@ int soundMatchScore(ALSound* forSound, struct ActiveSoundInfo* against) {
 
     alSndpSetSound(&gSoundPlayer, against->soundId);
 
-    if (soundIsPlaying(against) || (against->flags & SoundPlayerFlagsLoop) != 0) {
+    if (alSndpGetState(&gSoundPlayer) == AL_PLAYING || (against->flags & (SoundPlayerFlagsLoop | SoundPlayerFlagsFresh)) != 0) {
         if (against->forSound == forSound) {
             return SoundMatchScoreClipMatchPlaying;
         }
@@ -113,6 +114,31 @@ int soundMatchScore(ALSound* forSound, struct ActiveSoundInfo* against) {
     } 
 
     return SoundMatchScoreDifferentClip;
+}
+
+// 0 means indefinite
+float soundDeterminedEndtime(struct ActiveSoundInfo* info) {
+    if ((info->flags & SoundPlayerFlagsLoop) != 0 || !info->forSound) {
+        return 0.0f;
+    }
+
+    int sampleCount;
+    
+    if (info->forSound->wavetable->type == AL_ADPCM_WAVE) {
+        if (info->forSound->wavetable->waveInfo.adpcmWave.loop) {
+            return 0.0f;
+        }
+
+        sampleCount = info->forSound->wavetable->len * 16 / 9;
+    } else {
+        if (info->forSound->wavetable->waveInfo.rawWave.loop) {
+            return 0.0f;
+        }
+
+        sampleCount = info->forSound->wavetable->len / 2;
+    }
+
+    return gTimePassed + (float)(sampleCount + 100) / SOUND_SAMPLE_RATE;
 }
 
 void initActiveSoundForSound(ALSound* sound, struct ActiveSoundInfo* info) {
@@ -172,7 +198,7 @@ void soundPlayerInit() {
     }
 }
 
-SoundID soundPlayerPlay(unsigned clipId, float volume, enum SoundPlayerFlags flags, struct Vector3* pos) {
+SoundID soundPlayerPlay(unsigned clipId, float volume, enum SoundPlayerPriority priority, enum SoundPlayerFlags flags, struct Vector3* pos) {
     if (clipId >= gSoundClipArray->soundCount) {
         return SOUND_ID_NONE;
     }
@@ -180,6 +206,10 @@ SoundID soundPlayerPlay(unsigned clipId, float volume, enum SoundPlayerFlags fla
     struct ActiveSoundInfo* soundInfo = findSoundInfo(gSoundClipArray->sounds[clipId]);
 
     if (!soundInfo) {
+        return SOUND_ID_NONE;
+    }
+
+    if (soundInfo->flags & SoundPlayerFlagsIsMusic) {
         return SOUND_ID_NONE;
     }
 
@@ -209,7 +239,10 @@ SoundID soundPlayerPlay(unsigned clipId, float volume, enum SoundPlayerFlags fla
         alSndpSetVol(&gSoundPlayer, soundVolume(volume * ((flags & SoundPlayerFlagsIsMusic) ? gMusicVolume : gSoundVolume)));
         alSndpSetPan(&gSoundPlayer, 64);
     }
+    alSndpSetPriority(&gSoundPlayer, soundInfo->soundId, priority);
     alSndpPlay(&gSoundPlayer);
+
+    soundInfo->endTime = soundDeterminedEndtime(soundInfo);
     
     return soundInfo - gActiveSounds;
 }
@@ -245,6 +278,11 @@ void soundPlayerUpdate() {
                 alSndpSetVol(&gSoundPlayer, vol);
                 alSndpSetPan(&gSoundPlayer, pan);
             }
+        }
+
+        if (activeSound->endTime && activeSound->endTime < gTimePassed) {
+            SoundID id = i;
+            soundPlayerStop(&id);
         }
 
         activeSound->flags &= ~SoundPlayerFlagsFresh;

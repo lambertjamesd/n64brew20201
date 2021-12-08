@@ -12,8 +12,11 @@ MIDICVT:=tools/midicvt
 SFZ2N64:=tools/sfz2n64
 SKELATOOL64:=tools/skeletool64
 
+# OPTIMIZER		:= -O0
+# LCDEFS			:= -DDEBUG -g -Isrc/ -I/usr/include/n64/nustd -Werror -Wall
+
 OPTIMIZER		:= -O0
-LCDEFS			:= -DDEBUG -g -Isrc/ -I/usr/include/n64/nustd -Werror -Wall
+LCDEFS			:= -DNDEBUG -g -Isrc/ -I/usr/include/n64/nustd 
 N64LIB			:= -lultra_rom -lnustd
 
 ifeq ($(WITH_DEBUGGER),1)

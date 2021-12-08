@@ -2,21 +2,15 @@
 Ultrarares' entry to the 2021 N64Brew jam
 
 TODO
-    balance factions
-    death animation is sometimes wrong
     cutscene polish
-    base stuck playing capture sound
-    rom header
-    read go sounds
-    crop level floors
-    lighter dark colorssoundPlayer
-    upgrade menu moves too much - on slow framerates
+    game start sounds
+    death animation is sometimes wrong
+    balance factions
 
-    triangle music?
-    triangle too hard
+    crop level floors
     orion texture is off
-    R for camera view
 
 essential
+    rom header
     remove L to win. Fix save file progression
     remove debug info

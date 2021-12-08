@@ -36,6 +36,8 @@
 struct LevelScene gCurrentLevel;
 
 void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* definition, unsigned int playercount, unsigned aiPlayerMask, enum LevelMetadataFlags flags, float aiDifficulty) {
+    soundPlayerPlay(definition->song, 1.0f, SoundPlayerPriorityMusic, SoundPlayerFlagsIsMusic, 0);
+
     struct Quaternion noRotation;
     quatIdent(&noRotation);
     for (unsigned i = 0; i < playercount; ++i) {
@@ -165,8 +167,6 @@ void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* defin
     if (sceneIsCampaign() && flags & (LevelMetadataFlagsTutorial | LevelMetadataFlagsTutorial2)) {
         tutorialInit(levelScene, (flags & LevelMetadataFlagsTutorial) ? TutorialStateMove : TutorialStateUpgrade);
     }
-
-    soundPlayerPlay(definition->song, 1.0f, SoundPlayerFlagsIsMusic, 0);
 }
 
 void levelSceneRender(struct LevelScene* levelScene, struct RenderState* renderState) {
@@ -449,7 +449,7 @@ void levelSceneDeathSFX_Trigger(struct LevelScene* levelScene){
     for(unsigned i = 0; i < levelScene->playerCount; ++i){
         if(!playerIsAlive(&levelScene->players[i]) && !IS_PLAYER_AI(levelScene, i)){
             levelScene->deadPlayers[i] = 1;
-            soundPlayerPlay(SOUNDS_DEATHSFX, 1.0f, 0, 0);
+            soundPlayerPlay(SOUNDS_DEATHSFX, 1.0f, SoundPlayerPriorityPlayer, 0, 0);
         }
     }
 }
@@ -460,6 +460,7 @@ void levelSceneUpdate(struct LevelScene* levelScene) {
 
         for (unsigned playerIndex = 0; playerIndex < levelScene->playerCount; ++playerIndex) {
             if (!IS_PLAYER_AI(levelScene, playerIndex) && controllerGetButtonDown(playerIndex, START_BUTTON)) {
+                soundPlayerPlay(SOUNDS_UI_SELECT2, 0.5f, SoundPlayerPriorityNonPlayer, 0, 0);
                 togglePause = 1;
                 break;
             }
@@ -522,6 +523,7 @@ void levelSceneUpdate(struct LevelScene* levelScene) {
         } else {
             ++humanIndex;
             if (controllerGetButtonDown(playerIndex, START_BUTTON)) {
+                soundPlayerPlay(SOUNDS_UI_SELECT2, 0.5f, SoundPlayerPriorityNonPlayer, 0, 0);
                 togglePause = 1;
             }
         }

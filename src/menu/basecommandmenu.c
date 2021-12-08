@@ -65,6 +65,7 @@ unsigned baseCommandStateToIndex(enum LevelBaseState state) {
 void baseCommandMenuInit(struct BaseCommandMenu* menu) {
     menu->flags = 0;
     menu->forBase = 0;
+    menu->lastControllerDown = 0;
 }
 
 void baseCommandMenuShowOpenCommand(struct BaseCommandMenu* menu, struct LevelBase* forBase) {
@@ -83,6 +84,7 @@ void baseCommandMenuShow(struct BaseCommandMenu* menu, struct LevelBase* forBase
     menu->selectedCommand = forBase->defaultComand;
     menu->selectedUpgrade = 0;
     menu->openAnimation = OPEN_ANIMATION_TIME;
+    menu->lastControllerDown = 0;
 }
 
 void baseCommandMenuHide(struct BaseCommandMenu* menu) {
@@ -150,14 +152,16 @@ void baseCommandMenuUpdate(struct BaseCommandMenu* menu, unsigned team) {
             return;
         }
 
-        enum ControllerDirection direction = controllerGetDirectionDown(team);
+        enum ControllerDirection direction = controllerGetDirection(team);
+        enum ControllerDirection directionDown = direction & ~menu->lastControllerDown;
+        menu->lastControllerDown = direction;
 
         if (menu->flags & BaseCommandMenuFlagsShowingUpgrades) {
-            if ((direction & ControllerDirectionUp) != 0 && menu->selectedUpgrade > 0) {
+            if ((directionDown & ControllerDirectionUp) != 0 && menu->selectedUpgrade > 0) {
                 --menu->selectedUpgrade;
             }
 
-            if ((direction & ControllerDirectionDown) != 0 && menu->selectedUpgrade < 2) {
+            if ((directionDown & ControllerDirectionDown) != 0 && menu->selectedUpgrade < 2) {
                 ++menu->selectedUpgrade;
             }
 
@@ -169,11 +173,11 @@ void baseCommandMenuUpdate(struct BaseCommandMenu* menu, unsigned team) {
                 return;
             }
         } else {
-            if ((direction & ControllerDirectionUp) != 0 && menu->selectedCommand > MinionCommandFollow) {
+            if ((directionDown & ControllerDirectionUp) != 0 && menu->selectedCommand > MinionCommandFollow) {
                 --menu->selectedCommand;
             }
 
-            if ((direction & ControllerDirectionDown) != 0 && menu->selectedCommand <= MinionCommandDefend) {
+            if ((directionDown & ControllerDirectionDown) != 0 && menu->selectedCommand <= MinionCommandDefend) {
                 ++menu->selectedCommand;
             }
 
@@ -188,7 +192,7 @@ void baseCommandMenuUpdate(struct BaseCommandMenu* menu, unsigned team) {
             }
         }
 
-        if (direction & (ControllerDirectionLeft | ControllerDirectionRight)) {
+        if (directionDown & (ControllerDirectionLeft | ControllerDirectionRight)) {
             menu->flags ^= BaseCommandMenuFlagsShowingUpgrades;
         }
     }

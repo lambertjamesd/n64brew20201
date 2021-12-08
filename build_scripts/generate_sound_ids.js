@@ -23,6 +23,8 @@ for (let i = 2; i < process.argv.length; ++i) {
     }
 }
 
+inputs.push('TOTAL_COUNT');
+
 const invalidCharactersRegex = /[^\w\d_]+/gm;
 
 function formatSoundName(soundFilename, index) {

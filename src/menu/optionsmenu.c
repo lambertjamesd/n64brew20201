@@ -89,10 +89,10 @@ int optionsMenuUpdate(struct OptionsMenu* optionsMenu) {
     if (!optionsMenu->isErasing && optionsMenu->itemSelection == SOUND_OPTION) {
         if (dir & ControllerDirectionLeft) {
             soundPlayerSetSoundVolume(soundPlayerGetSoundVolume() - 0.1f);
-            soundPlayerPlay(SOUNDS_UI_SELECT2, 1.0f, 0, 0);
+            soundPlayerPlay(SOUNDS_UI_SELECT2, 1.0f, SoundPlayerPriorityPlayer, 0, 0);
         } else if (dir & ControllerDirectionRight) {
             soundPlayerSetSoundVolume(soundPlayerGetSoundVolume() + 0.1f);
-            soundPlayerPlay(SOUNDS_UI_SELECT2, 1.0f, 0, 0);
+            soundPlayerPlay(SOUNDS_UI_SELECT2, 1.0f, SoundPlayerPriorityPlayer, 0, 0);
         }
     }
 
