@@ -40,6 +40,6 @@ Gfx gMainMenuLevelWireframePass1[] = {
     gsDPPipeSync(),
     gsDPSetRenderMode(G_RM_AA_ZB_DEC_LINE, G_RM_AA_ZB_DEC_LINE2),
     gsDPSetEnvColor(32, 32, 32, 255),
-    gsDPSetCombineLERP(0, 0, 0, ENVIRONMENT, 0, 0, 0, ENVIRONMENT, 0, 0, 0, ENVIRONMENT, 0, 0, 0, ENVIRONMENT),
+    gsDPSetCombineLERP(SHADE, 0, ENVIRONMENT, 0, 0, 0, 0, ENVIRONMENT, SHADE, 0, ENVIRONMENT, 0, 0, 0, 0, ENVIRONMENT),
     gsSPEndDisplayList(),
 };

@@ -39,6 +39,7 @@ struct LevelScene {
     unsigned char botsCount;
     unsigned char winningTeam;
     unsigned char aiPlayerMask;
+    unsigned char pauseMenuSelection;
 
     unsigned short levelFlags;
 

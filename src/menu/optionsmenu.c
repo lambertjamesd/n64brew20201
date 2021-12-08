@@ -63,6 +63,7 @@ int optionsMenuUpdate(struct OptionsMenu* optionsMenu) {
     if (controllerGetButtonDown(0, A_BUTTON)) {
         if (optionsMenu->isErasing) {
             if (optionsMenu->itemSelection == ERASE_CONFIRM_OPTION) {
+                soundPlayerPlay(SOUNDS_CONTROLSCRAMBLE, 1.0f, SoundPlayerPriorityPlayer, 0, 0);
                 saveFileErase();
             }
 

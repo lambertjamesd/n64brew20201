@@ -32,6 +32,7 @@ void sceneLoadLevel(struct GameConfiguration* gameConfig);
 void sceneQueueLoadLevel(struct GameConfiguration* gameConfig);
 void sceneQueueMainMenu();
 void sceneQueuePostGameScreen(unsigned winningTeam, unsigned teamCount, float time);
+void sceneQueueLevelSelectScreen();
 void sceneQueueCredits();
 void sceneQueueIntro();
 void sceneInsertCutscene(enum CutsceneIndex cutsceneIndex);

@@ -31,11 +31,13 @@ void cameraBuildViewMatrix(struct Camera* camera, Mtx* matrix, float rotateView)
 }
 
 void cameraBuildProjectionMatrix(struct Camera* camera, Mtx* matrix, u16* perspectiveNormalize, float aspectRatio) {
-    if (camera->mode & CameraModeMapView) {
-        guPerspective(matrix, perspectiveNormalize, camera->fov, aspectRatio, camera->nearPlane * 2.0, camera->farPlane * 2.0, 1.0f);
-    } else {
-        guPerspective(matrix, perspectiveNormalize, camera->fov, aspectRatio, camera->nearPlane, camera->farPlane, 1.0f);
+    float planeScalar = 1.0f;
+
+    if (camera->transform.position.y > camera->farPlane * 0.5f) {
+        planeScalar = 2.0f * camera->transform.position.y / camera->farPlane;
     }
+
+    guPerspective(matrix, perspectiveNormalize, camera->fov, aspectRatio, camera->nearPlane * planeScalar, camera->farPlane * planeScalar, 1.0f);
 }
 
 void cameraSetupMatrices(struct Camera* camera, struct RenderState* renderState, float aspectRatio, float rotateView) {
@@ -68,11 +70,11 @@ void cameraUpdate(struct Camera* camera, struct Vector3* target, float followDis
         targetPos.x = mapCenter.x;
         targetPos.z = mapCenter.y;
 
-        float fov = camera->fov * (M_PI / 180.0f / 2.0f);
+        float fov = camera->fov * (M_PI / 180.0f);
         float cot = sinf(fov) / cosf(fov);
 
-        float distByY = 2.3f * mapSize.y * cot;
-        float distByX = 2.3f * mapSize.x * cot / aspectRatio;
+        float distByY = 1.3f * mapSize.y * cot;
+        float distByX = 1.3f * mapSize.x * cot / aspectRatio;
 
         targetPos.y = MAX(distByY, distByX);
 

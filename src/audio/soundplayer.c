@@ -401,3 +401,20 @@ void soundPlayerSetMusicVolume(float value) {
         }
     }
 }
+
+void soundPlayerSetLoopsActive(int value) {
+    for (unsigned i = 0; i < MAX_SOUNDS; ++i) {
+        struct SoundSource* activeSound = &gSoundSources[i];
+        
+        if (activeSound->flags & SoundPlayerFlagsLooping) {
+            if (soundPlayerIsPlaying(soundPlayerCreateID(activeSound))) {
+                if (value) {
+                    soundPlayerSetVolume(soundPlayerCreateID(activeSound), activeSound->absoluteVolume);
+                } else {
+                    alSndpSetSound(&gSoundPlayer, activeSound->soundId);
+                    alSndpSetVol(&gSoundPlayer, 0);
+                }
+            }
+        }
+    }
+}

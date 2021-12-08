@@ -84,6 +84,8 @@ float soundPlayerGetMusicVolume();
 void soundPlayerSetSoundVolume(float value);
 void soundPlayerSetMusicVolume(float value);
 
+void soundPlayerSetLoopsActive(int value);
+
 unsigned soundListRandom(struct SoundList* list);
 
 #endif

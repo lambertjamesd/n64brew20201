@@ -83,6 +83,13 @@ void sceneQueuePostGameScreen(unsigned winningTeam, unsigned teamCount, float ti
     }
 }
 
+void sceneQueueLevelSelectScreen() {
+    gNextSceneState = SceneStateInMainMenu;
+    gMainMenu.selections.targetMenuState = MainMenuStateSelectingLevel;
+    gMainMenu.selections.menuState = MainMenuStateSelectingLevel;
+    gfxInitSplitscreenViewport(mainMenuGetPlayerCount(&gMainMenu));
+}
+
 void sceneInsertCutscene(enum CutsceneIndex cutsceneIndex) {
     gAfterCutscene = gNextSceneState;
     gNextCutscene = cutsceneIndex;

@@ -21,6 +21,10 @@
 #include "tutorial/tutorial.h"
 #include "menu/endgamemenu.h"
 #include "team_data.h"
+#include "menu/menuborder.h"
+#include "graphics/spritefont.h"
+#include "menu/kickflipfont.h"
+#include "menu/menucommon.h"
 #include "../data/fonts/fonts.h"
 
 #include "collision/polygon.h"
@@ -99,6 +103,7 @@ void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* defin
     unsigned numBots = 0;
 
     levelScene->aiPlayerMask = aiPlayerMask;
+    levelScene->pauseMenuSelection = 0;
 
     for (unsigned i = 0; i < playercount; ++i) {
         if (IS_PLAYER_AI(levelScene, i)) {
@@ -169,6 +174,47 @@ void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* defin
     if (sceneIsCampaign() && flags & (LevelMetadataFlagsTutorial | LevelMetadataFlagsTutorial2)) {
         tutorialInit(levelScene, (flags & LevelMetadataFlagsTutorial) ? TutorialStateMove : TutorialStateUpgrade);
     }
+}
+
+#define PAUSE_MENU_X    (SCREEN_WD / 2 - 60)
+#define PAUSE_MENU_Y    (SCREEN_HT / 2 - 30)
+
+void levelSceneRenderPauseMenu(struct LevelScene* levelScene, struct RenderState* renderState) {
+    float percentVisible = textBoxVisiblePercent(&gTextBox);
+
+    menuBorderRender(renderState, PAUSE_MENU_X, PAUSE_MENU_Y, 120, (int)(80 * percentVisible));
+
+    percentVisible = 1.0f - percentVisible;
+
+    struct Coloru8 itemColor = gDeselectedColor;
+
+    if (levelScene->pauseMenuSelection == 0) {
+        menuSelectionColor(&itemColor);
+    }
+    spriteSetColor(renderState, LAYER_KICKFLIP_FONT, itemColor);
+    fontRenderText(
+        renderState, 
+        &gKickflipFont, 
+        "Resume", 
+        PAUSE_MENU_X + 12 + (int)(SCREEN_WD * MAX(percentVisible - 0.5f, 0.0f)), 
+        PAUSE_MENU_Y + 16, 
+        0
+    );
+
+    if (levelScene->pauseMenuSelection == 1) {
+        menuSelectionColor(&itemColor);
+    } else {
+        itemColor = gDeselectedColor;
+    }
+    spriteSetColor(renderState, LAYER_KICKFLIP_FONT, itemColor);
+    fontRenderText(
+        renderState, 
+        &gKickflipFont, 
+        "Quit", 
+        PAUSE_MENU_X + 12 + (int)(SCREEN_WD * percentVisible), 
+        PAUSE_MENU_Y + 48, 
+        0
+    );
 }
 
 void levelSceneRender(struct LevelScene* levelScene, struct RenderState* renderState) {
@@ -301,12 +347,13 @@ void levelSceneRender(struct LevelScene* levelScene, struct RenderState* renderS
             controlsScramblerRender(&levelScene->scramblers[playerIndexB], &levelScene->players[playerIndexB], renderState);
         }
         gSPDisplayList(renderState->dl++, mat_revert_Scramblers_f3d_material);
-
-        baseCommandMenuRender(
-            &levelScene->baseCommandMenu[playerIndex], 
-            renderState, 
-            clippingRegions
-        );
+        if (levelScene->state != LevelSceneStatePaused) {
+            baseCommandMenuRender(
+                &levelScene->baseCommandMenu[playerIndex], 
+                renderState, 
+                clippingRegions
+            );
+        }
         playerStatusMenuRender(
             &levelScene->players[playerIndex], 
             renderState, 
@@ -331,6 +378,10 @@ void levelSceneRender(struct LevelScene* levelScene, struct RenderState* renderS
     minimapRender(levelScene, renderState, gViewportPosition[levelScene->humanPlayerCount-1].minimapLocation);
 
     textBoxRender(&gTextBox, renderState);
+
+    if (levelScene->state == LevelSceneStatePaused) {
+        levelSceneRenderPauseMenu(levelScene, renderState);
+    }
 
     gfxDrawTimingInfo(renderState);
 
@@ -475,11 +526,31 @@ void levelSceneUpdate(struct LevelScene* levelScene) {
     if (levelScene->state == LevelSceneStatePaused) {
         unsigned togglePause = 0;
 
-        for (unsigned playerIndex = 0; playerIndex < levelScene->playerCount; ++playerIndex) {
-            if (!IS_PLAYER_AI(levelScene, playerIndex) && controllerGetButtonDown(playerIndex, START_BUTTON)) {
+        for (unsigned playerIndex = 0; gTextBox.nextState == TextBoxStateShowing && playerIndex < levelScene->playerCount; ++playerIndex) {
+            if (IS_PLAYER_AI(levelScene, playerIndex)) {
+                continue;
+            }
+            
+            if (controllerGetButtonDown(playerIndex, START_BUTTON) || 
+                (controllerGetButtonDown(playerIndex, A_BUTTON) && levelScene->pauseMenuSelection == 0)
+                ) {
                 soundPlayerPlay(SOUNDS_UI_SELECT2, 0.5f, SoundPlayerPriorityNonPlayer, 0, 0);
                 togglePause = 1;
                 break;
+            } else if (controllerGetButton(playerIndex, A_BUTTON) && levelScene->pauseMenuSelection == 1) {
+                soundPlayerPlay(SOUNDS_UI_SELECT2, 0.5f, SoundPlayerPriorityNonPlayer | SoundPlayerFlagsTransition, 0, 0);
+                sceneQueueLevelSelectScreen();
+                break;
+            }
+
+            unsigned dir = controllerGetDirectionDown(playerIndex);
+
+            if (dir & ControllerDirectionUp) {
+                soundPlayerPlay(SOUNDS_UI_SELECT2, 0.5f, SoundPlayerPriorityNonPlayer, 0, 0);
+                levelScene->pauseMenuSelection = 0;
+            } else if (dir & ControllerDirectionDown) {
+                soundPlayerPlay(SOUNDS_UI_SELECT2, 0.5f, SoundPlayerPriorityNonPlayer, 0, 0);
+                levelScene->pauseMenuSelection = 1;
             }
         }
 
@@ -488,6 +559,7 @@ void levelSceneUpdate(struct LevelScene* levelScene) {
         }
 
         if (!textBoxIsVisible(&gTextBox)) {
+            soundPlayerSetLoopsActive(1);
             levelScene->state = LevelSceneStatePlaying;
         }
 
@@ -539,7 +611,7 @@ void levelSceneUpdate(struct LevelScene* levelScene) {
             ++botIndex;
         } else {
             ++humanIndex;
-            if (controllerGetButtonDown(playerIndex, START_BUTTON)) {
+            if (controllerGetButtonDown(playerIndex, START_BUTTON) && levelScene->state == LevelSceneStatePlaying) {
                 soundPlayerPlay(SOUNDS_UI_SELECT2, 0.5f, SoundPlayerPriorityNonPlayer, 0, 0);
                 togglePause = 1;
             }
@@ -562,7 +634,9 @@ void levelSceneUpdate(struct LevelScene* levelScene) {
 
     if (togglePause && levelScene->state == LevelSceneStatePlaying) {
         levelScene->state = LevelSceneStatePaused;
-        textBoxInit(&gTextBox, "Paused", 200, SCREEN_WD / 2, SCREEN_HT / 2);
+        levelScene->pauseMenuSelection = 0;
+        soundPlayerSetLoopsActive(0);
+        textBoxInit(&gTextBox, "Paused", 200, SCREEN_WD / 2, SCREEN_HT / 2 - 60);
     }
 
     if (levelScene->state == LevelSceneStateIntro) {

@@ -10,14 +10,13 @@ polish
     locker new color
     
     skip cutscene prompt
-    erase sound effect
-    wireframe colors
-    map view polish
-    ai effected by joystick debuff
-    jump to latest unlocked level
+    pause menu
+    set pause volume to 0
 
 bugs
     save file erasing doesn't work
+    
+    check multiplayer
 
 balance
     balance factions
@@ -30,6 +29,7 @@ level polish
     spacestation add some view blocking walls
     Triangle map uv map
     persaverance has a wonky dish
+    leo should be harder
 
     orion texture is off
 essential

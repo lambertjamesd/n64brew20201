@@ -57,6 +57,10 @@ void mainMenuEnterLevelSelection(struct MainMenu* mainMenu) {
         mainMenu->selections.selectedLevel = mainMenu->levelCount - 1;
     }
 
+    if (mainMenu->selections.selectedLevel >= mainMenu->unlockedLevelCount) {
+        mainMenu->selections.selectedLevel = mainMenu->unlockedLevelCount - 1;
+    }
+
     textBoxInit(&gTextBox, mainMenu->filteredLevels[mainMenu->selections.selectedLevel]->name, 200, SCREEN_WD / 2, 46);
     mainMenuLoadWireframe(mainMenu, &mainMenu->filteredLevels[mainMenu->selections.selectedLevel]->wireframe);
 }

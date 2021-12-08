@@ -38,5 +38,6 @@ void textBoxRender(struct TextBox* textBox, struct RenderState* renderState);
 void textBoxHide(struct TextBox* textBox);
 void textBoxChangeText(struct TextBox* textBox, char* message);
 int textBoxIsVisible(struct TextBox* textBox);
+float textBoxVisiblePercent(struct TextBox* textBox);
 
 #endif

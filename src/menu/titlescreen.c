@@ -6,6 +6,8 @@
 #include "graphics/image.h"
 #include "graphics/gfx.h"
 #include "controls/controller.h"
+#include "mainmenu.h"
+#include "scene/scene_management.h"
 
 #define TITLE_SCROLL_TIME     0.5f
 
@@ -32,7 +34,8 @@ int titleScreenUpdate(struct TitleScreen* titleScreen) {
         return 1;
     }
 
-    if (controllerGetButtonDown(0, START_BUTTON)) {
+    if (controllerGetButtonDown(0, START_BUTTON | A_BUTTON)) {
+        mainMenuInitSelections(&gMainMenu);
         titleScreen->targetTime = TITLE_SCROLL_TIME;
     }
 

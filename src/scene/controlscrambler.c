@@ -88,9 +88,34 @@ void controlsScramblerApply(struct ControlsScrambler* scrambler, int isAI) {
         }
     }
 
-    if (isAI && scrambler->timers[ControlsScramblerViewFlipped]) {
-        scrambler->playerInput.targetWorldDirection.x = -scrambler->playerInput.targetWorldDirection.x;
+    if (isAI) {
+        // AI is able to perfectly control, so 
+        // when a debuff is applied the AI
+        // control should be tampered with further
+        struct Vector2 input2D;
+        input2D.x = scrambler->playerInput.targetWorldDirection.x;
+        input2D.y = scrambler->playerInput.targetWorldDirection.z;
+
+        float angleOffset = 0;
+
+        if (scrambler->timers[ControlsScramblerViewFlipped]) {
+            angleOffset += sinf(gTimePassed * 0.25f) + sinf(gTimePassed) * 0.5f;
+        }
+
+        if (scrambler->timers[ControlsScramblerTypeMoveTurbo]) {
+            angleOffset += sinf(gTimePassed * 2.0f) * 0.04f;
+        }
+
+        if (angleOffset) {
+            struct Vector2 tilt;
+            vector2ComplexFromAngle(angleOffset, &tilt);
+            vector2ComplexMul(&tilt, &input2D, &input2D);
+        }
+
+        scrambler->playerInput.targetWorldDirection.x = input2D.x;
+        scrambler->playerInput.targetWorldDirection.z = input2D.y;
     }
+
 }
 
 unsigned controlsScramblerActiveCount(struct ControlsScrambler* scrambler) {

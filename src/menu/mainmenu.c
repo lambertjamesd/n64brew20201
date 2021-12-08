@@ -201,7 +201,8 @@ void mainMenuInitSelections(struct MainMenu* mainMenu) {
     mainMenu->selections.targetMenuState = MainMenuStateSelectingTitleScreen;
 
     mainMenu->selections.selectedPlayerCount = 0;
-    mainMenu->selections.selectedLevel = 0;
+    // this gets clampled to the largest possible value later
+    mainMenu->selections.selectedLevel = ~0;
 }
 
 void mainMenuInit(struct MainMenu* mainMenu) {
@@ -232,6 +233,10 @@ void mainMenuInit(struct MainMenu* mainMenu) {
         mainMenu->musicSoundID = soundPlayerPlay(SOUNDS_VICTORYMUSIC, 1.0f, SoundPlayerPriorityPlayer, SoundPlayerFlagsIsMusic, 0);
     } else {
         mainMenu->musicSoundID = soundPlayerPlay(SOUNDS_MAP_CHARACTER_SELECT_OR_VICTORY_MUSIC, 1.0f, SoundPlayerPriorityPlayer, SoundPlayerFlagsIsMusic, 0);
+    }
+
+    if (mainMenu->selections.menuState == MainMenuStateSelectingLevel) {
+        mainMenuEnterLevelSelection(mainMenu);
     }
 }
 

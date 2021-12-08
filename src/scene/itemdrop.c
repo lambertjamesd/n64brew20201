@@ -14,7 +14,7 @@
 #include "team_data.h"
 #include "audio/soundplayer.h"
 
-#define DROP_TIME       4.0f
+#define DROP_TIME       2.0f
 #define DROP_LIFETIME   60.0f
 #define INTAGIBLE_TIME  0.5f
 #define DAMAGE_AMOUNT   3.0f
@@ -339,7 +339,7 @@ float gNextDropTime[] = {
     55.0f,
 };
 
-float itemDropsNextTime(unsigned currentDropCount) {   
+float itemDropsNextTime(unsigned currentDropCount) {
     if (currentDropCount + 2 >= sizeof(gNextDropTime) / sizeof(*gNextDropTime)) {
         currentDropCount = sizeof(gNextDropTime) / sizeof(*gNextDropTime) - 2;
     }

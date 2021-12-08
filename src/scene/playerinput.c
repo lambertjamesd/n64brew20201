@@ -42,11 +42,18 @@ void playerInputNoInput(struct PlayerInput* output) {
 void playerInputPopulateWithJoystickData(OSContPad* pad, struct Quaternion* cameraRotation, enum PlayerInputFlags flags, struct PlayerInput* output) {
     struct Vector3 worldRight;
     struct Vector3 worldForward;
+    struct Vector3 worldUp;
 
     quatMultVector(cameraRotation, &gRight, &worldRight);
+    quatMultVector(cameraRotation, &gForward, &worldForward);
+    quatMultVector(cameraRotation, &gUp, &worldUp);
+
+    if (fabsf(worldUp.y) * 2.0f < fabsf(worldForward.y)) {
+        vector3Negate(&worldUp, &worldForward);
+    }
+
     worldRight.y = 0.0f;
     vector3Normalize(&worldRight, &worldRight);
-    quatMultVector(cameraRotation, &gForward, &worldForward);
     worldForward.y = 0.0f;
     vector3Normalize(&worldForward, &worldForward);
 

@@ -55,7 +55,6 @@ void textBoxUpdate(struct TextBox* textBox) {
 
 void textBoxRender(struct TextBox* textBox, struct RenderState* renderState) {
     if (textBoxIsVisible(textBox)) {
-        
         float timeSqr = textBox->animateTimer * textBox->animateTimer / (SLIDE_DURATION * SLIDE_DURATION);
         unsigned bgRectPos = textBox->xCenter - (textBox->width >> 1) - (int)(timeSqr * SCREEN_WD);
         unsigned fbRectPos = textBox->xCenter - (textBox->width >> 1) + (int)(timeSqr * SCREEN_WD);
@@ -100,4 +99,12 @@ void textBoxChangeText(struct TextBox* textBox, char* message) {
 
 int textBoxIsVisible(struct TextBox* textBox) {
     return textBox->currState != TextBoxStateHidden || textBox->nextState != TextBoxStateHidden;
+}
+
+float textBoxVisiblePercent(struct TextBox* textBox) {
+    if (textBox->currState == textBox->nextState) {
+        return textBox->currState == TextBoxStateHidden ? 0.0f : 1.0f;
+    } else {
+        return 1.0f - textBox->animateTimer / SLIDE_DURATION;
+    }
 }
