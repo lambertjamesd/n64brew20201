@@ -90,5 +90,5 @@ struct CharacterDefinition gKickflipFontDef[] = {
 struct Font gKickflipFont;
 
 void initKickflipFont() {
-    fontInit(&gKickflipFont, 12, gKickflipFontDef, sizeof(gKickflipFontDef) / sizeof(gKickflipFontDef[0]));
+    fontInit(&gKickflipFont, 12, 20, gKickflipFontDef, sizeof(gKickflipFontDef) / sizeof(gKickflipFontDef[0]));
 }

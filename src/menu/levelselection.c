@@ -156,7 +156,7 @@ void mainMenuRenderLevels(struct MainMenu* mainMenu, struct RenderState* renderS
 
     if (mainMenu->selections.selectedPlayerCount == 0 && saveFileIsLevelComplete(mainMenu->selections.selectedLevel)) {
         char timeString[16];
-        renderTimeString(saveFileLevelTime(mainMenu->selections.selectedLevel), timeString);
+        formatTimeString(saveFileLevelTime(mainMenu->selections.selectedLevel), timeString);
         unsigned timeWidth = fontMeasure(&gKickflipFont, timeString, 0);
         fontRenderText(renderState, &gKickflipFont, timeString, 260 - timeWidth / 2, 200, 0);
     }

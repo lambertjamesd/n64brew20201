@@ -18,9 +18,10 @@ struct Font
 {
     struct CharacterDefinition characters[ANSI_CHAR_COUNT];
     short spaceWidth; 
+    short lineHeight;
 };
 
-void fontInit(struct Font* font, int spaceWidth, struct CharacterDefinition* chars, int charCount);
+void fontInit(struct Font* font, int spaceWidth, int lineHeight, struct CharacterDefinition* chars, int charCount);
 void fontRenderText(struct RenderState* renderState, struct Font* font, const char* str, int x, int y, int scaleShift);
 int fontMeasure(struct Font* font, const char* str, int scaleShift);
 

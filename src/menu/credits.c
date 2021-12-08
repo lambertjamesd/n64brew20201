@@ -88,7 +88,7 @@ void drawTitle(struct RenderState* renderState, unsigned offset){
 void drawTime(struct RenderState* renderState, unsigned offset, int time){
     fontRenderText(renderState, &gKickflipFont, "Your Time", 36, LOGO_START + 128 - offset, 0);
     char timeString[16];
-    renderTimeString(time, timeString);
+    formatTimeString(time, timeString);
     fontRenderText(renderState, &gKickflipFont, timeString, 200, LOGO_START + 128 - offset, 0);
 }
 

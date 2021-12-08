@@ -2,9 +2,10 @@
 #include "spritefont.h"
 #include "sprite.h"
 
-void fontInit(struct Font* font, int spaceWidth, struct CharacterDefinition* chars, int charCount)
+void fontInit(struct Font* font, int spaceWidth, int lineHeight, struct CharacterDefinition* chars, int charCount)
 {
     font->spaceWidth = spaceWidth;
+    font->lineHeight = lineHeight;
 
     for (int i = 0; i < ANSI_CHAR_COUNT; ++i)
     {
@@ -52,7 +53,12 @@ void fontRenderText(struct RenderState* renderState, struct Font* font, const ch
         else if (*str == '\n')
         {
             x = startX;
-            y += 20;
+
+            if (scaleShift >= 0) {
+                y += (font->lineHeight) << scaleShift;
+            } else {
+                y += font->lineHeight >> -scaleShift;
+            }
         }
 
         ++str;
@@ -61,6 +67,7 @@ void fontRenderText(struct RenderState* renderState, struct Font* font, const ch
 
 int fontMeasure(struct Font* font, const char* str, int scaleShift) {
     int result = 0;
+    int currentRow = 0;
 
     while (*str)
     {
@@ -68,20 +75,23 @@ int fontMeasure(struct Font* font, const char* str, int scaleShift) {
 
         if (*str == ' ') {
             if (scaleShift >= 0) {
-                result += font->spaceWidth << scaleShift;
+                currentRow += font->spaceWidth << scaleShift;
             } else {
-                result += font->spaceWidth >> -scaleShift;
+                currentRow += font->spaceWidth >> -scaleShift;
             }
+        } else if (*str == '\n') {
+            result = MAX(result, currentRow);
+            currentRow = 0;
         } else {
             if (scaleShift >= 0) {
-                result += (curr->data.w + curr->kerning) << scaleShift;
+                currentRow += (curr->data.w + curr->kerning) << scaleShift;
             } else {
-                result += (curr->data.w + curr->kerning) >> -scaleShift;
+                currentRow += (curr->data.w + curr->kerning) >> -scaleShift;
             }
         }
 
         ++str;
     }
 
-    return result;
+    return MAX(result, currentRow);
 }

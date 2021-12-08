@@ -23,6 +23,13 @@ struct SpriteTile gBaseCommandTiles[] = {
     {16, 0, 16, 16},
 };
 
+struct SpriteTile gBaseShortcutTiles[] = {
+    {16, 32, 16, 16},
+    {0, 32, 16, 16,},
+    {16, 16, 16, 16},
+    {16, 48, 16, 16},
+};
+
 char* gMenuPrompts[] = {
     "Follow",
     "Attack",
@@ -44,7 +51,7 @@ struct SpriteTile gBaseUpgradeTiles[MinionCommandCount] = {
 
 char* gUpgradePrompts[] = {
     "Speed",
-    "Minion",
+    "Capacity",
     "Defense",
 };
 
@@ -214,6 +221,7 @@ void baseCommandMenuRenderCommandSelect(struct BaseCommandMenu* menu, struct Ren
             spriteDrawTile(renderState, LAYER_COMMAND_BUTTONS, x, y, 16, 16, gBaseCommandTiles[i]);
             textX += 16;
         }
+        spriteDrawTile(renderState, LAYER_BUTTONS, horizontalCenter + MENU_WIDTH / 2 - 16 - MENU_BORDER_WIDTH, y, 16, 16, gBaseShortcutTiles[i]);
         fontRenderText(renderState, &gKickflipFont, gMenuPrompts[i], textX + 4, y + 4, -1);
         y += 16;
     }

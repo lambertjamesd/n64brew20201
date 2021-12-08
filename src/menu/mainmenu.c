@@ -488,7 +488,8 @@ void mainMenuRender(struct MainMenu* mainMenu, struct RenderState* renderState) 
             break;
         case MainMenuStatePostGame:
             endGameMenuRender(&mainMenu->endGameMenu, renderState);
-            break;
+            // endGameMenuRender calls spriteFinish
+            return;
     }
 
     spriteFinish(renderState);

@@ -13,5 +13,5 @@ struct CharacterDefinition gFreshEaterCharacters[] = {
 struct Font gFreshEater;
 
 void initFreshEaterFont() {
-    fontInit(&gFreshEater, 5, gFreshEaterCharacters, sizeof(gFreshEaterCharacters) / sizeof(gFreshEaterCharacters[0]));
+    fontInit(&gFreshEater, 5, 30, gFreshEaterCharacters, sizeof(gFreshEaterCharacters) / sizeof(gFreshEaterCharacters[0]));
 }

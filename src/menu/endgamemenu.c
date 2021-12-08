@@ -11,6 +11,10 @@
 #include "graphics/gfx.h"
 #include "graphics/spritefont.h"
 #include "kickflipfont.h"
+#include "scene/scene_management.h"
+#include "tips.h"
+#include "../data/mainmenu/menu.h"
+#include "graphics/image.h"
 
 #define DRAW_ANIMATION_TIME 3.0f
 
@@ -38,6 +42,12 @@ void endGameMenuInit(struct EndGameMenu* menu, unsigned winningTeam, unsigned te
     menu->state = EndGameStateLoading;
     menu->captureSound = SoundIDNone;
     menu->gameTime = (unsigned short)(gameTime * 10.0f);
+
+    if (sceneIsCampaign() && winningTeam != 0) {
+        menu->gameTip = randomInRange(0, gLoseScreenTipCount);
+    } else {
+        menu->gameTip = ~0;
+    }
     
     for (unsigned teamIndex = 0; teamIndex < teamCount; ++teamIndex) {
         statTrackerFinalize(&gPlayerBaseStats[teamIndex]);
@@ -122,6 +132,36 @@ void endGameDrawGraph(struct EndGameMenu* menu, struct RenderState* renderState,
     }
 }
 
+void endGameRenderTip(struct EndGameMenu* menu, struct RenderState* renderState) {
+    if (menu->gameTip < gLoseScreenTipCount) {
+        unsigned tipWidth = fontMeasure(&gKickflipFont, gLoseScreenTips[menu->gameTip], -1);
+
+        unsigned extraLines = 1;
+
+        char* check = gLoseScreenTips[menu->gameTip];
+
+        while (*check) {
+            if (*check == '\n') {
+                ++extraLines;
+            }
+            ++check;
+        }
+
+        unsigned height = (16 + extraLines * gKickflipFont.lineHeight) / 2;
+
+        spriteSetColor(renderState, LAYER_SOLID_COLOR, gColorBlack);
+        spriteSolid(renderState, LAYER_SOLID_COLOR, 16, 152, 288, 32);
+        fontRenderText(
+            renderState, 
+            &gKickflipFont, 
+            gLoseScreenTips[menu->gameTip], 
+            (SCREEN_WD - tipWidth) / 2, 
+            152 + (32 - height) / 2 + 4, 
+            -1
+        );
+    }
+}
+
 void endGameMenuRender(struct EndGameMenu* menu, struct RenderState* renderState) {
     spriteSetColor(renderState, LAYER_SOLID_COLOR, gHalfTransparentBlack);
     spriteSolid(renderState, LAYER_SOLID_COLOR, 20, 30, 180, 180);
@@ -139,14 +179,38 @@ void endGameMenuRender(struct EndGameMenu* menu, struct RenderState* renderState
         gSPPopMatrix(renderState->dl++, G_MTX_MODELVIEW);
 
         secondsToDisplay = menu->gameTime;
+
+        endGameRenderTip(menu, renderState);
     } else {
         secondsToDisplay = (unsigned short)(menu->gameTime * menu->drawAnimationTimer / DRAW_ANIMATION_TIME);
     }
 
     char timeString[16];
-    renderTimeString(secondsToDisplay, timeString);
+    formatTimeString(secondsToDisplay, timeString);
     unsigned timeWidth = fontMeasure(&gKickflipFont, timeString, 0);
     fontRenderText(renderState, &gKickflipFont, timeString, 260 - timeWidth / 2, 200, 0);
+
+    spriteFinish(renderState);
+
+    if (menu->gameTip < gLoseScreenTipCount) {
+        graphicsCopyImage(
+            renderState, 
+            ArrowButtons_0_0, 
+            32, 64, 
+            0, 16, 
+            24, 160, 
+            16, 16, 
+        gColorWhite);
+
+        graphicsCopyImage(
+            renderState, 
+            ArrowButtons_0_0, 
+            32, 64, 
+            16, 16, 
+            SCREEN_WD - 24 - 16, 160, 
+            16, 16, 
+        gColorWhite);
+    }
 }
 
 float endGameCalcCaptureFreq(struct EndGameMenu* menu) {
@@ -199,14 +263,34 @@ int endGameMenuUpdate(struct EndGameMenu* menu) {
         case EndGameStateLoadingExtraFrame:
             menu->state = EndGameStateLoaded;
         case EndGameStateLoaded:
+        {
+            if (menu->gameTip != ~0) {
+                enum ControllerDirection dir = controllerGetDirectionDown(0);
+
+                if (dir & ControllerDirectionLeft) {
+                    if (menu->gameTip == 0) {
+                        menu->gameTip = gLoseScreenTipCount - 1;
+                    } else {
+                        --menu->gameTip;
+                    }
+                } else if (dir & ControllerDirectionRight) {
+                    if (menu->gameTip == gLoseScreenTipCount - 1) {
+                        menu->gameTip = 0;
+                    } else {
+                        ++menu->gameTip;
+                    }
+                }
+            }
+
             skAnimatorUpdate(&menu->winnerAnimator, menu->winnerArmature.boneTransforms, 1.0f);
             break;
+        }
     }
 
     return 0;
 }
 
-void renderTimeString(int time, char* output) {
+void formatTimeString(int time, char* output) {
     unsigned subSeconds = time % 10;
     unsigned seconds = (time / 10) % 60;
     unsigned minutes = time / 600;
