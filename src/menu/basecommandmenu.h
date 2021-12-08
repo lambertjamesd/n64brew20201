@@ -18,6 +18,7 @@ struct BaseCommandMenu {
     char selectedCommand;
     char selectedUpgrade;
     unsigned short lastControllerDown;
+    unsigned short lastButtonDown;
     float openAnimation;
 };
 

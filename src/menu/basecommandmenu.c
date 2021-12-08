@@ -66,6 +66,7 @@ void baseCommandMenuInit(struct BaseCommandMenu* menu) {
     menu->flags = 0;
     menu->forBase = 0;
     menu->lastControllerDown = 0;
+    menu->lastButtonDown = 0;
 }
 
 void baseCommandMenuShowOpenCommand(struct BaseCommandMenu* menu, struct LevelBase* forBase) {
@@ -85,6 +86,7 @@ void baseCommandMenuShow(struct BaseCommandMenu* menu, struct LevelBase* forBase
     menu->selectedUpgrade = 0;
     menu->openAnimation = OPEN_ANIMATION_TIME;
     menu->lastControllerDown = 0;
+    menu->lastButtonDown = 0;
 }
 
 void baseCommandMenuHide(struct BaseCommandMenu* menu) {
@@ -123,9 +125,14 @@ void baseCommandMenuUpdate(struct BaseCommandMenu* menu, unsigned team) {
             return;
         }
 
-        unsigned short playerInput = playerInputMapActionFlags(controllerGetButtonDown(team, ~0));
+        unsigned short buttons = controllerGetButton(team, ~0);
+        unsigned short lastButtons = menu->lastButtonDown;
+        menu->lastButtonDown = buttons;
 
-        if (controllerGetButtonUp(team, B_BUTTON) != 0) {
+        unsigned short actionDown = playerInputMapActionFlags(buttons & ~lastButtons);
+        unsigned short buttonUp = ~buttons & lastButtons;
+
+        if ((buttonUp & B_BUTTON) != 0) {
             if (menu->flags & BaseCommandMenuFlagsShowingUpgrades) {
                 menu->flags ^= BaseCommandMenuFlagsShowingUpgrades;
             } else {
@@ -134,19 +141,19 @@ void baseCommandMenuUpdate(struct BaseCommandMenu* menu, unsigned team) {
             }
         }
 
-        if (playerInput & PlayerInputActionsCommandRecall) {
+        if (actionDown & PlayerInputActionsCommandRecall) {
             levelBaseSetDefaultCommand(menu->forBase, MinionCommandFollow, team);
             baseCommandMenuHide(menu);
             return;
         }
 
-        if (playerInput & PlayerInputActionsCommandAttack) {
+        if (actionDown & PlayerInputActionsCommandAttack) {
             levelBaseSetDefaultCommand(menu->forBase, MinionCommandAttack, team);
             baseCommandMenuHide(menu);
             return;
         }
 
-        if (playerInput & PlayerInputActionsCommandDefend) {
+        if (actionDown & PlayerInputActionsCommandDefend) {
             levelBaseSetDefaultCommand(menu->forBase, MinionCommandDefend, team);
             baseCommandMenuHide(menu);
             return;
@@ -167,7 +174,7 @@ void baseCommandMenuUpdate(struct BaseCommandMenu* menu, unsigned team) {
 
             unsigned canUpgrade = !levelBaseIsBeingUpgraded(menu->forBase) && levelBaseTimeForUpgrade(menu->forBase, gBaseUpgardeIndex[(unsigned)menu->selectedUpgrade]) >= 0.0f;
 
-            if (canUpgrade && controllerGetButtonUp(team, A_BUTTON) != 0) {
+            if (canUpgrade && (team & A_BUTTON) != 0) {
                 levelBaseStartUpgrade(menu->forBase, gBaseUpgardeIndex[(unsigned)menu->selectedUpgrade]);
                 baseCommandMenuHide(menu);
                 return;
@@ -181,7 +188,7 @@ void baseCommandMenuUpdate(struct BaseCommandMenu* menu, unsigned team) {
                 ++menu->selectedCommand;
             }
 
-            if (controllerGetButtonUp(team, A_BUTTON) != 0) {
+            if ((buttonUp & A_BUTTON) != 0) {
                 if (menu->selectedCommand >= MinionCommandCount) {
                     menu->flags ^= BaseCommandMenuFlagsShowingUpgrades;
                 } else {

@@ -29,6 +29,7 @@ typedef void (*PlayerState)(struct Player* player, struct PlayerInput* input);
 enum PlayerFlags {
     PlayerFlagsInAttackWindow = (1 << 0),
     PlayerFlagsAttackEarly = (1 << 1),
+    PlayerFlagsKnockedBack = (1 << 2),
 };
 
 struct Player {

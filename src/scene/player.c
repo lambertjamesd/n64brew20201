@@ -160,6 +160,7 @@ void playerEnterJumpState(struct Player* player) {
     player->velocity.y = PLAYER_JUMP_IMPULSE;
     player->state = playerStateJump;
     player->animationSpeed = 1.0f;
+    player->flags &= ~PlayerFlagsKnockedBack;
     soundPlayerPlay(soundListRandom(&gTeamFactions[player->playerIndex]->playerSounds.jumpSounds), 1.0f, SoundPlayerPriorityPlayer, 0, &player->transform.position);
     skAnimatorRunClip(&player->animator, factionGetAnimation(player->team.teamNumber, PlayerAnimationJump), 0);
 }
@@ -424,21 +425,23 @@ void playerStateFreefall(struct Player* player, struct PlayerInput* input) {
     int wasGoingUp = player->velocity.y > 0.0f;
 
 
-    if (playerInputGetDown(input, PlayerInputActionsAttack)) {
+    if ((player->flags & PlayerFlagsKnockedBack) == 0 && playerInputGetDown(input, PlayerInputActionsAttack)) {
         playerEnterJumpAttackState(player);
         return;
     }
 
     if (player->transform.position.y <= 0.0f && player->velocity.y <= 0.0f) {
+        player->flags &= ~PlayerFlagsKnockedBack;
         playerEnterWalkState(player);
     }
 
-    playerUpdateOther(player, input);
     player->tilt = mathfLerp(player->tilt, 0.0f, 0.1f);
 
     if (player->velocity.y <= 0.0f && wasGoingUp) {
         skAnimatorRunClip(&player->animator, factionGetAnimation(player->team.teamNumber, PlayerAnimationFall), 0);
     }
+    
+    playerUpdateOther(player, input);
 }
 
 void playerStateJump(struct Player* player, struct PlayerInput* input) {
@@ -673,9 +676,10 @@ void playerApplyDamage(struct Player* player, float amount, struct Vector3* orig
         if (damageHandlerApplyDamage(&player->damageHandler, amount, PLAYER_INVINCIBILITY_TIME)) {
             soundPlayerPlay(soundListRandom(&gTeamFactions[player->playerIndex]->playerSounds.damageSounds), SoundPlayerPriorityPlayer, 1.0f, 0, &player->transform.position);
 
-            if (player->state == playerStateWalk) {
-                player->state = playerStateJump;
+            if (knockback > 0.0f && player->state == playerStateWalk) {
+                player->state = playerStateFreefall;
                 player->animationSpeed = 1.0f;
+                player->flags |= PlayerFlagsKnockedBack;
             }
         }
     }
