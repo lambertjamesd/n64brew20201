@@ -386,9 +386,11 @@ void itemDropsUpdate(struct ItemDrops* itemDrops) {
 }
 
 Gfx* itemDropsRender(struct ItemDrops* itemDrops, struct RenderState* renderState) {
-    Gfx* result = renderStateAllocateDLChunk(renderState, GFX_PER_DROP * MAX_ITEM_DROP + MAX_PLAYERS * GFX_PER_CHASER_DROP + 2);
+    Gfx* result = renderStateAllocateDLChunk(renderState, GFX_PER_DROP * MAX_ITEM_DROP + MAX_PLAYERS * GFX_PER_CHASER_DROP + 4);
     Gfx* prevDL = renderStateReplaceDL(renderState, result);
 
+    gDPPipeSync(renderState->dl++);
+    gDPPipeSync(renderState->transparentDL++);
     for (unsigned i = 0; i < gCurrentLevel.playerCount; ++i) {
         itemDropChaserRender(&itemDrops->chasers[i], renderState, i);
     }
@@ -399,6 +401,8 @@ Gfx* itemDropsRender(struct ItemDrops* itemDrops, struct RenderState* renderStat
         itemDropRender(&itemDrops->drops[i], renderState);
     }
 
+    gDPPipeSync(renderState->dl++);
+    gDPPipeSync(renderState->transparentDL++);
     gSPEndDisplayList(renderState->dl++);
     #ifdef DEBUG
     Gfx* resultEnd =

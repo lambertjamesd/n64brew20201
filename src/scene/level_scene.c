@@ -227,14 +227,16 @@ void levelSceneRender(struct LevelScene* levelScene, struct RenderState* renderS
     spriteSetLayer(renderState, LAYER_HEALTH_BAR, gUseHealthBar);
 
     // render minions
-    Gfx* minionGfx = renderStateAllocateDLChunk(renderState, MINION_GFX_PER_MINION * levelScene->minionCount + 3);
+    Gfx* minionGfx = renderStateAllocateDLChunk(renderState, MINION_GFX_PER_MINION * levelScene->minionCount + 5);
     Gfx* prevDL = renderStateReplaceDL(renderState, minionGfx);
+    gDPPipeSync(renderState->dl++);
     gSPDisplayList(renderState->dl++, gTeamTexture);
     for (unsigned int minionIndex = 0; minionIndex < levelScene->minionCount; ++minionIndex) {
         if (levelScene->minions[minionIndex].minionFlags & MinionFlagsActive) {
             minionRender(&levelScene->minions[minionIndex], renderState);
         }
     }
+    gDPPipeSync(renderState->dl++);
     gSPEndDisplayList(renderState->dl++);
     #ifdef DEBUG
     Gfx* minionEnd = 
@@ -245,11 +247,13 @@ void levelSceneRender(struct LevelScene* levelScene, struct RenderState* renderS
     #endif
 
     // render bases
-    Gfx* baseGfx = renderStateAllocateDLChunk(renderState, BASE_GFX_PER_BASE * levelScene->baseCount + 1);
+    Gfx* baseGfx = renderStateAllocateDLChunk(renderState, BASE_GFX_PER_BASE * levelScene->baseCount + 3);
     prevDL = renderStateReplaceDL(renderState, baseGfx);
+    gDPPipeSync(renderState->dl++);
     for (unsigned int i = 0; i < levelScene->baseCount; ++i) {
         levelBaseRender(&levelScene->bases[i], renderState);
     }
+    gDPPipeSync(renderState->dl++);
     gSPEndDisplayList(renderState->dl++);
     #ifdef DEBUG
     Gfx* baseEnd = 
@@ -260,8 +264,9 @@ void levelSceneRender(struct LevelScene* levelScene, struct RenderState* renderS
     #endif
 
     // render players
-    Gfx* playerGfx = renderStateAllocateDLChunk(renderState, PLAYER_GFX_PER_PLAYER * levelScene->playerCount + 4);
+    Gfx* playerGfx = renderStateAllocateDLChunk(renderState, PLAYER_GFX_PER_PLAYER * levelScene->playerCount + 5);
     prevDL = renderStateReplaceDL(renderState, playerGfx);
+    gDPPipeSync(renderState->dl++);
     gSPDisplayList(renderState->dl++, gTeamTexture);
     for (unsigned int i = 0; i < levelScene->playerCount; ++i) {
         playerRender(&levelScene->players[i], renderState);

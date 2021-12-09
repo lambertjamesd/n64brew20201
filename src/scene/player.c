@@ -52,7 +52,7 @@ struct Vector3 gRecallOffset = {0.0f, 0.0f, -4.0 * SCENE_SCALE};
 #define PLAYER_ATTACK_MAX_ROTATE_SEC (180.0f * (M_PI / 180.0f))
 #define PLAYER_JUMP_ATTACK_HOVER_TIME       0.1f
 #define PLAYER_JUMP_ATTACK_FALL_VELOICTY    -20.0f
-#define PLAYER_JUMP_ATTCK_DELAY             0.5f
+#define PLAYER_JUMP_ATTCK_DELAY             0.35f
 
 #define PLAYER_FOOTSTEP_LEN          1.f
 #define PLAYER_FOOTSTEP_TIMER_DECREAMENT    0.1f

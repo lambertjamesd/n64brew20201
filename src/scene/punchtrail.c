@@ -34,6 +34,7 @@ void punchTrailRender(struct PunchTrail* punchTrail, struct RenderState* renderS
     gDPSetPrimColor(renderState->transparentDL++, 255, 255, color.r, color.g, color.b, color.a);
     gSPSegment(renderState->transparentDL++, MATRIX_TRANSFORM_SEGMENT, osVirtualToPhysical(matrices));
     gSPDisplayList(renderState->transparentDL++, punchtrail_model_gfx);
+    gDPPipeSync(renderState->transparentDL++);
 }
 
 struct Vector3* punchTrailHeadPosition(struct PunchTrail* punchTrail) {
