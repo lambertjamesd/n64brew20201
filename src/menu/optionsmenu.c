@@ -42,11 +42,11 @@ void optionsMenuInit(struct OptionsMenu* optionsMenu) {
 
 int optionsMenuUpdate(struct OptionsMenu* optionsMenu) {
     if (controllerGetButtonDown(0, B_BUTTON)) {
+        soundPlayerPlay(SOUNDS_UI_SELECT3, 1.0f, 1.0f, SoundPlayerPriorityPlayer, 0, 0);
         if (optionsMenu->isErasing) {
             optionsMenu->isErasing = 0;
             optionsMenu->itemSelection = ERASE_OPTION;
         } else {
-            soundPlayerPlay(SOUNDS_UI_SELECT3, 1.0f, 1.0f, SoundPlayerPriorityPlayer, 0, 0);
             return 1;
         }
     }
@@ -66,6 +66,8 @@ int optionsMenuUpdate(struct OptionsMenu* optionsMenu) {
             if (optionsMenu->itemSelection == ERASE_CONFIRM_OPTION) {
                 soundPlayerPlay(SOUNDS_CONTROLSCRAMBLE, 1.0f, 1.0f, SoundPlayerPriorityPlayer, 0, 0);
                 saveFileErase();
+            } else {
+                soundPlayerPlay(SOUNDS_UI_SELECT3, 1.0f, 1.0f, SoundPlayerPriorityPlayer, 0, 0);
             }
 
             optionsMenu->isErasing = 0;
@@ -75,6 +77,7 @@ int optionsMenuUpdate(struct OptionsMenu* optionsMenu) {
                 soundPlayerPlay(SOUNDS_UI_SELECT3, 1.0f, 1.0f, SoundPlayerPriorityPlayer, 0, 0);
                 return 1;
             } else if (optionsMenu->itemSelection == ERASE_OPTION) {
+                soundPlayerPlay(SOUNDS_UI_SELECT2, 1.0f, 1.0f, SoundPlayerPriorityPlayer, 0, 0);
                 optionsMenu->isErasing = 1;
                 optionsMenu->itemSelection = CANCEL_OPTION;
             }

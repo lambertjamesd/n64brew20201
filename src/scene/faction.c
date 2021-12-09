@@ -30,7 +30,7 @@ struct PlayerAttackInfo gDogAttacks[] = {
         DOGLOW_ARM1_BONE, 
         0,
         0,
-        4.0f,
+        3.5f,
         10.0f,
         {0.0f, 0.65f * SCENE_SCALE, 0.0f}, 
         {{CollisionShapeTypeCircle}, 1.2f * SCENE_SCALE},

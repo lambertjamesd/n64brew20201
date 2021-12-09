@@ -11,6 +11,7 @@
 #include "util/time.h"
 #include "menu/textbox.h"
 #include "graphics/sprite.h"
+#include "menu/kickflipfont.h"
 
 #include "../data/cutscenes/geometry_ending.h"
 
@@ -138,6 +139,14 @@ char gCatMinionBones[] = {
     CUTSCENE_ANIMATIONS_MINION_006_BONE,
 };
 
+int skipIconRenderer(struct RenderState* renderState, void* data, int x, int y) {
+    if (renderState) {
+        spriteDraw(renderState, LAYER_BUTTONS, x, y, 16, 16, 0, 48, 0, 0);
+    }
+
+    return 24;
+}
+
 void cutsceneAnimationEvent(struct SKAnimator* animator, void* data, struct SKAnimationEvent* event) {
     struct Cutscene* cutscene = (struct Cutscene*)animator->eventCallbackData;
     
@@ -185,6 +194,7 @@ void cutsceneInit(struct Cutscene* cutscene, enum CutsceneIndex index) {
     }
 
     cameraInit(&cutscene->camera, 45.0f, 5.0f, 8000.0f);
+    initKickflipFont();
 
     skAnimatorRunClip(&cutscene->animator, gCutsceneAnimations[index], 0);
     
@@ -201,7 +211,8 @@ void cutsceneUpdate(struct Cutscene* cutscene) {
             sceneEndCutscene();
         } else if (gTextBox.nextState == TextBoxStateHidden) {
             cutscene->skipTimer = SKIP_BUTTON_TIME;
-            textBoxInit(&gTextBox, "Skip", 0, SCREEN_WD / 2, SCREEN_HT * 2 / 3);
+            textBoxInit(&gTextBox, "Skip", 100, SCREEN_WD / 2, SCREEN_HT * 2 / 3);
+            textBoxSetIcon(&gTextBox, skipIconRenderer, 0);
         }
     }
 
