@@ -25,7 +25,7 @@
 
 #define PLAYER_MIN_RESPAWN_TIME                    5.0f
 #define PLAYER_RESPAWN_PER_BASE                    2.0f
-#define PLAYER_INVINCIBILITY_TIME                  0.5f
+#define PLAYER_INVINCIBILITY_TIME                  0.40f
 #define INVINCIBLE_JUMP_HEIGHT                     1.0f
 #define CHARGE_SPIN_ATTACK_TIME                    0.75f
 
@@ -74,7 +74,7 @@ void playerAttackOverlap(struct DynamicSceneOverlap* overlap) {
     if ((overlap->otherEntry->flags & DynamicSceneEntryHasTeam) != 0 && player->attackInfo) {
         struct TeamEntity* entityB = (struct TeamEntity*)overlap->otherEntry->data;
         teamEntityApplyDamage(entityB, player->attackInfo->damage, &player->transform.position, player->attackInfo->knockback);
-        soundPlayerPlay(SOUNDS_PUNCHIMPACT, 1.0f, SoundPlayerPriorityPlayer, 0, &player->transform.position);
+        soundPlayerPlay(SOUNDS_PUNCHIMPACT, 1.0f, gTeamFactions[player->team.teamNumber]->soundPitchScalar, SoundPlayerPriorityPlayer, 0, &player->transform.position);
     }
 }
 
@@ -82,7 +82,7 @@ void playerStartAttack(struct Player* player) {
     if (!player->attackCollider) {
         struct Vector3 position3D;
         struct Vector2 position;
-        soundPlayerPlay(soundListRandom(&gTeamFactions[player->playerIndex]->playerSounds.attackSounds), 1.0f, SoundPlayerPriorityPlayer, 0, &player->transform.position);
+        soundPlayerPlay(soundListRandom(&gTeamFactions[player->playerIndex]->playerSounds.attackSounds), 1.0f, gTeamFactions[player->team.teamNumber]->soundPitchScalar, SoundPlayerPriorityPlayer, 0, &player->transform.position);
         playerCalculateAttackLocation(player, player->attackInfo, &position3D);
         position.x = position3D.x;
         position.y = position3D.z;
@@ -126,7 +126,7 @@ void playerEnterWalkState(struct Player* player) {
 
 void playerEnterSpawnState(struct Player* player) {
     player->state = playerStateSpawn;
-    soundPlayerPlay(SOUNDS_SPAWN, 1.0f, SoundPlayerPriorityPlayer, 0, &player->transform.position);
+    soundPlayerPlay(SOUNDS_SPAWN, 1.0f, 1.0f, SoundPlayerPriorityPlayer, 0, &player->transform.position);
     skAnimatorRunClip(&player->animator, factionGetAnimation(player->team.teamNumber, PlayerAnimationSpawn), 0);
     player->animationSpeed = 1.0f;
     player->attackInfo = 0;
@@ -152,7 +152,7 @@ void playerEnterDeadState(struct Player* player) {
     // should start attacking nearest target
     levelSceneIssueMinionCommand(&gCurrentLevel, player->playerIndex, MinionCommandAttack);
     playerEndAttack(player);
-    soundPlayerPlay(soundListRandom(&gTeamFactions[player->playerIndex]->playerSounds.deathSounds), 1.0f, SoundPlayerPriorityPlayer, 0, &player->transform.position);
+    soundPlayerPlay(soundListRandom(&gTeamFactions[player->playerIndex]->playerSounds.deathSounds), 1.0f, 1.0f, SoundPlayerPriorityPlayer, 0, &player->transform.position);
     //soundPlayerPlay(SOUNDS_DEATHSFX, 0);
     skAnimatorRunClip(&player->animator, factionGetAnimation(player->team.teamNumber, PlayerAnimationDie), 0);
     player->state = playerStateDead;
@@ -168,7 +168,7 @@ void playerEnterJumpState(struct Player* player) {
     player->state = playerStateJump;
     player->animationSpeed = 1.0f;
     player->flags &= ~PlayerFlagsKnockedBack;
-    soundPlayerPlay(soundListRandom(&gTeamFactions[player->playerIndex]->playerSounds.jumpSounds), 1.0f, SoundPlayerPriorityPlayer, 0, &player->transform.position);
+    soundPlayerPlay(soundListRandom(&gTeamFactions[player->playerIndex]->playerSounds.jumpSounds), 1.0f, gTeamFactions[player->team.teamNumber]->soundPitchScalar, SoundPlayerPriorityPlayer, 0, &player->transform.position);
     skAnimatorRunClip(&player->animator, factionGetAnimation(player->team.teamNumber, PlayerAnimationJump), 0);
 }
 
@@ -599,9 +599,8 @@ void playerStateWalk(struct Player* player, struct PlayerInput* input) {
 
     if (isMoving != hasWalkingSound) {
         if (isMoving) {
-            player->walkSoundEffect = soundPlayerPlay(soundListRandom(&gTeamFactions[player->playerIndex]->playerSounds.walkSounds), 1.0f, SoundPlayerPriorityBackground, SoundPlayerFlagsLooping, &player->transform.position);
+            player->walkSoundEffect = soundPlayerPlay(soundListRandom(&gTeamFactions[player->playerIndex]->playerSounds.walkSounds), 1.0f, 2.0f, SoundPlayerPriorityBackground, SoundPlayerFlagsLooping, &player->transform.position);
             soundPlayerSetVolume(player->walkSoundEffect, mathfLerp(0.125f, 0.35f, player->animationSpeed));
-            soundPlayerSetPitch(player->walkSoundEffect, 2.0f);
             player->footstepTimer = PLAYER_FOOTSTEP_LEN;
         } else {
             soundPlayerStop(&player->walkSoundEffect);
@@ -702,7 +701,14 @@ void playerApplyDamage(struct Player* player, float amount, struct Vector3* orig
     if (player->transform.position.y < INVINCIBLE_JUMP_HEIGHT || player->state == playerStateSpawn) {
         teamEntityApplyKnockback(&player->transform.position, &player->velocity, origin, knockback);
         if (damageHandlerApplyDamage(&player->damageHandler, amount, PLAYER_INVINCIBILITY_TIME)) {
-            soundPlayerPlay(soundListRandom(&gTeamFactions[player->playerIndex]->playerSounds.damageSounds), SoundPlayerPriorityPlayer, 1.0f, 0, &player->transform.position);
+            soundPlayerPlay(
+                soundListRandom(&gTeamFactions[player->playerIndex]->playerSounds.damageSounds), 
+                1.0f, 
+                gTeamFactions[player->team.teamNumber]->soundPitchScalar,
+                SoundPlayerPriorityPlayer, 
+                0, 
+                &player->transform.position
+            );
 
             if (knockback > 0.0f && player->state == playerStateWalk) {
                 player->state = playerStateFreefall;

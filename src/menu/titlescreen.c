@@ -8,6 +8,7 @@
 #include "controls/controller.h"
 #include "mainmenu.h"
 #include "scene/scene_management.h"
+#include "audio/soundplayer.h"
 
 #define TITLE_SCROLL_TIME     0.5f
 
@@ -35,6 +36,7 @@ int titleScreenUpdate(struct TitleScreen* titleScreen) {
     }
 
     if (controllerGetButtonDown(0, START_BUTTON | A_BUTTON)) {
+        soundPlayerPlay(SOUNDS_UI_SELECT2, 1.0f, 1.0f, SoundPlayerPriorityPlayer, 0, 0);
         mainMenuInitSelections(&gMainMenu);
         titleScreen->targetTime = TITLE_SCROLL_TIME;
     }

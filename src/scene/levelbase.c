@@ -266,12 +266,12 @@ void levelBaseUpdate(struct LevelBase* base) {
         }
     }
 
-    if (!soundPlayerIsPlaying(base->captureSound) && isCapturing) {
-        base->captureSound = soundPlayerPlay(SOUNDS_FLAGCAP, 1.0f, SoundPlayerPriorityNonPlayer, 0, &base->position);
-    }
+    float capFreq = levelBaseCaptureAudioFreq(base);
 
-    if (isCapturing) {
-        soundPlayerSetPitch(base->captureSound, levelBaseCaptureAudioFreq(base));
+    if (!soundPlayerIsPlaying(base->captureSound) && isCapturing) {
+        base->captureSound = soundPlayerPlay(SOUNDS_FLAGCAP, 1.0f, capFreq, SoundPlayerPriorityNonPlayer, 0, &base->position);
+    } else if (isCapturing) {
+        soundPlayerSetPitch(base->captureSound, capFreq);
     }
 
     switch (base->state) {

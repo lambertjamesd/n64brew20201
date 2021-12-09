@@ -28,7 +28,7 @@
 #define MINION_HP           3.5
 #define DEFENDER_HEAL_RATE  0.2f
 #define ATTACK_RATE         0.8f
-#define MINION_DPS          1.1f
+#define MINION_DPS          1.2f
 #define INVINCIBILITY_TIME  0.5f
 #define INVINCIBLE_FLASH_FREQ                      0.1f
 #define ATTACK_RADIUS       (1.0f * SCENE_SCALE)
@@ -111,7 +111,7 @@ void minionInit(struct Minion* minion, enum MinionType type, struct Transform* a
     skAnimatorRunClip(&minion->animator, &minion_animations_animations[MINION_ANIMATIONS_MINION_ANIMATIONS_ARMATURE_SPAWN_INDEX], 0);
     transformInitIdentity(&minion->animationTransform);
     vector3Scale(&gOneVec, &minion->transform.scale, MINION_RENDER_SCALE);
-    soundPlayerPlay(SOUNDS_UI_SELECT2, 0.4f, SoundPlayerPriorityNonPlayer, 0, &minion->transform.position);
+    soundPlayerPlay(SOUNDS_UI_SELECT2, 0.4f, 1.0f, SoundPlayerPriorityNonPlayer, 0, &minion->transform.position);
 }
 
 void minionRender(struct Minion* minion, struct RenderState* renderState) {

@@ -135,7 +135,7 @@ static void gameproc(void *argv)
 
                 gUpdateTime = osGetTime() - updateTimeStart;
 
-                //gdbHeartbeat();
+                gdbHeartbeat();
 
                 break;
 

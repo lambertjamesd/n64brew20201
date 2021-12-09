@@ -55,8 +55,8 @@ struct ViewportLayout gViewportPosition[] = {
     // Two player
     {
         .viewportLocations = {
-            {0, 0, SCREEN_WD/2-1, SCREEN_HT},
-            {SCREEN_WD/2+1, 0, SCREEN_WD, SCREEN_HT},
+            {0, 0, SCREEN_WD/2, SCREEN_HT},
+            {SCREEN_WD/2, 0, SCREEN_WD, SCREEN_HT},
             {0, 0, 0, 0},
             {0, 0, 0, 0},
         },
@@ -65,9 +65,9 @@ struct ViewportLayout gViewportPosition[] = {
     // Three player
     {
         .viewportLocations = {
-            {0, 0, SCREEN_WD/2-1, SCREEN_HT/2-1},
-            {SCREEN_WD/2+1, 0, SCREEN_WD, SCREEN_HT/2-1},
-            {0, SCREEN_HT/2+1, SCREEN_WD/2-1, SCREEN_HT},
+            {0, 0, SCREEN_WD/2, SCREEN_HT/2},
+            {SCREEN_WD/2, 0, SCREEN_WD, SCREEN_HT/2},
+            {0, SCREEN_HT/2, SCREEN_WD/2, SCREEN_HT},
             {0, 0, 0, 0},
         },
         .minimapLocation = {SCREEN_WD * 3 / 4 - SCREEN_HT / 4 + 16, SCREEN_HT / 2 + 16, SCREEN_WD * 3 / 4 + SCREEN_HT / 4 - 16, SCREEN_HT - 16},
@@ -75,10 +75,10 @@ struct ViewportLayout gViewportPosition[] = {
     // Four player
     {
         .viewportLocations = {
-            {0, 0, SCREEN_WD/2-1, SCREEN_HT/2-1},
-            {SCREEN_WD/2+1, 0, SCREEN_WD, SCREEN_HT/2-1},
-            {0, SCREEN_HT/2+1, SCREEN_WD/2-1, SCREEN_HT},
-            {SCREEN_WD/2+1, SCREEN_HT/2+1, SCREEN_WD, SCREEN_HT},
+            {0, 0, SCREEN_WD/2, SCREEN_HT/2},
+            {SCREEN_WD/2, 0, SCREEN_WD, SCREEN_HT/2},
+            {0, SCREEN_HT/2, SCREEN_WD/2, SCREEN_HT},
+            {SCREEN_WD/2, SCREEN_HT/2, SCREEN_WD, SCREEN_HT},
         },
         .minimapLocation = {(SCREEN_WD - MINIMAP_SIZE) / 2, (SCREEN_HT - MINIMAP_SIZE) / 2, (SCREEN_WD + MINIMAP_SIZE) / 2, (SCREEN_HT + MINIMAP_SIZE) / 2},
     },

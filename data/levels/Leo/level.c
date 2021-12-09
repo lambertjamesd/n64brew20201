@@ -258,17 +258,17 @@ struct BaseDefinition Leo_Bases[] = {
     {.position = {2420.37, -655.194}, .startingTeam = TEAM(2)},
     {.position = {-2788.82, -908.987}, .startingTeam = TEAM(3)},
     {.position = {2659.21, -2103.84}, .startingTeam = TEAM_NONE},
-    {.position = {-2863.71, 1204.02}, .startingTeam = TEAM(2)},
+    {.position = {3761.77, 2537.27}, .startingTeam = TEAM(2)},
     {.position = {3711.13, 538.193}, .startingTeam = TEAM_NONE},
     {.position = {4811.98, -3375.94}, .startingTeam = TEAM_NONE},
-    {.position = {3718.42, 2540.34}, .startingTeam = TEAM(3)},
+    {.position = {-2866.28, 1174.47}, .startingTeam = TEAM(3)},
 };
 
 struct Vector2 Leo_StartingPositions[] = {
     {-6238.14, 1311.58},
     {5518.92, -2553.97},
-    {-2863.71, 1204.02},
-    {3718.42, 2540.34},
+    {3761.77, 2537.27},
+    {-2866.28, 1174.47},
 };
 
 struct SceneBoundary Leo_Boundary[] = {
@@ -326,10 +326,10 @@ char Leo_BasesPathNodes[] = {
     3,
     1,
     8,
-    4,
+    6,
     5,
     9,
-    6,
+    4,
 };
 unsigned short Leo_NodeDistances[] = {
     0, 4076, 7472, 9316, 3332, 10999, 10193, 6631, 10005, 12430, 13538, 13177, 12088, 8592, 

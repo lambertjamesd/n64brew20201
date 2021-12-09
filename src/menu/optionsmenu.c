@@ -46,6 +46,7 @@ int optionsMenuUpdate(struct OptionsMenu* optionsMenu) {
             optionsMenu->isErasing = 0;
             optionsMenu->itemSelection = ERASE_OPTION;
         } else {
+            soundPlayerPlay(SOUNDS_UI_SELECT3, 1.0f, 1.0f, SoundPlayerPriorityPlayer, 0, 0);
             return 1;
         }
     }
@@ -63,7 +64,7 @@ int optionsMenuUpdate(struct OptionsMenu* optionsMenu) {
     if (controllerGetButtonDown(0, A_BUTTON)) {
         if (optionsMenu->isErasing) {
             if (optionsMenu->itemSelection == ERASE_CONFIRM_OPTION) {
-                soundPlayerPlay(SOUNDS_CONTROLSCRAMBLE, 1.0f, SoundPlayerPriorityPlayer, 0, 0);
+                soundPlayerPlay(SOUNDS_CONTROLSCRAMBLE, 1.0f, 1.0f, SoundPlayerPriorityPlayer, 0, 0);
                 saveFileErase();
             }
 
@@ -71,6 +72,7 @@ int optionsMenuUpdate(struct OptionsMenu* optionsMenu) {
             optionsMenu->itemSelection = ERASE_OPTION;
         } else {
             if (optionsMenu->itemSelection == BACK_OPTION) {
+                soundPlayerPlay(SOUNDS_UI_SELECT3, 1.0f, 1.0f, SoundPlayerPriorityPlayer, 0, 0);
                 return 1;
             } else if (optionsMenu->itemSelection == ERASE_OPTION) {
                 optionsMenu->isErasing = 1;
@@ -90,10 +92,10 @@ int optionsMenuUpdate(struct OptionsMenu* optionsMenu) {
     if (!optionsMenu->isErasing && optionsMenu->itemSelection == SOUND_OPTION) {
         if (dir & ControllerDirectionLeft) {
             soundPlayerSetSoundVolume(soundPlayerGetSoundVolume() - 0.1f);
-            soundPlayerPlay(SOUNDS_UI_SELECT2, 1.0f, SoundPlayerPriorityPlayer, 0, 0);
+            soundPlayerPlay(SOUNDS_UI_SELECT2, 1.0f, 1.0f, SoundPlayerPriorityPlayer, 0, 0);
         } else if (dir & ControllerDirectionRight) {
             soundPlayerSetSoundVolume(soundPlayerGetSoundVolume() + 0.1f);
-            soundPlayerPlay(SOUNDS_UI_SELECT2, 1.0f, SoundPlayerPriorityPlayer, 0, 0);
+            soundPlayerPlay(SOUNDS_UI_SELECT2, 1.0f, 1.0f, SoundPlayerPriorityPlayer, 0, 0);
         }
     }
 

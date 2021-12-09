@@ -185,7 +185,7 @@ SoundID soundPlayerCreateID(struct SoundSource* source) {
     return result;
 }
 
-SoundID soundPlayerPlay(unsigned clipId, float volume, enum SoundPlayerPriority priority, enum SoundPlayerFlags flags, struct Vector3* pos) {
+SoundID soundPlayerPlay(unsigned clipId, float volume, float pitch, enum SoundPlayerPriority priority, enum SoundPlayerFlags flags, struct Vector3* pos) {
     if (clipId >= gSoundClipArray->soundCount) {
         return SoundIDNone;
     }
@@ -226,7 +226,7 @@ SoundID soundPlayerPlay(unsigned clipId, float volume, enum SoundPlayerPriority 
     if (!isStopped && !(flags & SoundPlayerFlagsLooping)) {
         alSndpStop(&gSoundPlayer);
     }
-    alSndpSetPitch(&gSoundPlayer, (float)SOUND_SAMPLE_RATE / (float)OUTPUT_RATE);
+    alSndpSetPitch(&gSoundPlayer, pitch * (float)SOUND_SAMPLE_RATE / (float)OUTPUT_RATE);
     alSndpSetVol(&gSoundPlayer, vol);
     alSndpSetPan(&gSoundPlayer, pan);
     alSndpSetPriority(&gSoundPlayer, soundSource->soundId, priority);

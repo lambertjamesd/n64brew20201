@@ -14,6 +14,7 @@ struct Cutscene {
     unsigned short cutsceneIndex;
     float currentFade;
     float targetFade;
+    float skipTimer;
 };
 
 extern struct Cutscene gCutscene;

@@ -9,6 +9,8 @@
 #include "controls/controller.h"
 #include "audio/soundplayer.h"
 #include "util/time.h"
+#include "menu/textbox.h"
+#include "graphics/sprite.h"
 
 #include "../data/cutscenes/geometry_ending.h"
 
@@ -17,6 +19,9 @@
 #include "../data/level_themes/Space/theme.h"
 #include "../data/cutscenes/geometry_animdef.inc.h"
 #include "../data/cutscenes/geometry_ending_animdef.inc.h"
+
+#include "../data/fonts/fonts.h"
+#include "../data/gameplaymenu/menu.h"
 
 #define SET_SET_EVENT               0x1000
 #define PLAY_SOUND_EVENT            0x2000
@@ -30,6 +35,8 @@
 #define CREATE_SCENE_EVENT(event, sceneId)     ((event) | ((0xfff) & (sceneId)))
 #define GET_SCENE_EVENT_TYPE(event)             (0xf000 & (event))
 #define GET_SCENE_EVENT_DATA(event)             (0xfff & (event))
+
+#define SKIP_BUTTON_TIME            1.5f
 
 extern Gfx cutscene_console_model_gfx[];
 
@@ -145,10 +152,10 @@ void cutsceneAnimationEvent(struct SKAnimator* animator, void* data, struct SKAn
             cutscene->currentSetMask = GET_SCENE_EVENT_DATA(event->id);
             break;
         case PLAY_SOUND_EVENT:
-            soundPlayerPlay(GET_SCENE_EVENT_DATA(event->id), 1.0f, SoundPlayerPriorityBackground, 0, 0);
+            soundPlayerPlay(GET_SCENE_EVENT_DATA(event->id), 1.0f, 1.0f, SoundPlayerPriorityBackground, 0, 0);
             break;
         case PLAY_TRANSITION_SOUND_EVENT:
-            soundPlayerPlay(GET_SCENE_EVENT_DATA(event->id), 1.0f, SoundPlayerPriorityMusic, SoundPlayerFlagsTransition, 0);
+            soundPlayerPlay(GET_SCENE_EVENT_DATA(event->id), 1.0f, 1.0f, SoundPlayerPriorityMusic, SoundPlayerFlagsTransition, 0);
             break;
         case STOP_SOUND_EVENT:
             soundPlayerStopWithClipId(GET_SCENE_EVENT_DATA(event->id));
@@ -190,8 +197,24 @@ void cutsceneUpdate(struct Cutscene* cutscene) {
     skAnimatorUpdate(&cutscene->animator, cutscene->rootTransforms, 1.0f);
 
     if (controllerGetButtonDown(0, START_BUTTON)) {
-        sceneEndCutscene();
+        if (textBoxVisiblePercent(&gTextBox) == 1.0f) {
+            sceneEndCutscene();
+        } else if (gTextBox.nextState == TextBoxStateHidden) {
+            cutscene->skipTimer = SKIP_BUTTON_TIME;
+            textBoxInit(&gTextBox, "Skip", 0, SCREEN_WD / 2, SCREEN_HT * 2 / 3);
+        }
     }
+
+    if (cutscene->skipTimer > 0) {
+        cutscene->skipTimer -= gTimeDelta;
+
+        if (cutscene->skipTimer <= 0.0f) {
+            cutscene->skipTimer = 0.0f;
+            textBoxHide(&gTextBox);
+        }
+    }
+
+    textBoxUpdate(&gTextBox);
 
     if (cutscene->currentFade < cutscene->targetFade) {
         cutscene->currentFade += gTimeDelta * (1.0f / FADE_IN_TIME);
@@ -211,6 +234,11 @@ void cutsceneUpdate(struct Cutscene* cutscene) {
 }
 
 void cutsceneRender(struct Cutscene* cutscene, struct RenderState* renderState) {
+    spriteSetLayer(renderState, LAYER_SOLID_COLOR, gUseSolidColor);
+    spriteSetLayer(renderState, LAYER_KICKFLIP_NUMBERS_FONT, gUseKickflipNumbersFont);
+    spriteSetLayer(renderState, LAYER_KICKFLIP_FONT, gUseKickflipFont);
+    spriteSetLayer(renderState, LAYER_BUTTONS, gUseButtonsIcon);
+
     transformConcat(&cutscene->rootTransforms[CUTSCENE_ANIMATIONS_CAMERA_BONE], &gRelativeCamera[cutscene->cutsceneIndex], &cutscene->camera.transform);
 
     gDPPipeSync(renderState->dl++);
@@ -328,4 +356,8 @@ void cutsceneRender(struct Cutscene* cutscene, struct RenderState* renderState) 
     gDPSetEnvColor(renderState->dl++, 0, 0, 0, 255 - alpha);
     gDPFillRectangle(renderState->dl++, 0, 0, SCREEN_WD, SCREEN_HT);
     gDPPipeSync(renderState->dl++);
+
+    textBoxRender(&gTextBox, renderState);
+    
+    spriteFinish(renderState);
 }

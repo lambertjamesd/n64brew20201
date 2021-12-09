@@ -106,7 +106,7 @@ void endGameDrawGraph(struct EndGameMenu* menu, struct RenderState* renderState,
     for (unsigned teamIndex = 0; teamIndex < menu->teamCount; ++teamIndex) {
         float x = left;
 
-        spriteSetColor(renderState, LAYER_SOLID_COLOR, gTeamColors[teamIndex]);
+        spriteSetColor(renderState, LAYER_SOLID_COLOR, gTeamColorsSaturated[teamIndex]);
         for (unsigned sampleIndex = 0; sampleIndex < STAT_COLUMNS && sampleIndex < finalIndex + 1; ++sampleIndex) {
             float scaledHeight = heightScalar * menu->baseStats[teamIndex][sampleIndex];
 
@@ -248,7 +248,7 @@ int endGameMenuUpdate(struct EndGameMenu* menu) {
     switch (menu->state) {
         case EndGameStateLoading:
             if (!soundPlayerIsPlaying(menu->captureSound)) {
-                menu->captureSound = soundPlayerPlay(SOUNDS_FLAGCAP, 1.0f, SoundPlayerPriorityBackground, 0, 0);
+                menu->captureSound = soundPlayerPlay(SOUNDS_FLAGCAP, 1.0f, 1.0f, SoundPlayerPriorityBackground, 0, 0);
             }
 
             menu->drawAnimationTimer += gTimeDelta;

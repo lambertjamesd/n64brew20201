@@ -202,6 +202,7 @@ void spriteFinish(struct RenderState* renderState)
     guOrtho(&menuMatrices[0], 0, SCREEN_WD, SCREEN_HT, 0, -SCENE_SCALE, SCENE_SCALE, 1.0f);
     guRotate(&menuMatrices[1], -90.0f, 1.0f, 0.0f, 0.0f);
 
+    gDPPipeSync(renderState->dl++);
     gSPMatrix(renderState->dl++, &menuMatrices[0], G_MTX_PROJECTION | G_MTX_NOPUSH | G_MTX_LOAD);
     gSPMatrix(renderState->dl++, &menuMatrices[1], G_MTX_MODELVIEW | G_MTX_NOPUSH | G_MTX_LOAD);
 

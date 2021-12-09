@@ -8,6 +8,7 @@
 #include "kickflipfont.h"
 #include "math/mathf.h"
 #include "util/time.h"
+#include "graphics/gfx.h"
 
 #define OPEN_MENU_BOTTOM_OFFSET 32
 #define MENU_WIDTH  110
@@ -250,6 +251,7 @@ void baseCommandMenuRender(struct BaseCommandMenu* menu, struct RenderState* ren
     unsigned horizontalCenter = (screenPos[0] + screenPos[2]) >> 1;
     unsigned promptScreenY = screenPos[3] - OPEN_MENU_BOTTOM_OFFSET -  16;
     unsigned verticalCenter = (screenPos[1] + screenPos[3]) >> 1;
+    unsigned sizeY = screenPos[3] - screenPos[1];
 
     if (menu->flags & BaseCommandMenuFlagsAnimating) {
         float lerp = menu->openAnimation / OPEN_ANIMATION_TIME;
@@ -278,7 +280,10 @@ void baseCommandMenuRender(struct BaseCommandMenu* menu, struct RenderState* ren
         } else {
             baseCommandMenuRenderCommandSelect(menu, renderState, horizontalCenter, verticalCenter);
         }
-    } else if ((menu->flags & BaseCommandMenuFlagsShowingOpenCommand) && !(menu->flags & BaseCommandMenuFlagsForceHideOpenCommand) && menu->forBase) {
+    } else if (
+        (menu->flags & BaseCommandMenuFlagsShowingOpenCommand) && 
+        !(menu->flags & BaseCommandMenuFlagsForceHideOpenCommand) && menu->forBase &&
+        sizeY > SCREEN_HT / 2) {
         menuBorderRender(renderState, horizontalCenter - 30, promptScreenY - MENU_BORDER_WIDTH - 4, 60, 16 + MENU_BORDER_WIDTH + 8);
 
         struct SpriteTile spriteTile;

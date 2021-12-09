@@ -119,7 +119,7 @@ Themes:
           Output: ../../data/levels/Cluster/level.h
           MaxPlayers: 3
           Campaign: True
-          AIDifficulty: 0.7
+          AIDifficulty: 0.8
           Song: SOUNDS_LEVELMUSIC_FERMIPARADOX_MASTERED
 
         - Name: Perseverance

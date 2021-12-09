@@ -10,17 +10,17 @@ struct PlayerAttackInfo gDogAttacks[] = {
         DOGLOW_ARM1_BONE, 
         PlayerAttackPunchChain1,
         0,
-        1.5f,
+        2.2f,
         0.0f,
         {0.0f, 0.65f * SCENE_SCALE, 0.0f}, 
-        {{CollisionShapeTypeCircle}, 0.8f * SCENE_SCALE},
+        {{CollisionShapeTypeCircle}, 0.7f * SCENE_SCALE},
         &doglow_animations[DOGLOW_DOGLOW_ARMATURE_001_PUNCH_001_INDEX],
     },
     [PlayerAttackPunchChain1] = {
         DOGLOW_ARM2_BONE, 
         PlayerAttackPunchChain2,
         0,
-        2.0f,
+        2.5f,
         0.0f,
         {0.0f, 0.65f * SCENE_SCALE, 0.0f}, 
         {{CollisionShapeTypeCircle}, 0.8f * SCENE_SCALE},
@@ -30,10 +30,10 @@ struct PlayerAttackInfo gDogAttacks[] = {
         DOGLOW_ARM1_BONE, 
         0,
         0,
-        3.0f,
+        4.0f,
         10.0f,
         {0.0f, 0.65f * SCENE_SCALE, 0.0f}, 
-        {{CollisionShapeTypeCircle}, 1.0f * SCENE_SCALE},
+        {{CollisionShapeTypeCircle}, 1.2f * SCENE_SCALE},
         &doglow_animations[DOGLOW_DOGLOW_ARMATURE_001_PUNCH_003_INDEX],
     },
     [PlayerAttackJumpAttack] = {
@@ -83,14 +83,14 @@ struct SKAnimationEvent gDogAttack001Events[] = {
 };
 
 struct SKAnimationEvent gDogAttack002Events[] = {
-    {5, PLAYER_ATTACK_START_ID},
-    {8, PLAYER_ATTACK_WINDOW_ID},
-    {9, PLAYER_ATTACK_END_ID},
+    {4, PLAYER_ATTACK_START_ID},
+    {12, PLAYER_ATTACK_WINDOW_ID},
+    {14, PLAYER_ATTACK_END_ID},
 };
 
 struct SKAnimationEvent gDogAttack003Events[] = {
-    {4, PLAYER_ATTACK_START_ID},
-    {12, PLAYER_ATTACK_END_ID},
+    {7, PLAYER_ATTACK_START_ID},
+    {13, PLAYER_ATTACK_END_ID},
 };
 
 struct SKAnimationEvent gDogSpinAttackEvents[] = {
@@ -135,7 +135,8 @@ struct Faction gDogFaction = {
     .healthBarSourceY = 16,
     .moveSpeed = PLAYER_BASE_MOVE_SPEED,
     .accel = 20.0f,
-    .maxHP = 10.0f,
+    .maxHP = 14.0f,
+    .soundPitchScalar = 1.0f,
 
     .minionMesh = Minion_DogMinion_mesh,
     .endingCutsceneIndex = CutsceneIndexEnding,
@@ -146,7 +147,7 @@ struct PlayerAttackInfo gCatAttacks[] = {
         CATLOW_ARM1_BONE, 
         PlayerAttackPunchChain1,
         0,
-        1.2f,
+        1.0f,
         0.0f,
         {0.0f, 0.65f * SCENE_SCALE, 0.0f}, 
         {{CollisionShapeTypeCircle}, 0.7f * SCENE_SCALE},
@@ -156,7 +157,7 @@ struct PlayerAttackInfo gCatAttacks[] = {
         CATLOW_ARM2_BONE, 
         PlayerAttackPunchChain2,
         0,
-        1.5f,
+        1.6f,
         0.0f,
         {0.0f, 0.65f * SCENE_SCALE, 0.0f}, 
         {{CollisionShapeTypeCircle}, 0.7f * SCENE_SCALE},
@@ -166,10 +167,10 @@ struct PlayerAttackInfo gCatAttacks[] = {
         CATLOW_BOOT1_BONE, 
         0,
         0,
-        4.0f,
-        14.0f,
+        3.5f,
+        16.0f,
         {0.0f, 0.65f * SCENE_SCALE, 0.0f}, 
-        {{CollisionShapeTypeCircle}, 1.0f * SCENE_SCALE},
+        {{CollisionShapeTypeCircle}, 0.9f * SCENE_SCALE},
         &catlow_animations[CATLOW_CATLOW_ARMATURE_001_PUNCH_008_INDEX],
     },
     [PlayerAttackJumpAttack] = {
@@ -217,14 +218,14 @@ struct SKAnimationEvent gCatAttack001Events[] = {
 };
 
 struct SKAnimationEvent gCatAttack002Events[] = {
-    {5, PLAYER_ATTACK_START_ID},
-    {10, PLAYER_ATTACK_WINDOW_ID},
-    {11, PLAYER_ATTACK_END_ID},
+    {3, PLAYER_ATTACK_START_ID},
+    {8, PLAYER_ATTACK_WINDOW_ID},
+    {9, PLAYER_ATTACK_END_ID},
 };
 
 struct SKAnimationEvent gCatAttack003Events[] = {
     {4, PLAYER_ATTACK_START_ID},
-    {9, PLAYER_ATTACK_END_ID},
+    {8, PLAYER_ATTACK_END_ID},
 };
 
 struct SKAnimationEvent gCatSpinAttackEvents[] = {
@@ -257,9 +258,10 @@ struct Faction gCatFaction = {
         .walkSound = SOUNDS_DOG_WALKING_LOOP_1,
     },
     .healthBarSourceY = 0,
-    .moveSpeed = PLAYER_BASE_MOVE_SPEED * 1.3f,
+    .moveSpeed = PLAYER_BASE_MOVE_SPEED * 1.35f,
     .accel = 20.0f,
-    .maxHP = 8.0f,
+    .maxHP = 10.0f,
+    .soundPitchScalar = 1.6f,
 
     .minionMesh = Minion_CatMinion_mesh,
     .endingCutsceneIndex = CutsceneIndexEndingCat,

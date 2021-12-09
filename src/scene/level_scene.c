@@ -42,7 +42,7 @@
 struct LevelScene gCurrentLevel;
 
 void levelSceneInit(struct LevelScene* levelScene, struct LevelDefinition* definition, unsigned int playercount, unsigned aiPlayerMask, enum LevelMetadataFlags flags, float aiDifficulty) {
-    soundPlayerPlay(definition->song, 1.0f, SoundPlayerPriorityMusic, SoundPlayerFlagsIsMusic, 0);
+    soundPlayerPlay(definition->song, 1.0f, 1.0f, SoundPlayerPriorityMusic, SoundPlayerFlagsIsMusic, 0);
 
     struct Quaternion noRotation;
     quatIdent(&noRotation);
@@ -517,7 +517,7 @@ void levelSceneDeathSFX_Trigger(struct LevelScene* levelScene){
     for(unsigned i = 0; i < levelScene->playerCount; ++i){
         if(!playerIsAlive(&levelScene->players[i]) && !IS_PLAYER_AI(levelScene, i)){
             levelScene->deadPlayers[i] = 1;
-            soundPlayerPlay(SOUNDS_DEATHSFX, 1.0f, SoundPlayerPriorityPlayer, 0, 0);
+            soundPlayerPlay(SOUNDS_DEATHSFX, 1.0f, 1.0f, SoundPlayerPriorityPlayer, 0, 0);
         }
     }
 }
@@ -534,22 +534,31 @@ void levelSceneUpdate(struct LevelScene* levelScene) {
             if (controllerGetButtonDown(playerIndex, START_BUTTON) || 
                 (controllerGetButtonDown(playerIndex, A_BUTTON) && levelScene->pauseMenuSelection == 0)
                 ) {
-                soundPlayerPlay(SOUNDS_UI_SELECT2, 0.5f, SoundPlayerPriorityNonPlayer, 0, 0);
+                soundPlayerPlay(SOUNDS_UI_SELECT2, 0.5f, 1.0f, SoundPlayerPriorityNonPlayer, 0, 0);
                 togglePause = 1;
                 break;
             } else if (controllerGetButton(playerIndex, A_BUTTON) && levelScene->pauseMenuSelection == 1) {
-                soundPlayerPlay(SOUNDS_UI_SELECT2, 0.5f, SoundPlayerPriorityNonPlayer | SoundPlayerFlagsTransition, 0, 0);
-                sceneQueueLevelSelectScreen();
+                soundPlayerPlay(SOUNDS_UI_SELECT2, 0.5f, 1.0f, SoundPlayerPriorityNonPlayer | SoundPlayerFlagsTransition, 0, 0);
+
+                if (sceneIsCampaign()) {
+                    sceneQueuePostGameScreen(
+                        levelSceneMostWinningestAI(levelScene), 
+                        levelScene->playerCount, 
+                        levelScene->gameTimer
+                    );
+                } else {
+                    sceneQueueLevelSelectScreen();
+                }
                 break;
             }
 
             unsigned dir = controllerGetDirectionDown(playerIndex);
 
             if (dir & ControllerDirectionUp) {
-                soundPlayerPlay(SOUNDS_UI_SELECT2, 0.5f, SoundPlayerPriorityNonPlayer, 0, 0);
+                soundPlayerPlay(SOUNDS_UI_SELECT2, 0.5f, 1.0f, SoundPlayerPriorityNonPlayer, 0, 0);
                 levelScene->pauseMenuSelection = 0;
             } else if (dir & ControllerDirectionDown) {
-                soundPlayerPlay(SOUNDS_UI_SELECT2, 0.5f, SoundPlayerPriorityNonPlayer, 0, 0);
+                soundPlayerPlay(SOUNDS_UI_SELECT2, 0.5f, 1.0f, SoundPlayerPriorityNonPlayer, 0, 0);
                 levelScene->pauseMenuSelection = 1;
             }
         }
@@ -580,11 +589,13 @@ void levelSceneUpdate(struct LevelScene* levelScene) {
         levelScene->stateTimer -= gTimeDelta;
 
         if (levelScene->stateTimer < 0.0f) {
-            sceneQueuePostGameScreen(levelScene->winningTeam, levelScene->playerCount, levelScene->gameTimer - GAME_END_DELAY - GAME_START_DELAY);
+            sceneQueuePostGameScreen(levelScene->winningTeam, levelScene->playerCount, levelScene->gameTimer);
         }
     }
 
-    levelScene->gameTimer += gTimeDelta;
+    if (levelScene->state == LevelSceneStatePlaying) {
+        levelScene->gameTimer += gTimeDelta;
+    }
 
     if (!(levelScene->levelFlags & LevelMetadataFlagsTutorial)) {
         for (unsigned i = 0; i < levelScene->botsCount; ++i) {
@@ -612,7 +623,7 @@ void levelSceneUpdate(struct LevelScene* levelScene) {
         } else {
             ++humanIndex;
             if (controllerGetButtonDown(playerIndex, START_BUTTON) && levelScene->state == LevelSceneStatePlaying) {
-                soundPlayerPlay(SOUNDS_UI_SELECT2, 0.5f, SoundPlayerPriorityNonPlayer, 0, 0);
+                soundPlayerPlay(SOUNDS_UI_SELECT2, 0.5f, 1.0f, SoundPlayerPriorityNonPlayer, 0, 0);
                 togglePause = 1;
             }
         }
@@ -715,6 +726,17 @@ void levelSceneIssueMinionCommand(struct LevelScene* levelScene, unsigned follow
     }
 }
 
+unsigned levelSceneMostWinningestAI(struct LevelScene* levelScene) {
+    unsigned result = 1;
+
+    for (unsigned i = 2; i < levelScene->playerCount; ++i) {
+        if (levelScene->players[i].controlledBases > levelScene->players[result].controlledBases) {
+            result = i;
+        }
+    }
+    return result;
+}
+
 struct Vector3* levelSceneFindRespawnPoint(struct LevelScene* levelScene, struct Vector3* closeTo, unsigned team) {
     struct Vector3* result = 0;
     float score = 0.0;
@@ -751,13 +773,7 @@ int levelSceneFindWinningTeam(struct LevelScene* levelScene) {
     int result = -1;
 
     if (levelScene->humanPlayerCount == 1 && !playerIsAlive(&levelScene->players[0]) && levelScene->players[0].controlledBases == 0) {
-        result = 1;
-        for (unsigned i = 2; i < levelScene->playerCount; ++i) {
-            if (levelScene->players[i].controlledBases > levelScene->players[result].controlledBases) {
-                result = i;
-            }
-        }
-        return result;
+        return levelSceneMostWinningestAI(levelScene);
     }
 
     for (unsigned i = 0; i < levelScene->baseCount; ++i) {

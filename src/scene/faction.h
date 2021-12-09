@@ -84,6 +84,7 @@ struct Faction {
     float moveSpeed;
     float accel;
     float maxHP;
+    float soundPitchScalar;
 
     Gfx* minionMesh;
 

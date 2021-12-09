@@ -172,6 +172,6 @@ struct LevelDefinition Cluster_Definition = {
     .theme = &MarsTheme,
     .staticScene = {Cluster_Boundary, 4},
     .pathfinding = {.nodeCount = 7, .baseNodes = Cluster_BasesPathNodes, .nodeDistances = Cluster_NodeDistances, .nodePositions = Cluster_PathingNodes, .nextNode = Cluster_NextNode},
-    .aiDifficulty = 0.7,
+    .aiDifficulty = 0.8,
 };
 
