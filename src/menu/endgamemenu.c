@@ -192,7 +192,7 @@ void endGameMenuRender(struct EndGameMenu* menu, struct RenderState* renderState
 
     spriteFinish(renderState);
 
-    if (menu->gameTip < gLoseScreenTipCount) {
+    if (menu->gameTip < gLoseScreenTipCount && menu->state == EndGameStateLoaded) {
         graphicsCopyImage(
             renderState, 
             ArrowButtons_0_0, 

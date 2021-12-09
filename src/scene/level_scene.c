@@ -370,6 +370,7 @@ void levelSceneRender(struct LevelScene* levelScene, struct RenderState* renderS
         ++humanIndex;
     }
 
+    gDPPipeSync(renderState->dl++);
     gSPViewport(renderState->dl++, osVirtualToPhysical(&gFullScreenVP));
     gDPSetScissor(
         renderState->dl++, 

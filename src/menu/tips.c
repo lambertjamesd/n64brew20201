@@ -30,7 +30,7 @@ char* gLoseScreenTips[] = {
     "You take no damage while jumping",
 
     "Hold Z to swing the\n"
-    "camera behind player",
+    "camera behind the player",
 
     "Hold right trigger to\n"
     "view the map from above",

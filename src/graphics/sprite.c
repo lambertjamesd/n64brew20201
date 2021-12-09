@@ -212,6 +212,7 @@ void spriteFinish(struct RenderState* renderState)
         {
             gSPEndDisplayList(renderState->spriteState.currentLayerDL[i]++);
             if (renderState->spriteState.layerSetup[i]) {
+                gDPPipeSync(renderState->dl++);
                 gSPDisplayList(renderState->dl++, renderState->spriteState.layerSetup[i]);
             }
             gSPDisplayList(renderState->dl++, renderState->spriteState.layerDL[i]);
