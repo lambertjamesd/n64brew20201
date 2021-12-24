@@ -278,6 +278,7 @@ int aiPlannerIsPlanStillValid(struct LevelScene* levelScene, struct AIPlanner* p
 void aiPlannerImplementNextPlan(struct LevelScene* levelScene, struct AIPlanner* planner) {
     // exit early if there is no plan
     if (planner->nextPlan.planType == AIPlanTypeNone) {
+        aiPlannerReset(planner);
         return;
     }
 
@@ -292,6 +293,7 @@ void aiPlannerImplementNextPlan(struct LevelScene* levelScene, struct AIPlanner*
 
     // exit if no activePlan slot is avaialable
     if (!nextPlan) {
+        aiPlannerReset(planner);
         return;
     }
 
