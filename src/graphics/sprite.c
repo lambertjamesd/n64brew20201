@@ -6,41 +6,19 @@
 #include "util/time.h"
 #include "image.h"
 
-#define DL_CHUNK_SIZE       32
+#define DL_CHUNK_SIZE       64
 
 void spriteWriteRaw(struct RenderState* renderState, int layer, Gfx* src, int count)
 {
     while (count)
     {
         Gfx* current = renderState->spriteState.currentLayerDL[layer];
-        int capacity = DL_CHUNK_SIZE + renderState->spriteState.layerChunk[layer] - current;
+        int capacity = renderState->spriteState.currentChunkEnd[layer] - current;
 
-        if (!current || capacity == 1)
+        if (!current || capacity <= 1)
         {
-            Gfx* next = renderStateAllocateDLChunk(renderState, DL_CHUNK_SIZE);
-
-            if (current)
-            {
-                // check if the next chunk is adjacent in memory
-                if (current + 1 == next)
-                {
-                    *current++ = *src++;
-                    --count;
-                    --capacity;
-                }
-                else
-                {
-                    gSPBranchList(current++, next);
-                }
-            }
-            else
-            {
-                renderState->spriteState.layerDL[layer] = next;
-            }
-
-            renderState->spriteState.layerChunk[layer] = next;
-            renderState->spriteState.currentLayerDL[layer] = next;
-            current = next;
+            spritePreallocate(renderState, layer, DL_CHUNK_SIZE);
+            current = renderState->spriteState.currentLayerDL[layer];
         }
 
         while (count && capacity > 1)
@@ -56,6 +34,23 @@ void spriteWriteRaw(struct RenderState* renderState, int layer, Gfx* src, int co
 
 void spriteSetLayer(struct RenderState* renderState, int layer, Gfx* graphics) {
     renderState->spriteState.layerSetup[layer] = graphics;
+}
+
+void spritePreallocate(struct RenderState* renderState, int layer, int count) {
+    Gfx* next = renderStateAllocateDLChunk(renderState, count);
+    Gfx* current = renderState->spriteState.currentLayerDL[layer];
+
+    if (current)
+    {
+        gSPBranchList(current++, osVirtualToPhysical(next));
+    }
+    else
+    {
+        renderState->spriteState.layerDL[layer] = next;
+    }
+
+    renderState->spriteState.currentChunkEnd[layer] = next + count;
+    renderState->spriteState.currentLayerDL[layer] = next;
 }
 
 void spriteSolid(struct RenderState* renderState, int layer, int x, int y, int w, int h) {
@@ -186,7 +181,7 @@ void spriteInit(struct RenderState* renderState)
     {
         renderState->spriteState.layerDL[i] = 0;
         renderState->spriteState.currentLayerDL[i] = 0;
-        renderState->spriteState.layerChunk[i] = 0;
+        renderState->spriteState.currentChunkEnd[i] = 0;
         renderState->spriteState.layerColor[i] = gColorWhite;
     }
 }

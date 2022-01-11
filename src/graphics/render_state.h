@@ -15,7 +15,7 @@ struct SpriteState {
     struct Coloru8 layerColor[MAX_LAYER_COUNT];
     Gfx* layerDL[MAX_LAYER_COUNT];
     Gfx* currentLayerDL[MAX_LAYER_COUNT];
-    Gfx* layerChunk[MAX_LAYER_COUNT];
+    Gfx* currentChunkEnd[MAX_LAYER_COUNT];
 };
 
 struct RenderState {

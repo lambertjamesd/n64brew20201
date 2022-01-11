@@ -78,13 +78,13 @@ struct SKAnimationHeader* gDogAnimations[] = {
 
 struct SKAnimationEvent gDogAttack001Events[] = {
     {9, PLAYER_ATTACK_START_ID},
-    {13, PLAYER_ATTACK_WINDOW_ID},
+    {11, PLAYER_ATTACK_WINDOW_ID},
     {16, PLAYER_ATTACK_END_ID},
 };
 
 struct SKAnimationEvent gDogAttack002Events[] = {
     {4, PLAYER_ATTACK_START_ID},
-    {12, PLAYER_ATTACK_WINDOW_ID},
+    {6, PLAYER_ATTACK_WINDOW_ID},
     {14, PLAYER_ATTACK_END_ID},
 };
 
@@ -213,13 +213,13 @@ struct SKAnimationHeader* gCatAnimations[] = {
 
 struct SKAnimationEvent gCatAttack001Events[] = {
     {7, PLAYER_ATTACK_START_ID},
-    {11, PLAYER_ATTACK_WINDOW_ID},
+    {9, PLAYER_ATTACK_WINDOW_ID},
     {13, PLAYER_ATTACK_END_ID},
 };
 
 struct SKAnimationEvent gCatAttack002Events[] = {
     {3, PLAYER_ATTACK_START_ID},
-    {8, PLAYER_ATTACK_WINDOW_ID},
+    {5, PLAYER_ATTACK_WINDOW_ID},
     {9, PLAYER_ATTACK_END_ID},
 };
 

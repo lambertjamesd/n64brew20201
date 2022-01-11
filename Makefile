@@ -237,3 +237,8 @@ build/musicpatch.zip: $(BASE_TARGET_NAME).z64 \
 	# cp -r tools/makemask.exe build/musicpatch/tools
 
 	zip -r build/musicpatch.zip build/musicpatch/
+
+
+.PHONY: copy-to-server
+copy-to-server: build/moba64.z64
+	echo put build/moba64.z64 web/share/moba64.z64 | sftp lambertjamesd@lambertjamesd.com

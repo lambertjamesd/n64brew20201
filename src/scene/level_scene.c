@@ -217,13 +217,17 @@ void levelSceneRenderPauseMenu(struct LevelScene* levelScene, struct RenderState
     );
 }
 
+#define DL_PER_SOLID_SPRITE 5
+
 void levelSceneRender(struct LevelScene* levelScene, struct RenderState* renderState) {
     spriteSetLayer(renderState, LAYER_SOLID_COLOR, gUseSolidColor);
+    spritePreallocate(renderState, LAYER_SOLID_COLOR, DL_PER_SOLID_SPRITE * (levelScene->minionCount + levelScene->baseCount + 5));
     spriteSetLayer(renderState, LAYER_MENU_BORDER, gUseMenuBorder);
     spriteSetLayer(renderState, LAYER_BUTTONS, gUseButtonsIcon);
     spriteSetLayer(renderState, LAYER_COMMAND_BUTTONS, gUseCommandsTexture);
     spriteSetLayer(renderState, LAYER_KICKFLIP_NUMBERS_FONT, gUseKickflipNumbersFont);
     spriteSetLayer(renderState, LAYER_KICKFLIP_FONT, gUseKickflipFont);
+    spritePreallocate(renderState, LAYER_KICKFLIP_FONT, 128);
     spriteSetLayer(renderState, LAYER_HEALTH_BAR, gUseHealthBar);
 
     // render minions
@@ -380,6 +384,15 @@ void levelSceneRender(struct LevelScene* levelScene, struct RenderState* renderS
         SCREEN_WD,
         SCREEN_HT
     );
+
+    if (humanIndex == 3) {
+        gDPSetCycleType(renderState->dl++, G_CYC_FILL);
+        gDPSetFillColor(renderState->dl++, 0);
+        gDPFillRectangle(renderState->dl++, SCREEN_WD / 2, SCREEN_HT / 2, SCREEN_WD-1, SCREEN_HT-1);
+        gDPPipeSync(renderState->dl++);
+        gDPSetCycleType(renderState->dl++, G_CYC_1CYCLE); 
+
+    }
 
     minimapRender(levelScene, renderState, gViewportPosition[levelScene->humanPlayerCount-1].minimapLocation);
 

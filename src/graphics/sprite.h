@@ -28,6 +28,7 @@ char y;
 
 void spriteWriteRaw(struct RenderState* renderState, int layer, Gfx* src, int count);
 void spriteSetLayer(struct RenderState* renderState, int layer, Gfx* graphics);
+void spritePreallocate(struct RenderState* renderState, int layer, int count);
 void spriteTextureRectangle(struct RenderState* renderState, int layer, int x, int y, int w, int h, int sx, int sy, int dsdx, int dsdy);
 void spriteSolid(struct RenderState* renderState, int layer, int x, int y, int w, int h);
 void spriteCopyImage(struct RenderState* renderState, int layer, void* image, int iw, int ih, int x, int y, int w, int h, int sx, int sy);
