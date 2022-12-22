@@ -18,7 +18,7 @@ static ALSeqMarker seqEnd;
 
 ALHeap             gAudioHeap;
 
-void initAudio(void) 
+void initAudio(int fps) 
 {
     ALBankFile    *bankPtr;
     u32           bankLen;
@@ -59,7 +59,7 @@ void initAudio(void)
     amc.framesPerField = NUM_FIELDS;
     amc.maxACMDSize = MAX_RSP_CMDS;
  
-    amCreateAudioMgr(&c, AUDIO_PRIORITY, &amc);
+    amCreateAudioMgr(&c, AUDIO_PRIORITY, &amc, fps);
     
     /*
      * Create the sequence and the sequence player

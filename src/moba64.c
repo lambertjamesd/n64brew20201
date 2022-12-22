@@ -19,6 +19,8 @@
 #include "scene/faction.h"
 #include "savefile/savefile.h"
 
+#include <math.h>
+
 /**** threads used by this file ****/
 static OSThread gameThread;
 static OSThread initThread;
@@ -187,10 +189,13 @@ static void initGame(void)
     /**** Add ourselves to the scheduler to receive retrace messages ****/
     osScAddClient(&sc, &gfxClient, &gfxFrameMsgQ);  
 
+    int fps = 60;
+
     OSViMode *mode;
     switch (osTvType) {
         case OS_TV_PAL:
             mode = &osViModePalLpn1;
+            fps = 50;
         break;
         default:
         case OS_TV_NTSC:
@@ -215,7 +220,7 @@ static void initGame(void)
     initGFX();
     controllersInit();
     saveFileLoad();
-    initAudio();
+    initAudio(fps);
     soundPlayerInit();
     sceneQueueIntro();
 

@@ -41,7 +41,7 @@ extern char _logoJingleSegmentRomStart[], _logoJingleSegmentRomEnd[];
 extern char _bankSegmentRomStart[], _bankSegmentRomEnd[];
 
 
-void     initAudio(void);
+void     initAudio(int fps);
 void    initGFX();
 void     createGfxTask(GFXInfo *i);
 
